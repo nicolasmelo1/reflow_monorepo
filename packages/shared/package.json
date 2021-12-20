@@ -1,0 +1,8 @@
+{
+  "name": "shared",
+  "version": "0.0.0",
+  "description": "This will hold shared logic between the server and the front so we can optimize our development speed in ways it was unimanigable",
+  "main": "./index.js",
+  "author": "Reflow Desenvolvimento de Software LTDA",
+  "license": "ISC"
+}

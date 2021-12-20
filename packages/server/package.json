@@ -1,0 +1,18 @@
+{
+    "name": "server",
+    "version": "0.0.0",
+    "description": "\"The server of reflow. It is a customized express App that will feel like home for django developers\"",
+    "main": "index.js",
+    "scripts": {
+        "dev": "node app.js"
+    },
+    "keywords": [
+        "reglow",
+        "server"
+    ],
+    "author": "Reflow Desenvolvimento de Software LTDA",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.17.2"
+    }
+}
