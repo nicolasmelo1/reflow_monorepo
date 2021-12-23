@@ -9,7 +9,15 @@
     "build": "turbo run build",
     "web:dev": "turbo run dev web:dev --parallel",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "uninstall:client:desktop": "npm uninstall --prefix packages/client/desktop",
+    "uninstall:client:mobile": "npm uninstall --prefix packages/client/mobile",
+    "uninstall:client:web": "npm uninstall --prefix packages/client/web",
+    "install:client:desktop": "npm install --prefix packages/client/desktop",
+    "install:client:mobile": "npm install --prefix packages/client/mobile",
+    "install:client:web": "npm install --prefix packages/client/web",
+    "uninstall:server": "npm uninstall --prefix packages/server",
+    "install:server": "npm install --prefix packages/server"
   },
   "devDependencies": {
     "prettier": "^2.5.1",
