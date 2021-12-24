@@ -1,3 +1,6 @@
 export default {
-    labelName: ''
+    sidebarHelloName: 'Olá, ',
+    sidebarQuickSearchButtonLabel: 'Pesquisa Rápida',
+    sidebarHistoryButtonLabel: 'Histórico',
+    sidebarSettingsButtonLabel: 'Configurações',
 }

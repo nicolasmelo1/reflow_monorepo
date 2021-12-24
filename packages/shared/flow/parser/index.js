@@ -302,7 +302,6 @@ class Parser {
                     await this.getNextToken(TokenType.COLON)
                     return new nodes.Raise(await this.expression(), messageOrType)
                 } else {
-                    console.log(this.currentToken.position)
                     await FlowError.new(this.settings, SYNTAX, 
                         `Error type should be a string.\n`+
                         `${getErrorCodeContext(this.currentToken.position-3, this.lexer.rawExpression)}`)

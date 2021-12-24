@@ -1,4 +1,10 @@
 import { useEffect } from 'react'
+import Body from '../components/Body'
+import { configureConf } from '../../shared/conf'
+
+configureConf({
+    apiHost: process.env.API_HOST
+})
 
 /**
  * This will override the default app implementation of next. This was actually created by default when we created
@@ -29,7 +35,9 @@ function MyApp({ Component, pageProps } = {}) {
     }, [])
 
     return (
-        <Component {...pageProps} />
+        <Body>
+            <Component {...pageProps} />
+        </Body>
     )
 }
 

@@ -1,10 +1,10 @@
 import { View } from 'react-native'
 
-function MobileLayoutSidebar(props) {
+function SidebarMobileLayout(props) {
     return (
         <View>
         </View>
     )
 }
 
-export default MobileLayoutSidebar
+export default SidebarMobileLayout
