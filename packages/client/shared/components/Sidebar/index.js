@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Layouts from './layouts'
-import { API_HOST } from '../../conf'
+import sidebarAgent from './agent'
 
 const workspacesMock = [{
     id: 1,
@@ -92,7 +92,7 @@ function Sidebar(props) {
 
     useEffect(() => {
         defineWidthOfSidebar()
-        console.log(API_HOST)
+        sidebarAgent.testToken()
     }, [])
 
     return process.env['APP'] === 'web' ? (

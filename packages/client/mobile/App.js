@@ -1,22 +1,32 @@
-import { StatusBar } from 'expo-status-bar'
-import { StyleSheet, Text, View } from 'react-native'
-import Button from '../shared/Button'
+import Main from './components/Main'
+import { NavigationContainer } from '@react-navigation/native'
+import GlobalProvider from '../shared/components/Core/contexts'
+import * as Linking from 'expo-linking'
 
 export default function App() {
+    const linking = {
+        prefixes: [Linking.makeUrl('/')],
+        config: {
+            screens: {
+                Login: {
+                    path: 'login'
+                },
+                Teste: {
+                    path: 'teste'
+                },
+                Home: {
+                    path: 'home'
+                }
+            }
+        }
+    }
+
+    Linking.getInitialURL().then(response => console.log(response))
     return (
-        <View style={styles.container}>
-            <Text>Open up App.js to start working on your app!</Text>
-            <StatusBar style="auto" />
-            <Button/>
-        </View>
+        <GlobalProvider.Provider>
+            <NavigationContainer linking={linking}>
+                <Main/>
+            </NavigationContainer>
+        </GlobalProvider.Provider>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-})

@@ -31,9 +31,12 @@ library.add(faChevronDown, faChevronLeft, faChevronRight, faSearch, faHistory, f
  * @returns {import('React').Component} - Returns a React component. Can be either a mobile component or a web component.
  */
 function Layout(props) {
-    const { state: { isAuthenticated }, setIsAuthenticated } = useContext(AuthenticationContext) 
+    const { setIsAuthenticated } = useContext(AuthenticationContext) 
     const redirect = useRouterOrNavigationRedirect()
 
+    /**
+     * This will redirect the user back to the login page so he needs to make the login again inside of the application.
+     */
     function redirectToLogin() {
         redirect(paths.login.asUrl)
     }

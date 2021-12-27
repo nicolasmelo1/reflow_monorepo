@@ -48,8 +48,6 @@ const dynamicImport = (module, alias='default') => {
         try {
             // update here to add new packages for web
             const packages = {
-                'credit-card-type': require('credit-card-type'),
-                'chart.js': require('chart.js'),
                 'next/router': require('next/router'),
                 'next/link': require('next/link')
             }

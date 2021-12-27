@@ -10,7 +10,7 @@ const useRouter = dynamicImport('next/router', 'useRouter')
  * if it's on the mobile version.
  */
 export default function useRouterOrNavigationRedirect() {
-    if (process.env.NODE_ENV === 'web') {
+    if (process.env['APP'] === 'web') {
         const router = useRouter()
         return router.push
     } else {

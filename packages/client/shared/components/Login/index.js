@@ -2,6 +2,7 @@ import { useState, useContext } from 'react'
 import Layouts from './layouts'
 import loginAgent from './agent'
 import AuthenticationContext from './contexts/authentication'
+import { setTokens } from '../../utils/agent/utils'
 
 const Login = (props) => {
     const { setIsAuthenticated } = useContext(AuthenticationContext) 
@@ -12,7 +13,9 @@ const Login = (props) => {
         loginAgent.authenticate(username, password).then(response => {
             if (response && response.status === 200) {
                 setIsAuthenticated(true)
-                props.onLoginSuccessful()
+                setTokens(response.data.data.accessToken, response.data.data.refreshToken).then(() => {
+                    props.onLoginSuccessful()
+                })
             }
         })
     }
