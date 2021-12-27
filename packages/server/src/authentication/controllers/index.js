@@ -5,28 +5,25 @@ const status = require('../../../config/status')
 
 const { User } = require('../models')
 const { reflowJSONError } = require('../../core/services')
-const { UserService } = require('../services')
-const Encrypt = require('../../core/utils/encrypt')
 const { JWT } = require('../utils')
 const { 
     LoginInputSerializer, 
-    LoginOutputSerializer, 
-    ForgotPasswordInputSerializer,
-    ChangePasswordInputSerializer,
-    RefreshTokenOutputSerializer,
+    LoginOutputSerializer,
+    RefreshTokenOutputSerializer
 } = require('../serializers')
 
 //------------------------------------------------------------------------------
 /**
- * Handles the login of the user in reflow, this gives the user the last access formulary
- * the access token and the refresh token and also the companyId Encrypted.
+ * Handles the login of the user in reflow, this gives the user 
+ * the access token and the refresh token.
  */
 class LoginController extends controllers.Controller {
     inputSerializer = LoginInputSerializer
     outputSerializer = LoginOutputSerializer
 
     /**
-     * Authenticate the user based on email and login and returns information about the user as well as jwt tokens.
+     * Authenticate the user based on email or username and login.
+     * If login information is valid we return to him the jwt tokens.
      */
     async post(req, res, next) {   
         const serializer = new this.inputSerializer({ data: req.body })
@@ -37,9 +34,6 @@ class LoginController extends controllers.Controller {
             if (req.user !== null) {
                 const responseSerializer = new this.outputSerializer({
                     instance: {
-                        companyId: Encrypt.encrypt(req.user.companyId),
-                        formName: '',
-                        user: req.user,
                         accessToken: accessToken,
                         refreshToken: refreshToken
                     }
@@ -86,36 +80,6 @@ class ForgotPasswordController extends controllers.Controller {
 }
 //------------------------------------------------------------------------------
 /**
- * Controller that recieves a temporary password and a new password and changes the user password to the new password.
- */
-class ChangePasswordController extends controllers.Controller {
-    inputSerializer = ChangePasswordInputSerializer
-
-    /**
-     * Recieves a json containing the temporary password and the new password.
-     */
-    async post(req, res, next, transaction) {
-        const serializer = new this.inputSerializer({ data: req.body })
-        if (await serializer.isValid()) {
-            await serializer.toSave(transaction)
-            res.status(status.HTTP_200_OK).json({
-                status: 'ok'
-            })
-        } else {
-            const error = serializer.error()
-            res.status(status.HTTP_403_FORBIDDEN).json({
-                status: 'error',
-                error: reflowJSONError({
-                    reason: error.errorKey ? error.errorKey : error.reason,
-                    detail: error.detail ? error.detail : error.reason,
-                    metadata: error.fieldName ? { fieldName: error.fieldName } : {}
-                })
-            })
-        }
-    }
-}
-//------------------------------------------------------------------------------
-/**
  * Controller that refreshes a token and sends a new token and a new refresh token to the user.
  * This is also responsible for updating the lastLogin of the user since the user stays logged in 
  * for a long time.
@@ -134,7 +98,8 @@ class RefreshTokenController extends controllers.Controller {
         if (jwt.isValid()) {
             const user = await User.AUTHENTICATION.userById(jwt.data.id)
             if (user !== null && jwt.data.type === 'refresh') {
-                const newTokenAndRefreshToken = await UserService.updateRefreshTokenAndUserLastLogin(user.id, transaction)
+                const newTokenAndRefreshToken = ''
+                //const newTokenAndRefreshToken = await UserService.updateRefreshTokenAndUserLastLogin(user.id, transaction)
                 const responseSerializer = new this.outputSerializer({
                     instance: newTokenAndRefreshToken
                 })
@@ -171,7 +136,7 @@ class TestTokenController extends controllers.Controller {
      * We don't validate the token here, we validate using jwtRequiredMiddleware(), we just return a ok response
      */
     async get(req, res, next) {
-        res.status(status.HTTP_200_OK).json({
+        return res.status(status.HTTP_200_OK).json({
             status: 'ok'
         })
     }
@@ -179,8 +144,6 @@ class TestTokenController extends controllers.Controller {
 
 module.exports = {
     LoginController,
-    ForgotPasswordController,
-    ChangePasswordController,
     RefreshTokenController,
     TestTokenController
 }

@@ -1,5 +1,5 @@
-const sum = require('./sum')
+const evaluateFlow = require('./flow')
 
 module.exports = {
-    sum
+    evaluateFlow
 }

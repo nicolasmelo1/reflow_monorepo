@@ -167,7 +167,7 @@ const getDifferenceFromAttributes = (differences, appNameByModelName, modelName,
 
     const callbackIfCreated = (originalAttributeName, originalAttributeObject) => {
         if (originalAttributeObject.defaultValue === undefined && originalAttributeObject.allowNull === false) {
-            if (!asker.theNewAttributeCantHaveNullDoYouWishToContinue(originalAttributeName)) {
+            if (!asker.theNewAttributeCantHaveNullDoYouWishToContinue(modelName, originalAttributeName)) {
                 return process.exit(1)
             }
         } 

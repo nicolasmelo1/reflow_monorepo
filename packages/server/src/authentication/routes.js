@@ -10,8 +10,6 @@ const {
 
 const { 
     LoginController, 
-    ForgotPasswordController,
-    ChangePasswordController,
     RefreshTokenController,
     TestTokenController,
 } = require('./controllers')
@@ -23,9 +21,7 @@ const loginRequiredRoutes = [
 
 const routes = [
     path('/login', LoginController.asController()),
-    path('/forgot', ForgotPasswordController.asController()),
     path('/refresh_token', RefreshTokenController.asController()),
-    path('/change_password', ChangePasswordController.asController()),
     ...loginRequiredRoutes
 ]
 

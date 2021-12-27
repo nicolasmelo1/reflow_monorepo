@@ -4,6 +4,9 @@ const { settings } = require('../../config/conf')
 const { models } = require('../../config/database')
 const AbstractUser = require('../../config/authentication/user')
 
+const { 
+    UserAuthenticationManager 
+} = require('./managers')
 
 /**
  * This type is used to define the internationalization, everything will be tied to a specific location, for example: Brazil,
@@ -54,9 +57,9 @@ class ProfileType extends models.Model {
  */
 class AddressHelper extends models.Model {
     attributes = {
-        locationType: new models.fields.ForeignKey({
-            relatedModel: 'LocationType',
-            onDelete: models.ON_DELETE.CASCADE
+        locationType: new models.fields.ForeignKeyField({
+            relatedTo: 'LocationType',
+            onDelete: models.fields.ON_DELETE.CASCADE
         }),
         countryCode: new models.fields.CharField({maxLength: 50}),
         countryName: new models.fields.CharField({maxLength: 200}),
@@ -88,7 +91,7 @@ class User extends models.Model {
         isSuperuser: new models.fields.BooleanField({ defaultValue: false }),
         firstName: new models.fields.TextField(),
         lastName: new models.fields.TextField(),
-        email: new models.fields.TextField(),
+        email: new models.fields.TextField({ unique: true }),
         isStaff: new models.fields.BooleanField({ defaultValue: false }),
         tempPassword: new models.fields.CharField({maxLength: 250, defaultValue: null, allowNull: true, allowBlank: true})
     }
@@ -96,6 +99,8 @@ class User extends models.Model {
     options = {
         tableName: 'user'
     }
+
+    static AUTHENTICATION = new UserAuthenticationManager()
 } 
 
 /**
@@ -136,20 +141,21 @@ class Workspace extends models.Model {
 class UserWorkspaces extends models.Model {
     attributes = {
         user: new models.fields.ForeignKeyField({
-            relatedModel: 'User',
+            relatedTo: 'User',
             onDelete: models.fields.ON_DELETE.CASCADE
         }),
         workspace: new models.fields.ForeignKeyField({
-            relatedModel: 'Workspace',
+            relatedTo: 'Workspace',
             onDelete: models.fields.ON_DELETE.CASCADE
         }),
         profileType: new models.fields.ForeignKeyField({
-            relatedModel: 'ProfileType',
+            relatedTo: 'ProfileType',
             onDelete: models.fields.ON_DELETE.CASCADE
         }),
         dateJoined: new models.fields.DatetimeField({ autoNowAdd: true, allowNull: true}),
         isActive: new models.fields.BooleanField({ defaultValue: true })
     }
+
     options = {
         tableName: 'user_workspaces',
     }

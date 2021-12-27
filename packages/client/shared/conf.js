@@ -15,7 +15,5 @@ function configureConf({ apiHost } = {}) {
     API_HOST = apiHost
 }
 
-module.exports = {
-    API_HOST,
-    configureConf
-}
+export { API_HOST }
+export { configureConf }

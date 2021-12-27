@@ -13,6 +13,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-native-fontawesome": "^0.2.7",
+    "axios": "^0.24.0",
     "expo": "~44.0.0",
     "expo-status-bar": "~1.2.0",
     "metro": "^0.66.2",

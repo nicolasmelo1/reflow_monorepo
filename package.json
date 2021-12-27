@@ -8,6 +8,8 @@
   "scripts": {
     "build": "turbo run build",
     "web:dev": "turbo run dev web:dev --parallel",
+    "server:makemigrations": "turbo run makemigrations --parallel",
+    "server:migrate": "turbo run migrate --parallel",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "uninstall:client:desktop": "npm uninstall --prefix packages/client/desktop",
@@ -41,6 +43,18 @@
         "cache": false
       },
       "web:dev": {
+        "dependsOn": [
+          "^build"
+        ],
+        "cache": false
+      },
+      "makemigrations": {
+        "dependsOn": [
+          "^build"
+        ],
+        "cache": false
+      },
+      "migrate": {
         "dependsOn": [
           "^build"
         ],

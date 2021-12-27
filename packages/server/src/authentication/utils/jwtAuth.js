@@ -105,7 +105,6 @@ class JWT {
      * @returns {string} - the generated token.
      */
     static getRefreshToken(userId) {
-        
         const expiryDays = 60
         const expiryDate = new Date()
         expiryDate.setDate(expiryDate.getDate() + expiryDays)

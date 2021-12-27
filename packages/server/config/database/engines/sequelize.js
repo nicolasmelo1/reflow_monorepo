@@ -401,6 +401,8 @@ class SequelizeEngine extends Engine {
         let filteredRelatedFieldsNotReadyToEvaluate = []
         for (let i=0; i<this.#relatedFieldsToEvaluate.length; i++) {
             const relationToEvaluate = this.#relatedFieldsToEvaluate[i]
+            if (relationToEvaluate.relatedTo === undefined) throw new Error(`The 'relatedTo' parameter is obligatory in relations. You forgot to define it in '${relationToEvaluate.fromModel}' model on the` +
+                ` '${relationToEvaluate.fieldName}' column.`)
             const relatedToModelName = typeof(relationToEvaluate.relatedTo) === 'string' ? relationToEvaluate.relatedTo : relationToEvaluate.relatedTo.name
             
             if (definedModelNames.includes(relatedToModelName)){

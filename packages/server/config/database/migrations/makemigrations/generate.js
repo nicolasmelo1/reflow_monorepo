@@ -4,7 +4,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const dedent = require('../../../../utils/dedent')
+const dedent = require('../../../utils/dedent')
 const { retrieveMigrations } = require('../../helpers')
 const { reorderMigrations } = require('../order')
 const logger = require('../../../logging')

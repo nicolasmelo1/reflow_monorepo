@@ -1,12 +1,46 @@
 import axios from 'axios'
 import { API_HOST } from '../../conf'
-
+import { exceptionObserver, getToken } from './utils'
 
 const getUrl = (path) => {
     return `${API_HOST}${path}`
 }
 
 const requests = {
+    request: async (url, method, { data=null, headers=null, params=null, source=null }={}) => {
+        let isToMakeRequestAgain = false
+        
+        function makeRequestAgain() { isToMakeRequestAgain = true }
+
+        if (source === null) {
+            const CancelToken = axios.CancelToken
+            source = new CancelToken(function (_) {})
+        }
+        try {
+            const requestOptions = {
+                method: method,
+                url: getUrl(url),
+                cancelToken: source.token,
+                headers: {
+                    'Authorization': `Client ${await getToken()}`,
+                }
+            }
+            if (headers !== null) requestOptions.headers = { ...requestOptions.headers, ...headers}
+            if (data !== null) requestOptions.data = data
+            if (params !== null) requestOptions.params = params
+
+            return await axios.request(requestOptions)
+        } catch (exception) {
+            if (!axios.isCancel(exception)) {
+                await exceptionObserver.fireHandlers(exception.response, makeRequestAgain)
+                if (isToMakeRequestAgain === true) {
+                    return requests.request(url, method, { data, headers, params, source })
+                } else {
+                    return exception.response
+                }
+            }
+        }
+    },
     /**
      * This will run a DELETE request for deleting an instance of something.
      * 
@@ -22,23 +56,8 @@ const requests = {
      * 
      * @returns {import('axios').Response} - An axios response which will contain the data.
      */
-    delete: async ({ url, params={}, headers={}, source=null } = {}) => {   
-        if (!source) {
-            const CancelToken = axios.CancelToken
-            source = new CancelToken(function (_) {})
-        }
-        try {
-            return await axios.delete(getUrl(url), {
-                params: params,
-                headers: Object.assign(setHeader(await getToken()), headers),
-                cancelToken: source.token
-            })
-        }
-        catch (exception) {
-            if (!axios.isCancel(exception)) {
-                return await exceptionHandler(exception.response, requests.delete, url, params, headers)
-            }
-        }
+    delete: async (url, { params=null, headers={}, source=null } = {}) => {   
+        return await requests.request(url, 'DELETE', { params, headers, source })
     },
     /**
      * This will run a GET request for retrieving an instance of something.
@@ -55,57 +74,15 @@ const requests = {
      * 
      * @returns {import('axios').Response} - An axios response which will contain the data.
      */
-    get: async ({ url, params={}, headers={}, source=null } = {}) => {
-        // sources are available only in get requests, use them wiselly. With them you can cancel the request on the unmount of a component 
-        // or when you change some data in your component. It's a really powerful tool to increase perfomance and mitigate possible bugs.
-        if (!source) {
-            const CancelToken = axios.CancelToken
-            source = new CancelToken(function (_) {})
-        }
-        try {
-            return await axios.get(getUrl(url), {
-                params: params,
-                headers: Object.assign(setHeader(await getToken()), headers),
-                cancelToken: source.token
-            })
-        }
-        catch (exception) {
-            if (!axios.isCancel(exception)) {
-                return await exceptionHandler(exception.response, requests.get, url, params, headers)
-            }
-        }
+    get: async (url, { params={}, headers={}, source=null } = {}) => {
+        return await requests.request(url, 'GET', { params, headers, source })
     },
-    put: async ({ url, body={}, headers={}, source=null } = {}) => {
-        if (!source) {
-            const CancelToken = axios.CancelToken
-            source = new CancelToken(function (_) {})
-        }
-        try {
-            return await axios.put(getUrl(url), body, { 
-                headers: Object.assign(setHeader(await getToken()), headers),
-                cancelToken: source.token
-            })
-        }
-        catch (exception) {
-            return await exceptionHandler(exception.response, requests.put, url, body, headers)
-        }
+    put: async (url, { body={}, headers={}, source=null } = {}) => {
+        return await requests.request(url, 'PUT', { data: body, headers, source })
     },
-    post: async ({ url, body={}, headers={}, source=null } = {}) => {
-        if (!source) {
-            const CancelToken = axios.CancelToken
-            source = new CancelToken(function (_) {})
-        }
-        try {
-            return await axios.post(getUrl(url), body, { 
-                headers: Object.assign(setHeader(await getToken()), headers),
-                cancelToken: source.token
-            })
-        }
-        catch (exception) {
-            if (!axios.isCancel(exception)) {
-                return await exceptionHandler(exception.response, requests.post, url, body, headers)
-            }
-        }
+    post: async (url, { body={}, headers={}, source=null } = {}) => {
+        return await requests.request(url, 'POST', { data: body, headers, source })
     }
 }
-    
+
+export default requests

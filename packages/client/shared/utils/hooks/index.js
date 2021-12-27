@@ -1,0 +1,1 @@
+export { default as useRouterOrNavigationRedirect } from './useRouterOrNavigationRedirect'

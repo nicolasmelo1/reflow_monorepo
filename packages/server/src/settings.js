@@ -10,7 +10,9 @@ const BASE_PATH = path.dirname(path.resolve(__dirname))
 const ROOT_URLCONF = BASE_PATH + '/src/routes'
 
 const INSTALLED_APPS = [
-    'src/core'
+    'src/core',
+    'src/authentication', 
+    'src/areas'
 ]
 
 const WEBSOCKETS = {
@@ -52,15 +54,15 @@ const EVENTS = {
     /*userStartedOnboarding: {
         dataParameters: ['visitorId'],
         consumers: [require('./analytics/events').AnalyticsEvents]
-    },*/
+    },
     userOnboarding: {
         dataParameters: ['userId', 'companyId', 'visitorId'],
         consumers: ['src/analytics/events/AnalyticsEvents']
-    },/*
+    },
     userLogin: {
         dataParameters: ['userId', 'companyId'],
         consumers: [require('./analytics/events').AnalyticsEvents]
-    },*/
+    },
     userRefreshToken: {
         dataParameters: ['userId', 'companyId'],
         consumers: ['src/analytics/events/AnalyticsEvents']
@@ -104,11 +106,11 @@ const EVENTS = {
     updatedBillingInformation: {
         dataParameters: ['userId', 'companyId', 'totalPayingValue'],
         consumers: [require('./analytics/events').AnalyticsEvents, require('./billing/events').BillingBroadcastEvent]
-    },*/
+    },
     companyInformationUpdated: {
         dataParameters: ['userId', 'companyId'],
         consumers: ['src/analytics/events/AnalyticsEvents', 'src/authentication/events/AuthenticationBroadcastEvent']
-    }/*,
+    },
     removedOldDraft: {
         dataParameters: ['userId', 'companyId', 'draftId', 'draftIsPublic'],
         consumers: [require('./analytics/events').AnalyticsEvents, require('./draft/events').DraftBroadcastEvent]

@@ -3,8 +3,8 @@
 const status = require('../../config/status')
 const websocket = require('../../config/websockets')
 
-const { JWT, isValidUUID } = require('./utils')
-const { User, PublicAccess } = require('./models')
+const { JWT } = require('./utils')
+const { User } = require('./models')
 const { Encrypt } = require('../core/utils')
 const { reflowJSONError } = require('../core/services')
 const { validatePermissionsFromRequest, PermissionsError } = require('../core/permissions')

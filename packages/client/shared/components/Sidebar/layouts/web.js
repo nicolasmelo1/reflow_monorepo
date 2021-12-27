@@ -1,33 +1,57 @@
+import { Fragment } from 'react'
 import Styled from '../styles'
 import { strings } from '../../../utils/constants'
 
 function SidebarWebLayout(props) {
     return (
-        <Styled.Container>
+        <Styled.Container
+        onMouseOver={() => props.onPreventSidebarCollapse(true)}
+        onMouseOut={() => props.onPreventSidebarCollapse(false)}
+        isFloating={props.isFloating}
+        isOpen={props.isOpen}
+        sidebarWidth={props.sidebarWidth}
+        >
             <Styled.TopItemsContainer>
-                <Styled.UserInfoContainer>
-                    <div
-                    style={{
-                        backgroundColor: 'black',
-                        height: '20px',
-                        width: '20px'
-                    }}
-                    />
-                    <Styled.UserNameContainer>
-                        <Styled.UserHelloAndNameText>
-                            <span>{strings('pt-BR', 'sidebarHelloName')}</span>
-                            <Styled.UserNameText>
-                                {'Nicolas Leal'}
-                            </Styled.UserNameText>
-                        </Styled.UserHelloAndNameText>
-                        <Styled.UserEmailText>
-                            {'nicolas.melo@reflow.com.br'}
-                        </Styled.UserEmailText>
-                    </Styled.UserNameContainer>
-                    <Styled.UserDropdownButton>
-                        <Styled.UserDropdownButtonIcon icon={'chevron-down'}/>
-                    </Styled.UserDropdownButton>
-                </Styled.UserInfoContainer>
+                <Styled.UserInfoAndCloseSidebarButtonContainer>
+                    <Styled.UserInfoContainer>
+                        <div
+                        style={{
+                            backgroundColor: 'black',
+                            height: '20px',
+                            width: '20px'
+                        }}
+                        />
+                        <Styled.UserNameContainer>
+                            <Styled.UserHelloAndNameText>
+                                <span>{strings('pt-BR', 'sidebarHelloName')}</span>
+                                <Styled.UserNameText>
+                                    {'Nicolas Leal'}
+                                </Styled.UserNameText>
+                            </Styled.UserHelloAndNameText>
+                            <Styled.UserEmailText>
+                                {'nicolas.melo@reflow.com.br'}
+                            </Styled.UserEmailText>
+                        </Styled.UserNameContainer>
+                        <Styled.UserDropdownButton>
+                            <Styled.UserDropdownButtonIcon icon={'chevron-down'}/>
+                        </Styled.UserDropdownButton>
+                    </Styled.UserInfoContainer>
+                    <Styled.CloseSidebarButton
+                    onClick={(e) => props.onEnableOrDisableFloating()}
+                    >
+                        {props.isFloating ? (
+                            <Fragment>
+                                <Styled.CloseSidebarButtonIcon icon={'chevron-right'}/>
+                                <Styled.CloseSidebarButtonIcon icon={'chevron-right'}/>
+                            </Fragment>
+                        ) : (
+                            <Fragment>
+                                <Styled.CloseSidebarButtonIcon icon={'chevron-left'}/>
+                                <Styled.CloseSidebarButtonIcon icon={'chevron-left'}/>
+                            </Fragment>
+                        )}
+                    </Styled.CloseSidebarButton>
+                </Styled.UserInfoAndCloseSidebarButtonContainer>
                 <Styled.NavigationButton>
                     <Styled.NavigationButtonIcon icon={'search'}/>
                     <Styled.NavigationButtonText>
@@ -58,7 +82,9 @@ function SidebarWebLayout(props) {
                             <Styled.WorkspaceDropdownButton
                             onClick={(e) => props.onOpenOrCloseWorkspaceDropdown(workspace.id)}
                             >
-                                <Styled.WorkspaceDropdownButtonIcon icon={isWorkspaceOpen ? 'chevron-down' : 'chevron-right'}/>
+                                <div style={{ width: '20px'}}>
+                                    <Styled.WorkspaceDropdownButtonIcon icon={isWorkspaceOpen ? 'chevron-down' : 'chevron-right'}/>
+                                </div>
                                 <Styled.WorkspaceDropdownButtonText>
                                     {workspace.labelName}
                                 </Styled.WorkspaceDropdownButtonText>
@@ -66,9 +92,15 @@ function SidebarWebLayout(props) {
                             {isWorkspaceOpen ? (
                                 <Styled.WorkspaceAppsContainer>
                                     {workspace.apps.map(app => (
-                                        <p key={app.id}>
-                                            {app.labelName}
-                                        </p>
+                                        <Styled.AppButton
+                                        key={app.id}
+                                        nestingLevel={1}
+                                        >   
+                                            {'•'}
+                                            <Styled.AppButtonText>
+                                                {app.labelName}
+                                            </Styled.AppButtonText>
+                                        </Styled.AppButton>
                                     ))} 
                                 </Styled.WorkspaceAppsContainer>
                             ): ''}

@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import Styled from './styles'
 
 /**
  * This is the actual <head> html tag from the next.js aplication.
@@ -22,9 +21,7 @@ export default function Header(props) {
             <meta name="name" content="Reflow"/>
             <meta name="description" content="Changing the way people work"/>
             <meta charset="utf-8" />
-            <style>
-                {Styled.fonts.montserrat.map(montserratFont => montserratFont)}
-            </style>
+            <link rel="stylesheet" href="/font/roboto/index.css" />
         </Head>
     )
 }
