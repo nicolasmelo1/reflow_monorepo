@@ -246,7 +246,7 @@ class BooleanField extends Field {
      * @returns {boolean | null} - Can return either null, or true or false.
      */
     async toRepresentation(data, ...args) {
-        data = super.toRepresentation(data, ...args)
+        data = await super.toRepresentation(data, ...args)
         if (this.trueValues.includes(data)) return true
         if (this.falseValues.includes(data)) return false
         if (data === null || data === undefined) return null
@@ -794,6 +794,35 @@ class ArrayField extends Field {
     }
 }
 
+/** 
+ * This is mostly used for recursion, really simple to use. Sometimes when you need to define a field recursively it's not
+ * easy to do so. In Palmares it is easy. 
+ * 
+ * The idea is that you send a field/serializer class that you want to use recursively and then defines the parameters normally.
+ * we will pass the parameters to the child when it's being represented to the internal value or to the end user.
+ */
+class LazyField extends Field {
+    /**
+     * @param {class/function} field - The class or function that will be used to create a new field.
+     * All other parameters are passed normally here.
+     */
+    constructor({field,...rest} = {}) {
+        super(rest)
+        this.field = field
+        this._options = rest
+    }
+
+    async toRepresentation(data, ...args) {
+        const initializedField = new this.field({...this._options})
+        return await initializedField.toRepresentation(data, ...args)
+    }
+
+    async toInternal(data, ...args) {
+        const initializedField = new this.field({...this._options})
+        return await initializedField.toInternal(data, ...args)
+    }
+}
+
 module.exports = {
     Field,
     BooleanField,
@@ -807,5 +836,6 @@ module.exports = {
     DateField,
     TimeField,
     ChoiceField,
-    ArrayField
+    ArrayField,
+    LazyField
 }

@@ -1,5 +1,5 @@
 let API_HOST = ''
-
+let BEARER = 'Client'
 /**
  * This function is used to configure all of the config variables for the shared component.
  * The idea is that this will keep us independent from configuring env files or whatever gimmicks we might have.
@@ -11,9 +11,10 @@ let API_HOST = ''
  * to run smoothly
  * @param {string} configurationOptions.apiHost - The host for the api so that we can make calls to it easily.
  */
-function configureConf({ apiHost } = {}) {
+function configureConf({ apiHost, bearer='Client' } = {}) {
     API_HOST = apiHost
+    BEARER = bearer
 }
 
-export { API_HOST }
+export { API_HOST, BEARER }
 export { configureConf }

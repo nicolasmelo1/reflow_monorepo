@@ -4,18 +4,19 @@ const { path } = require('../../config/routers')
 
 const {
     jwtRequiredMiddleware,
-    loggedUserRecipe,
-    adminOnlyUserRecipe
+    loggedUserRecipe
 } = require('./middlewares')
 
 const { 
     LoginController, 
     RefreshTokenController,
     TestTokenController,
+    MeController,
 } = require('./controllers')
 
 
 const loginRequiredRoutes = [
+    path('/me', ...loggedUserRecipe, MeController.asController()),
     path('/test_token', jwtRequiredMiddleware, TestTokenController.asController()),
 ]
 

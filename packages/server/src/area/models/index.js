@@ -1,5 +1,7 @@
 const { models } = require('../../../config/database')
 
+const { AreaAreaManager, AppAreaManager } = require('../managers')
+
 /**
  * This is the required metadata for each app in order to work, each app might need the user to configure something
  * before continuing and using the app. So for that we create a metadata so we are able to add metadata to an app without
@@ -55,6 +57,8 @@ class Area extends models.Model {
         tableName: 'area',
         ordering: ['order']
     }
+
+    static AREA = new AreaAreaManager()
 }
 
 /**
@@ -91,6 +95,8 @@ class App extends models.Model {
         tableName: 'app',
         ordering: ['order']
     }
+
+    static AREA = new AppAreaManager()
 }
 
 class AppConfiguration extends models.Model {

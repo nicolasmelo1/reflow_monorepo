@@ -107,7 +107,7 @@ class Serializer extends fields.Field {
         super(rest)
         this.instance = instance
         this.internalData = data
-        this._many = many
+        this.many = many
         this.context = context
     }
 
@@ -261,7 +261,7 @@ class Serializer extends fields.Field {
 
         let newData = []
 
-        if (this._many && ![undefined, null].includes(data)) {
+        if (this.many && ![undefined, null].includes(data)) {
             if (Array.isArray(data)) {
                 for (const arrayData of data) {
                     const dataFromParent = await super[functionToCallInChildren](await formatObjectInstance(arrayData), ...args)
@@ -273,7 +273,7 @@ class Serializer extends fields.Field {
                                 `check if the data recieved is an array or not. Example: \n async toRepresentation(data) {\n\tconsole.log(data)\n})`)
             }
         } else {
-            if (Array.isArray(data) && this._many === false) {
+            if (Array.isArray(data) && this.many === false) {
                 throw new Error(`You are passing an array to the serializer while 'many' option is set to false. Please set "many: true" in the ${this.constructor.name} class initialization.`)
             }
             newData = await super[functionToCallInChildren](await formatObjectInstance(data), ...args)
@@ -423,17 +423,27 @@ class ModelSerializer extends Serializer {
                 }
             }
 
-            // effectively create the fields
+            // effectively create the fields. Be aware on how we create the fields. We DO NOT enforce the user
+            // to define the fields created in the `field` option in the `fields` parameter inside `options` object.
+            // On Django Rest Framework they enforce us that fields defined in the ModelSerializer to be defined
+            // in the `fields` option. That's dumb.
             for (const fieldNameToConsider of fieldNamesToConsiderFromModel) {
+                const didFieldWasDefined = Object.keys(alreadyExistingFields).includes(fieldNameToConsider)
+
                 let fieldDefinition = modelFormattedAttributesByFieldName[fieldNameToConsider]
                 if (fieldDefinition === undefined) {
                     fieldDefinition = modelFormattedAttributes[fieldNameToConsider]
                 }
-
-                if (fieldDefinition === undefined) throw new Error(`'${fieldNameToConsider}' does not exist in model.`)
                 
-                const translatedAttributes = this.translateAttributes(fieldDefinition.formatted, fieldDefinition.original)
-                this.fields[fieldNameToConsider] = new modelFieldsNameBySerializerFields[fieldDefinition.fieldType](translatedAttributes)
+                if (didFieldWasDefined) {
+                    this.fields[fieldNameToConsider] = alreadyExistingFields[fieldNameToConsider]
+                    delete alreadyExistingFields[fieldNameToConsider]
+                } else if (fieldDefinition !== undefined) {
+                    const translatedAttributes = this.translateAttributes(fieldDefinition.formatted, fieldDefinition.original)
+                    this.fields[fieldNameToConsider] = new modelFieldsNameBySerializerFields[fieldDefinition.fieldType](translatedAttributes)
+                } else {
+                    throw new Error(`'${fieldNameToConsider}' does not exist in model or it was not defined in your serializer.`)
+                }
             }
             this.fields = {...this.fields, ...alreadyExistingFields}
             this.updatedFieldsWithOptions === true
@@ -447,7 +457,7 @@ class ModelSerializer extends Serializer {
             return [engineInstance, data]
         } else {
             let newData = []
-            if (this._many) {
+            if (this.many) {
                 if (Array.isArray(data)) {
                     for (const arrayData of data) {
                         newData.push(engineInstance.convertData(arrayData))

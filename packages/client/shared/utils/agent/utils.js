@@ -1,3 +1,4 @@
+import { BEARER } from '../../conf'
 import dynamicImport from '../dynamicImport'
 
 const AsyncStorage = dynamicImport('@react-native-async-storage/async-storage')
@@ -10,7 +11,8 @@ const AsyncStorage = dynamicImport('@react-native-async-storage/async-storage')
  * You want to do something when the user is not authenticated.
  * 
  * @returns {{
- *      addCallback: function(callback: function(response: import('axios').Response, makeRequestAgain: function()), callbackName)
+ *      addCallback: function(callback: function(response: import('axios').Response, makeRequestAgain: function()), callbackName),
+ *      fireHandlers: function(response: import('axios').Response, makeRequestAgain: function)
  * }} - Returns an object with the function to add the callbacks and to fire the handlers.
  */
 function exceptionObserver() {
@@ -58,9 +60,16 @@ const initializedExceptionObserver = exceptionObserver()
 
 export { initializedExceptionObserver as exceptionObserver }
 
+/**
+ * This will return an object with the `Authentication` key and then the authentication bearer with the token.
+ * 
+ * @param {string} token - The token that we want to use to authenticate. Can be an access token or a refresh token.
+ * 
+ * @returns {object} - The object with the authentication bearer.
+ */
 export function setTokenInHeader(token) {
     return {
-        Authorization: `Client ${token}`
+        Authorization: `${BEARER} ${token}`
     }
 }
 

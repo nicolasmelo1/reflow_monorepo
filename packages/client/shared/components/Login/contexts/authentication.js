@@ -11,7 +11,6 @@ const initialState = {
 
 export const AuthenticationContext = createContext(initialState)
 
-
 /**
  * This context will be mostly used for mobile to check if the user is authenticated or not and change the routes.
  * That's the main idea. You will see that the state is just a simple `isAuthenticated` boolean indicating wheather the

@@ -4,7 +4,7 @@ const status = require('../../config/status')
 const websocket = require('../../config/websockets')
 
 const { JWT } = require('./utils')
-const { User } = require('./models')
+const { User, Workspace } = require('./models')
 const { Encrypt } = require('../core/utils')
 const { reflowJSONError } = require('../core/services')
 const { validatePermissionsFromRequest, PermissionsError } = require('../core/permissions')
@@ -76,14 +76,9 @@ async function jwtRequiredMiddleware(req, res, next) {
  * @param {Express.Response} res - The response object recieved from express
  * @param {Function} next - Callback function to be called after the middleware and call next middlware or controller.
  */
-async function workspaceIdAsIntegerMiddleware(req, res, next) {
-    if (req.params.companyId && typeof req.params.companyId === 'string') {
-        const decryptedCompanyId = Encrypt.decrypt(req.params.companyId)
-        if (decryptedCompanyId !== null) {
-            req.params.companyId = parseInt(decryptedCompanyId)
-        } else {
-            req.params.companyId = null
-        }
+async function workspaceRequiredMiddleware(req, res, next) {
+    if (req.params.workspaceUUID !== undefined) {
+        req.workspace = await Workspace.AUTHENTICATION.workspaceByUUID(req.params.workspaceUUID)
     }
     next()
 }
@@ -125,8 +120,17 @@ const loggedUserRecipe = [jwtRequiredMiddleware, loggedUserPermissionsMiddleware
  * a recipe is something that will append a number of middleware/options so you can setup it easily in your paths.
  * This is for admin only paths, only available for admins.
  */
-const adminOnlyUserRecipe = [{ adminOnly: true}, jwtRequiredMiddleware, loggedUserPermissionsMiddleware]
+const adminOnlyUserRecipe = [{ adminOnly: true}, ...loggedUserRecipe]
 
+/**
+ * This recipe is used to validate the workspace of the user, we will retrieve the workspace data from the request.
+ */
+const workspaceRequiredRecipe = [...loggedUserRecipe, workspaceRequiredMiddleware]
+
+/**
+ * Same as above but for admin only paths.
+ */
+const adminOnlyWorkspaceRecipe = [...adminOnlyUserRecipe, workspaceRequiredMiddleware]
 
 module.exports = {
     websocketJwtRequiredMiddleware,
@@ -134,4 +138,6 @@ module.exports = {
     loggedUserPermissionsMiddleware,
     loggedUserRecipe,
     adminOnlyUserRecipe,
+    workspaceRequiredRecipe,
+    adminOnlyWorkspaceRecipe,
 }

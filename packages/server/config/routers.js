@@ -55,10 +55,12 @@ const optionsMiddleware = (options) => {
  * @param {Error} error - The error recieved from the `catch` function
  */
 const debugging = (res, error) => {
-    if (settings.DEBUG === true) {
-        res.status(500).send(error.stack)
-    } else {
-        res.status(500).send()
+    if(res.headersSent === false) { 
+        if (settings.DEBUG === true) {
+            res.status(500).send(error.stack)
+        } else {
+            res.status(500).send()
+        }
     }
     throw(error)
 }

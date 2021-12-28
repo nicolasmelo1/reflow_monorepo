@@ -3,6 +3,7 @@
 const serializers = require('../../../config/serializers')
 
 const { ReflowValidationError } = require('../../core/serializers')
+const { WorkspaceRelation } = require('../relations')
 const { User } = require('../models')
 const { UserService } = require('../services')
 const { JWT } = require('../utils')
@@ -45,6 +46,20 @@ class LoginOutputSerializer extends serializers.Serializer {
 }
 //------------------------------------------------------------------------------
 /**
+ * This serializer is used to send the actual user data to the client. This represent the logged in user.
+ */
+class MeOutputSerializer extends serializers.ModelSerializer {
+    fields = {
+        workspaces: new WorkspaceRelation({ source: 'id', many: true })
+    }
+    
+    options = {
+        model: User,
+        exclude: ['isSuperuser', 'isStaff', 'tempPassword', 'password']
+    }
+}
+//------------------------------------------------------------------------------
+/**
  * Serializer used for sending the new accessToken and the new refreshToken requested by the user after expiring
  * the old accessToken.
  */
@@ -58,5 +73,6 @@ class RefreshTokenOutputSerializer extends serializers.Serializer {
 module.exports = {
     LoginInputSerializer,
     LoginOutputSerializer,
+    MeOutputSerializer,
     RefreshTokenOutputSerializer,
 }

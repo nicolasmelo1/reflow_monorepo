@@ -9,6 +9,7 @@ const { JWT } = require('../utils')
 const { 
     LoginInputSerializer, 
     LoginOutputSerializer,
+    MeOutputSerializer,
     RefreshTokenOutputSerializer
 } = require('../serializers')
 
@@ -57,24 +58,17 @@ class LoginController extends controllers.Controller {
 }
 //------------------------------------------------------------------------------
 /**
- * This view uses a temporary password instead of the default password in because of brute force. 
- * If a person wants to brute force a password change for all of the emails there will be no changes for users who hasn't requested it.
- * 
- * The response is always the same independent if it worked or not, so a malicious user can't see which user is valid and which is not valid
+ * This controller will return the data about the logged in user itself. All it's workspaces, his name, his id
+ * and anything needed to be displayed in the application.
  */
-class ForgotPasswordController extends controllers.Controller {
-    inputSerializer = ForgotPasswordInputSerializer
-
-    /**
-     * recieves a json containing the url of the front-end and a email to send a new password.
-     */
-    async post(req, res, next, transaction) {
-        const serializer = new this.inputSerializer({ data: req.body })
-        if (await serializer.isValid()) {
-            await serializer.toSave(transaction)
-        }
-        res.status(status.HTTP_200_OK).json({
-            status: 'ok'
+class MeController extends controllers.Controller {
+    outputSerializer = MeOutputSerializer
+    
+    async get(req, res) {
+        const serializer = new this.outputSerializer({ instance: req.user })
+        return res.status(status.HTTP_200_OK).json({
+            status: 'ok',
+            data: await serializer.toRepresentation()
         })
     }
 }
@@ -145,5 +139,6 @@ class TestTokenController extends controllers.Controller {
 module.exports = {
     LoginController,
     RefreshTokenController,
-    TestTokenController
+    TestTokenController,
+    MeController
 }

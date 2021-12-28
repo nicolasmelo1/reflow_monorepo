@@ -1,6 +1,5 @@
 import dynamicImport from '../dynamicImport'
 
-
 const createURL = dynamicImport('expo-linking', 'createURL')
 const openURL = dynamicImport('expo-linking', 'openURL')
 const useRouter = dynamicImport('next/router', 'useRouter')

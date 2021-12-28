@@ -738,7 +738,6 @@ class SequelizeEngine extends Engine {
      * IT IS NOT THE MODEL FROM THE LAST STATE (THE WAY IT IS RIGHT NOW)
      */
     async addColumnMigration(transaction, toModel, fromModel, attributeName) {
-        console.log(attributeName)
         let sequelizeAttribute = toModel.initialized.rawAttributes[attributeName]
 
         await this.#queryInterface.addColumn(

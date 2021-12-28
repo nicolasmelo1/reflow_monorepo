@@ -5,7 +5,9 @@ const { models } = require('../../config/database')
 const AbstractUser = require('../../config/authentication/user')
 
 const { 
-    UserAuthenticationManager 
+    UserAuthenticationManager,
+    WorkspaceAuthenticationManager,
+    UserWorkspacesAuthenticationManager
 } = require('./managers')
 
 /**
@@ -115,6 +117,7 @@ class Workspace extends models.Model {
         name: new models.fields.CharField({maxLength: 400, dbIndex: true}),
         endpoint: new models.fields.CharField({maxLength: 280, unique: true, dbIndex: true}),
         isActive: new models.fields.BooleanField({defaultValue: true, dbIndex: true}),
+        uuid: new models.fields.UUIDField({ autoGenerate: true, allowNull: true, dbIndex: true }),
         sharedBy: new models.fields.ForeignKeyField({
             allowNull: true,
             relatedTo: 'Company',
@@ -131,6 +134,7 @@ class Workspace extends models.Model {
         tableName: 'workspace'
     }
 
+    static AUTHENTICATION = new WorkspaceAuthenticationManager()
 }
 
 /**
@@ -159,6 +163,8 @@ class UserWorkspaces extends models.Model {
     options = {
         tableName: 'user_workspaces',
     }
+
+    static AUTHENTICATION = new UserWorkspacesAuthenticationManager()
 }
 
 

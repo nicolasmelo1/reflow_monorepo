@@ -293,7 +293,6 @@ class Model {
             .filter(instanceMethod => instanceMethod !== 'constructor').map(instanceMethodName => ({ [instanceMethodName]: this[instanceMethodName]}))
         
         const instance = engineInstance.defineModel(modelName, this.attributes, this.options, instanceMethods)
-
         if (instance !== null) {
             Model.instance = instance
 

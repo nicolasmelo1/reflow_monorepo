@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { API_HOST } from '../../conf'
-import { exceptionObserver, getToken } from './utils'
+import { setTokenInHeader, exceptionObserver, getToken } from './utils'
 
 const getUrl = (path) => {
     return `${API_HOST}${path}`
@@ -17,13 +17,12 @@ const requests = {
             source = new CancelToken(function (_) {})
         }
         try {
+            const token = await getToken()
             const requestOptions = {
                 method: method,
                 url: getUrl(url),
                 cancelToken: source.token,
-                headers: {
-                    'Authorization': `Client ${await getToken()}`,
-                }
+                headers: setTokenInHeader(token)
             }
             if (headers !== null) requestOptions.headers = { ...requestOptions.headers, ...headers}
             if (data !== null) requestOptions.data = data

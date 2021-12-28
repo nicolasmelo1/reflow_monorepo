@@ -26,7 +26,14 @@ export async function getPersistState(contextName) {
 }
 
 /**
+ * This will persist some state inside of the application so you can retrieve it again. All data persisted is just a string
+ * so you can store any type of data that you want except for functions and classes. But booleans, numbers or strings
+ * are valid.
  * 
+ * All your data persisted is named so be aware of that when you want to retrieve this persisted data.
+ * 
+ * @param {string} contextName - The name of the context that we want to persist the state for.
+ * @param {object} state - The state that we want to persist.
  */
 export async function setPersistState(contextName, state) {
     if (process.env['APP'] === 'web' && window.localStorage !== undefined && localStorage !== undefined) {

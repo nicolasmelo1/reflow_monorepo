@@ -1,4 +1,5 @@
 import { requests } from '../../utils/agent'
+import { setTokenInHeader } from '../../utils/agent/utils'
 
 /**
  * This will request a new refresh and access token to the application to make the request again.
@@ -8,9 +9,7 @@ import { requests } from '../../utils/agent'
  */
 function refreshToken(refreshToken) {
     return requests.get('/authentication/refresh_token', {
-        headers: {
-            Authorization: `Client ${refreshToken}`
-        }
+        headers: setTokenInHeader(refreshToken)
     })
 }
 
