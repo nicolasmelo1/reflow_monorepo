@@ -1,5 +1,6 @@
 let API_HOST = ''
 let BEARER = 'Client'
+
 /**
  * This function is used to configure all of the config variables for the shared component.
  * The idea is that this will keep us independent from configuring env files or whatever gimmicks we might have.

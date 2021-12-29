@@ -1,5 +1,5 @@
 import Head from '../Head'
-import { Layout, Login } from '../../../shared/components'
+import { Layout, Login } from '../../../shared/'
 import { useRouter } from 'next/router'
 
 export default function LoginPage(props) {

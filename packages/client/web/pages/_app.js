@@ -1,6 +1,6 @@
 import { configureConf } from '../../shared/conf'
 import Main from '../components/Main'
-import GlobalProvider from '../../shared/components/Core/contexts'
+import GlobalProvider from '../../shared/core/contexts'
 
 configureConf({
     apiHost: 'http://localhost:4000'

@@ -26,7 +26,6 @@ const MIDDLEWARE = [
     require('./core/middlewares').corsMiddleware(),
     require('express').json(),
     require('express').urlencoded({extended: false}),
-    require('helmet')(),
     require('./core/middlewares').snakeToCamelCaseQueryParams(),
 ]
 

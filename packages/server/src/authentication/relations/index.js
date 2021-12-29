@@ -2,7 +2,6 @@ const serializers = require('../../../config/serializers')
 
 const { Workspace, UserWorkspaces } = require('../models')
 
-
 /**
  * This is used to retrieve all of the workspaces that are active that a specific user user is a member of.
  * 
