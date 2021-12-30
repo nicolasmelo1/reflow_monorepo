@@ -1,49 +1,12 @@
 import { Fragment } from 'react'
 import Styled from '../styles'
+import SidebarDropdown from '../../Sidebar.Dropdown'
 import { strings } from '../../../../core/utils/constants'
+import { 
+    faChevronDown, faChevronLeft, faSearch, faHistory, faCog
+} from '@fortawesome/free-solid-svg-icons'
 
 function SidebarWebLayout(props) {
-    /**
-     * Since workspaces can be recursive we need to render all of the workspaces on a separate function.
-     */
-    function renderWorkspace(workspace, nestingLevel=0) {
-        const isWorkspaceOpen = props.openedWorkspacesIds.includes(workspace.uuid)
-        return (
-            <Styled.WorkspaceContainer key={workspace.uuid}>
-                <Styled.WorkspaceDropdownButton
-                nestingLevel={nestingLevel}
-                onClick={(e) => props.onOpenOrCloseWorkspaceDropdown(workspace.uuid)}
-                >
-                    <div style={{ width: '20px'}}>
-                        <Styled.WorkspaceDropdownButtonIcon 
-                        icon={isWorkspaceOpen ? 'chevron-down' : 'chevron-right'}
-                        />
-                    </div>
-                    <Styled.WorkspaceDropdownButtonText>
-                        {workspace.labelName}
-                    </Styled.WorkspaceDropdownButtonText>
-                </Styled.WorkspaceDropdownButton>
-                {isWorkspaceOpen ? (
-                    <Styled.WorkspaceAppsContainer>
-                        {workspace.subAreas.map(subArea => renderWorkspace(subArea, nestingLevel + 1))}
-                        {workspace.apps.map(app => (
-                            <Styled.AppButton
-                            key={app.uuid}
-                            nestingLevel={nestingLevel + 1}
-                            >   
-                                {'•'}
-                                <Styled.AppButtonText>
-                                    {app.labelName}
-                                </Styled.AppButtonText>
-                            </Styled.AppButton>
-                        ))} 
-                    </Styled.WorkspaceAppsContainer>
-                ): ''}
-            </Styled.WorkspaceContainer>
-        )
-    }
-
-
     return (
         <Styled.Container
         onMouseOver={() => props.onPreventSidebarCollapse(true)}
@@ -68,7 +31,9 @@ function SidebarWebLayout(props) {
                             {/* This is the image of the user */}
                             <Styled.UserNameContainer>
                                 <Styled.UserHelloAndNameText>
-                                    <span>{strings('pt-BR', 'sidebarHelloName')}</span>
+                                    <span>
+                                        {strings('pt-BR', 'sidebarHelloName')}
+                                    </span>
                                     <Styled.UserNameText>
                                         {`${props.user.firstName} ${props.user.lastName}`}
                                     </Styled.UserNameText>
@@ -78,7 +43,7 @@ function SidebarWebLayout(props) {
                                 </Styled.UserEmailText>
                             </Styled.UserNameContainer>
                             <Styled.UserDropdownButton>
-                                <Styled.UserDropdownButtonIcon icon={'chevron-down'}/>
+                                <Styled.UserDropdownButtonIcon icon={faChevronDown}/>
                             </Styled.UserDropdownButton>
                         </Styled.UserInfoContainer>
                         {props.isFloating ? '' : (
@@ -87,27 +52,27 @@ function SidebarWebLayout(props) {
                             >
                                 {props.isFloating ? '' : (
                                     <Fragment>
-                                        <Styled.CloseSidebarButtonIcon icon={'chevron-left'}/>
-                                        <Styled.CloseSidebarButtonIcon icon={'chevron-left'}/>
+                                        <Styled.CloseSidebarButtonIcon icon={faChevronLeft}/>
+                                        <Styled.CloseSidebarButtonIcon icon={faChevronLeft}/>
                                     </Fragment>
                                 )}
                             </Styled.CloseSidebarButton>
                         )}
                     </Styled.UserInfoAndCloseSidebarButtonContainer>
                     <Styled.NavigationButton>
-                        <Styled.NavigationButtonIcon icon={'search'}/>
+                        <Styled.NavigationButtonIcon icon={faSearch}/>
                         <Styled.NavigationButtonText>
                             {strings('pt-BR', 'sidebarQuickSearchButtonLabel')}
                         </Styled.NavigationButtonText>
                     </Styled.NavigationButton>
                     <Styled.NavigationButton>
-                        <Styled.NavigationButtonIcon icon={'history'}/>
+                        <Styled.NavigationButtonIcon icon={faHistory}/>
                         <Styled.NavigationButtonText>
                             {strings('pt-BR', 'sidebarHistoryButtonLabel')}
                         </Styled.NavigationButtonText>
                     </Styled.NavigationButton>
                     <Styled.NavigationButton>
-                        <Styled.NavigationButtonIcon icon={'cog'}/>
+                        <Styled.NavigationButtonIcon icon={faCog}/>
                         <Styled.NavigationButtonText>
                             {strings('pt-BR', 'sidebarSettingsButtonLabel')}
                         </Styled.NavigationButtonText>
@@ -117,7 +82,12 @@ function SidebarWebLayout(props) {
                     <Styled.WorkspacesHeadingTitle>
                         {'WORKSPACES'}
                     </Styled.WorkspacesHeadingTitle>
-                    {props.workspaces.map(workspace => renderWorkspace(workspace))}
+                    {props.workspaces.map(workspace => (
+                        <SidebarDropdown
+                        key={workspace.uuid}
+                        workspace={workspace}
+                        />
+                    ))}
                 </Styled.AppsContainer>
             </Styled.Wrapper>
             <Styled.SidebarWidth

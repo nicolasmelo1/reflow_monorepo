@@ -47,7 +47,6 @@ function AuthenticationProvider(props) {
         </AuthenticationContext.Provider>
     )
 }
-
 GlobalProvider.registerProviders(AuthenticationProvider)
 
 export default AuthenticationContext

@@ -24,10 +24,22 @@ class AreaOutputSerializer extends serializers.ModelSerializer {
 
     options = {
         model: Area,
-        fields: ['uuid', 'name', 'labelName', 'description', 'order']
+        fields: ['uuid', 'name', 'labelName', 'description', 'color', 'order']
+    }
+}
+
+class AreaInputSerializer extends serializers.ModelSerializer {
+    fields = {
+        subAreaOfUUID: new serializers.UUIDField()
+    }
+
+    options = {
+        model: Area,
+        fields: ['labelName', 'description', 'color', 'order', 'subAreaOfUUID']
     }
 }
 
 module.exports = {
-    AreaOutputSerializer
+    AreaOutputSerializer,
+    AreaInputSerializer
 }

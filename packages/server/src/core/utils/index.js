@@ -27,6 +27,5 @@ module.exports = {
     camelCaseToSnakeCase,
     Encrypt: require('./encrypt'),
     CORS: require('./cors'),
-    uuid: require('./uuid'),
     Bucket: require('./storage')
 }

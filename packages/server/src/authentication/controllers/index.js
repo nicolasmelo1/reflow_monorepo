@@ -4,6 +4,7 @@ const controllers = require('../../../config/controllers')
 const status = require('../../../config/status')
 
 const { User } = require('../models')
+const { UserService } = require('../services') 
 const { reflowJSONError } = require('../../core/services')
 const { JWT } = require('../utils')
 const { 
@@ -92,8 +93,7 @@ class RefreshTokenController extends controllers.Controller {
         if (jwt.isValid()) {
             const user = await User.AUTHENTICATION.userById(jwt.data.id)
             if (user !== null && jwt.data.type === 'refresh') {
-                const newTokenAndRefreshToken = ''
-                //const newTokenAndRefreshToken = await UserService.updateRefreshTokenAndUserLastLogin(user.id, transaction)
+                const newTokenAndRefreshToken = await UserService.updateRefreshTokenAndUserLastLogin(user.id, transaction)
                 const responseSerializer = new this.outputSerializer({
                     instance: newTokenAndRefreshToken
                 })

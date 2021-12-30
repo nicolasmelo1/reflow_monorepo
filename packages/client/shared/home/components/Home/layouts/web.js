@@ -1,5 +1,7 @@
 import Styled from '../styles'
 import Sidebar from '../../Sidebar'
+import { colors, strings } from '../../../../core/utils/constants'
+import { faChevronRight, faBars, faTimes } from '@fortawesome/free-solid-svg-icons'
 
 export default function HomeWebLayout(props) {
     return (
@@ -7,6 +9,7 @@ export default function HomeWebLayout(props) {
         onMouseMove={(e) => props.onMouseMoveOpenSidebar(e)}
         >
             <Sidebar
+            selectedAreaUUID={props.selectedArea.uuid}
             onResizeSidebar={props.onResize}
             onEnableOrDisableFloating={props.onEnableOrDisableFloatingSidebar}
             isFloating={props.isFloatingSidebar}
@@ -18,35 +21,71 @@ export default function HomeWebLayout(props) {
             isFloating={props.isFloatingSidebar}
             isOpen={props.isOpenSidebar}
             >
-                <Styled.TopContainer>
-                    <Styled.WorkspaceTitle>
-                        {'Vendas'}
-                    </Styled.WorkspaceTitle>
+                <Styled.TopContainer
+                color={props.selectedArea.color}
+                >
+                    <Styled.WorkpsaceEditButton
+                    onClick={() => props.setIsEditingArea(!props.isEditingArea)}
+                    >
+                        <Styled.WorkspaceTitle
+                        backgroundColor={props.selectedArea.color}
+                        >
+                            {props.selectedArea.labelName}
+                        </Styled.WorkspaceTitle>
+                    </Styled.WorkpsaceEditButton>
+                    {props.isEditingArea ? (
+                        <Styled.WorkspaceEditDropdownWrapper>
+                            <Styled.WorkspaceEditDropdownContainer>
+                                <Styled.WorkspaceEditInput 
+                                type={'text'} 
+                                value={props.selectedArea.labelName} 
+                                onChange={(e) => props.onChangeAreaNameOrColor({ newName: e.target.value })}
+                                />
+                                <p>
+                                    {strings('pt-BR', 'workspaceEditColor')}
+                                </p>
+                                <Styled.WorkspaceEditColorSelectionContainer>
+                                    {colors.map(color => (
+                                        <Styled.WorkspaceEditColorSelection>
+                                            <Styled.WorkspaceEditColorButton
+                                            key={color}
+                                            color={color}
+                                            onClick={() => props.onChangeAreaNameOrColor({ newColor: color })}
+                                            />
+                                        </Styled.WorkspaceEditColorSelection>
+                                    ))}
+                                </Styled.WorkspaceEditColorSelectionContainer>
+                            </Styled.WorkspaceEditDropdownContainer>
+                        </Styled.WorkspaceEditDropdownWrapper>
+                    ) : ''}
                     <Styled.AppsContainer>
                         {props.isFloatingSidebar ? (
                             <Styled.SidebarButton
+                            backgroundColor={props.selectedArea.color}
                             onClick={() => props.onEnableOrDisableFloatingSidebar()}
                             >
-                                <Styled.SidebarButtonIcon icon='chevron-right'/>
-                                <Styled.SidebarButtonIcon icon='chevron-right'/>
+                                <Styled.SidebarButtonIcon icon={faChevronRight}/>
+                                <Styled.SidebarButtonIcon icon={faChevronRight}/>
                             </Styled.SidebarButton>
                         ) : (
                             <Styled.SidebarButton
+                            backgroundColor={props.selectedArea.color}
                             onClick={() => props.setIsOpenSidebar(!props.isOpenSidebar)}
                             >
-                                <Styled.SidebarButtonIcon icon='bars'/>
+                                <Styled.SidebarButtonIcon icon={faBars}/>
                             </Styled.SidebarButton>
                         )}
                         <Styled.AppsScroller>
-                            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'].map((item, index) => (
+                            {props.selectedArea.apps.map(app => (
                                 <Styled.AppsButton
-                                key={item}
+                                key={app.uuid}
+                                isSelected={app.uuid === props.selectedAppUUID}
                                 >
                                     <Styled.AppsText>
-                                        {`App${item}`}
+                                        {app.labelName}
                                     </Styled.AppsText>
                                     <Styled.AppsRemoveButton>
-                                        <Styled.AppsRemoveIcon icon={'times'}/>
+                                        <Styled.AppsRemoveIcon icon={faTimes}/>
                                     </Styled.AppsRemoveButton>
                                 </Styled.AppsButton>
                             ))}

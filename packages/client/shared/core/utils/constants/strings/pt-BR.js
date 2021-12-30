@@ -3,4 +3,5 @@ export default {
     sidebarQuickSearchButtonLabel: 'Pesquisa Rápida',
     sidebarHistoryButtonLabel: 'Histórico',
     sidebarSettingsButtonLabel: 'Configurações',
+    workspaceEditColor: 'Cores',
 }

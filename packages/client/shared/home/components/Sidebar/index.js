@@ -22,7 +22,7 @@ import { AreaContext } from '../../contexts'
  */
 function Sidebar(props) {
     const { user } = useContext(UserContext)
-    const { areas, setAreas } = useContext(AreaContext)
+    const { areas, setAreas, retrieveFromPersist } = useContext(AreaContext)
     const isResizingRef = useRef(false)
     const [isResizing, _setIsResizing] = useState(false)
     const [openedWorkspacesIds, setOpenedWorspacesIds] = useState([])
@@ -145,7 +145,13 @@ function Sidebar(props) {
     useEffect(() => {
         if (user.workspaces.length > 0) {
             homeAgent.getAreas(user.workspaces[0].uuid).then(response => {
-                setAreas(response.data.data)
+                if (response && response.status === 200) {
+                    setAreas(response.data.data)
+                } else {
+                    retrieveFromPersist()
+                }
+            }).catch(e => {
+                retrieveFromPersist()
             })
         }
     }, [user])
@@ -153,7 +159,7 @@ function Sidebar(props) {
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
         user={user}
-        workspaces={areas}
+        workspaces={areas !== undefined ? areas : []}
         isResizing={isResizing}
         onStartResizingSidebar={onStartResizingSidebar}
         onOpenOrCloseWorkspaceDropdown={onOpenOrCloseWorkspaceDropdown}

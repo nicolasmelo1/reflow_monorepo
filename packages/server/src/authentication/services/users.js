@@ -1,5 +1,6 @@
 const { checkPassword } = require('../../../config/authentication/security')
 
+const { JWT } = require('../utils')
 const { User } = require('../models')
 
 
@@ -40,6 +41,29 @@ class UserService {
         return null
     }
     
+    /**
+     * When the refresh token is updated we interpret it as the user made login in our platform
+     * because the user can stay logged in forever in our platform without the need of making login
+     * again.
+     * 
+     * @param {number} userId - The id of the user that is retrieving the refresh token.
+     * @param {object} transaction - The transaction object to be used for updating the user data.
+     * 
+     * @returns {object} - The object with the new access token and the new refresh token.
+     */
+     static async updateRefreshTokenAndUserLastLogin(userId, transaction) {
+        await User.AUTHENTICATION.updateUserLastLogin(userId, transaction)
+        const user = await User.AUTHENTICATION.userById(userId)
+
+        /*events.emit('userRefreshToken', {
+            userId: userId
+        })*/
+
+        return {
+            accessToken: JWT.getToken(user.id),
+            refreshToken: JWT.getRefreshToken(user.id)
+        }
+    }
 }
 
 module.exports = UserService

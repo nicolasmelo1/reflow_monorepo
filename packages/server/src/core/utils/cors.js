@@ -26,9 +26,9 @@ class CORS {
      * 
      * @param {Request} request - the request recieved from express.
      * 
-     * @returns {Boolean} - true if it is a preflight request or false if not.
+     * @returns {Promise<boolean>} - true if it is a preflight request or false if not.
      */
-    isPreflight(request) {
+    async isPreflight(request) {
         if (request.method && request.method == this.OPTIONS_METHOD) {
             return true
         } else {
@@ -43,29 +43,47 @@ class CORS {
      * @param {Request} request - the request recieved from express.
      * @param {Response} response - The response object recieved from express.
      */
-    handlePreflight(request, response) {
+    async handlePreflight(request, response) {
         response.setHeader('Content-Length', '0')
         response.setHeader(this.ACCESS_CONTROL_MAX_AGE, this.DEFAULT_CORS_PREFLIGHT_MAX_AGE)
         response.setHeader(this.ACCESS_CONTROL_ALLOW_METHODS, this.DEFAULT_ACCEPTED_METHODS.join(', '))
         response.setHeader(this.ACCESS_CONTROL_ALLOW_HEADERS, this.DEFAULT_ACCEPTED_HEADERS.join(', '))
         response.setHeader(this.ACCESS_CONTROL_ALLOW_CREDENTIALS, 'true')
-        this.addAllowOriginToResponse(request, response)
+        await this.addAllowOriginToResponse(request, response)
         response.end()
     }
 
-    addAllowOriginToResponse(request, response) {
+    async addAllowOriginToResponse(request, response) {
         const origin = request.get('origin')
         if (origin) {
             response.setHeader(this.ACCESS_CONTROL_ALLOW_ORIGIN, origin)
         }
     }
 
-    handleCors(request, response){
-        if (this.isPreflight(request)){
-            this.handlePreflight(request, response)
+    /**
+     * This is the main function that handles the actual cors configuration.
+     * It will recieve the request and the response and do whatever it needs to do
+     * in order to handle the cors configuration.
+     * 
+     * By default cors sends us a preflight request to check if the browser is allowed to 
+     * send the actual request. This preflight is an OPTION request that is sent by the browser.
+     * 
+     * If it is a preflight we just send an empty response to the user. Otherwise we will send the 
+     * actual response that the user wants.
+     * 
+     * @param {import('express').Request} request - the request recieved from express.
+     * @param {import('express').Response} response - The response object recieved from express.
+     * 
+     * @returns {Promise<boolean>} - true if it is a preflight request or false if not.
+     */
+    async handleCors(request, response){
+        const isPreflight = await this.isPreflight(request)
+        if (isPreflight){
+            await this.handlePreflight(request, response)
         } else {
-            this.addAllowOriginToResponse(request, response)
+            await this.addAllowOriginToResponse(request, response)
         }
+        return isPreflight
     }
 }
 

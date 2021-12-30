@@ -1,5 +1,5 @@
 // Reference: https://stackoverflow.com/a/8809472
-const generateUUID = () => { 
+module.exports = function generateUUID() { 
     let date = new Date().getTime()//Timestamp
     let performanceDate = (performance && performance.now && (performance.now()*1000)) || 0//Time in microseconds since page-load or 0 if unsupported
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
@@ -14,5 +14,3 @@ const generateUUID = () => {
         return (character === 'x' ? randomNumber : (randomNumber & 0x3 | 0x8)).toString(16)
     })
 }
-
-module.exports = generateUUID

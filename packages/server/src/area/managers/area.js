@@ -11,7 +11,7 @@ class AreaAreaManager extends models.Manager {
     async subAreasByAreaId(areaId) {
         return await this.getInstance().findAll({
             where: {
-                subAreaId: areaId
+                subAreaOfId: areaId
             }
         })
     }
@@ -27,7 +27,7 @@ class AreaAreaManager extends models.Manager {
         return await this.getInstance().findAll({
             where: {
                 workspaceId: workspaceId,
-                subAreaId: null
+                subAreaOfId: null
             }
         })
     }

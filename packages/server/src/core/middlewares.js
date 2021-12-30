@@ -15,8 +15,10 @@ function corsMiddleware() {
     const cors = new CORS()
 
     return async (req, res, next) => {
-        cors.handleCors(req, res)
-        next()
+        const isPreflight = await cors.handleCors(req, res)
+        if (isPreflight === false) {
+            next()
+        }
     }
 }
 
@@ -44,7 +46,24 @@ function snakeToCamelCaseQueryParams() {
         next()
     }
 }
+
+/**
+ * This is a dumb middleware that will add the `reflow` as the `X-Powered-By` header.
+ * Obviosly this will not add anything to the response but we can feel smart for people
+ * that tries to see the headers of the response inside of the browser. We can add messages like
+ * if we are hiring and stuff like that, think this as an easter egg.
+ * 
+ * @returns {Function} - A function that will be executed in the request as a middleware.
+ */
+function poweredByReflowMiddleware() {
+    return async (req, res, next) => {
+        res.setHeader('X-Powered-By', 'reflow')
+        next()
+    }
+}
+
 module.exports = {
     corsMiddleware,
-    snakeToCamelCaseQueryParams
+    snakeToCamelCaseQueryParams,
+    poweredByReflowMiddleware
 }

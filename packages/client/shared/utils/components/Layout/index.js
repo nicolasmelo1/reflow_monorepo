@@ -1,24 +1,12 @@
 import { useEffect, useContext } from 'react'
 import Layouts from './layouts'
-import { library } from '@fortawesome/fontawesome-svg-core'
 import { ThemeProvider } from 'styled-components'
 import themes from '../../../core/utils/themes'
 import { paths } from '../../../core/utils/constants'
-import { exceptionObserver as agentExceptionObserver, getRefreshToken } from '../../../core/agent/utils'
+import { exceptionObserver as agentExceptionObserver, getRefreshToken, setTokens } from '../../../core/agent/utils'
 import { useRouterOrNavigationRedirect } from '../../../core/hooks'
 import { AuthenticationContext } from '../../../authentication/contexts'
 import utilsAgent from '../../agent'
-import { 
-    faChevronDown, faChevronLeft, faChevronRight, faSearch, faHistory,
-    faCog, faBars, faTimes
- } from '@fortawesome/free-solid-svg-icons'
-
-// This is needed for tree shaking, so we do not load all icons in memory and we do not need to load all
-// icons when we build the application.
-// Reference: https://fontawesome.com/v5.15/how-to-use/on-the-web/using-with/react#using
-library.add(
-    faChevronDown, faChevronLeft, faChevronRight, faSearch, faHistory, faCog, faBars, faTimes
-)
 
 /**
  * This is the main component of the page, we use this custom layout component so pages can override from this.
@@ -52,10 +40,9 @@ function Layout(props) {
         if (reason === 'expired_token') {
             const refreshToken = await getRefreshToken()
             const response = await utilsAgent.refreshToken(refreshToken)
-
             if (response && response.status === 200) {
-                const accessToken = response.data.accessToken
-                const refreshToken = response.data.refreshToken
+                const accessToken = response.data.data.accessToken
+                const refreshToken = response.data.data.refreshToken
                 isToRedirectUserToLogin = false
                 await setTokens(accessToken, refreshToken)
                 makeRequestAgain()

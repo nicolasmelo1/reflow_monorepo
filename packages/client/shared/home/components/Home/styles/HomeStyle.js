@@ -1,6 +1,7 @@
 import styled from 'styled-components'
-import { View, TouchableOpacity, Text } from 'react-native'
+import { View, TouchableOpacity, Text, TextInput } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import whiteOrBlackColor from '../../../../core/utils/whiteOrBlackColor'
 
 export const Container = process.env['APP'] === 'web' ? 
 styled.div`
@@ -29,23 +30,128 @@ styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: ${props => props.theme.green_REFLOW};
+    background-color: ${props => [null, undefined].includes(props.color) ? props.theme.green_REFLOW : props.color};
     padding: 10px 0 0 0;
+    transition: background-color 0.3s ease-in-out;
 `
 :
 styled(View)``
 
 export const WorkspaceTitle = process.env['APP'] === 'web' ? 
 styled.h1`
+    font-family: Roboto;
     user-select: none;
     margin: 0;
     font-size: 21px;
-    color: ${props => props.theme.white};
+    color: ${props => whiteOrBlackColor(props.backgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.white};
     font-weight: 600;
-    margin-bottom: 10px;
+    transition: color 0.3s ease-in-out;
 `
 :
 styled(Text)``
+
+export const WorkpsaceEditButton = process.env['APP'] === 'web' ?
+styled.button`
+    background-color: transparent;
+    border: 0;
+    border-radius: 5px;
+    margin-bottom: 10px;
+
+    &:hover {
+        cursor: pointer;
+        background-color: ${props => props.theme.clearGray}50;
+    }
+`
+:
+styled(TouchableOpacity)``
+
+export const WorkspaceEditDropdownWrapper = process.env['APP'] === 'web' ?
+styled.div`
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    align-tems: center;
+    justify-content: center
+`
+:
+styled(View)``
+
+export const WorkspaceEditDropdownContainer = process.env['APP'] === 'web' ?
+styled.div`
+    position: absolute;
+    top: 0;
+    background-color: ${props => props.theme.white};
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+`
+:
+styled(View)``
+
+export const WorkspaceEditInput = process.env['APP'] === 'web' ?
+styled.input`
+    border: 1px solid ${props => props.theme.clearGray};
+    text-align: center;
+    min-width: 150px;
+    max-width: 480px;
+    width: calc(var(--app-width) - var(--sidebar-width) - 200px);
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-family: Roboto;
+    background-color: ${props => props.theme.clearGray};
+    padding: 5px;
+    border-radius: 5px;
+
+    &:focus {
+        outline: none;
+        border: 1px solid ${props => props.theme.gray_REFLOW}50;
+    }
+`
+:
+styled(TextInput)``
+
+export const WorkspaceEditColorSelectionContainer = process.env['APP'] === 'web' ?
+styled.div`
+    display: flex;
+    flex-direction: row
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center
+`
+:
+styled(View)``
+
+export const WorkspaceEditColorSelection = process.env['APP'] === 'web' ?
+styled.div`
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center
+`
+:
+styled(View)``
+
+export const WorkspaceEditColorButton = process.env['APP'] === 'web' ?
+styled.button`
+    border: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    background-color: ${props => props.color};
+    cursor: pointer;
+    transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
+
+    &:hover {
+        width: 25px;
+        height: 25px;
+    }
+`
+:
+styled(TouchableOpacity)``
 
 export const AppsContainer = process.env['APP'] === 'web' ? 
 styled.div`
@@ -67,14 +173,14 @@ styled.button`
     margin-left: 10px;
     font-size: 15px;
     border: 0;
-    color: ${props => props.theme.white};
+    color: ${props => whiteOrBlackColor(props.backgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.white};
     border-radius: 4px;
     padding: 5px;
     transition: color 0.3s ease-in-out;
 
     &:hover {
         cursor: pointer;
-        color: ${props => props.theme.gray_REFLOW};
+        color: ${props => whiteOrBlackColor(props.backgroundColor) === 'black' ? props.theme.white : props.theme.gray_REFLOW}};
     }
 `
 :
@@ -107,7 +213,7 @@ styled.div`
 styled(View)``
 
 export const AppsButton = process.env['APP'] === 'web' ? 
-styled.button`
+styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -130,6 +236,7 @@ export const AppsText = process.env['APP'] === 'web' ?
 styled.p`
     user-select: none;
     margin: 0;
+    font-size: 10px;
     margin-right: 10px;
     color: ${props => props.theme.gray_REFLOW};
 `

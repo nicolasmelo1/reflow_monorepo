@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useRef } from 'react'
+import { createContext, useState, useEffect } from 'react'
 import GlobalProvider, { setPersistState, getPersistState } from '../../core/contexts'
 
 const persistContext = 'areasContext'
@@ -6,35 +6,37 @@ const initialState = {
     state: {
         areas: [],
     },
-    setAreas: () => {}
+    setAreas: () => {},
+    retrieveFromPersist: () => {}
 }
 
 const AreaContext = createContext(initialState)
 
+/**
+ * This will hold the state of the areas. Areas are known as `workspaces` in the frontend. Areas can have
+ * multiple apps. Each app should obligatorily be assigned to an area (or workspace).
+ * 
+ * This is what we use to load the sidebar.
+ */
 function AreaProvider(props) {
-    const [state, _setState] = useState(initialState.state)
-
-    function setState(value) {
-        setPersistState(persistContext, value)
-        _setState(value)
-    }
+    const [state, setState] = useState(initialState.state)
 
     function setAreas(areas) {
-        setState({ areas: areas })
+        setPersistState(persistContext, { areas: areas }, setState)
     }
 
-    useEffect(() => {
-        getPersistState(persistContext).then(state => {
-            if (state !== null) {
-                _setState(state)
-            }
-        })
-    }, [])
+    /**
+     * If you cannot call the API you can call this function and we will load the data from the persist storage.
+     */
+    function retrieveFromPersist() {
+        getPersistState(persistContext, setState)
+    }
 
     return (
         <AreaContext.Provider value={{
             state,
             areas: state.areas,
+            retrieveFromPersist,
             setAreas,
         }}>
             {props.children}

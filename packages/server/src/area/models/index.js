@@ -39,13 +39,14 @@ class Area extends models.Model {
         uuid: new models.fields.UUIDField({ autoGenerate: true }),
         name: new models.fields.CharField({ maxLength: 255 }),
         labelName: new models.fields.TextField(),
-        description: new models.fields.TextField(),
+        description: new models.fields.TextField({ allowBlank: true, allowNull: true, defaultValue: null }),
         order: new models.fields.IntegerField(),
+        color: new models.fields.TextField({ allowBlank: true, allowNull: true, defaultValue: null }),
         workspace: new models.fields.ForeignKeyField({
             relatedTo: 'Workspace',
             onDelete: models.fields.ON_DELETE.CASCADE,
         }),
-        subArea: new models.fields.ForeignKeyField({
+        subAreaOf: new models.fields.ForeignKeyField({
             relatedTo: 'Area',
             relatedName: 'subAreas',
             onDelete: models.fields.ON_DELETE.CASCADE,

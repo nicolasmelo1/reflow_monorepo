@@ -64,7 +64,7 @@ const AsyncStorage = dynamicImport('@react-native-async-storage/async-storage')
  * and complex.
  * 
  * @returns {{
- *     registerProviders: (function(props): React.Component),
+ *     registerProviders: (provider: React.Component) => void,
  *     Provider: React.Component
  * }} - Returns an object with registerProviders function to add a provider and Provider component to be used.
  */
@@ -108,21 +108,27 @@ function GlobalProviderInitializer() {
  * the memory of the application. So when the user opens again we are able to load data from this state.
  * 
  * @param {string} contextName - The name of the context that we want to get the state for.
+ * @param {(state: any) => void} [setState=undefined] - The callback that will be called when the state is retrieved. The problem is that you don't 
+ * have much control with this method, this will only pass the state to the callback if the state is neither null nor undefined.
  * 
- * @returns {object} - The state of the context.
+ * @returns {object | void} - The state of the context.
  */
-export async function getPersistState(contextName) {
+export async function getPersistState(contextName, setState = undefined) {
+    let state = null
     if (process.env['APP'] === 'web' && window.localStorage !== undefined && localStorage !== undefined) {
-        const state = localStorage.getItem(contextName)
-        if (state !== null) return JSON.parse(state)
-        else return null
+        const rawState = localStorage.getItem(contextName)
+        if (rawState !== null) state = JSON.parse(rawState)
     } else if (process.env['APP'] !== 'web') {
         try {
-            const state = await AsyncStorage.getItem(contextName)
-            if (state !== null) return JSON.parse(state)
+            const rawState = await AsyncStorage.getItem(contextName)
+            if (rawState !== null) state = JSON.parse(rawState)
         } catch (e) {}
+    }
 
-        return null
+    if (setState !== undefined && typeof setState === 'function' && state !== null && state !== undefined) {
+        setState(state)
+    } else {
+        return state
     }
 }
 
@@ -135,12 +141,18 @@ export async function getPersistState(contextName) {
  * 
  * @param {string} contextName - The name of the context that we want to persist the state for.
  * @param {object} state - The state that we want to persist.
+ * @param {(state: any) => void} [setState=undefined] - The callback that will be called after the state is persisted. 
+ * The problem with this approach is that you don't have much control with this method.
  */
-export async function setPersistState(contextName, state) {
+export async function setPersistState(contextName, state, setState=undefined) {
     if (process.env['APP'] === 'web' && window.localStorage !== undefined && localStorage !== undefined) {
         localStorage.setItem(contextName, JSON.stringify(state))
     } else if (process.env['APP'] !== 'web') {
         await AsyncStorage.setItem(contextName, JSON.stringify(state))
+    }
+    
+    if (setState !== undefined) {
+        setState(state)
     }
 }
 
