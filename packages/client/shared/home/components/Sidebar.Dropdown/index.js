@@ -7,7 +7,7 @@ const defaultDelay = delay(1000)
 
 export default function SidebarDropdown(props) {
     let appUUIDByIndexReference = {}
-    const { setSelectedApp } = useContext(HomeDefaultsContext)
+    const { setState: setDefaultAppAndArea } = useContext(HomeDefaultsContext)
     const [isOpen, setIsOpen] = useState(false)
     const [isHovering, setIsHovering] = useState(false)
     const [hoveringAppUUID, setHoveringAppUUID] = useState(null)
@@ -88,10 +88,24 @@ export default function SidebarDropdown(props) {
     }
     
     /**
-     * This will change the selected app UUID in the global context. So the `HOME` component can change accordingly the selected app.
+     * This will change the selected appUUID and the area in the global context. So the `HOME` component can change accordingly when the area or the
+     * app changes. This will update both at the same time.
+     * 
+     * @param {string} appUUID - The uuid of the app that is being selected.
      */
     function onSelectAppUUID(appUUID) {
-        setSelectedApp(appUUID)
+        setDefaultAppAndArea(appUUID, props.workspace)
+    }
+
+    /**
+     * This will change the selected area. By default when an area is selected we get right away, the first app of this area. If the area has no apps
+     * then we will open directly on the page for the user to create a new app.
+     * 
+     * @param {object} area - The area object that is being selected.
+     */
+    function onSelectArea(area) {
+        const defaultApp = (props.workspace.apps.length > 0) ? props.workspace.apps[0].uuid : null
+        setDefaultAppAndArea(defaultApp, area)
     }
 
     /**
@@ -135,6 +149,7 @@ export default function SidebarDropdown(props) {
         onToggleAreaOrAppEditing={onToggleAreaOrAppEditing}
         setEditingAreaOrAppUUID={props.setEditingAreaOrAppUUID}
         editingAreaOrAppUUID={props.editingAreaOrAppUUID}
+        onSelectArea={onSelectArea}
         onSelectAppUUID={onSelectAppUUID}
         onChangeWorkspace={props.onChangeWorkspace}
         onChangeAppName={onChangeAppName}

@@ -4,6 +4,7 @@ import { colors, strings } from '../../../../core/utils/constants'
 import { faChevronRight, faBars, faTimes, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
 export default function HomeWebLayout(props) {
+    const isNoAreaSelected = props.selectedArea.uuid === null
     return (
         <Styled.Container
         onMouseMove={(e) => props.onMouseMoveOpenSidebar(e)}
@@ -27,9 +28,12 @@ export default function HomeWebLayout(props) {
                 >
                     <Styled.WorkpsaceEditButton
                     ref={props.areaDropdownEditButtonRef}
+                    isNoAreaSelected={isNoAreaSelected}
                     onClick={(e) => {
-                        e.stopPropagation()
-                        props.setIsEditingArea(!props.isEditingArea)
+                        if (isNoAreaSelected === false) {
+                            e.stopPropagation()
+                            props.setIsEditingArea(!props.isEditingArea)
+                        }
                     }}
                     >
                         <Styled.WorkspaceTitle
@@ -37,9 +41,12 @@ export default function HomeWebLayout(props) {
                         >
                             {props.selectedArea.labelName}
                         </Styled.WorkspaceTitle>
-                        <Styled.WorkspaceEditDropdownIcon 
-                        icon={faChevronDown}
-                        />
+                        {isNoAreaSelected === false ? (
+                            <Styled.WorkspaceEditDropdownIcon 
+                            backgroundColor={props.selectedArea.color}
+                            icon={faChevronDown}
+                            />
+                        ) : ''}
                     </Styled.WorkpsaceEditButton>
                     {props.isEditingArea ? (
                         <Styled.WorkspaceEditDropdownWrapper>

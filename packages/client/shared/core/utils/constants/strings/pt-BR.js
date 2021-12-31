@@ -4,4 +4,5 @@ export default {
     sidebarHistoryButtonLabel: 'Histórico',
     sidebarSettingsButtonLabel: 'Configurações',
     workspaceEditColor: 'Cores',
+    workspaceNoWorkspaceSelected: 'Nenhum workspace selecionado',
 }

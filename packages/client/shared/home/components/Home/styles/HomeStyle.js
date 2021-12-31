@@ -66,10 +66,12 @@ styled.button`
     border-radius: 5px;
     margin-bottom: 10px;
 
-    &:hover {
-        cursor: pointer;
-        background-color: ${props => props.theme.clearGray}50;
-    }
+    ${props => props.isNoAreaSelected ? '' : `
+        &:hover {
+            cursor: pointer;
+            background-color: ${props.theme.clearGray}50;
+        }
+    `}
 `
 :
 styled(TouchableOpacity)``

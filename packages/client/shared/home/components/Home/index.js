@@ -11,18 +11,8 @@ export default function Home(props) {
     const areaDropdownEditMenuRef = useRef()
     const areaDropdownEditButtonRef = useRef()
     const { areas, setAreas } = useContext(AreaContext)
-    const { state: { selectedApp: selectedAppUUID }, setSelectedApp } = useContext(HomeDefaultsContext)
+    const { state: { selectedApp: selectedAppUUID, selectedArea }, setSelectedApp, setSelectedArea } = useContext(HomeDefaultsContext)
     useClickedOrPressedOutside({ ref: areaDropdownEditMenuRef, callback: clickOutsideToClose})
-    const [selectedArea, setSelectedArea] = useState({
-        uuid: null,
-        description: "",
-        color: null,
-        labelName: "No Area Selected",
-        name: "",
-        order: 0,
-        subAreas: [],
-        apps: [],
-    })
     const [isEditingArea, setIsEditingArea] = useState(false)
     const [isResizing, setIsResizing] = useState(false)
     const [isFloatingSidebar, setIsFloatingSidebar] = useState(false)
@@ -184,7 +174,7 @@ export default function Home(props) {
      */
     function onChangeArea(newAreaData) {
         if (newAreaData.uuid === selectedArea.uuid) {
-            setSelectedArea(newAreaData)
+            //setSelectedArea(newAreaData)
         }
     }
 
@@ -275,7 +265,7 @@ export default function Home(props) {
     }, [areas])
     
     useEffect(() => {
-        if (areas && areas.length > 0 && selectedAppUUID !== null) {
+        if (areas && areas.length > 0 && selectedAppUUID !== null && selectedArea.uuid === null) {
             const foundCallback = (area) => area.apps && area.apps.map(app => app.uuid).includes(selectedAppUUID)
             const foundArea = recursiveTraverseAreas(areas, foundCallback)
             if (foundArea !== null) {
@@ -285,7 +275,7 @@ export default function Home(props) {
             }
         }
     }, [areas, selectedAppUUID])
-        
+    
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
         areaDropdownEditMenuRef={areaDropdownEditMenuRef}

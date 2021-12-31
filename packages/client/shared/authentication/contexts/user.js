@@ -46,11 +46,7 @@ function UserProvider(props) {
     }
 
     useEffect(() => {
-        getPersistState(persistContext).then(state => {
-            if (state !== null) {
-                _setState(state)
-            }
-        })
+        getPersistState(persistContext, state, _setState)
     }, [])
 
     return (

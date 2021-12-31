@@ -29,7 +29,7 @@ function AreaProvider(props) {
      * If you cannot call the API you can call this function and we will load the data from the persist storage.
      */
     function retrieveFromPersist() {
-        getPersistState(persistContext, setState)
+        getPersistState(persistContext, state, setState)
     }
 
     return (

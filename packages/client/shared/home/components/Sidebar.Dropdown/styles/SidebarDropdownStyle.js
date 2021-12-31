@@ -11,7 +11,7 @@ styled.div`
 :
 styled(View)``
 
-export const WorkspaceDropdownButton = process.env['APP'] === 'web' ?
+export const WorkspaceAreaSelector = process.env['APP'] === 'web' ?
 styled.div`
     border: 0;
     background-color: ${props => props.isEditing ? `${props.theme.clearGray}` : 'transparent'};
@@ -36,6 +36,37 @@ styled.div`
 :
 styled(TouchableOpacity)``
 
+export const WorkspaceDropdownIconAndTextContainer = process.env['APP'] === 'web' ?
+styled.div`
+    display: flex;
+    flex-direction: row;
+    overflow: hidden
+`
+:
+styled(View)``
+
+export const WorkspaceDropdownButton = process.env['APP'] === 'web' ?
+styled.button`
+    border: 0;
+    border-radius: 5px;
+    width: 25px;
+    height: 25px;
+    background-color: ${props => props.isHovering ? props.theme.clearGray : 'transparent'};
+    color: ${props => props.theme.gray_REFLOW};
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+
+    &:hover {
+        cursor: pointer;
+        background-color: ${props => props.theme.gray_REFLOW};
+        color: ${props => props.theme.clearGray};
+    }
+`
+:
+styled(TouchableOpacity)``
 
 export const WorkspaceDropdownButtonText = process.env['APP'] === 'web' ?
 styled.p`
@@ -73,7 +104,7 @@ styled.button`
     border: 0;
     background-color: ${props => props.theme.clearGray};
     border-radius: 5px;
-    height: 20px;
+    height: 25px;
     width: 25px;
     color: ${props => props.theme.gray_REFLOW};
 

@@ -9,12 +9,12 @@ export default function SidebarDropdownWebLayout(props) {
 
     return (
         <Styled.WorkspaceContainer>
-            <Styled.WorkspaceDropdownButton
+            <Styled.WorkspaceAreaSelector
             isEditing={isEditingWorkspace}
             onMouseOver={() => props.setIsHovering(true)}
             onMouseLeave={() => props.setIsHovering(false)}
             nestingLevel={isEditingWorkspace ? 0 : nestingLevel}
-            onClick={(e) => props.onToggleDropdown()}
+            onClick={() => props.onSelectArea(props.workspace)}
             >
                 {isEditingWorkspace ? (
                     <Styled.WorkspaceOrAppEditNameInput 
@@ -25,22 +25,19 @@ export default function SidebarDropdownWebLayout(props) {
                     onClick={(e) => {e.stopPropagation()}}
                     />
                 ) : (
-                    <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        overflow: 'hidden',
-                    }}
-                    > 
-                        <div style={{ width: '20px'}}>
+                    <Styled.WorkspaceDropdownIconAndTextContainer> 
+                        <Styled.WorkspaceDropdownButton
+                        isHovering={props.isHovering}
+                        onClick={(e) => props.onToggleDropdown()}
+                        >
                             <Styled.WorkspaceDropdownButtonIcon 
                             icon={props.isOpen ? faChevronDown : faChevronRight}
                             />
-                        </div>
+                        </Styled.WorkspaceDropdownButton>
                         <Styled.WorkspaceDropdownButtonText>
                             {props.workspace.labelName}
                         </Styled.WorkspaceDropdownButtonText>
-                    </div>
+                    </Styled.WorkspaceDropdownIconAndTextContainer>
                 )}
                 <Styled.HoveringButtonsContainer
                 isHovering={props.isHovering}
@@ -56,7 +53,7 @@ export default function SidebarDropdownWebLayout(props) {
                         />
                     </Styled.WorkspaceOrAppButtonEdit>
                 </Styled.HoveringButtonsContainer>
-            </Styled.WorkspaceDropdownButton>
+            </Styled.WorkspaceAreaSelector>
             {props.isOpen ? (
                 <Styled.WorkspaceAppsContainer>
                     {props.workspace.subAreas.map(subArea => {
