@@ -28,8 +28,17 @@ class AreaController extends controllers.Controller {
 class AreaEditController extends controllers.Controller {
     inputSerializer = AreaInputSerializer
 
+    async put(req, res, next, transaction) {
+        const serializer = new this.inputSerializer({
+            data: req.body
+        })
+        return res.status(status.HTTP_200_OK).json({
+            status: 'ok'
+        })
+    }
 }
 
 module.exports = {
-    AreaController
+    AreaController,
+    AreaEditController
 }

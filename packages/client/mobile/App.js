@@ -1,6 +1,6 @@
 import Main from './components/Main'
 import { NavigationContainer } from '@react-navigation/native'
-import GlobalProvider from '../shared/components/Core/contexts'
+import GlobalProvider from '../shared/core/contexts'
 import * as Linking from 'expo-linking'
 
 export default function App() {

@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from 'react'
+import { createContext, useState } from 'react'
 import GlobalProvider, { setPersistState, getPersistState } from '../../core/contexts'
 
 const persistContext = 'areasContext'

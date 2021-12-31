@@ -1,7 +1,7 @@
 import Styled from '../styles'
 import Sidebar from '../../Sidebar'
 import { colors, strings } from '../../../../core/utils/constants'
-import { faChevronRight, faBars, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faChevronRight, faBars, faTimes, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 
 export default function HomeWebLayout(props) {
     return (
@@ -9,6 +9,7 @@ export default function HomeWebLayout(props) {
         onMouseMove={(e) => props.onMouseMoveOpenSidebar(e)}
         >
             <Sidebar
+            onChangeArea={props.onChangeArea}
             selectedAreaUUID={props.selectedArea.uuid}
             onResizeSidebar={props.onResize}
             onEnableOrDisableFloating={props.onEnableOrDisableFloatingSidebar}
@@ -25,19 +26,29 @@ export default function HomeWebLayout(props) {
                 color={props.selectedArea.color}
                 >
                     <Styled.WorkpsaceEditButton
-                    onClick={() => props.setIsEditingArea(!props.isEditingArea)}
+                    ref={props.areaDropdownEditButtonRef}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        props.setIsEditingArea(!props.isEditingArea)
+                    }}
                     >
                         <Styled.WorkspaceTitle
                         backgroundColor={props.selectedArea.color}
                         >
                             {props.selectedArea.labelName}
                         </Styled.WorkspaceTitle>
+                        <Styled.WorkspaceEditDropdownIcon 
+                        icon={faChevronDown}
+                        />
                     </Styled.WorkpsaceEditButton>
                     {props.isEditingArea ? (
                         <Styled.WorkspaceEditDropdownWrapper>
-                            <Styled.WorkspaceEditDropdownContainer>
+                            <Styled.WorkspaceEditDropdownContainer
+                            ref={props.areaDropdownEditMenuRef}
+                            >
                                 <Styled.WorkspaceEditInput 
                                 type={'text'} 
+                                autoFocus={true}
                                 value={props.selectedArea.labelName} 
                                 onChange={(e) => props.onChangeAreaNameOrColor({ newName: e.target.value })}
                                 />
@@ -80,6 +91,7 @@ export default function HomeWebLayout(props) {
                                 <Styled.AppsButton
                                 key={app.uuid}
                                 isSelected={app.uuid === props.selectedAppUUID}
+                                onClick={() => props.setSelectedApp(app.uuid)}
                                 >
                                     <Styled.AppsText>
                                         {app.labelName}

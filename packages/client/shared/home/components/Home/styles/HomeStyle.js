@@ -42,6 +42,7 @@ styled.h1`
     font-family: Roboto;
     user-select: none;
     margin: 0;
+    margin-right: 10px;
     font-size: 21px;
     color: ${props => whiteOrBlackColor(props.backgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.white};
     font-weight: 600;
@@ -50,8 +51,16 @@ styled.h1`
 :
 styled(Text)``
 
+export const WorkspaceEditDropdownIcon = styled(FontAwesomeIcon)`
+    color: ${props => whiteOrBlackColor(props.backgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.white};
+`
+
 export const WorkpsaceEditButton = process.env['APP'] === 'web' ?
 styled.button`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     background-color: transparent;
     border: 0;
     border-radius: 5px;
@@ -214,18 +223,20 @@ styled(View)``
 
 export const AppsButton = process.env['APP'] === 'web' ? 
 styled.div`
+    
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     padding: 10px;
     margin: 0;
-    border: 0;
+    border: 1px solid ${props => props.isSelected ? props.theme.clearGray : props.theme.white};
     background-color: ${props => props.isSelected ? props.theme.clearGray : props.theme.white};
-    transition: background-color 0.3s ease-in-out;
+    transition: background-color 0.3s ease-in-out, border 0.3s ease-in-out;
 
     &:hover {
         cursor: pointer;
+        border: 1px solid ${props => props.theme.gray_REFLOW}50;
         background-color: ${props => props.theme.clearGray};
     }
 `

@@ -3,7 +3,7 @@ import Layouts from './layouts'
 import homeAgent from '../../agent'
 import { UserContext } from '../../../authentication/contexts'
 import { AreaContext } from '../../contexts'
-
+ 
 /**
  * This component is the sidebar. It will hold all of the workspaces of the user as well the 
  * menus like `Quick Search`, `History`, etc.
@@ -24,6 +24,7 @@ function Sidebar(props) {
     const { user } = useContext(UserContext)
     const { areas, setAreas, retrieveFromPersist } = useContext(AreaContext)
     const isResizingRef = useRef(false)
+    const [editingAreaOrAppUUID, setEditingAreaOrAppUUID] = useState(null)
     const [isResizing, _setIsResizing] = useState(false)
     const [openedWorkspacesIds, setOpenedWorspacesIds] = useState([])
 
@@ -134,6 +135,31 @@ function Sidebar(props) {
         document.addEventListener('mouseup', onStopResizingSidebar)
     }
 
+    /**
+     * We update by reference so we don't need to traverse the array everytime an workspace has changed.
+     * 
+     * This is better explained in `Sidebar.Dropdown` component.
+     * 
+     * If onChangeArea is defined we will call this function so we can change in the home screen the name of the selected area.
+     * 
+     * @param {{
+     *  uuid: string, 
+     *  description: string, 
+     *  color: string | null,
+     *  labelName: string,
+     *  name: string,
+     *  order: number,
+     *  subAreas: Array<object>,
+     *  apps: Array<{}>
+     * }} workspaceData - this is the new data for the area.
+     */
+    function onChangeWorkspace(workspaceData) {
+        setAreas(areas)
+        if (props.onChangeArea !== undefined && typeof props.onChangeArea === 'function') {
+            props.onChangeArea(workspaceData)
+        }
+    }
+
     useEffect(() => {
         defineWidthOfSidebar()
     }, [])
@@ -161,7 +187,10 @@ function Sidebar(props) {
         user={user}
         workspaces={areas !== undefined ? areas : []}
         isResizing={isResizing}
+        editingAreaOrAppUUID={editingAreaOrAppUUID}
+        setEditingAreaOrAppUUID={setEditingAreaOrAppUUID}
         onStartResizingSidebar={onStartResizingSidebar}
+        onChangeWorkspace={onChangeWorkspace}
         onOpenOrCloseWorkspaceDropdown={onOpenOrCloseWorkspaceDropdown}
         onEnableOrDisableFloating={props.onEnableOrDisableFloating}
         openedWorkspacesIds={openedWorkspacesIds}

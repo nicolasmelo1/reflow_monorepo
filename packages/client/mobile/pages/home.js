@@ -1,4 +1,4 @@
-import { Layout, Sidebar } from '../../shared/components'
+import { Layout, Sidebar } from '../../shared'
 
 export default function HomePage(props) {
     return (

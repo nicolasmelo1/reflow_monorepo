@@ -1,4 +1,4 @@
-import { Layout, Login } from '../../shared/components'
+import { Layout, Login } from '../../shared'
 
 export default function LoginPage(props) {
     return (

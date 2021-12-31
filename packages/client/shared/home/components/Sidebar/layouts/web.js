@@ -86,6 +86,9 @@ function SidebarWebLayout(props) {
                         <SidebarDropdown
                         key={workspace.uuid}
                         workspace={workspace}
+                        onChangeWorkspace={props.onChangeWorkspace}
+                        editingAreaOrAppUUID={props.editingAreaOrAppUUID}
+                        setEditingAreaOrAppUUID={props.setEditingAreaOrAppUUID}
                         />
                     ))}
                 </Styled.AppsContainer>

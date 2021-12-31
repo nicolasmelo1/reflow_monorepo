@@ -10,6 +10,7 @@ module.exports = {
     },
     projectRoot: path.resolve(__dirname),
     watchFolders: [
+        path.resolve(__dirname, '../../shared'),
         path.resolve(__dirname, '../shared'),
     ],
     transformer: {
