@@ -1,13 +1,20 @@
 import { useState, useEffect, useContext } from 'react'
-import { HomeDefaultsContext } from '../../contexts'
+import { UserContext } from '../../../authentication/contexts'
+import { AreaContext, HomeDefaultsContext } from '../../contexts'
 import Layouts from './layouts'
 import { delay } from '../../../../../shared/utils'
+import homeAgent from '../../agent'
+import { useRouterOrNavigationRedirect } from '../../../core/hooks'
+import { paths } from '../../../core/utils/constants'
 
-const defaultDelay = delay(1000)
+const defaultDelay = delay(300)
 
 export default function SidebarDropdown(props) {
     let appUUIDByIndexReference = {}
-    const { setState: setDefaultAppAndArea } = useContext(HomeDefaultsContext)
+    const redirect = useRouterOrNavigationRedirect()
+    const { user } = useContext(UserContext)
+    const [workspace, setWorkspace] = useState(props.workspace)
+    const { state: { nonUniqueAreaUUIDs }} = useContext(AreaContext)
     const [isOpen, setIsOpen] = useState(false)
     const [isHovering, setIsHovering] = useState(false)
     const [hoveringAppUUID, setHoveringAppUUID] = useState(null)
@@ -16,9 +23,36 @@ export default function SidebarDropdown(props) {
         defaultDelay(() => {
         })
     }
-
+    /** 
+     * This will submit the changes to 2 places: 
+     * - First we will call the parent `onChangeWorkspace` function that will be responsible for calling `setArea` from AreaContext and update the area.
+     * - Second we will call the API to update the workspace in the backend.
+     * 
+     * It's important to notice here that `onChangeWorkspace` returns a promise, this promise is the state of `AreaContext`. For us, this means that we are able to
+     * see if the areaUUID is NON UNIQUE. IF it is we unique we will update the state of the area and also we will save this state in the backend. Otherwise, no change
+     * will be submited for the backend.
+     * 
+     * @param {{
+     *  uuid: string, 
+     *  description: string, 
+     *  color: string | null,
+     *  labelName: string,
+     *  name: string,
+     *  order: number,
+     *  subAreas: Array<object>,
+     *  subAreaOfUUID: string,
+     *  apps: Array<{}>
+     * }} areaData - The new data of the area. THe area was changed, we update the state, but react actually memoizes the state changes,
+     * this means that when we call this function the state will be exactly as it was before the update. So we need to pass the new state directly
+     * so we can use it.
+     */ 
     function submitAreaChanges(areaData) {
         defaultDelay(() => {
+            props.onChangeWorkspace(areaData).then(({ nonUniqueAreaUUIDs }) => {
+                if (!nonUniqueAreaUUIDs.includes(areaData.uuid)) {
+                    homeAgent.updateArea(user.workspaces[0].uuid, areaData.uuid, areaData)
+                }
+            })
         })
     }
 
@@ -38,9 +72,10 @@ export default function SidebarDropdown(props) {
      * @param {string} newName - The new name of the workspace.
      */
     function onChangeWorkspaceName(newName) {
+        workspace.labelName = newName
         props.workspace.labelName = newName
-        submitAreaChanges(props.workspace)
-        props.onChangeWorkspace(props.workspace)
+        setWorkspace({...workspace})
+        submitAreaChanges({...workspace})
     }
 
     /**
@@ -88,24 +123,25 @@ export default function SidebarDropdown(props) {
     }
     
     /**
-     * This will change the selected appUUID and the area in the global context. So the `HOME` component can change accordingly when the area or the
-     * app changes. This will update both at the same time.
+     * This will redirect the user to the specific appUUID and workspaceUUID selected.
      * 
      * @param {string} appUUID - The uuid of the app that is being selected.
      */
     function onSelectAppUUID(appUUID) {
-        setDefaultAppAndArea(appUUID, props.workspace)
+        redirect(paths.app.asUrl.replace('{workspaceUUID}', props.workspace.uuid).replace('{appUUID}', appUUID))
     }
 
     /**
-     * This will change the selected area. By default when an area is selected we get right away, the first app of this area. If the area has no apps
+     * This will redirect the user to the selected area. By default when an area is selected we get right away, the first app of this area. If the area has no apps
      * then we will open directly on the page for the user to create a new app.
-     * 
-     * @param {object} area - The area object that is being selected.
      */
-    function onSelectArea(area) {
-        const defaultApp = (props.workspace.apps.length > 0) ? props.workspace.apps[0].uuid : null
-        setDefaultAppAndArea(defaultApp, area)
+    function onSelectArea() {
+        if (props.workspace.apps.length > 0) {
+            const appUUID = props.workspace.apps[0].uuid
+            redirect(paths.app.asUrl.replace('{workspaceUUID}', props.workspace.uuid).replace('{appUUID}', appUUID))
+        } else {
+            redirect(paths.workspace.asUrl.replace('{workspaceUUID}', props.workspace.uuid))
+        }
     }
 
     /**
@@ -139,10 +175,19 @@ export default function SidebarDropdown(props) {
         }
     }, [])
 
+    /**
+     * We keep on the state the workspace data. So we don't need to rerender everytime the hole sidebar. We are also able
+     * to add accents to the workspace name which will not be possible if you change the props.workspace directly.
+     */
+    useEffect(() => {
+        setWorkspace({...props.workspace})
+    }, [props.workspace.labelName, props.workspace.color])
+
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
         isOpen={isOpen}
         isHovering={isHovering}
+        nonUniqueAreaUUIDs={nonUniqueAreaUUIDs}
         setIsHovering={setIsHovering}
         hoveringAppUUID={hoveringAppUUID}
         setHoveringAppUUID={setHoveringAppUUID}
@@ -155,7 +200,7 @@ export default function SidebarDropdown(props) {
         onChangeAppName={onChangeAppName}
         onChangeWorkspaceName={onChangeWorkspaceName}
         onToggleDropdown={onToggleDropdown}
-        workspace={props.workspace}
+        workspace={workspace}
         nestingLevel={props.nestingLevel}
         />
     ) : (

@@ -133,7 +133,7 @@ class JSONField extends Field {}
 
 class UUIDField extends CharField {
     constructor({autoGenerate=false,...rest} = {}) {
-        super({maxLength: 32, ...rest})
+        super({maxLength: 36, ...rest})
         this.autoGenerate = false
     }
 }

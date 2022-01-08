@@ -51,6 +51,7 @@ styled.button`
     border: 0;
     background-color: transparent;
     width: 4px;
+    z-index: 2;
     cursor: col-resize;
     padding: 0;
     transition: background-color 0.3s ease-in-out;
@@ -234,9 +235,46 @@ export const AppsContainer = process.env['APP'] === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
+    margin-top: 15px;
 `
 :
 styled(View)``
+
+export const CreateNewWorkspaceButton = process.env['APP'] === 'web' ?
+styled.button`
+    font-family: Roboto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background-color:  ${props => props.theme.clearGray};
+    padding: 10px;
+    font-size: 18px;
+    width: 100%;
+    border-radius: 5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin-top: 15px;
+    
+    &:hover {
+        cursor: pointer;
+        background-color: ${props => props.theme.green_REFLOW}50;
+    }
+`
+:
+styled(TouchableOpacity)``
+
+export const AppsAndAreasList = process.env['APP'] === 'web' ?
+styled.div`
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    ${props => props.isFloating ? 'max-height: calc(var(--sidebar-workspaces-height) - 100px);' : `height: var(--sidebar-workspaces-height);`}
+`
+:
+styled(View)`
+`
 
 export const WorkspacesHeadingTitle = process.env['APP'] === 'web' ?
 styled.h1`
@@ -244,6 +282,9 @@ styled.h1`
     margin: 10px 0 10px 0;
     font-weight: bold;
     font-size: 15px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
     color: ${props => props.theme.green_REFLOW}
 `
 :

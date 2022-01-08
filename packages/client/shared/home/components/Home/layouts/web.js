@@ -1,10 +1,13 @@
 import Styled from '../styles'
 import Sidebar from '../../Sidebar'
+import App from '../../App'
 import { colors, strings } from '../../../../core/utils/constants'
-import { faChevronRight, faBars, faTimes, faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { faChevronRight, faBars, faTimes, faChevronDown, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons'
 
 export default function HomeWebLayout(props) {
     const isNoAreaSelected = props.selectedArea.uuid === null
+    const isNonUniqueAreaName = props.nonUniqueAreaUUIDs.includes(props.selectedArea.uuid)
+
     return (
         <Styled.Container
         onMouseMove={(e) => props.onMouseMoveOpenSidebar(e)}
@@ -37,6 +40,7 @@ export default function HomeWebLayout(props) {
                     }}
                     >
                         <Styled.WorkspaceTitle
+                        isInvalid={isNonUniqueAreaName}
                         backgroundColor={props.selectedArea.color}
                         >
                             {props.selectedArea.labelName}
@@ -44,6 +48,7 @@ export default function HomeWebLayout(props) {
                         {isNoAreaSelected === false ? (
                             <Styled.WorkspaceEditDropdownIcon 
                             backgroundColor={props.selectedArea.color}
+                            isNonUniqueAreaName={isNonUniqueAreaName}
                             icon={faChevronDown}
                             />
                         ) : ''}
@@ -56,23 +61,42 @@ export default function HomeWebLayout(props) {
                                 <Styled.WorkspaceEditInput 
                                 type={'text'} 
                                 autoFocus={true}
+                                isInvalid={isNonUniqueAreaName}
                                 value={props.selectedArea.labelName} 
                                 onChange={(e) => props.onChangeAreaNameOrColor({ newName: e.target.value })}
                                 />
+                                {isNonUniqueAreaName ? (
+                                    <small
+                                    style={{
+                                        color: 'red'
+                                    }}
+                                    >
+                                        {strings('pt-BR', 'workspaceNotUniqueErrorMessage')}
+                                    </small>
+                                ): ''}
                                 <p>
                                     {strings('pt-BR', 'workspaceEditColor')}
                                 </p>
                                 <Styled.WorkspaceEditColorSelectionContainer>
                                     {colors.map(color => (
-                                        <Styled.WorkspaceEditColorSelection>
+                                        <Styled.WorkspaceEditColorSelection
+                                        key={color}
+                                        >
                                             <Styled.WorkspaceEditColorButton
-                                            key={color}
                                             color={color}
                                             onClick={() => props.onChangeAreaNameOrColor({ newColor: color })}
                                             />
                                         </Styled.WorkspaceEditColorSelection>
                                     ))}
                                 </Styled.WorkspaceEditColorSelectionContainer>
+                                <Styled.WorkspaceRemoveContainer>
+                                    <Styled.RemoveWorkspaceButton
+                                    onClick={(e) => props.onRemoveArea(props.selectedArea.uuid)}
+                                    >
+                                        <Styled.RemoveWorkspaceButtonIcon icon={faTrash}/>
+                                        {strings('pt-BR', 'workspaceRemoveButtonLabel')}
+                                    </Styled.RemoveWorkspaceButton>
+                                </Styled.WorkspaceRemoveContainer>
                             </Styled.WorkspaceEditDropdownContainer>
                         </Styled.WorkspaceEditDropdownWrapper>
                     ) : ''}
@@ -108,13 +132,17 @@ export default function HomeWebLayout(props) {
                                     </Styled.AppsRemoveButton>
                                 </Styled.AppsButton>
                             ))}
+                            <Styled.AddNewAppButton>
+                                {strings('pt-BR', 'workspaceAddNewAppButtonLabel')}
+                                <Styled.AddNewAppButtonIcon icon={faPlus}/>
+                            </Styled.AddNewAppButton>
                         </Styled.AppsScroller>
                     </Styled.AppsContainer>
                 </Styled.TopContainer>
-                <h2> Teste </h2>
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </p>
+                <App
+                isSidebarFloating={props.isFloatingSidebar}
+                isSidebarOpen={props.isOpenSidebar}
+                />
             </Styled.ContentContainer>
         </Styled.Container>
     )

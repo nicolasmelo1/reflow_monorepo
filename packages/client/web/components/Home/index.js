@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import Head from '../Head'
 import { Layout, Home } from '../../../shared'
 
@@ -6,12 +7,17 @@ import { Layout, Home } from '../../../shared'
  * aplication.
  */
 export default function HomePage(props) {
+    const router = useRouter()
+
     return (
         <Layout>
             <Head
             title={'Home'}
             />
-            <Home/>
+            <Home
+            appUUID={router.query.appUUID}
+            workspaceUUID={router.query.workspaceUUID}
+            />
         </Layout>
     )
 }

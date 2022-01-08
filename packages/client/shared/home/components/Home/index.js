@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef, useContext } from 'react'
-import { HomeDefaultsContext, AreaContext } from '../../contexts'
+import { HomeDefaultsContext, AreaContext, HomeContext } from '../../contexts'
+import { UserContext } from '../../../authentication/contexts'
 import { delay } from '../../../../../shared/utils'
 import Layouts from './layouts'
-import { useClickedOrPressedOutside } from '../../../core/hooks'
+import { useClickedOrPressedOutside, useRouterOrNavigationRedirect } from '../../../core/hooks'
+import homeAgent from '../../agent'
+import { paths } from '../../../core/utils/constants'
 
 const defaultDelay = delay(1000)
 
@@ -10,14 +13,61 @@ export default function Home(props) {
     const isMountedRef = useRef(false)
     const areaDropdownEditMenuRef = useRef()
     const areaDropdownEditButtonRef = useRef()
-    const { areas, setAreas } = useContext(AreaContext)
-    const { state: { selectedApp: selectedAppUUID, selectedArea }, setSelectedApp, setSelectedArea } = useContext(HomeDefaultsContext)
+    const redirect = useRouterOrNavigationRedirect()
+    const { user } = useContext(UserContext)
+    const { state: { isEditingArea }, setIsEditingArea } = useContext(HomeContext)
+    const { state: {areas, nonUniqueAreaUUIDs }, setAreas, recursiveTraverseAreas } = useContext(AreaContext)
+    const { 
+        state: { selectedApp: selectedAppUUID, selectedArea }, 
+        setSelectedApp, 
+        setSelectedArea, 
+        setState: setSelectedAreaAndApp 
+    } = useContext(HomeDefaultsContext)
     useClickedOrPressedOutside({ ref: areaDropdownEditMenuRef, callback: clickOutsideToClose})
-    const [isEditingArea, setIsEditingArea] = useState(false)
     const [isResizing, setIsResizing] = useState(false)
     const [isFloatingSidebar, setIsFloatingSidebar] = useState(false)
-    const [isOpenSidebar, setIsOpenSidebar] = useState(false)
+    const [isOpenSidebar, setIsOpenSidebar] = useState(true)
     const [isToPreventSidebarCollapse, setIsToPreventSidebarCollapse] = useState(false)
+    const [isRemovingArea, setIsRemovingArea] = useState(false)
+
+    /**
+     * This is kinda complicated but it will update the area by reference. Every object in memory exists in the heap
+     * we will always pass them by reference. This means that when we do `foundArea.labelName = newName` we are changing
+     * the value of the actual object in memory. This means, foundArea is the SAME object from the `areas` array so when we 
+     * change it's value we are changing the value of the object in the `areas` array.
+     * 
+     * We add this in a delay because obviously recursively traversing the areas is kinda costly so we will only edit it
+     * when we are sure that the user has stopped typing.
+     * 
+     * Besides traversing the list of areas what we do is update the state in the backend with the new area data.
+     * 
+     * @param {{
+     *  uuid: string, 
+     *  description: string, 
+     *  color: string | null,
+     *  labelName: string,
+     *  name: string,
+     *  order: number,
+     *  subAreas: Array<object>,
+     *  subAreaOfUUID: string,
+     *  apps: Array<{}>
+     * }} newAreaData - This is the new data of the area that you want to update in the areas array.
+     */
+    function submitAreaChanges(newAreaData) {
+        defaultDelay(async () => {
+            const foundCallback = (area) => area.uuid === newAreaData.uuid
+            const foundArea = await recursiveTraverseAreas(foundCallback, areas)
+            if (foundArea) {
+                foundArea.labelName = newAreaData.labelName
+                foundArea.color = newAreaData.color
+                setAreas([...areas]).then(({nonUniqueAreaUUIDs}) => {
+                    if (!nonUniqueAreaUUIDs.includes(newAreaData.uuid)) {
+                        homeAgent.updateArea(user.workspaces[0].uuid, newAreaData.uuid, newAreaData)
+                    }
+                })
+            }
+        })
+    }
 
     /**
      * / *  WEB ONLY  * /
@@ -47,9 +97,11 @@ export default function Home(props) {
      * or not. The idea is that when the user is moving the mouse inside of the sidebar the sidebar cannot be collapsed
      * but when he moves away than the sidebar is able to be collapsed.
      */
-    function onPreventSidebarCollapse(isToPreventSidebarCollapse) {
+    function onPreventSidebarCollapse(preventSidebarCollapse) {
         if (process.env['APP'] === 'web') {
-            setIsToPreventSidebarCollapse(isToPreventSidebarCollapse)
+            if (isToPreventSidebarCollapse !== preventSidebarCollapse) {
+                setIsToPreventSidebarCollapse(preventSidebarCollapse)
+            }
         }
     }
 
@@ -130,26 +182,7 @@ export default function Home(props) {
             color: newColor !== null ? newColor : selectedArea.color,
         }
         setSelectedArea(newData)
-        /**
-         * This is kinda complicated but it will update the area by reference. Every object in memory exists in the heap
-         * we will always pass them by reference. This means that when we do `foundArea.labelName = newName` we are changing
-         * the value of the actual object in memory. This means, foundArea is the SAME object from the `areas` array so when we 
-         * change it's value we are changing the value of the object in the `areas` array.
-         * 
-         * We add this in a delay because obviously recursively traversing the areas is kinda costly so we will only edit it
-         * when we are sure that the user has stopped typing.
-         */
-        defaultDelay(() => {
-            const foundCallback = (area) => area.apps && area.apps.map(app => app.uuid).includes(selectedAppUUID)
-            const foundArea = recursiveTraverseAreas(areas, foundCallback)
-            if (foundArea) {
-                if (newName !== null) foundArea.labelName = newName
-                if (newColor !== null) foundArea.color = newColor
-                setAreas(areas)
-            }
-
-            // TODO: Submit changes to server.
-        })
+        submitAreaChanges(newData)
     }
 
     /**
@@ -169,59 +202,55 @@ export default function Home(props) {
      *  name: string,
      *  order: number,
      *  subAreas: Array<object>,
+     *  subAreaOfUUID: string,
      *  apps: Array<{}>
      * }} newAreaData - This is the new data for the area.
      */
     function onChangeArea(newAreaData) {
         if (newAreaData.uuid === selectedArea.uuid) {
-            //setSelectedArea(newAreaData)
+            setSelectedArea(newAreaData)
         }
     }
 
     /**
-     * This will recursively traverse all of the areas of the application and return the area when a certain condition is satisfied.
+     * This function will remove the areas from the areas array.
      * 
-     * The condition is a callback that we send, it is a function we recieve in this function and that we call passing only the area
-     * to check if it satisfies a condition or not.
+     * We do this by transversing the areas array and removing the area that has the same uuid as the one that we want to remove.
+     * In other words, what we do is that we create a new array of areas if by appending all the areas that are not the one we want to remove.
+     * After removing the area we select by the default the first area and app that we encounter.
      * 
-     * @param {Array<{
-     *  uuid: string, 
-     *  description: string, 
-     *  color: string | null,
-     *  labelName: string,
-     *  name: string,
-     *  order: number,
-     *  subAreas: Array<object>,
-     *  apps: Array<{}>
-     * }} areas - An array with all of the areas of the application.
-     * @param {(area: object) => boolean} condition - The condition that we will check if the area satisfies so we return the area object.
-     * 
-     * @returns {{
-     *  uuid: string, 
-     *  description: string, 
-     *  color: string | null,
-     *  labelName: string,
-     *  name: string,
-     *  order: number,
-     *  subAreas: Array<object>,
-     *  apps: Array<{}>
-     * }} - Returns the area found that satisfies the condition specified.
+     * @param {string} areaUUID - the uuid of the area that we want to remove.
      */
-    function recursiveTraverseAreas(areas, foundCallback) {
-        function traverse(areas) {
+    function onRemoveArea(areaUUID) {
+        const traverseAndRemove = (areas) => {
+            let newAreas = []
+            let order = 0
             for (const area of areas) {
-                if (foundCallback(area)) {
-                    return area
-                } else if (area.subAreas && area.subAreas.length > 0) {
-                    const result = traverse(area.subAreas)
-                    if (result !== null) {
-                        return result
-                    }
+                if (area.subAreas && area.subAreas.length > 0) {
+                    area.subAreas = traverseAndRemove(area.subAreas)
                 }
+                if (area.uuid !== areaUUID) {
+                    area.order = order
+                    newAreas.push(area)
+                } 
+                order++
             }
-            return null
+            return newAreas
         }
-        return traverse(areas)
+
+        if (isRemovingArea === false) {
+            setIsRemovingArea(true)
+            homeAgent.removeArea(user.workspaces[0].uuid, areaUUID).then(response => {
+                if (response && response.status === 200) {
+                    const newAreas = traverseAndRemove(areas)
+                    setAreas(newAreas)
+                    findFirstAreaAndAppAndSetDefault()
+                }
+                setIsRemovingArea(false)
+            }).catch(e => {
+                setIsRemovingArea(false)
+            })
+        } 
     }
 
     /**
@@ -230,15 +259,49 @@ export default function Home(props) {
      * 
      * It will traverse the areas and apps tree and try to find the first app that satisfies the condition.
      */
-    function findFirstAreaAndAppAndSetDefault() {
+    async function findFirstAreaAndAppAndSetDefault() {
         const foundCallback = (area) => area.apps && area.apps.length > 0
-        const foundArea = recursiveTraverseAreas(areas, foundCallback)
+        const foundArea = await recursiveTraverseAreas(foundCallback, areas)
         if (foundArea !== null) {
-            setSelectedApp(foundArea.apps[0].uuid)
-            setSelectedArea({...foundArea})
+            redirect(paths.app.asUrl.replace('{workspaceUUID}', foundArea.uuid).replace('{appUUID}', foundArea.apps[0].uuid))
+            setIsEditingArea(false)
         }
     }
 
+    /**
+     * This function will select the area based on an appUUID. If the area is found and the app and the area are the same as the `props.workspaceUUID` and `props.appUUID`
+     * we will just set the selectedAreaAndApp. Otherwise we will redirect to the right workspace and app uuids.
+     * 
+     * The idea here is simple, we want to keep the state always correct, the url also holds the state for the content we are seeing at the current time.
+     * 
+     * So the idea is that when we select an app we want to redirect the user to the exact workspaceUUID of the given appUUID..
+     * 
+     * If no area is found for the given uuid, we just select the first area and app.
+     * 
+     * @param {string} appUUID - This is the uuid of the app we want to select.
+     */
+    async function selectAreaBasedOnAppUUID(appUUID) {
+        const foundCallback = (area) => area.apps && area.apps.map(app => app.uuid).includes(appUUID)
+        recursiveTraverseAreas(foundCallback, areas).then(foundArea => {
+            if (foundArea !== null) {
+                if (props.workspaceUUID !== foundArea.uuid || props.appUUID !== appUUID) {
+                    setIsEditingArea(false)
+                    redirect(paths.app.asUrl.replace('{workspaceUUID}', foundArea.uuid).replace('{appUUID}', appUUID))
+                } else {
+                    setSelectedAreaAndApp(appUUID, foundArea)
+                }
+            } else {
+                findFirstAreaAndAppAndSetDefault()
+            }
+        })
+    }
+    /**
+     * / * WEB ONLY * /
+     * 
+     * Function called when the user clicks outside of the dropdown menu.
+     * 
+     * @param {React.SyntheticEvent} event - The event that triggered the function.
+     */
     function clickOutsideToClose(e) {
         if(areaDropdownEditButtonRef.current !== null && !areaDropdownEditButtonRef.current.contains(e.target)) {
             setIsEditingArea(false)
@@ -255,37 +318,45 @@ export default function Home(props) {
     }, [])
 
     /**
-     * This will transverse the tree like structure to get the first app we encounter as the selected app of the user.
-     * We will only transverse if there is something in the `areas` array and if the selected area or selectedApp is null.
+     * This will change the state accordingly depending of the url we are in. By default the url 
      */
     useEffect(() => {
-        if (areas && areas.length > 0 && selectedAppUUID === null) {
-            findFirstAreaAndAppAndSetDefault()
-        }
-    }, [areas])
-    
-    useEffect(() => {
-        if (areas && areas.length > 0 && selectedAppUUID !== null && selectedArea.uuid === null) {
-            const foundCallback = (area) => area.apps && area.apps.map(app => app.uuid).includes(selectedAppUUID)
-            const foundArea = recursiveTraverseAreas(areas, foundCallback)
-            if (foundArea !== null) {
-                setSelectedArea({...foundArea})
+        if (areas && areas.length > 0) {
+            if (![null, undefined].includes(props.appUUID)) {
+                selectAreaBasedOnAppUUID(props.appUUID)
+            } else if (![null, undefined].includes(props.workspaceUUID)) {
+                const foundCallback = (area) => area.uuid && area.uuid === props.workspaceUUID
+                recursiveTraverseAreas(foundCallback, areas).then(foundArea => {
+                    if (foundArea !== null) {
+                        if (foundArea.apps && foundArea.apps.length > 0) {
+                            const appUUID = foundArea.apps[0].uuid
+                            setIsEditingArea(false)
+                            redirect(paths.app.asUrl.replace('{workspaceUUID}', props.workspaceUUID).replace('{appUUID}', appUUID))
+                        } else {
+                            setSelectedAreaAndApp(null, foundArea)
+                        }
+                    } else {
+                        findFirstAreaAndAppAndSetDefault()
+                    }
+                })
             } else {
                 findFirstAreaAndAppAndSetDefault()
             }
         }
-    }, [areas, selectedAppUUID])
-    
+    }, [areas, props.workspaceUUID, props.appUUID])
+
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
         areaDropdownEditMenuRef={areaDropdownEditMenuRef}
         areaDropdownEditButtonRef={areaDropdownEditButtonRef}
         onResize={onResize}
         onChangeAreaNameOrColor={onChangeAreaNameOrColor}
+        nonUniqueAreaUUIDs={nonUniqueAreaUUIDs}
         setIsEditingArea={setIsEditingArea}
         isEditingArea={isEditingArea}
         isResizing={isResizing}
         onChangeArea={onChangeArea}
+        onRemoveArea={onRemoveArea}
         selectedArea={selectedArea}
         setSelectedApp={setSelectedApp}
         selectedAppUUID={selectedAppUUID}

@@ -1,3 +1,4 @@
+import React from 'react'
 import styled from 'styled-components'
 import { View, TouchableOpacity, Text, TextInput } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -44,15 +45,20 @@ styled.h1`
     margin: 0;
     margin-right: 10px;
     font-size: 21px;
-    color: ${props => whiteOrBlackColor(props.backgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.white};
+    color: ${props => props.isInvalid ? 
+        props.theme.red_REFLOW :
+        whiteOrBlackColor(props.backgroundColor) === 'black' ? 
+            props.theme.gray_REFLOW : props.theme.white};
     font-weight: 600;
     transition: color 0.3s ease-in-out;
 `
 :
 styled(Text)``
 
-export const WorkspaceEditDropdownIcon = styled(FontAwesomeIcon)`
-    color: ${props => whiteOrBlackColor(props.backgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.white};
+export const WorkspaceEditDropdownIcon = styled(React.forwardRef(({isNonUniqueAreaName, backgroundColor, ...rest}, ref) => (
+    <FontAwesomeIcon {...rest} ref={ref}/>
+)))`
+    color: ${props => props.isNonUniqueAreaName ? props.theme.red_REFLOW : whiteOrBlackColor(props.backgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.white};
 `
 
 export const WorkpsaceEditButton = process.env['APP'] === 'web' ?
@@ -103,6 +109,43 @@ styled.div`
 :
 styled(View)``
 
+export const WorkspaceRemoveContainer = process.env['APP'] === 'web' ?
+styled.div`
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+`
+:
+styled(View)``
+
+export const RemoveWorkspaceButton = process.env['APP'] === 'web' ?
+styled.button`
+    display: flex;
+    flex-direction: row;
+    background-color: transparent;
+    border: 0;
+    border-radius: 5px;
+    color: ${props => props.theme.red_REFLOW};
+    padding: 5px 10px;
+
+    &:hover {
+        cursor: pointer;
+        background-color: ${props => props.theme.red_REFLOW}50;
+    }
+`
+:
+styled(TouchableOpacity)``
+
+export const RemoveWorkspaceButtonIcon = styled(React.forwardRef(({...rest}, ref) => (
+    <FontAwesomeIcon {...rest} ref={ref}/>
+)))`
+    margin-right: 10px;
+    color: ${props => props.theme.red_REFLOW};
+`
+
 export const WorkspaceEditInput = process.env['APP'] === 'web' ?
 styled.input`
     border: 1px solid ${props => props.theme.clearGray};
@@ -116,7 +159,8 @@ styled.input`
     background-color: ${props => props.theme.clearGray};
     padding: 5px;
     border-radius: 5px;
-
+    color: ${props => props.isInvalid ? props.theme.red_REFLOW : props.theme.gray_REFLOW};
+    
     &:focus {
         outline: none;
         border: 1px solid ${props => props.theme.gray_REFLOW}50;
@@ -128,10 +172,10 @@ styled(TextInput)``
 export const WorkspaceEditColorSelectionContainer = process.env['APP'] === 'web' ?
 styled.div`
     display: flex;
-    flex-direction: row
+    flex-direction: row;
     width: 100%;
     flex-wrap: wrap;
-    justify-content: center
+    justify-content: center;
 `
 :
 styled(View)``
@@ -225,7 +269,6 @@ styled(View)``
 
 export const AppsButton = process.env['APP'] === 'web' ? 
 styled.div`
-    
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -244,6 +287,34 @@ styled.div`
 `
 :
 styled(TouchableOpacity)``
+
+export const AddNewAppButton = process.env['APP'] === 'web' ? 
+styled.button`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 10px;
+    font-family: Roboto;
+    font-size: 10px;
+    margin: 0;
+    border: 1px solid transparent;
+    color: ${props => props.theme.white};
+    background-color: ${props => props.theme.gray_REFLOW};
+    transition: background-color 0.3s ease-in-out, border 0.3s ease-in-out;
+
+    &:hover {
+        cursor: pointer;
+        color: ${props => props.theme.gray_REFLOW};
+        background-color: ${props => props.theme.white};
+    }
+`
+:
+styled(TouchableOpacity)``
+
+export const AddNewAppButtonIcon = styled(FontAwesomeIcon)`
+    margin-left: 10px;
+`
 
 export const AppsText = process.env['APP'] === 'web' ? 
 styled.p`

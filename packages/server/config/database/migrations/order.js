@@ -58,13 +58,6 @@ const reorderMigrations = (migrations) => {
  * newDifferences list is like:
  * ['CompanyType', 'Company', 'Profile, 'User'] 
  * we will add the new model AFTER 'Profile' since Profile is the farthest reference, 'Company' is second.
- * - Last but not least we fix some issues the second loop gives us and this is the most complicated loop
- * The idea is that 
- * Suppose that we have the following models like 
- * ['CompanyType', 'Company', 'CompanyBilling', 'Profile, 'User'] 
- * and suppose the apps of each model is respectively:
- * ['authentication', 'authentication', 'billing', 'authentication', 'authentication']
- * and last but not least suppose that Company billing is dependent only from 'Company' model
  * 
  * @param {object} originalModels - The current models of this state, it's not from the state but it's more a picture on how
  * the model is right now. This is each model by the model names.
@@ -99,6 +92,7 @@ const reorderDifferences = (originalModels, stateModels, differences) => {
         }
         differenceObject.dependsOn = modelNamesInDifferencesDependentOn[differenceModelName]
     }
+
     // this second loop will define the new ordering, this ordering will try to keep each action from each app
     // as close as possible while also respecting the ordering for the models so we don't have conflicts like
     // a table being created that is dependent of a table that was not created.
@@ -124,7 +118,15 @@ const reorderDifferences = (originalModels, stateModels, differences) => {
                 if (indexOfFarthestDependency === -1 && index !== differences.length - 1) {
                     pendingDifferences.push(differenceObject)
                 } else {
-                    newDifferences.splice(indexOfFarthestDependency + 1, 0, differenceObject)
+                    // we will resolve issues for the changeModel or changeColumn actions 
+                    // coming first from the `renameModel` or `renameColumn` actions.
+                    let indexToAddDifference = indexOfFarthestDependency + 1
+                    let differenceAtPosition = newDifferences[indexToAddDifference]
+                    while(differenceAtPosition && differenceAtPosition.action.toLowerCase().includes('rename')) {
+                        indexToAddDifference++
+                        differenceAtPosition = newDifferences[indexToAddDifference]
+                    }
+                    newDifferences.splice(indexToAddDifference, 0, differenceObject)
                 }
             }
         }

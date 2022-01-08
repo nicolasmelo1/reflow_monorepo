@@ -46,9 +46,9 @@ function HomeDefaultsProvider(props) {
         setPersistState(persistContext, { ...state, selectedArea: areaData }, _setState)
     }
 
-    useEffect(() => {
+    /*useEffect(() => {
         getPersistState(persistContext, state, _setState)
-    }, [])
+    }, [])*/
 
     return (
         <HomeDefaultsContext.Provider value={{

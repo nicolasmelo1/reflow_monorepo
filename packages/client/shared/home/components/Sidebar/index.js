@@ -2,8 +2,11 @@ import { useRef, useState, useEffect, useContext } from 'react'
 import Layouts from './layouts'
 import homeAgent from '../../agent'
 import { UserContext } from '../../../authentication/contexts'
-import { AreaContext } from '../../contexts'
- 
+import { AreaContext, HomeContext } from '../../contexts'
+import { generateUUID } from '../../../../../shared/utils'
+import { useRouterOrNavigationRedirect } from '../../../core/hooks'
+import { paths, strings } from '../../../core/utils/constants'
+
 /**
  * This component is the sidebar. It will hold all of the workspaces of the user as well the 
  * menus like `Quick Search`, `History`, etc.
@@ -20,19 +23,80 @@ import { AreaContext } from '../../contexts'
  * @param {function} props.onPreventSidebarCollapse - This is a function that will prevent the sidebar from 
  * collapsing when the user is moving the mouse inside of the sidebar.
  */
-function Sidebar(props) {
+export default function Sidebar(props) {
+    const redirect = useRouterOrNavigationRedirect()
     const { user } = useContext(UserContext)
-    const { areas, setAreas, retrieveFromPersist } = useContext(AreaContext)
+    const { areas, setAreas, retrieveFromPersist, recursiveTraverseAreas } = useContext(AreaContext)
+    const { setIsEditingArea } = useContext(HomeContext)
     const isResizingRef = useRef(false)
+    const addWorkspaceButtonRef = useRef(null)
     const [editingAreaOrAppUUID, setEditingAreaOrAppUUID] = useState(null)
     const [isResizing, _setIsResizing] = useState(false)
     const [openedWorkspacesIds, setOpenedWorspacesIds] = useState([])
+    const [isCreatingArea, setIsCreatingArea] = useState(false)
 
     function setIsResizing(isResizing) {
         _setIsResizing(isResizing)
         isResizingRef.current = isResizing
     }
-   
+    
+    /**
+     * THis function is async because we recursively check if the area name is unique or if has any other with the same name as this new area.
+     * By default we use the `workspaceNewAreaName` to create a new area, so the new areas are always named the same with the only difference that
+     * we add a number to the end of the name if it is repeated.
+     * 
+     * Besides that, there's nothing much to be said about this function.
+     */
+    async function retrieveNewArea() {
+        function setupFoundCallback(newAreaLabelName) {
+            return (area) => area.labelName === newAreaLabelName
+        }
+        const DEFAULT_NEW_AREA_NAME = strings('pt-BR', 'workspaceNewAreaName')
+        let newAreaLabelName = DEFAULT_NEW_AREA_NAME
+        let foundArea = await recursiveTraverseAreas(setupFoundCallback(newAreaLabelName), areas)
+        let count = 1
+        while (foundArea !== null) {
+            newAreaLabelName = `${DEFAULT_NEW_AREA_NAME} ${count}`
+            foundArea = await recursiveTraverseAreas(setupFoundCallback(newAreaLabelName), areas)
+            count++
+        }
+        return {
+            uuid: generateUUID(),
+            labelName: newAreaLabelName,
+            color: null,
+            description: null,
+            order: areas.length + 1,
+            subAreaOfUUID: null,
+            subAreas: [],
+            apps: []
+        }
+    }
+
+    /**
+     * This will create a new area and add it to the areas array. The process is the following: First we retrieve the new area name (which will be an async function),
+     * then we create the area in the database, and only after that we push this new area to the areas array.
+     * 
+     * After all that we redirect the user to the new area and we start the new area in the editing mode. WHile we are in the process of the upload of the new area in the
+     * database, the user cannot create any new areas.
+     */
+    function onCreateArea() {
+        if (isCreatingArea === false) {
+            setIsCreatingArea(true)
+            retrieveNewArea().then(newArea => {
+                homeAgent.createArea(user.workspaces[0].uuid, newArea).then(response => {
+                    if (response && response.status === 201) {
+                        areas.push(newArea)
+                        setIsEditingArea(true)
+                        redirect(paths.workspace.asUrl.replace('{workspaceUUID}', newArea.uuid))
+                    }
+                    setIsCreatingArea(false)
+                }).catch(e => {
+                    setIsCreatingArea(false)
+                })
+            })
+        }
+    }
+
     /**
      * This function will open or close a workspace dropdown, that's the hole idea and concept.
      * By recieving a workspace id we can know if the state of the workspace dropdown is either closed or 
@@ -70,16 +134,21 @@ function Sidebar(props) {
      */
     function defineWidthOfSidebar(sidebarWidth=null) {
         if (window !== undefined && process.env['APP'] === 'web') {
+            const MAX_SIDEBAR_WIDTH = window.innerWidth - 100
+            const MIN_SIDEBAR_WIDTH = 150
+
             if (sidebarWidth === null) {
                 sidebarWidth = localStorage.getItem('sidebarWidth')
-                if (sidebarWidth === null || sidebarWidth >= window.innerWidth/3) {
+                if (sidebarWidth === null || sidebarWidth >= MAX_SIDEBAR_WIDTH || sidebarWidth <= MIN_SIDEBAR_WIDTH) {
                     sidebarWidth = window.innerWidth/3
                 }
             }
-            if (sidebarWidth > 100 && sidebarWidth <= window.innerWidth/3) {
+            if (sidebarWidth > MIN_SIDEBAR_WIDTH && sidebarWidth <= MAX_SIDEBAR_WIDTH) {
                 localStorage.setItem('sidebarWidth', `${sidebarWidth}`)
                 document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}px`)
             }
+            const appHeight = window.innerHeight
+            document.documentElement.style.setProperty('--sidebar-workspaces-height', `${appHeight - 250 - addWorkspaceButtonRef.current.clientHeight}px`)
         }
     }
 
@@ -129,6 +198,7 @@ function Sidebar(props) {
      */
     function onStartResizingSidebar() {
         setIsResizing(true)
+        console.log('onStartResizingSidebar')
         props.onResizeSidebar(true)
 
         document.addEventListener('mousemove', onResizeSidebar)
@@ -150,14 +220,15 @@ function Sidebar(props) {
      *  name: string,
      *  order: number,
      *  subAreas: Array<object>,
+     *  subAreaOfUUID: string,
      *  apps: Array<{}>
      * }} workspaceData - this is the new data for the area.
      */
     function onChangeWorkspace(workspaceData) {
-        setAreas(areas)
         if (props.onChangeArea !== undefined && typeof props.onChangeArea === 'function') {
             props.onChangeArea(workspaceData)
         }
+        return setAreas([...areas])
     }
 
     useEffect(() => {
@@ -185,12 +256,14 @@ function Sidebar(props) {
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
         user={user}
+        addWorkspaceButtonRef={addWorkspaceButtonRef}
         workspaces={areas !== undefined ? areas : []}
         isResizing={isResizing}
         editingAreaOrAppUUID={editingAreaOrAppUUID}
         setEditingAreaOrAppUUID={setEditingAreaOrAppUUID}
         onStartResizingSidebar={onStartResizingSidebar}
         onChangeWorkspace={onChangeWorkspace}
+        onCreateArea={onCreateArea}
         onOpenOrCloseWorkspaceDropdown={onOpenOrCloseWorkspaceDropdown}
         onEnableOrDisableFloating={props.onEnableOrDisableFloating}
         openedWorkspacesIds={openedWorkspacesIds}
@@ -202,6 +275,3 @@ function Sidebar(props) {
         <Layouts.Mobile/>
     )
 }
-
-
-export default Sidebar

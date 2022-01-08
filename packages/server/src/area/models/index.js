@@ -1,6 +1,10 @@
 const { models } = require('../../../config/database')
 
-const { AreaAreaManager, AppAreaManager } = require('../managers')
+const { 
+    AreaAreaManager, AppAreaManager, AvailableAppAreaManager,
+    AppConfigurationAreaManager, MetadataForAppAreaManager,
+    MetadataTypeAreaManager
+} = require('../managers')
 
 /**
  * This is the required metadata for each app in order to work, each app might need the user to configure something
@@ -19,6 +23,8 @@ class MetadataType extends models.Model {
         tableName: 'metadata_type',
         ordering: ['order']
     }
+
+    static AREA = new MetadataTypeAreaManager()
 }
 
 /**
@@ -100,6 +106,10 @@ class App extends models.Model {
     static AREA = new AppAreaManager()
 }
 
+/**
+ * This is the data that we need for configuring the app. Sometimes when we select an app we need to also setup some stuff like
+ * login for another service, some specific id. And so on. This data is the one needed to setup the app.
+ */
 class AppConfiguration extends models.Model {
     attributes = {
         app: new models.fields.ForeignKeyField({
@@ -107,7 +117,7 @@ class AppConfiguration extends models.Model {
             onDelete: models.fields.ON_DELETE.CASCADE
         }),        
         metadata: new models.fields.ForeignKeyField({
-            relatedTo: 'RequiredMetadataForApp',
+            relatedTo: 'MetadataForApp',
             onDelete: models.fields.ON_DELETE.CASCADE
         }),
         value: new models.fields.TextField()
@@ -116,6 +126,8 @@ class AppConfiguration extends models.Model {
     options = {
         tableName: 'app_configuration'
     }
+
+    static AREA = new AppConfigurationAreaManager()
 }
 
 /**
@@ -149,13 +161,13 @@ class AppRelatedTo extends models.Model {
     }
 }
 
-
 class AvailableApp extends models.Model {
     attributes = {
         createdAt: new models.fields.DatetimeField({autoNowAdd: true }),
         updatedAt: new models.fields.DatetimeField({autoNow: true }),
         uuid: new models.fields.UUIDField({ autoGenerate: true }),
         name: new models.fields.TextField(),
+        labelName: new models.fields.TextField({ allowNull: true }),
         description: new models.fields.TextField({ allowBlank: true, allowNull: true }),
         isBuiltin: new models.fields.BooleanField({ defaultValue: false })
     }
@@ -163,9 +175,11 @@ class AvailableApp extends models.Model {
     options = {
         tableName: 'available_app'
     }
+
+    static AREA = new AvailableAppAreaManager()
 }
 
-class RequiredMetadataForApp extends models.Model {
+class MetadataForApp extends models.Model {
     attributes = {
         metadataType: new models.fields.ForeignKeyField({
             relatedTo: 'MetadataType',
@@ -173,12 +187,19 @@ class RequiredMetadataForApp extends models.Model {
         }),
         name: new models.fields.TextField(),
         isRequired: new models.fields.BooleanField({ defaultValue: false }),
-        defaultValue: new models.fields.TextField({ allowBlank: true, allowNull: true })
+        defaultValue: new models.fields.TextField({ allowBlank: true, allowNull: true }),
+        availableApp: new models.fields.ForeignKeyField({
+            relatedTo: 'AvailableApp',
+            onDelete: models.fields.ON_DELETE.CASCADE,
+            allowNull: true
+        })
     }
 
     options = {
-        tableName: 'required_metadata_for_app'
+        tableName: 'metadata_for_app'
     }
+
+    static AREA = new MetadataForAppAreaManager()
 }
 
 module.exports = {
@@ -188,5 +209,5 @@ module.exports = {
     AppConfiguration,
     AppRelatedTo,
     AvailableApp,
-    RequiredMetadataForApp
+    MetadataForApp
 }

@@ -208,6 +208,7 @@ class SequelizeEngine extends Engine {
         // the relations.
         let defaultAttributes = {}
         defaultAttributes = this.getDefaultAttributes(modelName, fieldName, fieldDefinition, modelOptions, setIndexes)
+        
         defaultAttributes.validate.notEmpty = !fieldDefinition.allowBlank
         // For every field type, return a new object containing the data of the ORM to map to. Not 
         // all fields are mapped but i tried to keep the ones that are most used and supported by most ORMs
@@ -739,7 +740,12 @@ class SequelizeEngine extends Engine {
      */
     async addColumnMigration(transaction, toModel, fromModel, attributeName) {
         let sequelizeAttribute = toModel.initialized.rawAttributes[attributeName]
-
+        // ForeignKeyFields and OneToOneFields have the `Id` suffix at the end of them.
+        // Here we do not need to know that, so what we do is retrieve the original name of the field with it's suffix from the original model.
+        if (sequelizeAttribute === undefined) {
+            attributeName = toModel.original.attributes[attributeName]?.fieldName
+            sequelizeAttribute = toModel.initialized.rawAttributes[attributeName]
+        }
         await this.#queryInterface.addColumn(
             toModel.initialized.options.tableName, 
             sequelizeAttribute.field, 

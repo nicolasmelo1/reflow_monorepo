@@ -15,6 +15,7 @@ const FlowObject = require('./builtins/objects/object')
  * actually async. To add async functionality to flow we will need to create our own async logic and not depend on 
  * the interpreter language async logic (you can do this if you want to. Just add the event loop class that will
  * hold and run all of the events, it needs some special thinking and care though)
+ * # Here's a tutorial if you want to implement it yourself: https://python.plainenglish.io/build-your-own-event-loop-from-scratch-in-python-da77ef1e3c39
  * 
  * # How to read this code to fully understand how it works
  * 
@@ -57,6 +58,19 @@ const FlowObject = require('./builtins/objects/object')
  * Javascript, with V8 it's actually compiled with a JIT compiler (Just-in-Time compilation is the process of compiling the code as the code runs). 
  * Compiling code is actually more down the rabbit hole, and this place is dark, we will not go there, we will just talk about
  * the first part which is interpreting the code. The steps are basically the same on both types but usually in compiled languages we have more steps.
+ * 
+ * Before we continue, the idea of a compiler is from an input, generate an output, with this output we don't need to traverse the AST every time, making
+ * the code a lot faster. For example, ESBUILD or SWC for javascript will transform the javascript code into some other javascript code, minified, with tree shaking
+ * and all that. So we compile javascript back to javascript. On typescript the compiler will only translate the typescript and generate a javascript code.
+ * That's all the compiler does. For A JIT compiler, what we would need is be able to not recreate and interpret every line of code, we would need to keep for example
+ * a the Integer 2 in memory, and when we need to use it we would just need to fetch it from memory. For example, when running a recursive function we do not need
+ * to interpret the AST of this function over and over, we interpret it once, and then we just check the exit function. By compiling the code we will make it run a lot
+ * faster because we won't need to interpret the AST every time. Every time we see the FUNCTION_DEFINITION node we create a new function, but we have it in memory,
+ * and don't need to recreate it every time. Then the code will run a lot faster. This means that the idea of a compiler are 2: 
+ * - First is to generate an output from an AST. 
+ * - Second is to make the code run faster. 
+ * 
+ * A compiler goes down to the fact of making optimizations while running the code or before running the code.
  * 
  * In Java we run:
  * javac MyProgram.java -> This will compile the code and create a binary file

@@ -10,7 +10,7 @@ function SidebarWebLayout(props) {
     return (
         <Styled.Container
         onMouseOver={() => props.onPreventSidebarCollapse(true)}
-        onMouseOut={() => props.onPreventSidebarCollapse(false)}
+        onMouseLeave={() => props.onPreventSidebarCollapse(false)}
         isFloating={props.isFloating}
         isOpen={props.isOpen}
         sidebarWidth={props.sidebarWidth}
@@ -80,18 +80,28 @@ function SidebarWebLayout(props) {
                 </Styled.TopItemsContainer>
                 <Styled.AppsContainer>
                     <Styled.WorkspacesHeadingTitle>
-                        {'WORKSPACES'}
+                        {strings('pt-BR', 'sidebarWorkspacesTitle')}
                     </Styled.WorkspacesHeadingTitle>
-                    {props.workspaces.map(workspace => (
-                        <SidebarDropdown
-                        key={workspace.uuid}
-                        workspace={workspace}
-                        onChangeWorkspace={props.onChangeWorkspace}
-                        editingAreaOrAppUUID={props.editingAreaOrAppUUID}
-                        setEditingAreaOrAppUUID={props.setEditingAreaOrAppUUID}
-                        />
-                    ))}
+                    <Styled.AppsAndAreasList
+                    isFloating={props.isFloating}
+                    >
+                        {props.workspaces.map(workspace => (
+                            <SidebarDropdown
+                            key={workspace.uuid}
+                            workspace={workspace}
+                            onChangeWorkspace={props.onChangeWorkspace}
+                            editingAreaOrAppUUID={props.editingAreaOrAppUUID}
+                            setEditingAreaOrAppUUID={props.setEditingAreaOrAppUUID}
+                            />
+                        ))}
+                    </Styled.AppsAndAreasList>
                 </Styled.AppsContainer>
+                <Styled.CreateNewWorkspaceButton
+                ref={props.addWorkspaceButtonRef}
+                onClick={() => props.onCreateArea()}
+                >
+                    {'+ Criar novo workspace'}
+                </Styled.CreateNewWorkspaceButton>
             </Styled.Wrapper>
             <Styled.SidebarWidth
             onMouseDown={(e) => props.onStartResizingSidebar()}

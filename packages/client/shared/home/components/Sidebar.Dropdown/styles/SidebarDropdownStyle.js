@@ -6,7 +6,6 @@ export const WorkspaceContainer = process.env['APP'] === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
-    overflow: auto;
 `
 :
 styled(View)``
@@ -40,7 +39,9 @@ export const WorkspaceDropdownIconAndTextContainer = process.env['APP'] === 'web
 styled.div`
     display: flex;
     flex-direction: row;
-    overflow: hidden
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
 `
 :
 styled(View)``
@@ -79,7 +80,7 @@ styled.p`
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: ${props => props.theme.gray_REFLOW}
+    color: ${props => props.isInvalid ? props.theme.red_REFLOW : props.theme.gray_REFLOW}
 `
 :
 styled(Text)``
@@ -127,7 +128,7 @@ styled.input`
     padding: 0 5px;
     background-color: transparent;
     overflow: hidden;
-
+    color: ${props => props.isInvalid ? props.theme.red_REFLOW : props.theme.gray_REFLOW};
     &:focus {
         border: 0;
         outline: none;
@@ -159,7 +160,7 @@ styled.div`
     background-color: ${props => props.isEditing ? `${props.theme.clearGray}` : 'transparent'};
     border-radius: 5px;
     text-align: left;
-    padding: 10px 10px 10px calc((var(--sidebar-width) / 10 ) * ${props => (props.nestingLevel)});
+    padding: 10px 10px 10px calc(((var(--sidebar-width) / 10 ) * ${props => (props.nestingLevel)}) + 10px);
     user-select: none;
     transition: background-color 0.3s ease-in-out;
 

@@ -1,9 +1,11 @@
 import Styled from '../styles'
 import { faChevronDown, faChevronRight, faPencilAlt, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { strings } from '../../../../core/utils/constants'
 
 export default function SidebarDropdownWebLayout(props) {
     const nestingLevel = props.nestingLevel || 0
+    const isNonUniqueAreaUUID = props.nonUniqueAreaUUIDs.includes(props.workspace.uuid)
     const isEditingWorkspace = props.editingAreaOrAppUUID === props.workspace.uuid
     const isEditingApp = (appUUID) => props.editingAreaOrAppUUID === appUUID
 
@@ -14,12 +16,13 @@ export default function SidebarDropdownWebLayout(props) {
             onMouseOver={() => props.setIsHovering(true)}
             onMouseLeave={() => props.setIsHovering(false)}
             nestingLevel={isEditingWorkspace ? 0 : nestingLevel}
-            onClick={() => props.onSelectArea(props.workspace)}
+            onClick={() => props.onSelectArea()}
             >
                 {isEditingWorkspace ? (
                     <Styled.WorkspaceOrAppEditNameInput 
                     type={'text'}
                     autoFocus={true}
+                    isInvalid={isNonUniqueAreaUUID}
                     value={props.workspace.labelName}
                     onChange={(e) => props.onChangeWorkspaceName(e.target.value)}
                     onClick={(e) => {e.stopPropagation()}}
@@ -28,13 +31,18 @@ export default function SidebarDropdownWebLayout(props) {
                     <Styled.WorkspaceDropdownIconAndTextContainer> 
                         <Styled.WorkspaceDropdownButton
                         isHovering={props.isHovering}
-                        onClick={(e) => props.onToggleDropdown()}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            props.onToggleDropdown()
+                        }}
                         >
                             <Styled.WorkspaceDropdownButtonIcon 
                             icon={props.isOpen ? faChevronDown : faChevronRight}
                             />
                         </Styled.WorkspaceDropdownButton>
-                        <Styled.WorkspaceDropdownButtonText>
+                        <Styled.WorkspaceDropdownButtonText
+                        isInvalid={isNonUniqueAreaUUID}
+                        >
                             {props.workspace.labelName}
                         </Styled.WorkspaceDropdownButtonText>
                     </Styled.WorkspaceDropdownIconAndTextContainer>
@@ -54,6 +62,15 @@ export default function SidebarDropdownWebLayout(props) {
                     </Styled.WorkspaceOrAppButtonEdit>
                 </Styled.HoveringButtonsContainer>
             </Styled.WorkspaceAreaSelector>
+            {isNonUniqueAreaUUID ? (
+                <small
+                style={{
+                    color: 'red',
+                }}
+                >
+                    {strings('pt-BR', 'workspaceNotUniqueErrorMessage')}
+                </small>
+            ) : ''}
             {props.isOpen ? (
                 <Styled.WorkspaceAppsContainer>
                     {props.workspace.subAreas.map(subArea => {
