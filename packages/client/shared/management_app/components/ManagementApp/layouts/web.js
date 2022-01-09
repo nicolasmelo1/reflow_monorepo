@@ -1,3 +1,4 @@
+import Formulary from '../../Formulary'
 import Styled from '../styles'
 
 export default function ManagementAppWebLayout(props) {
@@ -25,6 +26,14 @@ export default function ManagementAppWebLayout(props) {
                     Filtrar
                 </p>
             </div>
+            {props.isFormularyOpen ? (
+                <Formulary/>
+            ) : ''}
+            <Styled.FormularyButton
+            onClick={() => props.onOpenFormulary()}
+            >
+                {'+'}
+            </Styled.FormularyButton>
         </Styled.Layout>
     )
 }

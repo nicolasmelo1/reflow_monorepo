@@ -12,7 +12,8 @@ const ROOT_URLCONF = BASE_PATH + '/src/routes'
 const INSTALLED_APPS = [
     'src/core',
     'src/authentication', 
-    'src/area'
+    'src/area',
+    'src/app_management_formulary',
 ]
 
 const WEBSOCKETS = {

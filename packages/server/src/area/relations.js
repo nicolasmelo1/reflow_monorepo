@@ -1,7 +1,9 @@
 const serializers = require('../../config/serializers')
 const { Area, App, AvailableApp, AppConfiguration, MetadataForApp, MetadataType } = require('./models')
 
-
+/**
+ * Relation for loading the most basic data and information about the apps. This is used to load the sidebar of the app.
+ */
 class AppRelation extends serializers.ModelSerializer {
     async toRepresentation(areaUUID) {
         const areaId = await Area.AREA.idByUUID(areaUUID)
@@ -15,6 +17,12 @@ class AppRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * This relation is the selected app type. Since the user can name their app whatever they want, we need a way to know what app type
+ * was selected. Is it a management app, a drawing app? an automation app? what it is?
+ * 
+ * That's the hole idea for this relation.
+ */
 class SelectedAppRelation extends serializers.ModelSerializer {
     async toRepresentation(availableAppId) {
         const data = await AvailableApp.AREA.availableAppByAvailableAppId(availableAppId)
@@ -27,6 +35,12 @@ class SelectedAppRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * Sometimes some apps needs some configuration data in order to be rendered and built on the screen.
+ * This is exactly what this does, retrieves the required data that the user set up for the app.
+ * For builtins it will not be needed but for user created apps it will probably be needed to render stuff on 
+ * the screen.
+ */
 class AppConfigurationRelation extends serializers.Serializer {
     fields = {
         configurationName: new serializers.CharField(),

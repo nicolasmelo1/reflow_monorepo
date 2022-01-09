@@ -161,6 +161,13 @@ class AppRelatedTo extends models.Model {
     }
 }
 
+/**
+ * This is the actual app the user can select to open. If the user selects an app then we will create their stuff on this app.
+ * For example, we can have a managament app that users will use to manage their activities, school, projects and so on.
+ * We can have also a drawing app, similar to figma so he can draw stuff. We can have a chat app, so he can chat with other users inside of reflow 
+ * and so on.
+ * Every app that the user has is based on one of those apps, here we will define if the user needs to set some required data for configuring the app.
+ */
 class AvailableApp extends models.Model {
     attributes = {
         createdAt: new models.fields.DatetimeField({autoNowAdd: true }),

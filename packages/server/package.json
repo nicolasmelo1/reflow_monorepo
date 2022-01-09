@@ -8,7 +8,7 @@
         "dev": "npm run docker:dev && pm2 kill && pm2 start --interpreter node manage.js --watch --no-daemon -- runserver",
         "docker:dev": "docker compose up -d",
         "makemigrations": "node manage.js makemigrations",
-        "migrate": "node manage.js migrate",
+        "migrate": "npm run docker:dev && node manage.js migrate",
         "test": "node teste.js",
         "stop": "pm2 stop all && pm2 delete all",
         "docs": "./node_modules/jsdoc/jsdoc.js -c ./.jsdoc.conf.json"
