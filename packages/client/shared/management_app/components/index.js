@@ -1,0 +1,1 @@
+export { default as ManagementApp } from './components/ManagementApp'

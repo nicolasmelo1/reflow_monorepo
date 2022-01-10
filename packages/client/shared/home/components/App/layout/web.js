@@ -13,7 +13,9 @@ export default function AppWebLayout(props) {
         isSidebarOpen={props.isSidebarOpen}
         >
             {isBuiltin && selectedAppName === 'reflow_management' ? (
-                <ManagementApp/>
+                <ManagementApp
+                app={![null, undefined].includes(props.app) ? props.app : {}}
+                />
             ) : ''}
         </Styled.AppLayout>
     )
