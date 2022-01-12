@@ -139,7 +139,7 @@ class FlowObject {
      * @param {string} errorType - One of the options of ``errorTypes`
      * @param {string} message - The message to be shown in the error
      * 
-     * @returns {import('./error')} - Return a new FlowError object.
+     * @returns {Promise<import('./error')>} - Return a new FlowError object.
      */
     async newError(errorType, message) {
         const FlowError = require('./error')

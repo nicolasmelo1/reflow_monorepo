@@ -9,10 +9,17 @@ const {
     Field,
     FieldConnection,
     FieldUser,
-    FieldNumber
+    FieldNumber,
+    FieldDate,
+    FieldFormula,
+    Option
 } = require('./models')
 
-
+// ------------------------------------------------------------------------------------------
+/**
+ * This relation will be used for retrieving the types of the formulary. The types will be the first thing that
+ * we retrieve and we will use it to render the formulary. This relations if for the number formating.
+ */
 class NumberFormatTypeRelation extends serializers.ModelSerializer {
     options = {
         model: NumberFormatType,
@@ -20,6 +27,11 @@ class NumberFormatTypeRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * This relation will be used for retrieving the types of the formulary. The types will be the first thing that
+ * we retrieve and we will use it to render the formulary. This relation will retrieve all of the possible options
+ * for the date formatting.
+ */
 class DateFormatTypeRelation extends serializers.ModelSerializer {
     options = {
         model: DateFormatType,
@@ -27,6 +39,11 @@ class DateFormatTypeRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * This relation will be used for retrieving the types of the formulary. The types will be the first thing that
+ * we retrieve and we will use it to render the formulary. This will retrieve the time format, is it 24h or 12h 
+ * hour format?
+ */
 class TimeFormatTypeRelation extends serializers.ModelSerializer {
     options = {
         model: TimeFormatType,
@@ -34,6 +51,12 @@ class TimeFormatTypeRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * This relation will be used for retrieving the types of the formulary. The types will be the first thing that
+ * we retrieve and we will use it to render the formulary. You can see all of the possible field types in the
+ * FieldType model jsDoc. This will explain all of the possible field types that we can have in the application at 
+ * the present time.
+ */
 class FieldTypeRelation extends serializers.ModelSerializer {
     options = {
         model: FieldType,
@@ -41,14 +64,42 @@ class FieldTypeRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * This relation will be used for retrieving the types of the formulary. The types will be the first thing that
+ * we retrieve and we will use it to render the formulary. We have 2 possible section types at the present time,
+ * each of them will have different behaviours. On one the fields are displayed normally, just one time, on the second
+ * one we will repeat the section as many times as needed.
+ */
 class SectionTypeRelation extends serializers.ModelSerializer {
     options = {
         model: SectionType,
         exclude: ['order']
     }
 }
-
 // ------------------------------------------------------------------------------------------
+class FieldFormulaRelation extends serializers.ModelSerializer {
+    async toRepresentation(fieldId) {
+        const fieldFormula = await FieldFormula.APP_MANAGEMENT_FORMULARY.fieldFormulaByFieldId(fieldId)
+        return await super.toRepresentation(fieldFormula)
+    }
+
+    options = {
+        model: FieldFormula,
+        exclude: ['id', 'fieldId']
+    }
+}
+
+class FieldDateRelation extends serializers.ModelSerializer {
+    async toRepresentation(fieldId) {
+        const fieldDate = await FieldDate.APP_MANAGEMENT_FORMULARY.fieldDateByFieldId(fieldId)
+        return await super.toRepresentation(fieldDate)
+    }
+
+    options = {
+        model: FieldDate,
+        exclude: ['id', 'fieldId']
+    }
+}
 
 class FieldNumberRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
@@ -58,7 +109,7 @@ class FieldNumberRelation extends serializers.ModelSerializer {
 
     options = {
         model: FieldNumber,
-        fields: ['fieldId']
+        exclude: ['id', 'fieldId']
     }
 }
 
@@ -70,7 +121,7 @@ class FieldUserRelation extends serializers.ModelSerializer {
 
     options = {
         model: FieldUser,
-        exclude: ['fieldId']
+        exclude: ['id', 'fieldId']
     }
 }
 
@@ -82,14 +133,34 @@ class FieldConnectionRelation extends serializers.ModelSerializer {
 
     options = {
         model: FieldConnection,
-        exclude: ['fieldId']
+        exclude: ['id', 'fieldId']
+    }
+}
+
+class OptionRelation extends serializers.ModelSerializer {
+    async toRepresentation(fieldId) {
+        const options = await Option.APP_MANAGEMENT_FORMULARY.optionsByFieldId(fieldId)
+        return await super.toRepresentation(options)
+    }
+
+    options = {
+        model: Option,
+        exclude: ['id', 'createdAt', 'updatedAt', 'fieldId']
     }
 }
 
 class FieldRelation extends serializers.ModelSerializer {
     async toRepresentation(sectionId) {
         const fields = await Field.APP_MANAGEMENT_FORMULARY.fieldsBySectionId(sectionId)
-        return await super.toRepresentation(fields)
+        let data = []
+        for (const field of fields) {
+            const sectionUUID = await Section.APP_MANAGEMENT_FORMULARY.sectionUUIDBySectionId(sectionId)
+            data.push({
+                ...field,
+                sectionUUID: sectionUUID
+            })
+        }
+        return await super.toRepresentation(data)
     }
 
     fields = {
@@ -98,12 +169,13 @@ class FieldRelation extends serializers.ModelSerializer {
         userField: new FieldUserRelation({ source: 'id' }),
         numberField: new FieldNumberRelation({ source: 'id' }),
         dateField: new FieldDateRelation({ source: 'id' }),
-        formulaField: new FieldFormulaRelation({ source: 'id' })
+        formulaField: new FieldFormulaRelation({ source: 'id' }),
+        options: new OptionRelation({ source: 'id', many: true })
     }
 
     options = {
         model: Field,
-        exclude: ['order', 'createdAt', 'updatedAt', 'sectionId']
+        exclude: ['id', 'order', 'createdAt', 'updatedAt', 'sectionId']
     }
 }
 

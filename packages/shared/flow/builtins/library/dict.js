@@ -12,7 +12,7 @@ class Dict extends LibraryModule {
          * @param {object} params - The parameters of the `isDict` function.
          * @param {import('../objects/object')} - Any flow object that you want to check if it's a dictionary.
          * 
-         * @returns {import('../objects/boolean')} - `true` if the object is a dictionary, `false` otherwise.
+         * @returns {Promise<import('../objects/boolean')>} - `true` if the object is a dictionary, `false` otherwise.
          */
         isDict: async ({ dict } = {}) => {
             return this.newBoolean(dict instanceof FlowDict)
@@ -23,7 +23,7 @@ class Dict extends LibraryModule {
          * @param {object} params - The parameters for the `length` method.
          * @param {object} params.dict - The dictionary to get the length of.
          * 
-         * @returns {number} - The length of the dictionary.
+         * @returns {Promise<number>} - The length of the dictionary.
          */
         length: async ({ dict } = {}) => {
             if (dict && dict.type === DICT_TYPE) {
@@ -39,7 +39,7 @@ class Dict extends LibraryModule {
          * @param {object} params - The params recieved by the `keys` function.
          * @param {import('../objects/dict')} params.dict - The dict to retrieve the keys from.
          * 
-         * @returns {import('../objects/list')} - The list of keys.
+         * @returns {Promise<import('../objects/list')>} - The list of keys.
          */
         keys: async ({ dict } = {}) => {
             if (dict && dict.type === DICT_TYPE) {
@@ -58,7 +58,7 @@ class Dict extends LibraryModule {
          * @param {object} params - The params recieved by the `values` function.
          * @param {import('../objects/dict')} params.dict - The dict to retrieve the values from.
          * 
-         * @returns {import('../objects/list')} - The list of values inside of the dict.
+         * @returns {Promise<import('../objects/list')>} - The list of values inside of the dict.
          */
         values: async ({ dict } = {}) => {
             if (dict && dict.type === DICT_TYPE) {
@@ -78,7 +78,7 @@ class Dict extends LibraryModule {
          * @param {object} params - The params recieved by the `items` function.
          * @param {import('../objects/dict')} params.dict - The dict to retrieve the items from.
          * 
-         * @returns {import('../objects/list')} - The list of items inside of the dict.
+         * @returns {Promise<import('../objects/list')>} - The list of items inside of the dict.
          */
         items: async ({ dict } = {}) => {
             if (dict && dict.type === DICT_TYPE) {

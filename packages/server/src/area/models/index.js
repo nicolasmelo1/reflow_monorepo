@@ -1,5 +1,6 @@
 const { models } = require('../../../config/database')
 
+const { AppAppManagamentFormularyManager } = require('../../app_management_formulary/managers')
 const { 
     AreaAreaManager, AppAreaManager, AvailableAppAreaManager,
     AppConfigurationAreaManager, MetadataForAppAreaManager,
@@ -104,6 +105,7 @@ class App extends models.Model {
     }
 
     static AREA = new AppAreaManager()
+    static APP_MANAGEMENT_FORMULARY = new AppAppManagamentFormularyManager()
 }
 
 /**

@@ -375,7 +375,7 @@ class FlowDict extends FlowObject {
     /**
      * Returns the length of the dict.
      * 
-     * @returns {import('./integer')} - Returns the length of the dict as a FlowInteger.
+     * @returns {Promise<import('./integer')>} - Returns the length of the dict as a FlowInteger.
      */
     async _length_() {
         return await this.newInteger(await this.hashTable.length())

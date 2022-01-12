@@ -164,7 +164,7 @@ class Lexer {
      * Checks if the current character is a space or a tab string. We use this in a loop so we ignore those characters until we 
      * find something meaningful for us to tokenize.
      * 
-     * @returns {boolean} - True if the character is a space or a tab, false otherwise.
+     * @returns {Promise<boolean>} - True if the character is a space or a tab, false otherwise.
      */
     async #currentTokenIsSpaceOrTab() {
         return this.currentPosition < (this.expression.length - 1) && [' ', '\t'].includes(this.expression[this.currentPosition])
@@ -191,7 +191,7 @@ class Lexer {
      * The ordering is of the ifs here is extremely important because numbers need to be evaluated before keywords. SO be aware that if you change the order
      * of the conditions, things might brake in the language itself. ANd be extremely careful when you add a new condition.
      * 
-     * @returns {Token} - Returns a new token with the values to send to the parser. The token holds a type, a value and the position in the code so
+     * @returns {Promise<Token>} - Returns a new token with the values to send to the parser. The token holds a type, a value and the position in the code so
      * we can display the error nicely for the user.
      */
     async #handleCurrentToken() {
@@ -235,7 +235,7 @@ class Lexer {
      * Handles open and closing braces for function call, slices, dictionaries, lists, and etc. This also validate the closure of the braces.
      * Check `#validateClosureOfBraces()` method for more information about this.
      * 
-     * @returns {Token} - Returns a new token with the values to send to the parser. The token holds a type, a value and the position in the code so
+     * @returns {Promise<Token>} - Returns a new token with the values to send to the parser. The token holds a type, a value and the position in the code so
      * we can display the error nicely for the user. This will hold the brace value as string.
      */
     async #handleBraces() {
@@ -279,7 +279,7 @@ class Lexer {
      * The space after the @doc is not obligatory and can be totally omited and you can have as many spaces as you want until '/*', 
      * notice also that '/*' should be defined in the same line as @doc or otherwise the parser will not be able to evaluate.
      * 
-     * @returns {Token} - Returns a new token with the documentation string value to send to the parser for it to evaluate.
+     * @returns {Promise<Token>} - Returns a new token with the documentation string value to send to the parser for it to evaluate.
      */
     async #handleDocumentation() {
         let counter = this.settings.documentationKeyword.length
@@ -319,7 +319,7 @@ class Lexer {
      * 
      * After getting the datetime we advance counter+1 because we ignore the closing square bracket.
      * 
-     * @returns {Token} - Returns a new token with the datetime value to send to the parser for it to evaluate.
+     * @returns {Promise<Token>} - Returns a new token with the datetime value to send to the parser for it to evaluate.
      */
     async #handleDatetime() {
         let counter = 3
@@ -341,7 +341,7 @@ class Lexer {
      * 
      * We validate if the number has more than one decimalPoint, if it has then it's not valid, otherwise it is.
      * 
-     * @returns {Token} - Returns a new token with the number value to send to the parser. If it has a decimalPointCharacter then it is a float,
+     * @returns {Promise<Token>} - Returns a new token with the number value to send to the parser. If it has a decimalPointCharacter then it is a float,
      * if not then it is an integer.
      */
     async #handleNumber() {
@@ -376,7 +376,7 @@ class Lexer {
      * 
      * We ignore the string delimiter of the string, so we jump one position ahead after we get the string.
      * 
-     * @returns {Token} - Returns a new token with the string value to send to the parser. We ignore bthe stringDelimiter character from the strings.
+     * @returns {Promise<Token>} - Returns a new token with the string value to send to the parser. We ignore bthe stringDelimiter character from the strings.
      */
     async #handleString() {
         let counter = 1
@@ -403,7 +403,7 @@ class Lexer {
      * 
      * Numbers can't be first arguments in flow indentities. This means that 1variable = 1 is not valid and should be rewritten as variable1 = 1
      * 
-     * @returns {Token} - Returns a new token with the keyword or identity value to send to the parser.
+     * @returns {Promise<Token>} - Returns a new token with the keyword or identity value to send to the parser.
      */
     async #handleKeyword() {
         let counter = 0
@@ -465,7 +465,7 @@ class Lexer {
      * Same as the `handleCurrentToken()` method, the ordering here is also extremely important because longer operations 
      * (the ones with more characters) might need to be checked before smaller operations (the ones with less characters).
      * 
-     * @returns {Token} - Returns a new token with the operation value to send to the parser.
+     * @returns {Promise<Token>} - Returns a new token with the operation value to send to the parser.
      */
     async #handleOperation() {
         const CURRENT_CHARACTER = this.expression[this.currentPosition]
@@ -524,7 +524,7 @@ class Lexer {
      * is actually the current token for the lexer. This can cause some confusion but since THIS is the api you will call from the lexer
      * it actually makes sense.
      * 
-     * @returns {Token} - Returns a new token with the next value to send to the parser.
+     * @returns {Promise<Token>} - Returns a new token with the next value to send to the parser.
      */
     async getNextToken() {
         return await this.#handleCurrentToken()

@@ -16,6 +16,14 @@ class AppAreaManager extends models.Manager {
         })
     }
 
+    /**
+     * Retrieves the app related to an app's uuid and the area's id.
+     * 
+     * @param {number} areaId - The id of the area where this app resides.
+     * @param {string} appUUID - The uuid of the app to retrieve.
+     * 
+     * @returns {Promise<import('../models').App>} - The app with the given uuid and area's id.
+     */
     async appByAreaIdAndAppUUID(areaId, appUUID) {
         return await this.getInstance().findOne({
             where: {

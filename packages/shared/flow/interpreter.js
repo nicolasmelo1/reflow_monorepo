@@ -69,7 +69,7 @@ class Interpreter {
      * 
      * @param {Array<string>} stringAsArray - The string that will be displayed to the user broken down into an array of characters.
      * 
-     * @returns {Array<string>} - The string that will be displayed to the user broken down into an array of characters.
+     * @returns {Promise<Array<string>>} - The string that will be displayed to the user broken down into an array of characters.
      */
     async #ignoreIdentation(stringAsArray) {
         const reversedString = [...stringAsArray].reverse()
@@ -100,7 +100,7 @@ class Interpreter {
      * @param {FlowDict} parameters - The parameters that we will pass to the function.
      * @param {Array<Node>} nodeArguments - An array of arguments where each argument is a node.
      * 
-     * @return {FlowDict} - The FlowDict with the parameters defined.
+     * @return {Promise<FlowDict>} - The FlowDict with the parameters defined.
      */
     async #getParametersFromArguments(parameters, nodeArguments) {
         // we need to create a new dict otherwise we will mess with the ordering of the parameters.

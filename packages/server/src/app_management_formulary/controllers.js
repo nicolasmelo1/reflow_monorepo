@@ -1,7 +1,9 @@
 const controllers = require("../../config/controllers")
 const status = require("../../config/status")
 
-const { TypeOutputSerializer } = require('./serializers')
+const { App } = require('../area/models')
+const { Formulary } = require("./models")
+const { FormularyOutputSerializer, TypeOutputSerializer } = require('./serializers')
 
 /**
  * This will hold all of the types for the formulary. The types will be the first thing that we retrieve in the front-end because
@@ -26,13 +28,32 @@ class TypeController extends controllers.Controller {
     }
 }
 
+/**
+ * Controller for retrieving an existing formulary. This will be used to retrieve the formulary data that
+ * we will use to render on the screen.
+ */
 class FormularyController extends controllers.Controller {
     outputSerializer = FormularyOutputSerializer
 
+    /**
+     * Retrieves a formulary to be rendered on the screen. This will retrieve a json with the formulary data,
+     * each section and each field from the section. As well as specific information about the fields like 
+     * FieldNumber, the FieldDate and all of that stuff.
+     */
     async get(req, res) {
+        const appId = await App.APP_MANAGEMENT_FORMULARY.appIdByAppUUID(req.params.appUUID)
+        const instance = await Formulary.APP_MANAGEMENT_FORMULARY.formularyByAppId(appId)
+        const serializer = new this.outputSerializer({
+            instance: instance,
+        })
+        return res.status(status.HTTP_200_OK).json({
+            status: 'ok',
+            data: await serializer.toRepresentation()
+        })
     }
 }
 
 module.exports = {
-    TypeController
+    TypeController,
+    FormularyController
 }

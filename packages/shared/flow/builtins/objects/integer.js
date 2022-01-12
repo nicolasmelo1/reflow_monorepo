@@ -313,7 +313,7 @@ class FlowInteger extends FlowObject {
      * representable value or less than the maximum representable value in javascript. 
      * Also we check if the value is a NaN and throw an error if it is.
      * 
-     * @returns {number} - The representation of this object.
+     * @returns {Promise<number>} - The representation of this object.
      */
     async _representation_() {
         if (this.value === Number.POSITIVE_INFINITY || this.value === -Number.NEGATIVE_INFINITY) {

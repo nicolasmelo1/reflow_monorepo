@@ -44,7 +44,7 @@ class FlowBoolean extends FlowInteger {
      * Returns the boolean value of the FlowBoolean. Since FlowBoolean is a superset of FlowInteger what we do
      * is just return the value of the integer. true is 1 and false is 0.
      * 
-     * @returns {number} - Returns 0 representing false or 1 representing true.
+     * @returns {Promise<number>} - Returns 0 representing false or 1 representing true.
      */
     async _representation_() {
         if (this.value === true || this.settings.booleanKeywords['true'] === this.value) return 1
