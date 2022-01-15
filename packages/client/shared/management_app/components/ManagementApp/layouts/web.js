@@ -27,7 +27,10 @@ export default function ManagementAppWebLayout(props) {
                 </p>
             </div>
             {props.isFormularyOpen ? (
-                <Formulary/>
+                <Formulary
+                workspaceUUID={props.workspaceUUID}
+                app={props.app}
+                />
             ) : ''}
             <Styled.FormularyButton
             onClick={() => props.onOpenFormulary()}

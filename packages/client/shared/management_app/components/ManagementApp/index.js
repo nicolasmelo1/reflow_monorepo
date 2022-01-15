@@ -60,6 +60,8 @@ export default function ManagementApp(props) {
 
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
+        workspaceUUID={user && user.workspaces.length > 0 ? user.workspaces[0].uuid : null}
+        app={props.app}
         isFormularyOpen={isFormularyOpen}
         onOpenFormulary={onOpenFormulary}
         />

@@ -10,4 +10,5 @@ export default {
     workspaceAddNewAppButtonLabel: 'Novo App',
     workspaceNoWorkspaceSelected: 'Nenhum workspace selecionado',
     workspaceNotUniqueErrorMessage: 'Nome do workspace deve ser único',
+    formularyToolbarShareButtonLabel: 'Compartilhar',
 }

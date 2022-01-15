@@ -37,7 +37,8 @@ class TypeOutputSerializer extends serializers.Serializer {
 
 /**
  * The formulary serializer will retrieve the data needed to build the formulary, all of the sections with
- * all of the fields it have. With this data we are able to build the formulary to display and render it to the user.
+ * all of the fields it have. With this data we are able to build the formulary to display and 
+ * render it to the user.
  */
 class FormularyOutputSerializer extends serializers.ModelSerializer {
     fields = {

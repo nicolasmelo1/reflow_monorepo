@@ -76,6 +76,7 @@ class SectionTypeRelation extends serializers.ModelSerializer {
         exclude: ['order']
     }
 }
+
 // ------------------------------------------------------------------------------------------
 class FieldFormulaRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
@@ -137,6 +138,10 @@ class FieldConnectionRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * Relation for holding all of the options for `option` or `tag` field types. Other field types
+ * can hold the options also but you be sure to explain it to future developers.
+ */
 class OptionRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const options = await Option.APP_MANAGEMENT_FORMULARY.optionsByFieldId(fieldId)
@@ -149,6 +154,11 @@ class OptionRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * This will render each field of the formulary that is inside of a particular section id.
+ * As said in the FieldConnection, FieldDate and other models like that we also bound the field to specific field 
+ * type models, so we can hold the data for this particular field type.
+ */
 class FieldRelation extends serializers.ModelSerializer {
     async toRepresentation(sectionId) {
         const fields = await Field.APP_MANAGEMENT_FORMULARY.fieldsBySectionId(sectionId)
@@ -179,6 +189,10 @@ class FieldRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * This will be used for retrieving all of the sections of the formulary. Sections here are simple and are just needed
+ * to hold and display the fields of the formulary.
+ */
 class SectionRelation extends serializers.ModelSerializer {
     async toRepresentation(formularyId) {
         const sections = await Section.APP_MANAGEMENT_FORMULARY.sectionsByFormularyId(formularyId)

@@ -1,11 +1,12 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useContext } from 'react'
+import axios from 'axios'
 import managementAppAgent from '../../agent'
 import { FormularyContext } from '../../contexts'
 import Layouts from './layouts'
 
 export default function Formulary(props) {
     const sourceRef = useRef()
-    const { setFormulary, retrieveFromPersist } = useContext(FormularyContext)
+    const { state: { formulary }, setFormulary, retrieveFromPersist } = useContext(FormularyContext)
 
     useEffect(() => {
         sourceRef.current = axios.CancelToken.source()
@@ -17,24 +18,29 @@ export default function Formulary(props) {
     }, [])  
 
     useEffect(() => {
+        const isAppDefined = ![null, undefined].includes(props.app)
         const isWorkspaceUUIDDefined = ![null, undefined].includes(props.workspaceUUID)
-        const isAppUUIDDefined = ![null, undefined].includes(props.appUUID)
 
-        if (isAppUUIDDefined && isWorkspaceUUIDDefined) {
-            managementAppAgent.getFormulary(sourceRef.current, props.workspaceUUID, props.appUUID).then(response => {
+        if (isAppDefined && isWorkspaceUUIDDefined) {
+            managementAppAgent.getFormulary(sourceRef.current, props.workspaceUUID, props.app.uuid).then(response => {
                 if (response && response.status === 200) {
-                    setFormulary(props.appUUID, response.data.data)
+                    if (response.data.data !== null) {
+                        setFormulary(props.app.uuid, response.data.data)
+                    }
                 } else {
-                    retrieveFromPersist(props.appUUID)
+                    retrieveFromPersist(props.app.uuid)
                 }
             }).catch(e => {
-                retrieveFromPersist(props.appUUID)
+                retrieveFromPersist(props.app.uuid)
             })
         }
-    }, [props.workspaceUUID, props.appUUID]) 
+    }, [props.workspaceUUID, props.app]) 
 
     return process.env['APP'] === 'web' ? (
-        <Layouts.Web/>
+        <Layouts.Web
+        app={props.app}
+        formulary={formulary}
+        />
     ) : (
         <Layouts.Mobile/>
     )

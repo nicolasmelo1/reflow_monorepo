@@ -7,7 +7,9 @@ const themes = {
         darkblue_REFLOW: '#394B57',
         gray_REFLOW: '#3E3E3E',
         clearGray: '#EFEFEF',
-        red_REFLOW: '#FF4A4A'
+        red_REFLOW: '#FF4A4A',
+        darkBlue: '#566D7C',
+        moreClearGray: '#F5F5F5'
     }
 }
 
