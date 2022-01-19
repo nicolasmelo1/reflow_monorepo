@@ -6,7 +6,21 @@ import Layouts from './layouts'
 
 export default function Formulary(props) {
     const sourceRef = useRef()
+    const formularyContainerRef = useRef()
     const { state: { formulary }, setFormulary, retrieveFromPersist } = useContext(FormularyContext)
+
+    /**
+     * Probably by now you already know what is passing a value by reference and pass by value. Objects, and arrays
+     * are always passed by reference and not by value, so this means we can pass the value as reference and update the
+     * value in the children. When we update the value in the children we are updating the actual value of the object.
+     * This means it is simple to update the value, even for nested values.
+     * 
+     * Here for further understanding:
+     * https://www.google.com/url?sa=i&url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F43826922%2Fif-java-is-pass-by-value-then-why-can-we-change-the-properties-of-objects-in-me&psig=AOvVaw3Pln8znHHN39RJWWQSoaqx&ust=1642467147354000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCKC08ojJt_UCFQAAAAAdAAAAABAD
+     */
+    function onUpdateFormulary() {
+        setFormulary(props.app.uuid, formulary)
+    }
 
     useEffect(() => {
         sourceRef.current = axios.CancelToken.source()
@@ -38,8 +52,10 @@ export default function Formulary(props) {
 
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
+        formularyContainerRef={formularyContainerRef}
         app={props.app}
         formulary={formulary}
+        onUpdateFormulary={onUpdateFormulary}
         />
     ) : (
         <Layouts.Mobile/>

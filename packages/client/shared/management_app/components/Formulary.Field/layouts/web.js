@@ -11,6 +11,7 @@ import FormularyFieldId from '../../Formulary.Field.Id'
 import FormularyFieldLongText from '../../Formulary.Field.LongText'
 import FormularyFieldTags from '../../Formulary.Field.Tags'
 import FormularyFieldUser from '../../Formulary.Field.User'
+import { Switch, strings } from '../../../../core'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { 
     faEllipsisH
@@ -18,21 +19,41 @@ import {
 
 export default function FormularyFieldWebLayout(props) {
     const fieldTypeName = props.retrieveFieldTypeName()
+    const customComponentsFieldOptions = Array.isArray(props.optionsForDropdownMenuRef.current) ? 
+        props.optionsForDropdownMenuRef.current : []
+
     return (
         <Styled.Container
-        onMouseOver={() => props.onHoverFieldWeb(true)}
-        onMouseLeave={() => props.onHoverFieldWeb(false)}
-        >
-            {props.field.labelIsHidden === false ? (
+        onMouseOver={() => {props.onHoverFieldWeb(true)}}
+        onMouseLeave={() => {
+            props.setIsRenaming(false)
+            props.onHoverFieldWeb(false)
+        }}
+        >   
+            {props.isRenaming ? (
+                <Styled.LabelNameInput
+                fieldIsHidden={props.field.fieldIsHidden}
+                autoFocus={true}
+                autoComplete={'whathever'}
+                onChange={(e) => props.onChangeFieldLabelName(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' ? props.setIsRenaming(false) : null}
+                value={props.field.labelName}
+                />
+            ) : props.field.labelIsHidden === false ? (
                 <Styled.FieldTitleLabel
                 fieldIsHidden={props.field.fieldIsHidden}
                 >
                     {props.field.labelName}
                     {props.field.required === true ? '*' : ''}
                 </Styled.FieldTitleLabel>
+            ) : props.field.labelIsHidden === true && props.field.fieldIsHidden === true ? (
+                <Styled.FieldIsHiddenAndLabelIsHiddenMessage>
+                    {strings('pt-BR', 'formularyFieldEditLabelAndFieldIsHiddenMessage').replace('{}', props.field.labelName)}
+                </Styled.FieldIsHiddenAndLabelIsHiddenMessage>
             ) : ''}
             <Styled.FieldEditMenu
             isHovering={props.isHovering}
+            isAtBottom={props.isEditMenuAtBottom}
             >
                 <Styled.FieldEditButtonMenu
                 isHovering={props.isHovering}
@@ -43,17 +64,103 @@ export default function FormularyFieldWebLayout(props) {
                     />
                 </Styled.FieldEditButtonMenu>
                 {props.isEditMenuOpen === true ? (
-                    <Styled.FieldEditMenuDropdownContainer>
-                        <Styled.FieldEditMenuDropdownButton>
-                            {'Renomear'}
+                    <Styled.FieldEditMenuDropdownContainer
+                    ref={props.fieldEditDropdownMenuRef}
+                    maximumHeight={props.editMenuMaximumHeight}
+                    >
+                        <Styled.FieldEditMenuDropdownSwitchContainer
+                        onClick={() => props.onChangeFieldIsRequired(!props.field.required)}
+                        >
+                            <Switch
+                            isSelected={props.field.required}
+                            onSelect={() => props.onChangeFieldIsRequired(!props.field.required)}
+                            /> 
+                            <Styled.FieldEditMenuDropdownSwitchLabel
+                            disabled={props.field.fieldIsHidden}
+                            >
+                                {strings('pt-BR', 'formularyFieldEditIsRequiredLabel')}
+                            </Styled.FieldEditMenuDropdownSwitchLabel>
+                        </Styled.FieldEditMenuDropdownSwitchContainer>
+                        <Styled.FieldEditMenuDropdownSwitchContainer
+                        onClick={() => props.onChangeLabelIsHidden(!props.field.labelIsHidden)}
+                        >
+                            <Switch
+                            isSelected={props.field.labelIsHidden}
+                            onSelect={() => props.onChangeLabelIsHidden(!props.field.labelIsHidden)}
+                            /> 
+                            <Styled.FieldEditMenuDropdownSwitchLabel>
+                                {strings('pt-BR', 'formularyFieldEditLabelIsHiddenLabel')}
+                            </Styled.FieldEditMenuDropdownSwitchLabel>
+                        </Styled.FieldEditMenuDropdownSwitchContainer>
+                        <Styled.FieldEditMenuDropdownSwitchContainer
+                        onClick={() => props.onChangeFieldIsHidden(!props.field.fieldIsHidden)}
+                        >
+                            <Switch
+                            isSelected={props.field.fieldIsHidden}
+                            onSelect={() => props.onChangeFieldIsHidden(!props.field.fieldIsHidden)}
+                            /> 
+                            <Styled.FieldEditMenuDropdownSwitchLabel>
+                                {strings('pt-BR', 'formularyFieldEditFieldIsHiddenLabel')}
+                            </Styled.FieldEditMenuDropdownSwitchLabel>
+                        </Styled.FieldEditMenuDropdownSwitchContainer>
+                        <Styled.FieldEditMenuDropdownSwitchContainer
+                        onClick={() => props.onChangeFieldIsUnique(!props.field.isUnique)}
+                        >
+                            <Switch
+                            isSelected={props.field.isUnique}
+                            onSelect={() => props.onChangeFieldIsUnique(!props.field.isUnique)}
+                            /> 
+                            <Styled.FieldEditMenuDropdownSwitchLabel>
+                                {strings('pt-BR', 'formularyFieldEditFieldIsUniqueLabel')}
+                            </Styled.FieldEditMenuDropdownSwitchLabel>
+                        </Styled.FieldEditMenuDropdownSwitchContainer>
+                        <Styled.FieldEditMenuDropdownSwitchContainer
+                        onClick={() => props.onTogglePlaceholderInput()}
+                        >
+                            <Switch
+                            isSelected={props.isPlaceholderOpen}
+                            onSelect={() => props.onTogglePlaceholderInput()}
+                            /> 
+                            <Styled.FieldEditMenuDropdownSwitchLabel>
+                                {'Texto de ajuda'}
+                            </Styled.FieldEditMenuDropdownSwitchLabel>
+                        </Styled.FieldEditMenuDropdownSwitchContainer>
+                        {props.isPlaceholderOpen === true ? (
+                            <Styled.FieldEditMenuDropdownPlaceholderInput
+                            type={'text'}
+                            value={typeof(props.field.placeholder) !== 'string' ? '' : props.field.placeholder}
+                            onChange={(e) => props.onChangePlaceholder(e.target.value)}
+                            autoFocus={true}
+                            autoComplete={'whathever'}
+                            />
+                        ) : ''}
+                        {customComponentsFieldOptions.map(OptionComponent => OptionComponent)}
+                        <Styled.FieldEditMenuDropdownButton
+                        onClick={() => {
+                            props.onToggleEditFieldMenu()
+                            props.setIsRenaming(!props.isRenaming)
+                        }}
+                        >
+                            {strings('pt-BR', 'formularyFieldEditRenameLabel')}
                         </Styled.FieldEditMenuDropdownButton>
                         <Styled.FieldEditMenuDropdownButton>
-                            {'Editar'}
+                            {strings('pt-BR', 'formularyFieldEditEditLabel')}
+                        </Styled.FieldEditMenuDropdownButton>
+                        <Styled.FieldEditMenuDropdownButton
+                        onClick={() => props.onDuplicateField(props.field.uuid)}
+                        >
+                            {strings('pt-BR', 'formularyFieldEditDuplicateLabel')}
+                        </Styled.FieldEditMenuDropdownButton>
+                        <Styled.FieldEditMenuDropdownButton
+                        onClick={() => props.onRemoveField(props.field.uuid)}
+                        isExclude={true}
+                        >
+                            {strings('pt-BR', 'formularyFieldEditDeleteLabel')}
                         </Styled.FieldEditMenuDropdownButton>
                     </Styled.FieldEditMenuDropdownContainer>
                 ) : ''}
             </Styled.FieldEditMenu>
-            {fieldTypeName === 'text' ? (
+            {props.field.fieldIsHidden === false ? fieldTypeName === 'text' ? (
                 <FormularyFieldText
                 {...props}
                 />
@@ -101,7 +208,8 @@ export default function FormularyFieldWebLayout(props) {
                 <FormularyFieldFormula
                 {...props}
                 />
-            ) : ''}
+            ) : '' : 
+            ''}
         </Styled.Container>
     )
 }

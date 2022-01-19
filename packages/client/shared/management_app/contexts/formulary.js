@@ -38,6 +38,12 @@ function FormularyProvider (props){
         setPersistState(`${persistContext}_${appUUID}`, { formulary: formulary }, setState)
     }
 
+    /**
+     * Retrieves the formulary data from the persist storage when it cannot be loaded from the backend.
+     * 
+     * @param {string} appUUID - The uuid of the application that we are trying to retrieve the formulary data for. This will
+     * load the formulary bounded to the specific app.
+     */
     function retrieveFromPersist(appUUID) {
         getPersistState(`${persistContext}_${appUUID}`, initialState.state, setState)
     }

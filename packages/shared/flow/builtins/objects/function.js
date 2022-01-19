@@ -170,7 +170,7 @@ class FlowFunction extends FlowObject {
      * have access to the memory and the interpreter so first: we can evaluate the bodyAst and second: we can control the 
      * memory inside of the interpreter, that's why we pass the hole instance of the interpreter here.
      * 
-     * @returns {FlowFunction} - Return a new FlowFunction containing it's parameters and node to be executed when called. So we
+     * @returns {Promise<FlowFunction>} - Return a new FlowFunction containing it's parameters and node to be executed when called. So we
      * can call it or pass it around inside of Flow 
      */
     static async new(settings, functionName, scope, parameters, { bodyAST=null, interpreter=null} = {}) {
@@ -196,7 +196,7 @@ class FlowFunction extends FlowObject {
      * have access to the memory and the interpreter so first: we can evaluate the bodyAst and second: we can control the 
      * memory inside of the interpreter, that's why we pass the hole instance of the interpreter here.
      * 
-     * @returns {FlowFunction} - Return a new FlowFunction containing it's parameters and node to be executed when called. So we
+     * @returns {Promise<FlowFunction>} - Return a new FlowFunction containing it's parameters and node to be executed when called. So we
      * can call it or pass it around inside of Flow 
      */
     async _initialize_(functionName, scope, parameters, {bodyAST=null, interpreter=null} = {}) {
@@ -315,7 +315,7 @@ class FlowFunction extends FlowObject {
              * This is inspired by a technique called trampolines: https://blog.logrocket.com/using-trampolines-to-manage-large-recursive-loops-in-javascript-d8c9db095ae3/
              * https://stackoverflow.com/questions/25228871/how-to-understand-trampoline-in-javascript
              * 
-             * @param {function} toEvaluateFunction - The function to return or the function to evaluate.
+             * @param {() => Promise<import('./object')>} toEvaluateFunction - The function to return or the function to evaluate.
              * 
              * @returns {function|FlowObject} - The function to evaluate later if in a recursion or the result of the FlowFunction.
              */

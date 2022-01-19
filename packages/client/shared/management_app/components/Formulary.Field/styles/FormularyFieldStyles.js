@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput } from 'react-native'
 
 export const Container = process.env['APP'] === 'web' ?
 styled.div`
@@ -12,23 +12,66 @@ styled.div`
 :
 styled(View)``
 
-export const FieldTitleLabel = process.env['APP'] === 'web' ? 
-styled.p`
-    color: ${props => props.theme.darkGray};
-    margin-top: 0;
-    margin-bottom: ${props => props.fieldIsHidden ? '0' : '5px'};
+export const FieldIsHiddenAndLabelIsHiddenMessage = process.env['APP'] === 'web' ?
+styled.small`
+    margin: 0;
+    font-size: 12px;
+    color: ${props => props.theme.darkBlue};
+    user-select: none;
 `
 :
 styled(Text)``
 
+export const FieldTitleLabel = process.env['APP'] === 'web' ? 
+styled.p`
+    font-size: 15px;
+    padding: 5px;
+    color: ${props => props.theme.darkGray};
+    margin-top: 0;
+    margin-bottom: ${props => props.fieldIsHidden ? '0' : '5px'};
+    user-select: none;
+`
+:
+styled(Text)``
+
+export const LabelNameInput = process.env['APP'] === 'web' ?
+styled.input`
+    font-size: 15px;
+    font-family: Roboto;
+    margin-bottom: ${props => props.fieldIsHidden ? '0' : '5px'};
+    padding: 5px;
+    border-radius: 5px;
+    border: 0 !important;
+    width: calc(100% - 40px);
+    outline: none;
+
+    &:focus {
+        background-color: ${props => props.theme.green_REFLOW}20;
+        outline: none;
+        border: 0;
+    }
+
+    &:active {
+        background-color: ${props => props.theme.green_REFLOW}20;
+        outline: none;
+        border: 0;
+    }
+
+    &::selection {
+        background: ${props => props.theme.green_REFLOW}50;
+    }
+`
+:
+styled(TextInput)``
+
 export const FieldEditMenu = process.env['APP'] === 'web' ?
 styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: ${props => props.isAtBottom ? 'column': 'column-reverse'};
     align-items: flex-end;
     position: absolute;
-    top: 5px;
     right: 5px;
+    ${props => props.isAtBottom ? 'top: 5px;' : 'bottom: calc(100% - 22px);'}
     opacity: ${props => props.isHovering ? '1' : '0'};
     transition: opacity 0.3s ease-in-out;
 `
@@ -58,6 +101,9 @@ styled.div`
     background-color: ${props => props.theme.white};
     border-radius: 5px;
     z-index: 1;
+    min-height: 100px;
+    ${props => props.maximumHeight !== undefined ? `max-height: ${props.maximumHeight}px;` : ''}
+    overflow-y: auto;
 `
 :
 styled(View)``
@@ -69,7 +115,9 @@ styled.button`
     border-radius: 5px;
     padding: 10px;
     text-align: right;
-
+    font-family: Roboto;
+    font-size: 13px;
+    color: ${props => props.isExclude ? props.theme.red_REFLOW : props.theme.darkGray};
     &:hover {
         cursor: pointer;
         background-color: ${props => props.theme.moreClearGray};
@@ -77,3 +125,51 @@ styled.button`
 `
 :
 styled(TouchableOpacity)``
+
+export const FieldEditMenuDropdownSwitchContainer = process.env['APP'] === 'web' ?
+styled.div`
+    user-select: none;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 5px;
+
+    &:hover {
+        background-color: ${props => props.theme.moreClearGray};
+    }
+`
+:
+styled(View)``
+
+export const FieldEditMenuDropdownSwitchLabel = process.env['APP'] === 'web' ?
+styled.p`
+    font-size: 13px;
+    text-align: right;
+    margin-bottom: 0;
+    margin-top: 0;
+    margin-left: 10px;
+    color: ${props => props.disabled ? props.theme.clearGray : props.theme.darkGray};
+`
+:
+styled(Text)``
+
+export const FieldEditMenuDropdownPlaceholderInput = process.env['APP'] === 'web' ?
+styled.input`
+    font-size: 13px;
+    font-family: Roboto;
+    margin-bottom: 0;
+    padding: 10px;
+    border: 0 !important;
+    outline: none !important;
+    border-radius: 5px;
+    background-color: ${props => props.theme.clearGray};
+
+    &:focus {
+        background-color: ${props => props.theme.green_REFLOW}20;
+        outline: none;
+    }
+`
+:
+styled(TextInput)``

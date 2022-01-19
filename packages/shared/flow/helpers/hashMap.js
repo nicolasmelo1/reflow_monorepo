@@ -58,10 +58,10 @@ class HashNode {
  * 
  * With a javascript object, we can access it like this:
  * ```  
- * const dictionary = {"age_of_amanda": 1, "age_of_bruna": 2, "age_of_lucas": 3}
+ * const dictionary = {age_of_amanda: 1, age_of_bruna: 2, age_of_lucas: 3}
  * 
  * dictionary['age_of_amanda'] // 1
- * dictionary['age_of_bruna'] // 2
+ * dictionary.age_of_bruna // 2
  * ```
  * ^ This, is a *Hash Table*.
  * 

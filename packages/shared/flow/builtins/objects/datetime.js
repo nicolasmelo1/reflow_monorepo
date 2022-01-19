@@ -101,7 +101,7 @@ class FlowDatetime extends FlowObject {
      * @param {number} [dateData.microsecond=0] - The microsecond of the date.
      * @param {string|undefined} [dateData.timezone=undefined] - The timezone of the date, all dates in flow are timezone aware.
      * 
-     * @returns {FlowDatetime} - A FlowDatetime object.
+     * @returns {Promise<FlowDatetime>} - A FlowDatetime object.
      */
     static async new(settings, {year=2000, month=1, day=1, hour=0, minute=0, second=0, microsecond=0, timezone=undefined} = {}) {
         return await (new FlowDatetime(settings))._initialize_({year, month, day, hour, minute, second, microsecond, timezone})
@@ -121,6 +121,8 @@ class FlowDatetime extends FlowObject {
      * @param {number} [dateData.second=0] - The second of the date.
      * @param {number} [dateData.microsecond=0] - The microsecond of the date.
      * @param {string|null} [dateData.timezone=undefined] - The timezone of the date, all dates in flow are timezone aware.
+     * 
+     * @returns {Promise<FlowDatetime>} - A FlowDatetime object.
      */
     async _initialize_({year=2000, month=1, day=1, hour=0, minute=0, second=0, microsecond=0, timezone=undefined} = {}) {
         this.timezone = timezone !== undefined ? timezone : this.settings.timezone
@@ -142,7 +144,7 @@ class FlowDatetime extends FlowObject {
      * 
      * @param {import('./float') | import('./integer') | import('./boolean')} obj - The date to add to this date.
      * 
-     * @returns {FlowDatetime} - The new date.
+     * @returns {Promise<FlowDatetime>} - The new date.
      */
     async _add_(obj) {
         if ([FLOAT_TYPE, INTEGER_TYPE, BOOLEAN_TYPE].includes(obj.type)) {
@@ -169,7 +171,7 @@ class FlowDatetime extends FlowObject {
      * 
      * @param {FlowDatetime | import('./float') | import('./integer')} obj - The date to subtract to this date.
      * 
-     * @returns {FlowDatetime} - The new date.
+     * @returns {Promise<FlowDatetime>} - The new date.
      */
     async _subtract_(obj) {
         if (obj.type === DATETIME_TYPE) {
@@ -199,7 +201,7 @@ class FlowDatetime extends FlowObject {
      * 
      * @param {FlowDatetime} obj - The date to compare to this date.
      * 
-     * @returns {import('./boolean')} - True if the dates are equal, false otherwise.
+     * @returns {Promise<import('./boolean')>} - True if the dates are equal, false otherwise.
      */
     async _equals_(obj) {
         if (obj.type === DATETIME_TYPE) {
@@ -259,7 +261,7 @@ class FlowDatetime extends FlowObject {
      * 
      * Reference: https://stackoverflow.com/a/54127122
      * 
-     * @returns {Date} - A Date Object that we will effectively use to calculate dates
+     * @returns {Promise<Date>} - A Date Object that we will effectively use to calculate dates
      * inside of flow.
      */
     async _representation_() { 
@@ -297,7 +299,7 @@ class FlowDatetime extends FlowObject {
      * Gets the exact representation of the string for the user as a string so he can debug it and understand
      * what is happening with his code.
      * 
-     * @returns {import('./string')} - The exact representation this object as a flow string for the user.
+     * @returns {Promise<import('./string')>} - The exact representation this object as a flow string for the user.
      */
     async _string_() {
         const representation = await this._representation_()

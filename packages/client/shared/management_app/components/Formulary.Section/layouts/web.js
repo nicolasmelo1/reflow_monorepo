@@ -8,8 +8,12 @@ export default function FormularySectionWebLayout(props) {
             </h1>
             {props.section.fields.map(field => (
                 <FormularyField
+                formularyContainerRef={props.formularyContainerRef}
                 key={field.uuid}
                 field={field}
+                onUpdateFormulary={props.onUpdateFormulary}
+                onRemoveField={props.onRemoveField}
+                onDuplicateField={props.onDuplicateField}
                 />
             ))}
         </div>

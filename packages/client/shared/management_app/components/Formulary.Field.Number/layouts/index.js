@@ -1,7 +1,13 @@
-import Mobile from './mobile'
-import Web from './web'
+import Mobile, { DropdownMenuNumberFormatOptionMobileLayout } from './mobile'
+import Web, { DropdownMenuNumberFormatOptionWebLayout } from './web'
 
 export default {
-    Mobile,
-    Web
+    Mobile: {
+        Field: Mobile,
+        DropdownMenu: DropdownMenuNumberFormatOptionMobileLayout
+    },
+    Web: {
+        Field: Web,
+        DropdownMenu: DropdownMenuNumberFormatOptionWebLayout
+    }
 }

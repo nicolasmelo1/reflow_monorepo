@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { TextInput } from 'react-native'
+import { View, TextInput } from 'react-native'
 
 export const Container = process.env['APP'] === 'web' ?
 styled.div`
@@ -21,6 +21,10 @@ styled.input`
     &:focus {
         background-color: ${props => props.theme.green_REFLOW}20;
         outline: none;
+    }
+
+    &::selection {
+        background: ${props => props.theme.green_REFLOW}50;
     }
 `
 :

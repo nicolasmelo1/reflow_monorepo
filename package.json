@@ -1,65 +1,65 @@
 {
-  "name": "turborepo-basic-npm",
-  "version": "0.0.0",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
-  "scripts": {
-    "build": "turbo run build",
-    "web:dev": "turbo run dev web:dev --parallel",
-    "server:makemigrations": "turbo run makemigrations --parallel",
-    "server:migrate": "turbo run migrate --parallel",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "uninstall:client:desktop": "npm uninstall --prefix packages/client/desktop",
-    "uninstall:client:mobile": "npm uninstall --prefix packages/client/mobile",
-    "uninstall:client:web": "npm uninstall --prefix packages/client/web",
-    "install:client:desktop": "npm install --prefix packages/client/desktop",
-    "install:client:mobile": "npm install --prefix packages/client/mobile",
-    "install:client:web": "npm install --prefix packages/client/web",
-    "uninstall:server": "npm uninstall --prefix packages/server",
-    "install:server": "npm install --prefix packages/server"
-  },
-  "devDependencies": {
-    "prettier": "^2.5.1",
-    "turbo": "^1.0.19"
-  },
-  "turbo": {
-    "pipeline": {
-      "build": {
-        "dependsOn": [
-          "^build"
-        ],
-        "outputs": [
-          "dist/**",
-          ".next/**"
-        ]
-      },
-      "lint": {
-        "outputs": []
-      },
-      "dev": {
-        "cache": false
-      },
-      "web:dev": {
-        "dependsOn": [
-          "^build"
-        ],
-        "cache": false
-      },
-      "makemigrations": {
-        "dependsOn": [
-          "^build"
-        ],
-        "cache": false
-      },
-      "migrate": {
-        "dependsOn": [
-          "^build"
-        ],
-        "cache": false
-      }
+    "name": "turborepo-basic-npm",
+    "version": "0.0.0",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "turbo run build",
+        "web:dev": "turbo run dev web:dev --parallel",
+        "server:makemigrations": "turbo run makemigrations --parallel",
+        "server:migrate": "turbo run migrate --parallel",
+        "lint": "turbo run lint",
+        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "uninstall:client:desktop": "npm uninstall --prefix packages/client/desktop",
+        "uninstall:client:mobile": "npm uninstall --prefix packages/client/mobile",
+        "uninstall:client:web": "npm uninstall --prefix packages/client/web",
+        "install:client:desktop": "npm install --prefix packages/client/desktop",
+        "install:client:mobile": "npm install --prefix packages/client/mobile",
+        "install:client:web": "npm install --prefix packages/client/web",
+        "uninstall:server": "npm uninstall --prefix packages/server",
+        "install:server": "npm install --prefix packages/server"
+    },
+    "devDependencies": {
+        "prettier": "^2.5.1",
+        "turbo": "^1.0.19"
+    },
+    "turbo": {
+        "pipeline": {
+        "build": {
+            "dependsOn": [
+            "^build"
+            ],
+            "outputs": [
+            "dist/**",
+            ".next/**"
+            ]
+        },
+        "lint": {
+            "outputs": []
+        },
+        "dev": {
+            "cache": false
+        },
+        "web:dev": {
+            "dependsOn": [
+            "^build"
+            ],
+            "cache": false
+        },
+        "makemigrations": {
+            "dependsOn": [
+            "^build"
+            ],
+            "cache": false
+        },
+        "migrate": {
+            "dependsOn": [
+            "^build"
+            ],
+            "cache": false
+        }
+        }
     }
-  }
 }

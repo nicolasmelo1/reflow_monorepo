@@ -543,6 +543,17 @@ class Interpreter {
      * Interpreter.awesome_method() == 1
      * ```
      * 
+     * Beaware that if you change x inside of the module, it will change the value for all of the "instances".
+     * To use this idea of instances you should use structs instead of modules. Modules are not CLASSES/OBJECTS.
+     * ```
+     * interpreter = Interpreter
+     * interpreter2 = Interpreter
+     * 
+     * interpreter.x = 20
+     * 
+     * interpreter2.x == 20 # this is another variable and it has changed.
+     * ```
+     * 
      * Besides that modules are also used to create structs, structs are better explained inside the `FlowStruct` and `#handleStruct()` method.
      * ```
      * module User(name, age, email=None)

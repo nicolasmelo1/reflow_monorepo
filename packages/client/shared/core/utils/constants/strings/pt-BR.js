@@ -11,4 +11,13 @@ export default {
     workspaceNoWorkspaceSelected: 'Nenhum workspace selecionado',
     workspaceNotUniqueErrorMessage: 'Nome do workspace deve ser único',
     formularyToolbarShareButtonLabel: 'Compartilhar',
+    formularyFieldEditIsRequiredLabel: 'Obrigatório',
+    formularyFieldEditLabelIsHiddenLabel: 'Ocultar titulo',
+    formularyFieldEditFieldIsHiddenLabel: 'Ocultar campo',
+    formularyFieldEditFieldIsUniqueLabel: 'Valor é único',
+    formularyFieldEditLabelAndFieldIsHiddenMessage: 'O campo "{}" está oculto',
+    formularyFieldEditRenameLabel: 'Renomear',
+    formularyFieldEditDuplicateLabel: 'Duplicar',
+    formularyFieldEditEditLabel: 'Editar',
+    formularyFieldEditDeleteLabel: 'Excluir',
 }

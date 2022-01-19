@@ -15,7 +15,7 @@ export default function FormularyWebLayout(props) {
                 <Fragment>
                     <Styled.ToolbarContainer>
                         <Styled.FormularyTitle>
-                                {props.app.labelName}
+                            {props.app.labelName}
                         </Styled.FormularyTitle>
                         <Styled.ToolbarButton
                         onClick={() => {}/*props.onShareApp*/} 
@@ -30,11 +30,15 @@ export default function FormularyWebLayout(props) {
                     </Styled.ToolbarContainer>
                 </Fragment>
             ) : ''}
-            <Styled.FormularyContainer>
+            <Styled.FormularyContainer
+            ref={props.formularyContainerRef}
+            >
                 {props.formulary?.sections.map(section => (
                     <FormularySection 
+                    formularyContainerRef={props.formularyContainerRef}
                     key={section.uuid}
                     section={section}
+                    onUpdateFormulary={props.onUpdateFormulary}
                     />
                 ))}
             </Styled.FormularyContainer>

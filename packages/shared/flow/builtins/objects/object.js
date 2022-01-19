@@ -102,7 +102,7 @@ class FlowObject {
      * @param {import('./dict')} parameters - The dictionary object containing all of the parameters recieved in the struct creation.
      * @param {import('./module')} moduleObject - The module object that created this struct, we will use that to use the special methods.
      * 
-     * @returns {import('./struct')} - A new struct object.
+     * @returns {Promise<import('./struct')>} - A new struct object.
      */
     async newStruct(parameters, moduleObject) {
         const FlowStruct = require('./struct')
@@ -126,7 +126,7 @@ class FlowObject {
      * 
      * @param {boolean} value - The value to be converted to a boolean. Either JS own true or false.
      * 
-     * @returns {import('./boolean')} - A boolean object represented in flow
+     * @returns {Promise<import('./boolean')>} - A boolean object represented in flow
      */
     async newBoolean(value) {
         const FlowBoolean = require('./boolean')
@@ -358,6 +358,8 @@ class FlowObject {
      * IMPORTANT: Be aware, here we use || operator. in _equals_ we use && operator.
      * 
      * @param {FlowObject} obj - The object to be compared with the current object.
+     * 
+     * @returns {Promise<import('./boolean')>} A boolean object.
      */
     async _difference_(obj) {
         const isEqual = await this._equals_(obj)

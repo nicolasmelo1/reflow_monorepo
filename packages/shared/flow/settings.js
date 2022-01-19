@@ -211,7 +211,7 @@ class Settings {
      * This means that the thing that is found on this part of the regex ((0[1-9]|1[0-2]|[1-9])) will live on the (HH) part of the time value. 
      * That's how we parse the time value.
      * 
-     * @returns {string} - The regex to use to validate a given time. Can be used to match the time format. Or the regex to match from the actual value.
+     * @returns {Promise<string>} - The regex to use to validate a given time. Can be used to match the time format. Or the regex to match from the actual value.
      */
     async timeFormatToRegex(matchTheFormat=false) {
         if (matchTheFormat === true && this.cachedDatetimeTimeFormatRegex) return this.cachedDatetimeTimeFormatRegex
@@ -245,6 +245,8 @@ class Settings {
      * 
      * @param {boolean} [matchTheFormat=false] - If this is set to true, instead of returning the regex matching the actual values like numbers, we will generate a regex
      * that match the actual date format like `(YYYY)([-])(MM)?([-])(DD)`
+     * 
+     * @returns {Promise<string>} - The regex to use to validate a given date. Can be used to match the date format. Or the regex to match from the actual value.
      */
     async dateFormatToRegex(matchTheFormat=false) {
         if (matchTheFormat === true && this.cachedDatetimeDateFormatRegex) return this.cachedDatetimeDateFormatRegex

@@ -45,7 +45,7 @@
      * @param {'YYYY' | 'MM' | 'DD' | 'hh' | 'HH' | 'mm' | 'ss' | 'SSS' | 'AA'} datetimeFormat - The format to get the 
      * regex for. Needs to exist in the `validFormats` array.
      * 
-     * @returns {string} - The regex to use
+     * @returns {Promise<string>} - The regex to use
      */
     async getRegex(datetimeFormat) {
         await this.validateFormat(datetimeFormat)
@@ -206,7 +206,7 @@
      * @param {'YYYY' | 'MM' | 'DD' | 'hh' | 'HH' | 'mm' | 'ss' | 'SSS' | 'AA'} format - The format to get the value for.
      * Needs to exist in the `validFormats` array.
      * 
-     * @returns {string | null} - The value of the format as a string. 
+     * @returns {Promise<string | null>} - The value of the format as a string. 
      * Gives null if we can't find the value for the given format.
      */
     async getValueStringfiedByFormat(format) {
@@ -247,7 +247,7 @@
      * @param {'year' | 'month' | 'day' | 'hour' | 'minute' | 'second' | 'microsecond'} datetimeDefinition -
      * One of the strings defined in `validAttributes` array in the instantiation of this class.
      * 
-     * @returns {number} - Returns the actual number of the part of the date.
+     * @returns {Promise<number>} - Returns the actual number of the part of the date.
      */
     async getValue(datetimeDefinition) {
         if (datetimeDefinition === 'year' && this.dateYear !== undefined) {

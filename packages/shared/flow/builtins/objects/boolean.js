@@ -20,7 +20,7 @@ class FlowBoolean extends FlowInteger {
      * @param {string | number | boolean} value - Can be either one of the boolean keywords defined in settings,
      * the number 0 or 1, or a boolean value.
      * 
-     * @returns {FlowBoolean} - A new FlowBoolean value.
+     * @returns {Promise<FlowBoolean>} - A new FlowBoolean value.
      */
     static async new(settings, value) {
         const flowBoolean = new FlowBoolean(settings)
@@ -33,7 +33,7 @@ class FlowBoolean extends FlowInteger {
      * @param {string | number | boolean} value - Can be either one of the boolean keywords defined in settings,
      * the number 0 or 1, or a boolean value.
      * 
-     * @returns {FlowBoolean} - The initialized FlowBoolean value.
+     * @returns {Promise<FlowBoolean>} - The initialized FlowBoolean value.
      */
     async _initialize_(value) {
         this.value = value
@@ -57,7 +57,7 @@ class FlowBoolean extends FlowInteger {
      * Returns the boolean value as a json representation, by default we give the representation as a boolean value
      * either true or false. But flow on the other hand will give us the representation as a number.
      * 
-     * @returns {boolean} - Returns false representing false or true representing true.
+     * @returns {Promise<boolean>} - Returns false representing false or true representing true.
      */
     async _json_() {
         const representation = await this._representation_()
@@ -68,7 +68,7 @@ class FlowBoolean extends FlowInteger {
     /**
      * Returns the boolean value as a string, the string we use to represent the value is the string from the settings.
      * 
-     * @returns {string} - Returns the string representation from the boolean values from the settings.
+     * @returns {Promise<string>} - Returns the string representation from the boolean values from the settings.
      */
     async _string_() {
         const representation = await this._representation_()
