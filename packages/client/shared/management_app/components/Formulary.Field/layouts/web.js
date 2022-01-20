@@ -21,7 +21,7 @@ export default function FormularyFieldWebLayout(props) {
     const fieldTypeName = props.retrieveFieldTypeName()
     const customComponentsFieldOptions = Array.isArray(props.optionsForDropdownMenuRef.current) ? 
         props.optionsForDropdownMenuRef.current : []
-
+    const hasCustomOptionComponents = props.numberOfCustomOptionComponents > 0
     return (
         <Styled.Container
         onMouseOver={() => {props.onHoverFieldWeb(true)}}
@@ -134,7 +134,13 @@ export default function FormularyFieldWebLayout(props) {
                             autoComplete={'whathever'}
                             />
                         ) : ''}
+                        {hasCustomOptionComponents ? (
+                            <Styled.FieldEditMenuDropdownSeparator/>
+                        ) : ''}
                         {customComponentsFieldOptions.map(OptionComponent => OptionComponent)}
+                        {hasCustomOptionComponents ? (
+                            <Styled.FieldEditMenuDropdownSeparator/>
+                        ) : ''}
                         <Styled.FieldEditMenuDropdownButton
                         onClick={() => {
                             props.onToggleEditFieldMenu()

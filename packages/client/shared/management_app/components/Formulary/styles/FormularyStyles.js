@@ -6,8 +6,6 @@ export const Container = process.env['APP'] === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     height: 100%;
     background-color: ${props => props.theme.moreClearGray};
 ` 
@@ -76,7 +74,7 @@ export const FormularyContainer = process.env['APP'] === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: ${props => `calc(var(--app-height) - ${props.offset}px)`};
     overflow: auto;
     width: calc(100% - 20px);
     padding: 0 10px;

@@ -1,12 +1,45 @@
 import Styled from '../styles'
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 
 export function DropdownMenuNumberFormatOptionWebLayout(props) {
+    const numberFormatTypeSelected = props.numberFormatTypes.find(type => type.id === props.selected)
+
     return (
-        <input
-        type={'text'}
-        value={props.value}
-        onChange={(e) => props.onChange(e.target.value)}
-        />
+        <div
+        style={{
+            display: 'flex',
+            flexDirection: 'row'
+        }}
+        >
+            {props.isOpen ? (
+                <Styled.DropdownMenuOptionSelectContainer 
+                ref={props.menuRef}
+                menuPosition={props.menuPosition}
+                >
+                    {props.numberFormatTypes.map((numberFormatType, index) => (
+                        <Styled.DropdownMenuOptionSelectButton
+                        key={numberFormatType.id}
+                        isSelected={numberFormatType.id === props.selected}
+                        isLast={index === props.numberFormatTypes.length - 1}
+                        onClick={() => props.onSelect(numberFormatType.id)}
+                        >
+                            {numberFormatType.name}
+                        </Styled.DropdownMenuOptionSelectButton>
+                    ))}
+                </Styled.DropdownMenuOptionSelectContainer>
+            ) : ''}
+
+            <Styled.DropdownMenuOptionButton
+            ref={props.menuButtonRef}
+            onClick={() => props.onOpenMenu(!props.isOpen)}
+            >   
+                <p style={{ margin: 0}}>
+                    {![null, undefined].includes(numberFormatTypeSelected) ? numberFormatTypeSelected.name : 'Selecione a formatação'}
+                </p>
+                <FontAwesomeIcon icon={faChevronRight}/>
+            </Styled.DropdownMenuOptionButton>
+        </div>
     )
 }
 

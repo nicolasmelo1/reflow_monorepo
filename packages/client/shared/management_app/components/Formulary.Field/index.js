@@ -1,19 +1,21 @@
 import { useRef, useContext, useState, useEffect } from 'react'
 import Layouts from './layouts'
 import { AppManagementTypesContext } from '../../contexts'
-
+import { useClickedOrPressedOutside } from '../../../core/hooks'
 
 export default function FormularyField(props) {
     const fieldTypeNameCacheRef = useRef()
     const fieldEditDropdownMenuRef = useRef()
     const optionsForDropdownMenuRef = useRef([])
     const { state: { types } } = useContext(AppManagementTypesContext)
+    const [numberOfCustomOptionComponents, setNumberOfCustomOptionComponents] = useState(0)
     const [isPlaceholderOpen, setIsPlaceholderOpen] = useState(!['', null, undefined].includes(props.field.placeholder))
     const [isHovering, setIsHovering] = useState(false)
     const [isEditMenuOpen, setIsEditMenuOpen] = useState(false)
     const [isRenaming, setIsRenaming] = useState(false)
     const [editMenuMaximumHeight, setEditMenuMaximumHeight] = useState(undefined)
     const [isEditMenuAtBottom, setIsEditMenuAtBottom] = useState(true)
+    useClickedOrPressedOutside({ ref: fieldEditDropdownMenuRef, callback: () => setIsEditMenuOpen(false) })
 
     /**
      * This will add components to the dropdown menu so the user can edit it.
@@ -89,6 +91,7 @@ export default function FormularyField(props) {
      */
     function addComponentsForFieldSpecificOptionsForDropdownMenu(components) {
         optionsForDropdownMenuRef.current = components
+        setNumberOfCustomOptionComponents(components.length)
     }
 
     /**
@@ -256,7 +259,7 @@ export default function FormularyField(props) {
      */
     function onChangeFieldIsHidden(isFieldHidden) {
         props.field.fieldIsHidden = isFieldHidden
-        if (props.field.labelIsHidden === true) onChangeFieldIsRequired(false)
+        if (isFieldHidden === true) onChangeFieldIsRequired(false)
         props.onUpdateFormulary()
     }
 
@@ -326,6 +329,7 @@ export default function FormularyField(props) {
         <Layouts.Web
         fieldEditDropdownMenuRef={fieldEditDropdownMenuRef}
         optionsForDropdownMenuRef={optionsForDropdownMenuRef}
+        numberOfCustomOptionComponents={numberOfCustomOptionComponents}
         types={types}
         field={props.field}
         retrieveFieldTypeName={retrieveFieldTypeName}

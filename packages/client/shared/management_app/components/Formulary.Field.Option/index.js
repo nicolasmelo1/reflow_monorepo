@@ -3,7 +3,7 @@ import Layouts from './layouts'
 
 export default function FormularyFieldOption(props) {
     const [options, setOptions] = useState(props.field.options.map(option => ({ value: option.uuid, label: option.value })))
-    const [isOpen, setIsOpen] = useState(true)
+    const [isOpen, setIsOpen] = useState(false)
 
     function onOpenSelect(selectIsOpen) {
         setIsOpen(selectIsOpen)

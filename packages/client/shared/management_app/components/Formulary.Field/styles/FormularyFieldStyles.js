@@ -73,7 +73,7 @@ styled.div`
     right: 5px;
     ${props => props.isAtBottom ? 'top: 5px;' : 'bottom: calc(100% - 22px);'}
     opacity: ${props => props.isHovering ? '1' : '0'};
-    transition: opacity 0.3s ease-in-out;
+    transition: opacity 0.3s ease-in-out, top 0.1s ease-in-out, bottom 0.1s ease-in-out, opacity 0.3s ease-in-out;
 `
 :
 styled(View)``
@@ -114,17 +114,29 @@ styled.button`
     border: 0;
     border-radius: 5px;
     padding: 10px;
-    text-align: right;
+    text-align: left;
     font-family: Roboto;
     font-size: 13px;
+    cursor: pointer;
     color: ${props => props.isExclude ? props.theme.red_REFLOW : props.theme.darkGray};
+
     &:hover {
-        cursor: pointer;
         background-color: ${props => props.theme.moreClearGray};
     }
 `
 :
 styled(TouchableOpacity)``
+
+export const FieldEditMenuDropdownSeparator = process.env['APP'] === 'web' ?
+styled.hr`
+    color: ${props => props.theme.clearGray};
+    background-color: ${props => props.theme.clearGray};
+    border: 1px solid ${props => props.theme.clearGray};
+    width: calc(100% - 5px);
+    margin: 2px 0;
+`
+:
+styled(View)``
 
 export const FieldEditMenuDropdownSwitchContainer = process.env['APP'] === 'web' ?
 styled.div`

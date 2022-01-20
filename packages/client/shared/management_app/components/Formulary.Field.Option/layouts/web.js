@@ -10,6 +10,7 @@ export default function FormularyFieldOptionWebLayout(props) {
             onOpen={props.onOpenSelect}
             isOpen={props.isOpen}
             options={props.options}
+            placeholder={props.field.placeholder}
             />
         </Styled.Container>
     )
