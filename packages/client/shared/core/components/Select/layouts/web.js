@@ -1,11 +1,7 @@
 import Styled from '../styles'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 
-export default function SelectWebLayout(props) {
-    if (props.optionsContainerRef.current && props.selectRef.current) {
-        console.log(props.optionsContainerRef.current.getBoundingClientRect().height + props.selectRef.current.getBoundingClientRect().height)
-
-    }
+export default function SelectWebLayout(props) { 
     return (
         <Styled.Container
         ref={props.selectRef}
@@ -13,25 +9,38 @@ export default function SelectWebLayout(props) {
             <Styled.SearchAndSelectedOptionsContainer
             onClick={() => props.onToggleOpen(!props.isOpen)}
             >
-                {props.selectedOptions.map(option => (
-                    <Styled.SelectedOption
-                    key={option.value}
-                    >
-                        <Styled.SelectedOptionLabel>
-                            {option.label}
-                        </Styled.SelectedOptionLabel>
-                        <Styled.SelectedOptionRemoveButton
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            props.onSelectOrRemoveOption(option)
-                        }}
+                {props.selectedOptions.map(option => {
+                    const CustomSelectedComponet = props.selectedComponents !== undefined && 
+                        props.selectedComponents[option.selectedComponent] !== undefined ? 
+                        props.selectedComponents[option.selectedComponent] :
+                        null
+                    
+                    return CustomSelectedComponet !== null ? (
+                        <CustomSelectedComponet 
+                        key={option.value}
+                        option={option}
+                        onSelectOrRemoveOption={props.onSelectOrRemoveOption}
+                        />
+                    ) : (
+                        <Styled.SelectedOption
+                        key={option.value}
                         >
-                            <Styled.SelectedOptionRemoveButtonIcon
-                            icon={faTimes}
-                            />
-                        </Styled.SelectedOptionRemoveButton>
-                    </Styled.SelectedOption>
-                ))}
+                            <Styled.SelectedOptionLabel>
+                                {option.label}
+                            </Styled.SelectedOptionLabel>
+                            <Styled.SelectedOptionRemoveButton
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                props.onSelectOrRemoveOption(option)
+                            }}
+                            >
+                                <Styled.SelectedOptionRemoveButtonIcon
+                                icon={faTimes}
+                                />
+                            </Styled.SelectedOptionRemoveButton>
+                        </Styled.SelectedOption>
+                    )
+                })}
                 {props.isDisabled === true ? '' :(
                     <Styled.SearchInput
                     ref={props.searchInputRef}
@@ -59,19 +68,30 @@ export default function SelectWebLayout(props) {
                     offset={props.optionsContainerOffset}
                     isToLoadOptionsOnBottom={props.isToLoadOptionsOnBottom}
                     >
-                        {props.options.map(option => (
-                            <Styled.OptionContainer
-                            key={option.value}
-                            >
-                                <Styled.OptionButton
-                                onClick={() => {
-                                    props.onSelectOrRemoveOption(option)
-                                }}
+                        {props.options.map(option => {
+                            const CustomOptionComponent = props.optionComponents !== undefined && 
+                                props.optionComponents[option.optionComponent] !== undefined ? 
+                                props.optionComponents[option.optionComponent] :
+                                null
+                            
+                            return CustomOptionComponent !== null ? (
+                                <CustomOptionComponent 
+                                key={option.value}
+                                option={option}
+                                onSelectOrRemoveOption={props.onSelectOrRemoveOption}
+                                />
+                            ) : (
+                                <Styled.OptionContainer
+                                key={option.value}
                                 >
-                                    {option.label}
-                                </Styled.OptionButton>
-                            </Styled.OptionContainer>
-                        ))}
+                                    <Styled.OptionButton
+                                    onClick={() => props.onSelectOrRemoveOption(option)}
+                                    >
+                                        {option.label}
+                                    </Styled.OptionButton>
+                                </Styled.OptionContainer>
+                            )
+                        })}
                     </Styled.OptionsContainer>
                 ) : ''}
             </Styled.OptionsContainerWrapper>

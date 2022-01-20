@@ -54,6 +54,12 @@ import Layouts from "./layouts"
  * @param {(option: {label: string, value: string}) => void} [props.onRemove=undefined] - This is a callback that will be called when
  * the user removes an option. It recieves the hole option object that was removed. This means you can append more data to the options
  * besides the default `label` and `value` properties.
+ * @param {{[nameOfTheComponent]: import('react').Component}} [props.optionComponents={}] - This is an object that holds all of the custom
+ * components to load on the options. Each key is the name of the component to use that was defined in the `optionComponent` property
+ * in `props.options`
+ * @param {{[nameOfTheComponent]: import('react').Component}} [props.selectedComponents={}] - This is an object that holds all of the custom
+ * components to load on the selected options. Each key is the name of the component to use that was defined in the `selectedComponent`
+ * property in `props.options`
  */
 export default function Select(props) {
     const isPropsPlaceholderDefined = typeof props.placeholder === 'string'
@@ -322,6 +328,8 @@ export default function Select(props) {
         preventCloseRef={preventCloseRef}
         selectRef={selectRef}
         searchInputRef={searchInputRef}
+        optionComponents={props.optionComponents}
+        selectedComponents={props.selectedComponents}
         selectedOptions={filteredSelectedOptions}
         options={filteredOptions}
         search={search}
