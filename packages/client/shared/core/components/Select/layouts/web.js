@@ -1,7 +1,10 @@
-import Styled from '../styles'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { strings } from '../../../utils/constants'
+import Styled from '../styles'
 
-export default function SelectWebLayout(props) { 
+export default function SelectWebLayout(props) {
+    const CustomCreateOption = props.customCreateOptionComponent !== undefined ? props.customCreateOptionComponent : undefined
+
     return (
         <Styled.Container
         ref={props.selectRef}
@@ -20,6 +23,7 @@ export default function SelectWebLayout(props) {
                         key={option.value}
                         option={option}
                         onSelectOrRemoveOption={props.onSelectOrRemoveOption}
+                        {...props.customProps}
                         />
                     ) : (
                         <Styled.SelectedOption
@@ -68,17 +72,25 @@ export default function SelectWebLayout(props) {
                     offset={props.optionsContainerOffset}
                     isToLoadOptionsOnBottom={props.isToLoadOptionsOnBottom}
                     >
+                        {![null, undefined].includes(props.customHelperLabel) ? (
+                            <Styled.HelperContainer>
+                                <Styled.HelperLabel>
+                                    {props.customHelperLabel}
+                                </Styled.HelperLabel>
+                            </Styled.HelperContainer>
+                        ) : ''}
                         {props.options.map(option => {
                             const CustomOptionComponent = props.optionComponents !== undefined && 
                                 props.optionComponents[option.optionComponent] !== undefined ? 
                                 props.optionComponents[option.optionComponent] :
                                 null
-                            
+
                             return CustomOptionComponent !== null ? (
                                 <CustomOptionComponent 
                                 key={option.value}
                                 option={option}
                                 onSelectOrRemoveOption={props.onSelectOrRemoveOption}
+                                {...props.customProps}
                                 />
                             ) : (
                                 <Styled.OptionContainer
@@ -92,6 +104,25 @@ export default function SelectWebLayout(props) {
                                 </Styled.OptionContainer>
                             )
                         })}
+                        {props.isToShowCreatable ? 
+                        ![null, undefined].includes(CustomCreateOption) ? (
+                            <CustomCreateOption
+                            onCreateOption={props.onCreateOption}
+                            search={props.search}
+                            {...props.customProps}
+                            />
+                        ) : (
+                            <Styled.OptionContainer>
+                                <Styled.CreateOptionButton
+                                onClick={() => props.onCreateOption()}
+                                >
+                                    {strings('pt-BR', 'selectCreateLabel')}
+                                    <Styled.CreateOptionElement>
+                                        {props.search}
+                                    </Styled.CreateOptionElement>
+                                </Styled.CreateOptionButton>
+                            </Styled.OptionContainer>
+                        ) : ''}
                     </Styled.OptionsContainer>
                 ) : ''}
             </Styled.OptionsContainerWrapper>

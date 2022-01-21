@@ -24,19 +24,20 @@ export function DropdownMenuNumberFormatOptionWebLayout(props) {
                         isLast={index === props.numberFormatTypes.length - 1}
                         onClick={() => props.onSelect(numberFormatType.id)}
                         >
-                            {numberFormatType.name}
+                            {props.getNumberFormatTypeStringByName(numberFormatType.name)}
                         </Styled.DropdownMenuOptionSelectButton>
                     ))}
                 </Styled.DropdownMenuOptionSelectContainer>
             ) : ''}
-
             <Styled.DropdownMenuOptionButton
             ref={props.menuButtonRef}
             onClick={() => props.onOpenMenu(!props.isOpen)}
             >   
-                <p style={{ margin: 0}}>
-                    {![null, undefined].includes(numberFormatTypeSelected) ? numberFormatTypeSelected.name : 'Selecione a formatação'}
-                </p>
+                <Styled.DropdownMenuOptionSelectButtonText>
+                    {![null, undefined].includes(numberFormatTypeSelected) ? 
+                    props.getNumberFormatTypeStringByName(numberFormatTypeSelected.name) : 
+                    'Selecione a formatação'}
+                </Styled.DropdownMenuOptionSelectButtonText>
                 <FontAwesomeIcon icon={faChevronRight}/>
             </Styled.DropdownMenuOptionButton>
         </div>

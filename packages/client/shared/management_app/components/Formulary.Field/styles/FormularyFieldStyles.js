@@ -73,7 +73,7 @@ styled.div`
     right: 5px;
     ${props => props.isAtBottom ? 'top: 5px;' : 'bottom: calc(100% - 22px);'}
     opacity: ${props => props.isHovering ? '1' : '0'};
-    transition: opacity 0.3s ease-in-out, top 0.1s ease-in-out, bottom 0.1s ease-in-out, opacity 0.3s ease-in-out;
+    transition: opacity 0.1s ease-in-out, top 0.1s ease-in-out, bottom 0.1s ease-in-out;
 `
 :
 styled(View)``
@@ -98,10 +98,11 @@ styled.div`
     flex-direction: column;
     padding: 10px;
     box-shadow: rgb(56 66 95 / 8%) 4px 4px 12px;
+    border: 1px solid ${props => props.theme.moreClearGray};
     background-color: ${props => props.theme.white};
     border-radius: 5px;
     z-index: 1;
-    min-height: 100px;
+    min-height: 50px;
     ${props => props.maximumHeight !== undefined ? `max-height: ${props.maximumHeight}px;` : ''}
     overflow-y: auto;
 `

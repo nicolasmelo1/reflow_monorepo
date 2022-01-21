@@ -1,4 +1,5 @@
 export default {
+    selectCreateLabel: 'Criar',
     sidebarHelloName: 'Olá, ',
     sidebarQuickSearchButtonLabel: 'Pesquisa Rápida',
     sidebarHistoryButtonLabel: 'Histórico',
@@ -20,4 +21,12 @@ export default {
     formularyFieldEditDuplicateLabel: 'Duplicar',
     formularyFieldEditEditLabel: 'Editar',
     formularyFieldEditDeleteLabel: 'Excluir',
+    formularyFieldNumberDefaultDecimalCharacter: ',',
+    formularyFieldNumberDefaultThousandSeparatorCharacter: '.',
+    formularyFieldOptionCustomHelperLabel: 'Selecione uma opção ou escreva para criar uma nova',
+    formularyFieldOptionCreateOptionLabel: 'Criar',
+    numberFormatTypeNumberLabel: 'Dinâmico',
+    numberFormatTypeIntegerLabel: 'Inteiro',
+    numberFormatTypeCurrencyLabel: 'Monetário',
+    numberFormatTypePercentageLabel: 'Porcentagem'
 }

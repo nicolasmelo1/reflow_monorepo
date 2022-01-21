@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
-import { useClickedOrPressedOutside } from '../../hooks'
+import { useClickedOrPressedOutside } from '../../hooks' 
+import { generateUUID } from '../../../../../shared/utils'
 import Layouts from "./layouts"
 
 /**
@@ -20,7 +21,7 @@ import Layouts from "./layouts"
  * @param {Object} props - The props that this component is able to recieve.
  * @param {Array<{
  *      label: string, 
- *      value: string, 
+ *      value: string | number,
  *      optionComponent: string | undefined, 
  *      selectedComponent: string | undefined
  * }>} [props.options=[]] - The options that the user can select from when we open the select options menu.
@@ -29,7 +30,7 @@ import Layouts from "./layouts"
  * a custom component on the option dropdown container. This is tied to the `optionComponents` prop.
  * The `selectedComponent` will render a custom component of the selected options. This is tied to the 
  * `selectedComponents` prop.
- * @param {Array<string>} [props.selectedOptions=[]] - The options that are currently selected, this is an array of
+ * @param {Array<string | number>} [props.selectedOptions=[]] - The options that are currently selected, this is an array of
  * the `option.value` defined in the `options` prop
  * @param {string} [props.search=''] - The search term that the user is currently typing in. This will update the 
  * value of the `search` so we can filter the options based on this option.
@@ -48,18 +49,29 @@ import Layouts from "./layouts"
  * of the input, otherwise it will be hidden.
  * @param {(isOpen: boolean) => void} [props.onOpen=undefined] - This is a callback that will be called when the user opens or closes
  * the select options menu. By default it recieves if the option container is opening or closing.
- * @param {(option: {label: string, value: string}) => void} [props.onSelect=undefined] - This is a callback that will be called when 
+ * @param {(option: {label: string, value: string | number}) => void} [props.onSelect=undefined] - This is a callback that will be called when 
  * the user selects an option. It recieves the hole option object that was selected. This means you can append more data to the options
  * besides the default `label` and `value` properties.
- * @param {(option: {label: string, value: string}) => void} [props.onRemove=undefined] - This is a callback that will be called when
+ * @param {(option: {label: string, value: string | number}) => void} [props.onRemove=undefined] - This is a callback that will be called when
  * the user removes an option. It recieves the hole option object that was removed. This means you can append more data to the options
  * besides the default `label` and `value` properties.
- * @param {{[nameOfTheComponent]: import('react').Component}} [props.optionComponents={}] - This is an object that holds all of the custom
+ * @param {{[nameOfTheComponent]: import('react').Component | (props) => import('react').ReactElement}} [props.optionComponents={}] - This is an object that holds all of the custom
  * components to load on the options. Each key is the name of the component to use that was defined in the `optionComponent` property
  * in `props.options`
- * @param {{[nameOfTheComponent]: import('react').Component}} [props.selectedComponents={}] - This is an object that holds all of the custom
+ * @param {{[nameOfTheComponent]: import('react').Component | (props) => import('react').ReactElement}} [props.selectedComponents={}] - This is an object that holds all of the custom
  * components to load on the selected options. Each key is the name of the component to use that was defined in the `selectedComponent`
  * property in `props.options`
+ * @param {object} [props.customProps={}] - This are custom props that will be passed to the `optionComponents` and to the `selectedComponents`
+ * This way you can pass functions and any kind of stuff.
+ * @param {boolean} [props.creatable=false] - If we search for an option and it does not exist, then we will show a button below
+ * to create it. 
+ * @param {(optionLabel: string) => void} [props.onCreate=undefined] - This is a callback that will be called when the user clicks on the
+ * button to create a new option. For this to be called `creatable` must be set to true.
+ * @param {import('react').Component | (props) => import('react').ReactElement} [props.customCreateOptionComponent=undefined] - This is a ref that will be passed to the select options container
+ * @param {string} [props.customHelperLabel=undefined] - This is the label that will be displayed at the top of the select options container before all of the options
+ * are displayed.
+ * 
+ * @returns {import('react').ReactElement} - Returns a react element.
  */
 export default function Select(props) {
     const isPropsPlaceholderDefined = typeof props.placeholder === 'string'
@@ -72,12 +84,15 @@ export default function Select(props) {
     const isDisabled = typeof props.disabled === 'boolean' ? props.disabled : false
     const placeholder = isPropsPlaceholderDefined ? props.placeholder : ''
     const initialSelectedOptions = isPropsSelectedOptionsDefined ? props.selectedOptions : []
+    const customProps = typeof props.customProps === 'object' ? props.customProps : {}
+    const isCreatable = typeof props.creatable === 'boolean' ? props.creatable : false
 
     const selectRef = useRef()
     const searchInputRef = useRef()
     const optionsContainerRef = useRef()
     const preventCloseRef = useRef(false)
     const selectedOptionsRef = useRef(initialSelectedOptions)
+    const [isToShowCreatable, setIsToShowCreatable] = useState(isPropsSearchDefinedAndAString && isCreatable && props.search !== '')
     const [searchInputWidth, setSearchInputWidth] = useState(isPropsPlaceholderDefined ? props.placeholder.length : 1)
     const [optionsContainerOffset, setOptionsContainerOffset] = useState(0)
     const [isToLoadOptionsOnBottom, setIsToLoadOptionsOnBottom] = useState(true)
@@ -128,6 +143,19 @@ export default function Select(props) {
         }
     }
 
+    /**
+     * / * WEB ONLY * /
+     * 
+     * When the option container is built above the selected options container, what we do is that on the css we do a 
+     * transform: translateY(-{props.offset}px) to move the option container up. This `props.offset` is what we need to calculate
+     * here.
+     * 
+     * We change this offset everytime the user open or closes the option container and also when he selects an option.
+     * 
+     * It's important to see that we add this in a setTimeout because we need to await the rerender of the options container
+     * to calculate it again. That's because when we select an option then the options container changes height, so we need to recalculate
+     * it again. The same happens when we exclude an option.
+     */
     function adjustOptionsContainerOffset() {
         if (process.env['APP'] === 'web') {
             setTimeout(() => {
@@ -244,7 +272,6 @@ export default function Select(props) {
                 }
     
                 if (canAddOption) newSelectedOptions = [...selectedOptionsRef.current, option.value]
-                setSearch('')
 
                 const isPropsOnSelectDefined = typeof props.onSelect === 'function'
                 if (isPropsOnSelectDefined) {
@@ -254,9 +281,8 @@ export default function Select(props) {
     
             if (isOpen === true && canAddMultiple === false) onToggleOpen(false)
             setSelectedOptions(newSelectedOptions)
-            setFilteredOptions(originalOptions.filter(option => !newSelectedOptions.includes(option.value)))
             adjustWidthOfSearchInput(isRemovingAOption ? search : '')
-            adjustOptionsContainerOffset()
+            onSearch('', originalOptions, newSelectedOptions)
         }
     }
 
@@ -266,23 +292,81 @@ export default function Select(props) {
      * The filtering only happens if no `onSearch` prop is defined. When the value is an empty string, then
      * it will show all of the options again.
      * 
+     * After we finish filtering we fix the container offset so the options comes down.
+     * 
      * @param {string} value - The value the user is typing on the input.
      */
-    function onSearch(value) {
+    function onSearch(value, defaultOptions=originalOptions, optionsSelected=selectedOptions) {
         setSearch(value)
         const isPropsOnSearchCallbackDefinedAndAFunction = ![null, undefined].includes(props.onSearch) && 
             typeof props.onSearch === 'function'
         if (isPropsOnSearchCallbackDefinedAndAFunction) {
             props.onSearch(value)
         } else {
-            let filteredOptions = originalOptions.filter(option => !selectedOptions.includes(option.value))
+            let filteredOptions = defaultOptions.filter(option => !optionsSelected.includes(option.value))
             if (value !== '') {
                 filteredOptions = filteredOptions.filter(option => option.label.toLowerCase().includes(value.toLowerCase()))
             }
+
+            if (isCreatable === true) {
+                // This is for optimization, we do not need to loop through the default options if the value is false
+                if (value !== '') {
+                    const doesExistOptionWithExactValue = defaultOptions.filter(option => option.label === value).length > 0
+                    if (doesExistOptionWithExactValue === false) setIsToShowCreatable(true)
+                    else setIsToShowCreatable(false)
+                } else {
+                    setIsToShowCreatable(false)
+                }
+            }
+
             setFilteredOptions(filteredOptions)
         }
+        adjustOptionsContainerOffset()
     }
 
+    /**
+     * If we set `creatable` when the user searches for an option that does not exist, then we will show a button at the bottom 
+     * for him to create the new option.
+     * 
+     * When he clicks this button then we run this function, when running this function we will see if `props.onCreate` is defined,
+     * if it is then your parent must handle this option creation. Otherwise we handle it here. (remember that this component must be
+     * responsible for his own state, it doesn't need to depend on any external dependencies). So if that's the case
+     * we have 2 options:
+     * 
+     * 1. We retrieve the last element of the options array and then create a new object with it changing the value to a new uuid
+     * and the label to the search value. We do this because if any custom component was defined, then we will still use it.
+     * 2. We create a new object with the value to a new uuid and the label to the search value.
+     * 
+     * After that we change the original options array and set the search value to an empty string.
+     */
+    function onCreateOption() {
+        const optionValue = search
+        const isOnCreateOptionDefined = typeof props.onCreateOption === 'function'
+        if (isOnCreateOptionDefined) {
+            props.onCreateOption(optionValue)
+            onSearch('')
+        } else {
+            const hasElementsInOptionsArray = originalOptions.length > 0
+            const newOptions = originalOptions
+            // With this we can use the custom components.
+            if (hasElementsInOptionsArray) {
+                const lastElementInOriginalOptions = {...originalOptions[originalOptions.length - 1]}
+                lastElementInOriginalOptions.label = optionValue
+                lastElementInOriginalOptions.value = generateUUID()
+                newOptions.push(lastElementInOriginalOptions)
+            } else {
+                newOptions.push({
+                    label: optionValue,
+                    value: generateUUID()
+                })
+            }
+            setOriginalOptions(newOptions)
+            onSearch('', newOptions, selectedOptions)
+        }
+        if (process.env['APP'] === 'web' && searchInputRef.current) searchInputRef.current.focus()
+    }
+
+    
     /** 
      * This will update the local state of the search input value that comes from the parent component.
      * If the parent component set the `props.search` to be something different than the current value
@@ -301,6 +385,7 @@ export default function Select(props) {
     useEffect(() => {
         if (isPropsOptionDefined && JSON.stringify(originalOptions) !== JSON.stringify(props.options)) {
             setOriginalOptions(props.options)
+            onSearch(search, props.options)
         }
     }, [props.options])
     
@@ -328,11 +413,15 @@ export default function Select(props) {
         preventCloseRef={preventCloseRef}
         selectRef={selectRef}
         searchInputRef={searchInputRef}
+        customProps={customProps}
+        customHelperLabel={props.customHelperLabel}
+        customCreateOptionComponent={props.customCreateOptionComponent}
         optionComponents={props.optionComponents}
         selectedComponents={props.selectedComponents}
         selectedOptions={filteredSelectedOptions}
         options={filteredOptions}
         search={search}
+        isToShowCreatable={isToShowCreatable}
         isToLoadOptionsOnBottom={isToLoadOptionsOnBottom}
         isOpen={isOpen}
         placeholder={placeholder}
@@ -340,6 +429,7 @@ export default function Select(props) {
         optionsContainerOffset={optionsContainerOffset}
         searchInputWidth={searchInputWidth}
         adjustWidthOfSearchInput={adjustWidthOfSearchInput}
+        onCreateOption={onCreateOption}
         onSearch={onSearch}
         onSelectOrRemoveOption={onSelectOrRemoveOption}
         onToggleOpen={onToggleOpen}

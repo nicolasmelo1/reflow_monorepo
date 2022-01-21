@@ -22,6 +22,7 @@ export default function FormularyFieldWebLayout(props) {
     const customComponentsFieldOptions = Array.isArray(props.optionsForDropdownMenuRef.current) ? 
         props.optionsForDropdownMenuRef.current : []
     const hasCustomOptionComponents = props.numberOfCustomOptionComponents > 0
+
     return (
         <Styled.Container
         onMouseOver={() => {props.onHoverFieldWeb(true)}}
@@ -56,6 +57,7 @@ export default function FormularyFieldWebLayout(props) {
             isAtBottom={props.isEditMenuAtBottom}
             >
                 <Styled.FieldEditButtonMenu
+                ref={props.fieldEditMenuButtonRef}
                 isHovering={props.isHovering}
                 onClick={() => props.onToggleEditFieldMenu()}
                 >

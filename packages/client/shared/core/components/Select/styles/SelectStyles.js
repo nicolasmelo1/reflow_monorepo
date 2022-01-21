@@ -35,6 +35,8 @@ styled(Text)``
 
 export const SelectedOptionRemoveButton = process.env['APP'] === 'web' ? 
 styled.button`
+    user-select: none;
+    font-family: Roboto;
     background-color: transparent;
     border: 0;
     border-radius: 5px;
@@ -64,6 +66,7 @@ styled(View)``
 
 export const OptionsContainer = process.env['APP'] === 'web' ?
 styled.div`
+    overflow: auto;
     position: absolute;
     top: 0;
     left: 0;
@@ -72,6 +75,7 @@ styled.div`
     background-color: ${props => props.theme.white};
     z-index: 1;
     box-shadow: rgb(56 66 95 / 8%) 4px 4px 12px;
+    border: 1px solid ${props => props.theme.moreClearGray};
     border-radius: 5px;
     margin-top: 5px;
 
@@ -121,20 +125,41 @@ styled(TextInput)``
 
 export const OptionContainer = process.env['APP'] === 'web' ?
 styled.div`
-    width: 100%;
+    width: calc(100% - 10px);
     padding: 5px;
 `
 :
 styled(View)``
 
+export const HelperContainer = process.env['APP'] === 'web' ? 
+styled.div`
+    padding: 5px;
+    width: calc(100% - 10px);
+`
+:
+styled(View)``
+
+export const HelperLabel = process.env['APP'] === 'web' ? 
+styled.p`
+    margin: 0;
+    font-size: 12px;
+    font-family: Roboto;
+    font-weight: 600;
+    color: ${props => props.theme.green_REFLOW}50;
+`
+:
+styled(Text)``
+
 export const OptionButton = process.env['APP'] === 'web' ?
 styled.button`
+    user-select: none;
+    font-family: Roboto;
     text-align: left;
     background-color: transparent;
     border-radius: 5px;
     padding: 10px;
     border: 0;
-    width: calc(100% - 10px);
+    width: 100%;
     transition: background-color 0.3s ease-in-out;
 
     &:hover {
@@ -143,3 +168,34 @@ styled.button`
 `
 :
 styled(TouchableOpacity)``
+
+export const CreateOptionButton = process.env['APP'] === 'web' ?
+styled.button`
+    user-select: none;
+    font-family: Roboto;
+    overflow: hidden;
+    text-align: left;
+    background-color: transparent;
+    border-radius: 5px;
+    padding: 10px;
+    border: 0;
+    width: 100%;
+    transition: background-color 0.3s ease-in-out;
+
+    &:hover {
+        background-color: ${props => props.theme.green_REFLOW}50;
+    }
+`
+:
+styled(TouchableOpacity)``
+
+export const CreateOptionElement = process.env['APP'] === 'web' ?
+styled.span`
+    background-color: ${props => props.theme.clearGray};
+    border-radius: 5px;
+    margin-left: 5px;
+    padding: 5px;
+    color: ${props => props.theme.darkBlue}
+`
+:
+styled(Text)``

@@ -56,12 +56,16 @@ styled.div`
     flex-direction: column;
     position: fixed;
     box-shadow: rgb(56 66 95 / 8%) 4px 4px 12px;
+    border: 1px solid ${props => props.theme.moreClearGray};
     padding: 5px;
     border-radius: 5px;
+    max-height: var(--app-height);
+    overflow: auto;
     background-color: ${props => props.theme.white};
     top: ${props => props.menuPosition !== null ? props.menuPosition.y : 0}px;
     left: ${props => props.menuPosition !== null ? props.menuPosition.x : 0}px;
     opacity: ${props => props.menuPosition !== null ? 1 : 0};
+    transition: top 0.1s ease-in-out, left 0.1s ease-in-out, opacity: 0.1s ease-in-out;
 `
 :
 styled(View)``
@@ -74,10 +78,20 @@ styled.button`
     border: 0;
     margin-bottom: ${props => props.isLast ? '0': '5px'};
     padding: 5px;
-
+    cursor: pointer;
+    
     &:hover {
         background-color: ${props => props.theme.clearGray};
     }
 `
 :
 styled(TouchableOpacity)``
+
+export const DropdownMenuOptionSelectButtonText = process.env['APP'] === 'web' ?
+styled.p`
+    margin-bottom: 0px;
+    margin-top: 0px;
+    margin-right: 5px;
+`
+:
+styled(Text)``

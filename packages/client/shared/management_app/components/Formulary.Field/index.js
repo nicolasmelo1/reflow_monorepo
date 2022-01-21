@@ -5,6 +5,7 @@ import { useClickedOrPressedOutside } from '../../../core/hooks'
 
 export default function FormularyField(props) {
     const fieldTypeNameCacheRef = useRef()
+    const fieldEditMenuButtonRef = useRef()
     const fieldEditDropdownMenuRef = useRef()
     const optionsForDropdownMenuRef = useRef([])
     const { state: { types } } = useContext(AppManagementTypesContext)
@@ -15,7 +16,11 @@ export default function FormularyField(props) {
     const [isRenaming, setIsRenaming] = useState(false)
     const [editMenuMaximumHeight, setEditMenuMaximumHeight] = useState(undefined)
     const [isEditMenuAtBottom, setIsEditMenuAtBottom] = useState(true)
-    useClickedOrPressedOutside({ ref: fieldEditDropdownMenuRef, callback: () => setIsEditMenuOpen(false) })
+    useClickedOrPressedOutside({ ref: fieldEditDropdownMenuRef, callback: (e) => {
+        if (fieldEditMenuButtonRef.current && !fieldEditMenuButtonRef.current.contains(e.target)) {
+            setIsEditMenuOpen(false)
+        }
+    }})
 
     /**
      * This will add components to the dropdown menu so the user can edit it.
@@ -88,6 +93,9 @@ export default function FormularyField(props) {
      * 
      * What this means is that the `DefaultValueInput` is the single source of truth for the state, and we keep it in sync with
      * the `FormularyFieldText` through callbacks.
+     * 
+     * @param {Array<import('react').ReactElement>} components - An array of react elements initialized. This is a component that has
+     * been initialized
      */
     function addComponentsForFieldSpecificOptionsForDropdownMenu(components) {
         optionsForDropdownMenuRef.current = components
@@ -275,6 +283,14 @@ export default function FormularyField(props) {
         props.onUpdateFormulary()
     }
 
+    /**
+     * The placeholder input opens or closes if the user checks or unchecks a given checkbox.
+     * 
+     * When he checks the box then we will show the input so he can start typing the placeholder, otherwise we close 
+     * it.
+     * 
+     * When it is closing, then the placeholder will be null by default, so every value inside of it disappears.
+     */
     function onTogglePlaceholderInput() {
         const nextState = !isPlaceholderOpen
         if (nextState === false) {
@@ -284,6 +300,11 @@ export default function FormularyField(props) {
         setIsPlaceholderOpen(!isPlaceholderOpen)
     }
 
+    /** 
+     * Will change effectively the value of the placeholder when he starts typing in the input.
+     * 
+     * @param {string} value - The value of the placeholder.
+     */
     function onChangePlaceholder(value) {
         props.field.placeholder = value
         props.onUpdateFormulary()
@@ -327,6 +348,7 @@ export default function FormularyField(props) {
         
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
+        fieldEditMenuButtonRef={fieldEditMenuButtonRef}
         fieldEditDropdownMenuRef={fieldEditDropdownMenuRef}
         optionsForDropdownMenuRef={optionsForDropdownMenuRef}
         numberOfCustomOptionComponents={numberOfCustomOptionComponents}
@@ -350,6 +372,7 @@ export default function FormularyField(props) {
         onChangeFieldIsUnique={onChangeFieldIsUnique}
         onChangePlaceholder={onChangePlaceholder}
         onTogglePlaceholderInput={onTogglePlaceholderInput}
+        onUpdateFormulary={props.onUpdateFormulary}
         onRemoveField={props.onRemoveField}
         onDuplicateField={props.onDuplicateField}
         />

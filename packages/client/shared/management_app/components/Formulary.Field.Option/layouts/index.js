@@ -1,7 +1,15 @@
-import Mobile from './mobile'
-import Web from './web'
+import MobileField, { CustomOptionSelectMobileLayout, CustomCreateOptionButtonMobileLayout } from './mobile'
+import WebField, { CustomOptionSelectWebLayout, CustomCreateOptionButtonWebLayout } from './web'
 
 export default {
-    Mobile,
-    Web
+    Mobile: {
+        Field: MobileField,
+        CustomOptionSelect: CustomOptionSelectMobileLayout,
+        CustomCreateOptionButton: CustomCreateOptionButtonMobileLayout,
+    },
+    Web: {
+        Field: WebField,
+        CustomOptionSelect: CustomOptionSelectWebLayout,
+        CustomCreateOptionButton: CustomCreateOptionButtonWebLayout,
+    }
 }
