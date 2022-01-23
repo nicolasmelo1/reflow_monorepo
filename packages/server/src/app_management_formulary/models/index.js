@@ -439,6 +439,7 @@ class Option extends models.Model {
         }),
         order: new models.fields.IntegerField({ defaultValue: 1 }),
         value: new models.fields.CharField(),
+        color: new models.fields.CharField({ allowBlank: true, allowNull: true, defaultValue: null })
     }
 
     options = {

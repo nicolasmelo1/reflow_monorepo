@@ -4,6 +4,10 @@ export function CustomCreateOptionButtonMobileLayout(props) {
     return (<View/>)
 }
 
+export function CustomSelectedOptionMobileLayout(props) {
+    return (<View/>)
+}
+
 export function CustomOptionSelectMobileLayout(props) {
     return (<View/>)
 }

@@ -121,8 +121,8 @@ export default function HomeWebLayout(props) {
                             {props.selectedArea.apps.map(app => (
                                 <Styled.AppsButton
                                 key={app.uuid}
-                                isSelected={app.uuid === props.selectedAppUUID}
-                                onClick={() => props.setSelectedApp(app.uuid)}
+                                isSelected={app.uuid === props.selectedApp.uuid}
+                                onClick={() => props.setSelectedApp(app)}
                                 >
                                     <Styled.AppsText>
                                         {app.labelName}

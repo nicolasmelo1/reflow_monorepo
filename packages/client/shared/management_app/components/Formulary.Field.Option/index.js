@@ -3,6 +3,7 @@ import { generateUUID } from '../../../../../shared/utils'
 import { useClickedOrPressedOutside } from '../../../core'
 import Layouts from './layouts'
 
+// ------------------------------------------------------------------------------------------
 /**
  * This is a custom component for be rendered inside of the `Select` component when the user searches for a value
  * that does not exist in the options list.
@@ -27,7 +28,40 @@ function CustomCreateOptionButton(props) {
         <Layouts.Mobile.CustomCreateOptionButton/>
     )
 }
-
+// ------------------------------------------------------------------------------------------
+/**
+ * Custom component that will be rendered inside of the `Select` component when the user selects an option.
+ * 
+ * When the user selects an option we show an option in the menu, this option is exactly this component. We need this
+ * custom selected option component in order for the user to be able to see the color of the option that he selected.
+ * Also we can add further logic and functionality to this component.
+ * 
+ * @param {object} props - The props it recieves from the `Select` component.
+ * @param {{
+ *      label: string, 
+ *      value: string,
+ *      color: string | null,
+ *      index: number,
+ *      isLast: boolean,
+ *      optionComponent: string, 
+ *      selectedComponent: string
+ * }} props.option  - The option object that will be rendered in this component.
+ * @param {(option: { label: string, value: string | number }) => void} props.onSelectOrRemoveOption - 
+ * The function that will be called when the user wants to remove the option.
+ * 
+ * @return {import('react').ReactElement} - The component that will be rendered.
+ */
+function CustomSelectedOption(props) {
+    return process.env['APP'] === 'web' ? (
+        <Layouts.Web.CustomSelectedOption
+        option={props.option}
+        onSelectOrRemoveOption={props.onSelectOrRemoveOption}
+        />
+    ) : (
+        <Layouts.Mobile.CustomSelectedOption/>
+    )
+}
+// ------------------------------------------------------------------------------------------
 /**
  * This is a custom component that will be used to render the options in the select.
  * 
@@ -36,11 +70,16 @@ function CustomCreateOptionButton(props) {
  * 
  * This is EACH option in the options container that opens below or above the select input.
  * 
+ * This is not fully dependant, it has some own state, specially in the option, when the user makes some change to
+ * the option we first change the internal state of this component and then we change the formulary state.
+ * 
  * @param {object} props - The props it recieves from the `Select` component.
  * @param {{
  *      label: string, 
  *      value: string,
+ *      color: string | null,
  *      index: number,
+ *      isLast: boolean,
  *      optionComponent: string, 
  *      selectedComponent: string
  * }} props.option  - The option object that will be rendered in this button.
@@ -52,18 +91,29 @@ function CustomCreateOptionButton(props) {
  * wants to move the option one index up.
  * @param {(optionIndex: number) => void} props.onMoveOptionDown - The function that will be called when the wants
  * to move the option one index down.
+ * @param {(optionIndex: number, newValue: string) => void} props.onRenameOption - Function called while the user
+ * is renaming the option.
+ * @param {(optionIndex: number, color: string) => void} props.onChangeOptionColor - Function called when the user
+ * changes the color of the option.
  * 
  * @return {import('react').ReactElement} - The component that will be rendered.
  */
 function CustomOptionSelect(props) {
+    const renameOptionInputRef = useRef()
     const editOptionButtonRef = useRef()
     const editMenuContainerRef = useRef()
     const [editMenuPosition, setEditMenuPosition] = useState(null)
+    const [isRenaming, setIsRenaming] = useState(false)
     const [isEditing, setIsEditing] = useState(false)
     const [isHovering, setIsHovering] = useState(false)
+    const [option, setOption] = useState(props.option)
+
     useClickedOrPressedOutside({ ref: editMenuContainerRef, callback: () => {
         setIsHovering(false)
         setIsEditing(false)
+    }})
+    useClickedOrPressedOutside({ ref: renameOptionInputRef, callback: () => {
+        onToggleRenaming(false)
     }})
 
     /**
@@ -77,6 +127,44 @@ function CustomOptionSelect(props) {
         setIsHovering(isHoveringOption)
     } 
 
+    /**
+     * Function called when the user clicks on a color so we change the color of the option to a new color.
+     * This reflects to the kanban and other places of the application.
+     * 
+     * When a color is selected we set the hovering to false and dismiss the edit menu. After all that we call the
+     * parent `onChangeOptionColor` callback function to update the option in the formulary.
+     * 
+     * @param {string} color - The new color of the option.
+     */
+    function onChangeOptionColor(color) {
+        setOption({ ...option, color })
+        setIsHovering(false)
+        setIsEditing(false)
+        props.onChangeOptionColor(option.value, color)
+    }
+    
+    /**
+     * Function called to rename the value of the option. It is called when the user changes the value of the input.
+     * After changing the local state we change the option name inside of the formulary.
+     * 
+     * @param {string} newLabel - The new value string of the option.
+     */
+    function onChangeOptionLabel(newLabel) {
+        option.label = newLabel
+        setOption({...option})
+        props.onRenameOption(option.index, newLabel)
+    }
+
+    /**
+     * This will handle when the user clicks on the edit button or when he closes the edit menu.
+     * 
+     * When the user clicks the edit menu, what we do is that we need to set the position of the menu up or down of the button that was clicked.
+     * This function is REALLY similar to `onOpenMenu` in `useDropdownMenuSelect` hook. Except that this will render the button up or down of the button
+     * that was clicked. The hook will handle if the menu opens on the left or the right.
+     * 
+     * @param {boolean} [isEditingOption=!isEditing] - The new value of the `isEditing` state. If `false` then the menu will be closed, 
+     * if true then the menu will open.
+     */
     function onToggleEditing(isEditingOption=!isEditing) {
         setIsEditing(isEditingOption)
         setTimeout(() => {
@@ -108,56 +196,135 @@ function CustomOptionSelect(props) {
         }, 1)
     }
 
+    /**
+     * When this function is called we change the state of the `isRenaming` state.
+     * 
+     * This will change, instead of showing a simple text in the option, we will show an input so he can start typing
+     * the new value for the option.
+     * 
+     * Be aware, everytime we open the `input` we dismiss the edit menu.
+     * 
+     * @param {boolean} [isRenamingOption=!isRenaming] - The new value of the `isRenaming` state. If `false` then we will show
+     * a simple text in the option, otherwise we will show an input so he can start typing the new value for the option.
+     */
+    function onToggleRenaming(isRenamingOption=!isRenaming) {
+        onToggleEditing(false)
+        setIsRenaming(isRenamingOption)
+    }
+
+    /**
+     * Although this is not exactly independant, it has some independant things, like storing the option in the internal state.
+     * This means that when the `props.option` changes and the internal state is different from the state recieved from the
+     * parent component, we change the internal state to the new state.
+     */
+    useEffect(() => {
+        if (JSON.stringify(props.option) !== JSON.stringify(option)) {
+            setOption(props.option)
+        }
+    }, [props.option])
+
     return process.env['APP'] === 'web' ? (
         <Layouts.Web.CustomOptionSelect
+        renameOptionInputRef={renameOptionInputRef}
         editOptionButtonRef={editOptionButtonRef}
         editMenuContainerRef={editMenuContainerRef}
         isHovering={isHovering}
         onHoverOption={onHoverOption}
         isEditing={isEditing}
+        isRenaming={isRenaming}
         editMenuPosition={editMenuPosition}
         onToggleEditing={onToggleEditing}
+        onToggleRenaming={onToggleRenaming}
+        onChangeOptionColor={onChangeOptionColor}
+        onChangeOptionLabel={onChangeOptionLabel}
         onRemoveOption={props.onRemoveOption}
         onMoveOptionUp={props.onMoveOptionUp}
         onMoveOptionDown={props.onMoveOptionDown}
-        option={props.option}
+        option={option}
         onSelectOrRemoveOption={props.onSelectOrRemoveOption}
         />
     ) : (
         <Layouts.Mobile.CustomOptionSelect/>
     )
 }
-
+// ------------------------------------------------------------------------------------------
 export default function FormularyFieldOption(props) {
-    const customOptionComponent = {
-        customOption: CustomOptionSelect
-    }
-
     const [options, setOptions] = useState(getSelectOptions())
     const [isOpen, setIsOpen] = useState(false)
 
+    /**
+     * This will get the options array to send to the `Select` component. By default we obligatorily need to set
+     * `label` and `value`. But we also send some other props like the color of the option, the index, if the item
+     * is the last index and so on.
+     * 
+     * @returns {Array<{
+     *      label: string, 
+     *      value: string,
+     *      color: string | null,
+     *      index: number,
+     *      isLast: boolean,
+     *      optionComponent: string, 
+     *      selectedComponent: string
+     * }>} - Returns an array of options to send to the `Select` component.
+     */
     function getSelectOptions() {
         return props.field.options.map((option, index) => ({ 
             value: option.uuid, 
             label: option.value,
+            color: option.color,
             index: index,
-            optionComponent: 'customOption'
+            isLast: index === props.field.options.length - 1,
+            optionComponent: 'customOption',
+            selectedComponent: 'customSelectedOption'
         }))
     }
+
+    /**
+     * This function will be called everytime we change the text label of the field/option.
+     * 
+     * @param {number} optionIndex - The index of the option that we are changing the name for.
+     * @param {string} newValue - The new value of the option.
+     */
+    function onRenameOption(optionIndex, newValue) {
+        if (props.field.options[optionIndex] !== undefined) {
+            props.field.options[optionIndex].value = newValue
+            setOptions(getSelectOptions())
+            props.onUpdateFormulary()
+        }
+    }
+
+    /**
+     * Function used for changing the option color, by default the color is `null` this means it is transparent or 
+     * in other words, it has no color.
+     * 
+     * @param {string} optionUUID - The uuid of the option that we want to change the color for.
+     * @param {string} color - The new color of the option.
+     */
+    function onChangeOptionColor(optionUUID, color) {
+        const optionIndex = props.field.options.findIndex(option => option.uuid === optionUUID)
+        if (optionIndex !== -1) {
+            props.field.options[optionIndex].color = color
+            setOptions(getSelectOptions())
+            props.onUpdateFormulary()
+        }
+    } 
+
 
     /**
      * Function used on each option in the selection when we want to move it up. This means that the option will
      * subtract one index from the array.
      * 
-     * @param {number} optionIndex - The index of the option that you want to move one position up.
+     * @param {number} optionUUID - The uuid of the option that you want to move one position up.
      */
-    function onMoveOptionUp(optionIndex) {
-        if (props.field.options[optionIndex] !== undefined) {
+    function onMoveOptionUp(optionUUID) {
+        const optionIndex = props.field.options.findIndex(option => option.uuid === optionUUID)
+
+        if (optionIndex !== -1 && optionIndex > 0) {
             const newIndex = optionIndex - 1
             const optionToSwap = props.field.options[optionIndex]
             props.field.options[optionIndex] = props.field.options[newIndex]
             props.field.options[newIndex] = optionToSwap
-            setOptions([...getSelectOptions()])
+            setOptions(getSelectOptions())
             props.onUpdateFormulary()
         }
     }
@@ -166,15 +333,17 @@ export default function FormularyFieldOption(props) {
      * Function used on each option in the selection menu for when we want to move it down. This means the option
      * will add one index from the array. Obviously we cannot move the option that is at the bottom.
      * 
-     * @param {number} optionIndex - The index of the option that you want to move one position down.
+     * @param {number} optionUUID - The uuid of the option that you want to move one position down.
      */
-    function onMoveOptionDown(optionIndex) {        
-        if (props.field.options[optionIndex] !== undefined) {
+    function onMoveOptionDown(optionUUID) {
+        const optionIndex = props.field.options.findIndex(option => option.uuid === optionUUID)
+    
+        if (optionIndex !== -1 && optionIndex < props.field.options.length - 1) {
             const newIndex = optionIndex + 1
             const optionToSwap = props.field.options[optionIndex]
             props.field.options[optionIndex] = props.field.options[newIndex]
             props.field.options[newIndex] = optionToSwap
-            setOptions([...getSelectOptions()])
+            setOptions(getSelectOptions())
             props.onUpdateFormulary()
         }
     }
@@ -189,9 +358,10 @@ export default function FormularyFieldOption(props) {
     function onCreateOption(optionValue) {
         props.field.options.push({
             uuid: generateUUID(),
-            value: optionValue
+            value: optionValue,
+            color: null
         })
-        setOptions([...getSelectOptions()])
+        setOptions(getSelectOptions())
         props.onUpdateFormulary()
     }
 
@@ -202,7 +372,7 @@ export default function FormularyFieldOption(props) {
      */
     function onRemoveOption(optionUUID) {
         props.field.options = props.field.options.filter(option => option.uuid !== optionUUID)
-        setOptions([...getSelectOptions()])
+        setOptions(getSelectOptions())
         props.onUpdateFormulary()
     }
 
@@ -222,7 +392,9 @@ export default function FormularyFieldOption(props) {
     const customOptionComponentProps = {
         onMoveOptionUp,
         onMoveOptionDown,
-        onRemoveOption
+        onRemoveOption,
+        onRenameOption,
+        onChangeOptionColor
     }
 
     useEffect(() => {
@@ -234,7 +406,8 @@ export default function FormularyFieldOption(props) {
     return process.env['APP'] === 'web' ? (
         <Layouts.Web.Field
         customOptionComponentProps={customOptionComponentProps}
-        customOptionComponent={customOptionComponent}
+        customOptionComponent={{ customOption: CustomOptionSelect }}
+        customSelectedComponent={{ customSelectedOption: CustomSelectedOption }}
         customCreateOptionComponent={CustomCreateOptionButton}
         onCreateOption={onCreateOption}
         isOpen={isOpen}

@@ -24,6 +24,7 @@ styled(TouchableOpacity)``
 
 export const SelectedOptionLabel = process.env['APP'] === 'web' ?
 styled.p`
+    cursor: pointer;
     user-select: none;
     margin: 0;
     font-size: 12px;
@@ -42,7 +43,8 @@ styled.button`
     border-radius: 5px;
     margin-left: 1px;
     padding: 5px;
-    
+    cursor: pointer;
+
     &:hover {
         background-color: ${props => props.theme.red_REFLOW}
     }
@@ -68,7 +70,7 @@ export const OptionsContainer = process.env['APP'] === 'web' ?
 styled.div`
     overflow: auto;
     position: absolute;
-    top: 0;
+    top: ${props => props.isToLoadOptionsOnBottom ? '0': `${-props.offset - 10}px`};
     left: 0;
     width: 100%;
     max-height: 200px;
@@ -78,11 +80,7 @@ styled.div`
     border: 1px solid ${props => props.theme.moreClearGray};
     border-radius: 5px;
     margin-top: 5px;
-
-    ${props => props.isToLoadOptionsOnBottom ? '' : `
-        transform: ${props.offset === 0 ? `translateY(-100% - 30px)` : `translateY(-${props.offset + 8}px)`};
-        transition: transform 0.1s ease-in-out;
-    `}
+    transition: top 0.2s ease-in-out;
 `
 :
 styled(View)``
@@ -95,6 +93,7 @@ styled.div`
     flex-flow: wrap;
     width: 100%;
     height: 100%;
+    cursor: text;
 `
 :
 styled(View)``
@@ -181,6 +180,7 @@ styled.button`
     border: 0;
     width: 100%;
     transition: background-color 0.3s ease-in-out;
+    cusor: pointer;
 
     &:hover {
         background-color: ${props => props.theme.green_REFLOW}50;

@@ -55,11 +55,11 @@ import Layouts from "./layouts"
  * @param {(option: {label: string, value: string | number}) => void} [props.onRemove=undefined] - This is a callback that will be called when
  * the user removes an option. It recieves the hole option object that was removed. This means you can append more data to the options
  * besides the default `label` and `value` properties.
- * @param {{[nameOfTheComponent]: import('react').Component | (props) => import('react').ReactElement}} [props.optionComponents={}] - This is an object that holds all of the custom
- * components to load on the options. Each key is the name of the component to use that was defined in the `optionComponent` property
+ * @param {{[nameOfTheComponent]: import('react').Component | (props) => import('react').ReactElement}} [props.optionComponents={}] - This is an object 
+ * that holds all of the custom components to load on the options. Each key is the name of the component to use that was defined in the `optionComponent` property
  * in `props.options`
- * @param {{[nameOfTheComponent]: import('react').Component | (props) => import('react').ReactElement}} [props.selectedComponents={}] - This is an object that holds all of the custom
- * components to load on the selected options. Each key is the name of the component to use that was defined in the `selectedComponent`
+ * @param {{[nameOfTheComponent]: import('react').Component | (props) => import('react').ReactElement}} [props.selectedComponents={}] - This is an object 
+ * that holds all of the custom components to load on the selected options. Each key is the name of the component to use that was defined in the `selectedComponent`
  * property in `props.options`
  * @param {object} [props.customProps={}] - This are custom props that will be passed to the `optionComponents` and to the `selectedComponents`
  * This way you can pass functions and any kind of stuff.
@@ -67,7 +67,8 @@ import Layouts from "./layouts"
  * to create it. 
  * @param {(optionLabel: string) => void} [props.onCreate=undefined] - This is a callback that will be called when the user clicks on the
  * button to create a new option. For this to be called `creatable` must be set to true.
- * @param {import('react').Component | (props) => import('react').ReactElement} [props.customCreateOptionComponent=undefined] - This is a ref that will be passed to the select options container
+ * @param {import('react').Component | (props) => import('react').ReactElement} [props.customCreateOptionComponent=undefined] - This is a ref that will be passed 
+ * to the select options container
  * @param {string} [props.customHelperLabel=undefined] - This is the label that will be displayed at the top of the select options container before all of the options
  * are displayed.
  * 
@@ -158,16 +159,39 @@ export default function Select(props) {
      */
     function adjustOptionsContainerOffset() {
         if (process.env['APP'] === 'web') {
-            setTimeout(() => {
-                if (selectRef.current && optionsContainerRef.current) {
-                    const selectRect = selectRef.current.getBoundingClientRect()
-                    const optionsContainerRect = optionsContainerRef.current.getBoundingClientRect()
-                    setOptionsContainerOffset(optionsContainerRect.height + selectRect.height)
-                }
-            }, 1)
+            if (selectRef.current && optionsContainerRef.current) {
+                const selectRect = selectRef.current.getBoundingClientRect()
+                const optionsContainerRect = optionsContainerRef.current.getBoundingClientRect()
+                setOptionsContainerOffset(optionsContainerRect.height + selectRect.height)
+            }
         }
     }
 
+    /**
+     * / * WEB ONLY * /
+     * 
+     * This will automatically define if the options container is going to be loaded on the top or on the bottom of the input. If it's on the bottom
+     * we don't need to do anything, if it's on the top we need to adjust the offset so we can move the options container up.
+     * 
+     * To calculate this we get the bounding rect for both the `select` input and the `optionsContainer` and we compare the top of the and 
+     * we use this to define if the select will surpass the bottom of the screen.
+     */
+    function onAutomaticDefineWhereToRenderOptionsAndAdjustOffset() {
+        if (optionsContainerRef.current) {
+            const selectRect = selectRef.current.getBoundingClientRect()
+            const optionsContainerRect = optionsContainerRef.current.getBoundingClientRect()
+            const maximumHeightOfPage = window.innerHeight
+            const bottomPositionOfOptionsContainer = optionsContainerRect.height + selectRect.y + selectRect.height
+            const isOptionsContainerBiggerThanWindow = bottomPositionOfOptionsContainer > maximumHeightOfPage
+            if (isOptionsContainerBiggerThanWindow) {
+                setIsToLoadOptionsOnBottom(false)
+                adjustOptionsContainerOffset()
+            } else {
+                setIsToLoadOptionsOnBottom(true)
+            }
+        }
+    }
+    
     /**
      * This will be called when we want to open or close the options container. When we are closing the container
      * we will also reset the search input value, and if on mobile, we will also blur on the input. (This means we 
@@ -195,19 +219,7 @@ export default function Select(props) {
                 if (searchInputRef.current) searchInputRef.current.focus()
                 // On the web this will rotate 
                 setTimeout(() => {
-                    if (optionsContainerRef.current) {
-                        const selectRect = selectRef.current.getBoundingClientRect()
-                        const optionsContainerRect = optionsContainerRef.current.getBoundingClientRect()
-                        const maximumHeightOfPage = window.innerHeight
-                        const bottomPositionOfOptionsContainer = optionsContainerRect.height + selectRect.y + selectRect.height
-                        const isOptionsContainerBiggerThanWindow = bottomPositionOfOptionsContainer > maximumHeightOfPage
-                        if (isOptionsContainerBiggerThanWindow) {
-                            adjustOptionsContainerOffset()
-                            setIsToLoadOptionsOnBottom(false)
-                        } else {
-                            setIsToLoadOptionsOnBottom(true)
-                        }
-                    }
+                    onAutomaticDefineWhereToRenderOptionsAndAdjustOffset()
                 }, 1)
             }
         }
@@ -277,9 +289,10 @@ export default function Select(props) {
                 if (isPropsOnSelectDefined) {
                     props.onSelect(option)
                 }
+
+                if (isOpen === true && canAddMultiple === false) onToggleOpen(false)
             }
     
-            if (isOpen === true && canAddMultiple === false) onToggleOpen(false)
             setSelectedOptions(newSelectedOptions)
             adjustWidthOfSearchInput(isRemovingAOption ? search : '')
             onSearch('', originalOptions, newSelectedOptions)
@@ -321,7 +334,6 @@ export default function Select(props) {
 
             setFilteredOptions(filteredOptions)
         }
-        adjustOptionsContainerOffset()
     }
 
     /**
@@ -366,6 +378,12 @@ export default function Select(props) {
         if (process.env['APP'] === 'web' && searchInputRef.current) searchInputRef.current.focus()
     }
 
+    useEffect(() => {
+        if (process.env['APP'] === 'web') window.addEventListener('resize', onAutomaticDefineWhereToRenderOptionsAndAdjustOffset)
+        return () => {
+            if (process.env['APP'] === 'web') window.removeEventListener('resize', onAutomaticDefineWhereToRenderOptionsAndAdjustOffset)
+        }
+    }, [])
     
     /** 
      * This will update the local state of the search input value that comes from the parent component.
@@ -377,7 +395,7 @@ export default function Select(props) {
             onSearch(props.search)
         } 
     }, [props.search])
-
+    
     /**
      * Nothing much to say, if the options have changed in the parent component then we will update the options
      * here in this component.
@@ -400,6 +418,10 @@ export default function Select(props) {
             }
         }
     }, [props.selectedOptions])
+    
+    useEffect(() => {
+        adjustOptionsContainerOffset()
+    }, [selectedOptions, filteredOptions])
 
     useEffect(() => {
         adjustWidthOfSearchInput(search)

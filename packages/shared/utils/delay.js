@@ -4,12 +4,10 @@
  * 
  * @param {BigInteger} ms - Number of Miliseconds to delay
  */
-const delay = (ms) => {
+module.exports = function delay(ms) {
     let timer = 0;
     return function(callback){
         clearTimeout(timer);
         timer = setTimeout(callback, ms);
     }
 }
-
-module.exports = delay

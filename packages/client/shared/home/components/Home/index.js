@@ -16,12 +16,13 @@ export default function Home(props) {
     const redirect = useRouterOrNavigationRedirect()
     const { user } = useContext(UserContext)
     const { state: { isEditingArea }, setIsEditingArea } = useContext(HomeContext)
-    const { state: {areas, nonUniqueAreaUUIDs }, setAreas, recursiveTraverseAreas } = useContext(AreaContext)
+    const { state: { areas, nonUniqueAreaUUIDs }, setAreas, recursiveTraverseAreas } = useContext(AreaContext)
     const { 
-        state: { selectedApp: selectedAppUUID, selectedArea }, 
+        state: { selectedApp , selectedArea }, 
         setSelectedApp, 
         setSelectedArea, 
-        setState: setSelectedAreaAndApp 
+        setState: setSelectedAreaAndApp,
+        retrieveFromPersist
     } = useContext(HomeDefaultsContext)
     useClickedOrPressedOutside({ ref: areaDropdownEditMenuRef, callback: clickOutsideToClose})
     const [isResizing, setIsResizing] = useState(false)
@@ -281,20 +282,25 @@ export default function Home(props) {
      * @param {string} appUUID - This is the uuid of the app we want to select.
      */
     async function selectAreaBasedOnAppUUID(appUUID) {
-        const foundCallback = (area) => area.apps && area.apps.map(app => app.uuid).includes(appUUID)
+        function foundCallback(area) {
+            return area.apps && area.apps.map(app => app.uuid).includes(appUUID)
+        }
+
         recursiveTraverseAreas(foundCallback, areas).then(foundArea => {
             if (foundArea !== null) {
                 if (props.workspaceUUID !== foundArea.uuid || props.appUUID !== appUUID) {
                     setIsEditingArea(false)
                     redirect(paths.app.asUrl.replace('{workspaceUUID}', foundArea.uuid).replace('{appUUID}', appUUID))
                 } else {
-                    setSelectedAreaAndApp(appUUID, foundArea)
+                    const appData = foundArea.apps.find(app => app.uuid === appUUID)
+                    if (appData !== undefined) setSelectedAreaAndApp(appData, foundArea)
                 }
             } else {
                 findFirstAreaAndAppAndSetDefault()
             }
         })
     }
+
     /**
      * / * WEB ONLY * /
      * 
@@ -316,9 +322,16 @@ export default function Home(props) {
             if (process.env['APP'] === 'web') window.removeEventListener('resize', onResizeWindow)
         }
     }, [])
-
+    
     /**
-     * This will change the state accordingly depending of the url we are in. By default the url 
+     * This will change the state accordingly depending of the url we are in. By default we change the page to the
+     * exact `props.appUUID` and the `props.workspaceUUID`. If one of them is not defined then we will retrieve the
+     * first app of the first area. If just the area/workspace is defined we will retrieve the first app of it. If it has no app
+     * we retrieve the initial state of the selected app. Last but not least, if the area does not exist anymore we will retrieve the first area
+     * and app.
+     * 
+     * The last case is when no area and no app are selected, we will try to retrive the default data from the persist storage, and if we can't find
+     * anything we select the first area and app.
      */
     useEffect(() => {
         if (areas && areas.length > 0) {
@@ -328,6 +341,8 @@ export default function Home(props) {
                 const foundCallback = (area) => area.uuid && area.uuid === props.workspaceUUID
                 recursiveTraverseAreas(foundCallback, areas).then(foundArea => {
                     if (foundArea !== null) {
+                        // if the area is defined but the app is not we retrieve the first app of the area, otherwise we set the selected app to the 
+                        // initial state.
                         if (foundArea.apps && foundArea.apps.length > 0) {
                             const appUUID = foundArea.apps[0].uuid
                             setIsEditingArea(false)
@@ -336,11 +351,20 @@ export default function Home(props) {
                             setSelectedAreaAndApp(null, foundArea)
                         }
                     } else {
+                        // The area selected does not exist anymore for the user (he lost access or the admin deleted it.)
                         findFirstAreaAndAppAndSetDefault()
                     }
                 })
             } else {
-                findFirstAreaAndAppAndSetDefault()
+                retrieveFromPersist().then(({ selectedArea, selectedApp }) => {
+                    const isSelectedAreaUUIDDefined = ![null, undefined].includes(selectedArea?.uuid)
+                    const isSelectedAppUUIDDefined = ![null, undefined].includes(selectedApp?.uuid)
+                    if (isSelectedAreaUUIDDefined && isSelectedAppUUIDDefined) {
+                        redirect(paths.app.asUrl.replace('{workspaceUUID}', props.workspaceUUID).replace('{appUUID}', selectedApp.uuid))
+                    } else { 
+                        findFirstAreaAndAppAndSetDefault()
+                    }
+                })
             }
         }
     }, [areas, props.workspaceUUID, props.appUUID])
@@ -359,7 +383,7 @@ export default function Home(props) {
         onRemoveArea={onRemoveArea}
         selectedArea={selectedArea}
         setSelectedApp={setSelectedApp}
-        selectedAppUUID={selectedAppUUID}
+        selectedApp={selectedApp}
         setIsOpenSidebar={setIsOpenSidebar}
         onEnableOrDisableFloatingSidebar={onEnableOrDisableFloatingSidebar}
         isFloatingSidebar={isFloatingSidebar}

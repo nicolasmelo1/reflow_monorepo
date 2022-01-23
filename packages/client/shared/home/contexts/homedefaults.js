@@ -5,21 +5,28 @@ import { strings } from '../../core/utils/constants'
 const persistContext = 'homedefaultsContext'
 const initialState = {
     state: {
-        selectedApp: null,
+        selectedApp: {
+            uuid: null,
+            labelName: strings('pt-BR', 'workspaceNoAppSelected'),
+            description: '',
+            name: '',
+            order: 1
+        },
         selectedArea: {
             uuid: null,
             description: "",
             color: null,
             labelName: strings('pt-BR', 'workspaceNoWorkspaceSelected'),
             name: "",
-            order: 0,
+            order: 1,
             subAreas: [],
             apps: [],
         }
     },
     setState: () => {},
     setSelectedApp: () => {},
-    setSelectedArea: () => {}
+    setSelectedArea: () => {},
+    retrieveFromPersist: () => {}
 }
 
 const HomeDefaultsContext = createContext(initialState)
@@ -31,31 +38,80 @@ function HomeDefaultsProvider(props) {
      * This will set the state directly in the context. It will change at the same time the `appUUID` selected and the `area` selected.
      * By enabling this you don't run in issues.
      * 
-     * @param {string | null} appUUID - The uuid of the app that is being selected.
-     * @param {object} area - The area object that is being selected.
+     * You can send null to both parameters, if one of them is null then we will set the initial state.
+     * 
+     * @param {{
+     *      uuid: string | null,
+     *      labelName: string,
+     *      description: string,
+     *      name: string,
+     *      order: number
+     * } | null} appData - The app object that is being selected.
+     * @param {{
+     *      uuid: string | null,
+     *      description: string,
+     *      color: null | string,
+     *      labelName: string,
+     *      name: string,
+     *      order: number,
+     *      subAreas: Array<areaData>,
+     *      apps: Array<appData>
+     * } | null} areaData - The area object that is being selected.
      */
-    function setState(appUUID, areaData) {
-        setPersistState(persistContext, { selectedApp: appUUID, selectedArea: areaData }, _setState)
-    }
-    
-    function setSelectedApp(appUUID) {
-        setPersistState(persistContext, { ...state, selectedApp: appUUID }, _setState)
+    function setState(appData=null, areaData=null) {
+        appData = appData === null ? initialState.state.selectedApp : appData
+        areaData = areaData === null ? initialState.state.selectedArea : areaData
+        setPersistState(persistContext, { selectedApp: appData, selectedArea: areaData }, _setState)
     }
 
+    /**
+     * Set the selected app data in the state.
+     * 
+     * @param {{
+     *      uuid: string | null,
+     *      labelName: string,
+     *      description: string,
+     *      name: string,
+     *      order: number
+     * }} appData - The app object that is being selected.
+     */
+    function setSelectedApp(appData) {
+        setPersistState(persistContext, { ...state, selectedApp: appData }, _setState)
+    }
+    
+    /**
+     * Sets the selected area data in the state.
+     * 
+     * @param {{
+     *      uuid: string | null,
+     *      description: string,
+     *      color: null | string,
+     *      labelName: string,
+     *      name: string,
+     *      order: number,
+     *      subAreas: Array<areaData>,
+     *      apps: Array<object>
+     * }} areaData - The area object that is being selected.
+     */
     function setSelectedArea(areaData) {
         setPersistState(persistContext, { ...state, selectedArea: areaData }, _setState)
     }
+    
+    function retrieveFromPersist() {
+        return getPersistState(persistContext, state, _setState)
+    }
 
-    /*useEffect(() => {
+    useEffect(() => {
         getPersistState(persistContext, state, _setState)
-    }, [])*/
+    }, [])
 
     return (
         <HomeDefaultsContext.Provider value={{
             state,
             setState,
             setSelectedApp,
-            setSelectedArea
+            setSelectedArea,
+            retrieveFromPersist
         }}>
             {props.children}
         </HomeDefaultsContext.Provider>

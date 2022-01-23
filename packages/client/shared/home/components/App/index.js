@@ -7,7 +7,7 @@ import Layouts from './layout'
 export default function App(props) {
     const { state: { app }, setApp, retrieveFromPersist } = useContext(AppContext)
     const { user } = useContext(UserContext)
-    const { state: { selectedApp: selectedAppUUID, selectedArea }} = useContext(HomeDefaultsContext)
+    const { state: { selectedApp, selectedArea }} = useContext(HomeDefaultsContext)
     
     /**
      * This will retrieve the app data from the backend and store it in the state. If we can't retrieve the app data then we will try
@@ -15,18 +15,18 @@ export default function App(props) {
      * to load the app. We need to know what type of app it is.
      */
     useEffect(() => {
-        if (user.workspaces.length > 0 && selectedAppUUID !== null && selectedArea.uuid !== null) {         
-            homeAgent.getApp(user.workspaces[0].uuid, selectedArea.uuid, selectedAppUUID).then(response => {
+        if (user.workspaces.length > 0 && selectedApp.uuid !== null && selectedArea.uuid !== null) {         
+            homeAgent.getApp(user.workspaces[0].uuid, selectedArea.uuid, selectedApp.uuid).then(response => {
                 if (response && response.status === 200) {
                     setApp(response.data.data)
                 } else {
-                    retrieveFromPersist(selectedAppUUID)
+                    retrieveFromPersist(selectedApp.uuid)
                 }
             }).catch(e => {
-                retrieveFromPersist(selectedAppUUID)
+                retrieveFromPersist(selectedApp.uuid)
             })
         }
-    }, [selectedArea.uuid, selectedAppUUID])
+    }, [selectedArea.uuid, selectedApp.uuid])
 
     return process.env['APP'] === 'web' ? (
         <Layouts.Web

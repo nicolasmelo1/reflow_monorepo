@@ -120,9 +120,11 @@ function AreaProvider(props) {
 
     /**
      * If you cannot call the API you can call this function and we will load the data from the persist storage.
+     * 
+     * @return {Promise<object>} - Returns the new state of the app.
      */
     function retrieveFromPersist() {
-        getPersistState(persistContext, state, setState)
+        return getPersistState(persistContext, state, setState)
     }
 
     return (

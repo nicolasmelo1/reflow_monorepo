@@ -11,7 +11,6 @@ styled(View)``
 
 export const FormularyButton = process.env['APP'] === 'web' ? 
 styled.button`
-    z-index: 1;
     position: absolute;
     right: 10px;
     bottom: 10px;

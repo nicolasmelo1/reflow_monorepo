@@ -128,7 +128,7 @@ function GlobalProviderInitializer() {
  * @param {(state: any) => void} [setState=undefined] - The callback that will be called when the state is retrieved. The problem is that you don't 
  * have much control with this method, this will only pass the state to the callback if the state is neither null nor undefined.
  * 
- * @returns {object | void} - The state of the context.
+ * @returns {Promise<object>} - The state of the context.
  */
 export async function getPersistState(contextName, initialState, setState = undefined) {
     let state = null
@@ -154,8 +154,9 @@ export async function getPersistState(contextName, initialState, setState = unde
         } catch (e) {}
     }
 
-    if (setState !== undefined && typeof setState === 'function' && state !== null && state !== undefined) {
+    if (typeof setState === 'function' && state !== null && state !== undefined) {
         setState(state)
+        return state
     } else {
         return state
     }
@@ -172,6 +173,8 @@ export async function getPersistState(contextName, initialState, setState = unde
  * @param {object} state - The state that we want to persist.
  * @param {(state: any) => void} [setState=undefined] - The callback that will be called after the state is persisted. 
  * The problem with this approach is that you don't have much control with this method.
+ * 
+ * @returns {Promise<void>} - Returns a promise that resolves when the state is persisted.
  */
 export async function setPersistState(contextName, state, setState=undefined) {
     if (process.env['APP'] === 'web' && window.localStorage !== undefined && localStorage !== undefined) {

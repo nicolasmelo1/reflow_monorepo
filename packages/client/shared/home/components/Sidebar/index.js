@@ -198,7 +198,6 @@ export default function Sidebar(props) {
      */
     function onStartResizingSidebar() {
         setIsResizing(true)
-        console.log('onStartResizingSidebar')
         props.onResizeSidebar(true)
 
         document.addEventListener('mousemove', onResizeSidebar)
