@@ -49,7 +49,8 @@ function FormularyProvider (props){
     }
 
     return (
-        <FormularyContext.Provider value={{
+        <FormularyContext.Provider 
+        value={{
             state,
             setFormulary,
             retrieveFromPersist

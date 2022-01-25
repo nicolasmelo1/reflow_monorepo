@@ -20,7 +20,7 @@ export default function Header(props) {
             <meta name="viewport" content="initial-scale=1.0, width=device-width, viewport-fit=cover"/>
             <meta name="name" content="Reflow"/>
             <meta name="description" content="Changing the way people work"/>
-            <meta charset="utf-8" />
+            <meta charSet="utf-8" />
             <link rel="stylesheet" href="/font/roboto/index.css" />
         </Head>
     )

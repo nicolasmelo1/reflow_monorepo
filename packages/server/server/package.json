@@ -1,0 +1,31 @@
+{
+    "name": "server",
+    "version": "0.0.0",
+    "description": "\"The server of reflow. It is a customized express App that will feel like home for django developers\"",
+    "main": "index.js",
+    "scripts": {
+        "build": "babel index.js -d dist",
+        "dev": "npm run docker:dev && node manage.js runserver",
+        "docker:dev": "docker compose up -d",
+        "makemigrations": "node manage.js makemigrations",
+        "migrate": "npm run docker:dev && node manage.js migrate",
+        "test": "node teste.js",
+        "stop": "pm2 stop all && pm2 delete all",
+        "docs": "./node_modules/jsdoc/jsdoc.js -c ./.jsdoc.conf.json"
+    },
+    "keywords": [
+        "reglow",
+        "server"
+    ],
+    "author": "Reflow Desenvolvimento de Software LTDA",
+    "license": "ISC",
+    "dependencies": {
+        "aws-sdk": "^2.1048.0",
+        "axios": "^0.24.0",
+        "express": "^4.17.2",
+        "helmet": "^4.6.0",
+        "jsonwebtoken": "^8.5.1",
+        "multer": "^1.4.4",
+        "reallydangerous": "^2.1.0"
+    }
+}

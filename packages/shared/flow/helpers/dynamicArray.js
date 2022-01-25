@@ -14,6 +14,7 @@
  * 
  * Reference: https://www.geeksforgeeks.org/implementation-of-dynamic-array-in-python/
  *            https://stackoverflow.com/a/3917632
+ *            https://www.youtube.com/watch?v=5AllG-i_yto
  */
 class DynamicArrayHelper {
     constructor() {

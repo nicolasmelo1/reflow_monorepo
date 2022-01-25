@@ -1,6 +1,7 @@
 {
   "name": "reflow-web",
   "private": true,
+  "version": "0.0.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,9 +13,9 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
     "axios": "^0.24.0",
-    "next": "12.0.7",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
+    "next": "^12.0.8",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-native-web": "^0.17.5",
     "styled-components": "^5.3.3"
   },

@@ -13,3 +13,5 @@ This also contains a `shared` folder where you will find most of the components 
 Stuff like context and so on are not necessary to be implemented in the render, unless it's super tied to how e render stuff.
 
 This implementation makes it easier for testing and debugging interfaces since we just need to send data and don't need to care about any side effects.
+
+The reference for how this monorepo is configured can be found here: https://medium.com/@agungsurya/create-a-monorepo-of-react-native-and-nextjs-8b93df280343

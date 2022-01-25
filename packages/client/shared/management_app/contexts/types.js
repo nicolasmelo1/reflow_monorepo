@@ -25,7 +25,7 @@ const AppManagementTypesContext = createContext(initialState)
  * 
  * So the types are some ablogatory that we need in order for this application to work, without this, this application would definetly not work.
  */
-const AppManagementProvider = (props) => {
+const AppManagementTypesProvider = (props) => {
     const [state, setState] = useState(initialState.state)
 
     /**
@@ -79,7 +79,7 @@ const AppManagementProvider = (props) => {
     )
 }
 
-GlobalProvider.registerProviders(AppManagementProvider)
+GlobalProvider.registerProviders(AppManagementTypesProvider)
 
 export default AppManagementTypesContext
-export { AppManagementProvider }
+export { AppManagementTypesProvider }

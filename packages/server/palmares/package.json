@@ -1,0 +1,20 @@
+{
+    "name": "palmares",
+    "version": "0.0.0",
+    "description": "This is the framework we use for the backend, we've created it to be as simple as possible, it uses express and it is HEAVILY inspired by Django.",
+    "main": "index.js",
+    "keywords": [
+        "reglow",
+        "palmares"
+    ],
+    "author": "Reflow Desenvolvimento de Software LTDA",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.17.2",
+        "ioredis": "^4.28.2",
+        "pg": "^8.7.1",
+        "pm2": "^5.1.2",
+        "readline-sync": "^1.4.10",
+        "sequelize": "^6.12.2"
+    }
+}

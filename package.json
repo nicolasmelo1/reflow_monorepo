@@ -1,5 +1,5 @@
 {
-    "name": "turborepo-basic-npm",
+    "name": "reflow_monorepo",
     "version": "0.0.0",
     "private": true,
     "workspaces": [
@@ -11,7 +11,7 @@
         "server:makemigrations": "turbo run makemigrations --parallel",
         "server:migrate": "turbo run migrate --parallel",
         "lint": "turbo run lint",
-        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md}\"",
         "uninstall:client:desktop": "npm uninstall --prefix packages/client/desktop",
         "uninstall:client:mobile": "npm uninstall --prefix packages/client/mobile",
         "uninstall:client:web": "npm uninstall --prefix packages/client/web",
@@ -23,43 +23,35 @@
     },
     "devDependencies": {
         "prettier": "^2.5.1",
-        "turbo": "^1.0.19"
+        "turbo": "*"
     },
     "turbo": {
+        "baseBranch": "origin/main",
         "pipeline": {
-        "build": {
-            "dependsOn": [
-            "^build"
-            ],
-            "outputs": [
-            "dist/**",
-            ".next/**"
-            ]
-        },
-        "lint": {
-            "outputs": []
-        },
-        "dev": {
-            "cache": false
-        },
-        "web:dev": {
-            "dependsOn": [
-            "^build"
-            ],
-            "cache": false
-        },
-        "makemigrations": {
-            "dependsOn": [
-            "^build"
-            ],
-            "cache": false
-        },
-        "migrate": {
-            "dependsOn": [
-            "^build"
-            ],
-            "cache": false
-        }
+            "build": {
+                "dependsOn": [
+                    "^build"
+                ],
+                "outputs": [
+                    "dist/**",
+                    ".next/**"
+                ]
+            },
+            "lint": {
+                "outputs": []
+            },
+            "dev": {
+                "cache": false
+            },
+            "web:dev": {
+                "cache": false
+            },
+            "makemigrations": {
+                "cache": false
+            },
+            "migrate": {
+                "cache": false
+            }
         }
     }
 }

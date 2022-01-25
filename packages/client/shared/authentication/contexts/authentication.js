@@ -35,7 +35,8 @@ function AuthenticationProvider(props) {
     }, [])
 
     return (
-        <AuthenticationContext.Provider value={{
+        <AuthenticationContext.Provider 
+        value={{
             state,
             setIsAuthenticated,
         }}>
