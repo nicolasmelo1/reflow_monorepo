@@ -20,12 +20,13 @@ try {
  * @param {string} defaultPathToSettings - The FULL path to the settings.js file.
  */
 function defineDefaultPathToSettings(defaultPathToSettings) {
+    process.env.PALMARES_SETTINGS_MODULE = defaultPathToSettings
     DEFAULT_PROJECT_SETTINGS_PATH = defaultPathToSettings
     settings = require(defaultPathToSettings)
 }
 
 /**
- * The path to the settings can be either set in the path `REFLOW_SETTINGS_MODULE` or
+ * The path to the settings can be either set in the path `PALMARES_SETTINGS_MODULE` or
  * it defaults to `src/settings.js`.
  * 
  * @return {object} - Returns the settings object with all of the settings, if you want to define some default values to

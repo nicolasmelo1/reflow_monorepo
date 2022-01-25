@@ -1,6 +1,7 @@
-const path = require('path')
-const logger = require('./logging')
+const logger = require('../logging')
+const { spawn } = require('child_process')
 const pm2 = require('pm2')
+const path = require('path')
 
 /**
  * Responsible for handling all of the cli commands, instead of making a lot of files we can just run manage.js
@@ -10,8 +11,7 @@ const pm2 = require('pm2')
 const handleCommands = () => {
     const cliArguments = process.argv.slice(2)
 
-    const { settings, DEFAULT_PROJECT_SETTINGS_PATH } = require('./conf')
-    logger.INFO.USING_SETTINGS(DEFAULT_PROJECT_SETTINGS_PATH)
+    logger.INFO.USING_SETTINGS(process.env.PALMARES_SETTINGS_MODULE)
 
     switch (cliArguments[0]) {
         case 'migrate':
@@ -23,29 +23,10 @@ const handleCommands = () => {
             makemigrations(settings)
             break
         case 'runserver':
-            pm2.connect(true, (err) => {
-                if (err) {
-                    console.error(err)
-                    process.exit(2)
-                }
-                pm2.start({
-                    script: path.join(__dirname, 'startapp.js'),
-                    name: 'reflow',
-                    env: {
-                        REFLOW_SETTINGS_MODULE: DEFAULT_PROJECT_SETTINGS_PATH
-                    }
-                }, function(err, apps) {
-                    if (err) {
-                        console.error(err)
-                        return pm2.disconnect()
-                    }
-                    pm2.list((err, list) => {                  
-                        pm2.restart('api', (err, proc) => {
-                            // Disconnects from PM2
-                            pm2.disconnect()
-                        })
-                    })
-                })
+            spawn('npm', ['run', 'startapp'], { 
+                stdio: 'inherit',
+                cwd: path.join(__dirname, '..'),
+                env : process.env
             })
             break
         default:

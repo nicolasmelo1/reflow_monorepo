@@ -21,6 +21,7 @@ export default function Header(props) {
             <meta name="name" content="Reflow"/>
             <meta name="description" content="Changing the way people work"/>
             <meta charSet="utf-8" />
+            <link rel="shortcut icon" href="/favicon.ico"/>
             <link rel="stylesheet" href="/font/roboto/index.css" />
         </Head>
     )

@@ -1,4 +1,4 @@
 const { settings } = require('../conf')
-const { initializeApp } = require('../index')
+const initializeApp = require('../index')
 
 initializeApp(settings)
