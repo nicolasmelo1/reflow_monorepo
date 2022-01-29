@@ -5,6 +5,9 @@ module.exports = {
     env: {
         APP: 'web'
     },
+    experimental: {
+        styledComponents: true
+    },
     webpack: (config, { defaultLoaders }) => { 
         config.resolve = {
             ...config.resolve,

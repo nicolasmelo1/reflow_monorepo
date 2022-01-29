@@ -3,8 +3,8 @@
  */
 
 const path = require('path')
-
-const { getProjectSettings } = require('../utils')
+const {} = require('./hashers')
+const { settings } = require('../conf')
 
 class SecurityError extends Error {}
 
@@ -15,9 +15,8 @@ class SecurityError extends Error {}
  * @returns {Array} - Returns an array of hashers.
  */
 const getPasswordHashers = () => {
-    const settings = getProjectSettings()
     const defaultPasswordHashers = [
-        path.join('config', 'authentication', 'hashers', 'PBKDF2Hasher')
+        path.join(__dirname, 'hashers', 'PBKDF2Hasher')
     ]
 
     let passwordHashers = defaultPasswordHashers
@@ -34,11 +33,9 @@ const getPasswordHashers = () => {
  * @returns {config/authentication/hashers/BaseHasher} - Returns a BaseHasher class or a class derived by that class.
  */
 const getHasher = (passwordHasherPath) => {
-    const settings = getProjectSettings()
-
     const splittedHasher = passwordHasherPath.split('/')
     const algorithm = splittedHasher.pop()
-    let hasher = require(path.join(settings.BASE_PATH, splittedHasher.join('/')))
+    let hasher = require(splittedHasher.join('/'))
     hasher = hasher[algorithm]
     if (hasher) {
         return hasher

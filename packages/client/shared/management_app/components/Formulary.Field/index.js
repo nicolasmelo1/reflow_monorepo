@@ -206,11 +206,11 @@ export default function FormularyField(props) {
      * It is a toogle so when the user clicks the first time it will open, the second time
      * it will close.
      */
-    function onToggleEditFieldMenu() {
-        setIsEditMenuOpen(!isEditMenuOpen)
+    function onToggleEditFieldMenu(isOpen=!isEditMenuOpen) {
+        setIsEditMenuOpen(isOpen)
         setTimeout(() => {
             loadEditMenuTopOrDownAndDefineHeight()
-        }, 1)
+        })
     }
     
     /**

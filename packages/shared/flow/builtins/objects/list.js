@@ -321,7 +321,7 @@ class FlowList extends FlowObject {
                 this._cached.string = '[]'
             } else {
                 let stringfiedRepresentation = `[\n`
-                for(let i=0; i < length; i++) {
+                for (let i=0; i < length; i++) {
                     const valueAtIndex = await this.array.getItem(i)
                     await this.appendParentResetCached(valueAtIndex)
                     const stringifiedValue = await valueAtIndex._string_({ident: ident + 4})

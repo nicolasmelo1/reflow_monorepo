@@ -59,7 +59,7 @@ export default function FormularyFieldWebLayout(props) {
                 <Styled.FieldEditButtonMenu
                 ref={props.fieldEditMenuButtonRef}
                 isHovering={props.isHovering}
-                onClick={() => props.onToggleEditFieldMenu()}
+                onClick={() => props.onToggleEditFieldMenu(true)}
                 >
                     <FontAwesomeIcon
                     icon={faEllipsisH}
@@ -145,7 +145,7 @@ export default function FormularyFieldWebLayout(props) {
                         ) : ''}
                         <Styled.FieldEditMenuDropdownButton
                         onClick={() => {
-                            props.onToggleEditFieldMenu()
+                            props.onToggleEditFieldMenu(false)
                             props.setIsRenaming(!props.isRenaming)
                         }}
                         >

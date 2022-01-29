@@ -5,7 +5,7 @@ export default function numberMasker(number, format) {
     let formatedNumberIndex = 0
     let result = ''
 
-    for(let formatIndex = 0; formatIndex<format.length; formatIndex++) {
+    for (let formatIndex = 0; formatIndex<format.length; formatIndex++) {
         if (formatedNumber.charAt(formatedNumberIndex) !== '') {
             if (format.charAt(formatIndex) === '0') {
                 result = result + formatedNumber.charAt(formatedNumberIndex)

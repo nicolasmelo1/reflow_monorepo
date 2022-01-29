@@ -195,7 +195,7 @@ class FlowModule extends FlowObject {
         const getStructParametersRepresentation = async () => {
             if (this.doesModuleCanCreateStructs === true) {
                 let stringfiedRepresentationOfStructParameters = ``
-                for(let i=0; i < this.parameters.hashTable.keys.numberOfElements; i++) {
+                for (let i=0; i < this.parameters.hashTable.keys.numberOfElements; i++) {
                     if (this.structParameters.hashTable.keys.array[i] !== undefined) {
                         const rawKey = await this.structParameters.hashTable.rawKeys.getItem(i)
                         const rawValue = await this.structParameters._getitem_(rawKey)

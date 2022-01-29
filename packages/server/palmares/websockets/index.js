@@ -189,7 +189,7 @@ function handleBroadcasting() {
         function sendMessageToConnectedSockets(groupName, message) {
             if (groups.has(groupName)) {
                 let newGroup = []
-                for(const {websocket, functionOrConsumerInstance} of groups.get(groupName)) {
+                for (const {websocket, functionOrConsumerInstance} of groups.get(groupName)) {
                     if (websocket.readyState === WebSocket.OPEN) {
                         if (functionOrConsumerInstance.constructor.prototype instanceof Consumer) {
                             functionOrConsumerInstance.send(message)

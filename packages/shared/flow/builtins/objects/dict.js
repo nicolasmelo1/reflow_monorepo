@@ -132,7 +132,7 @@ class FlowDict extends FlowObject {
      */
     async _add_(obj) {
         if (obj.type === DICT_TYPE) {
-            for(let i=0; i < await obj.hashTable.keys.length(); i++) {
+            for (let i=0; i < await obj.hashTable.keys.length(); i++) {
                 const rawKey = await obj.hashTable.rawKeys.getItem(i)
                 const key = await obj.hashTable.keys.getItem(i)
                 const hash = await obj.hashTable.hashes.getItem(i)
@@ -285,7 +285,7 @@ class FlowDict extends FlowObject {
         if (this._cached.representation === null) {
             let representation = {}
 
-            for(let i=0; i < await this.hashTable.keys.length(); i++) {
+            for (let i=0; i < await this.hashTable.keys.length(); i++) {
                 if (this.hashTable.keys.array[i] !== undefined) {
                     const key = await this.hashTable.keys.getItem(i)
                     const hash = await this.hashTable.hashes.getItem(i)
@@ -313,7 +313,7 @@ class FlowDict extends FlowObject {
         if (this._cached.json === null) {
             let json = {}
 
-            for(let i=0; i< await this.hashTable.keys.length(); i++) {
+            for (let i=0; i< await this.hashTable.keys.length(); i++) {
                 if (this.hashTable.keys.array[i] !== undefined) {
                     const key = await this.hashTable.keys.getItem(i)
                     const hash = await this.hashTable.hashes.getItem(i)
@@ -350,7 +350,7 @@ class FlowDict extends FlowObject {
                 this._cached.string = '{}'
             } else {
                 let stringfiedRepresentation = `{\n`
-                for(let i=0; i < rawKeysLength; i++) {
+                for (let i=0; i < rawKeysLength; i++) {
                     if (this.hashTable.rawKeys.array[i] !== undefined) {
                         const rawKey = await this.hashTable.rawKeys.getItem(i)
                         const hash = await (await rawKey._hash_())._representation_()

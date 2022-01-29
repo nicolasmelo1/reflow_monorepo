@@ -245,7 +245,7 @@ class FlowFunction extends FlowObject {
      */
     async _string_({ident=4}={}) {
         let stringfiedRepresentationOfParameters = ``
-        for(let i=0; i < this.parameters.hashTable.keys.numberOfElements; i++) {
+        for (let i=0; i < this.parameters.hashTable.keys.numberOfElements; i++) {
             if (this.parameters.hashTable.keys.array[i] !== undefined) {
                 const rawKey = await this.parameters.hashTable.rawKeys.getItem(i)
                 const rawValue = await this.parameters._getitem_(rawKey)
@@ -281,7 +281,7 @@ class FlowFunction extends FlowObject {
             async function toEvaluateFunction() {
                 const record = await this.interpreter.memory.callStack.createNewRecord(this.functionName, recordTypes.PROGRAM)
                 await record.appendRecords(this.scope)
-                for(let i=0; i < await(await parameters._length_())._representation_(); i++) {
+                for (let i=0; i < await(await parameters._length_())._representation_(); i++) {
                     const key = await parameters.hashTable.keys.getItem(i)
                     const rawKey = await parameters.hashTable.rawKeys.getItem(i)
                     const hash = await parameters.hashTable.hashes.getItem(i)

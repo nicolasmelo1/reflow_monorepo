@@ -108,7 +108,7 @@ class DynamicArrayHelper {
         
         // adds space for the element to be added
         if (!deleteElementAtIndex) {
-            for(let i = this.numberOfElements - 1; i > index-1; i--) {
+            for (let i = this.numberOfElements - 1; i > index-1; i--) {
                 this.array[i+1] = this.array[i]
             }
         }
@@ -160,7 +160,7 @@ class DynamicArrayHelper {
             this.numberOfElements--
         } else {
             // move the elements in the array to fill the gap
-            for(let i = index; i < this.numberOfElements; i++) {
+            for (let i = index; i < this.numberOfElements; i++) {
                 this.array[i] = this.array[i + 1]            
             }
             this.array[this.numberOfElements - 1] = undefined

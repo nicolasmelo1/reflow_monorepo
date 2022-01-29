@@ -101,7 +101,7 @@ const getState = (settings, untilMigration=null, fromMigrationIndex=null, toMigr
         migrations = filteredMigrations
     }
 
-    for(let i=0; i<migrations.length; i++) {
+    for (let i=0; i<migrations.length; i++) {
         const operations = migrations[i].migration.operations(models, actions)
         let operationIndex = 0
         for (const operation of operations) {
