@@ -49,7 +49,6 @@ class SequelizeEngine extends Engine {
             ne: Op.ne,
             is: Op.is,
             not: Op.not,
-            or: Op.or,
             col: Op.col,
             gt: Op.gt,
             gte: Op.gte,

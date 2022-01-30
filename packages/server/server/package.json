@@ -4,7 +4,6 @@
     "description": "\"The server of reflow. It is a customized express App that will feel like home for django developers\"",
     "main": "index.js",
     "scripts": {
-        "build": "babel index.js -d dist",
         "dev": "npm run docker:dev && node manage.js runserver",
         "docker:dev": "docker compose up -d",
         "makemigrations": "node manage.js makemigrations",

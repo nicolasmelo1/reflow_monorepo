@@ -35,9 +35,9 @@ styled.div`
     overflow: auto;
     top: ${props => props.positionAndMaxHeight.position.y}px;
     left: ${props => props.positionAndMaxHeight.position.x}px;
-    max-height: ${props => props.positionAndMaxHeight.maxHeight !== null ? `${props.positionAndMaxHeight.maxHeight}px` : 'var(--app-height)'},
+    max-height: ${props => props.positionAndMaxHeight.maxHeight !== null ? `${props.positionAndMaxHeight.maxHeight}px` : 'var(--app-height)'};
     border-radius: 5px;
-    background-color: white;
+    background-color: ${props => props.theme.white};
     padding: 10px;
     box-shadow: rgb(56 66 95 / 8%) 4px 4px 12px;
 `
@@ -57,6 +57,10 @@ export const DatepickerMonthTitle = process.env['APP'] === 'web' ?
 styled.h2`
     font-size: 20px;
     margin: 0;
+    font-family: Roboto;
+    color: ${props => props.theme.gray_REFLOW};
+    user-select: none;
+    cursor: default;
 `
 :
 styled(Text)``
@@ -73,9 +77,20 @@ styled(View)``
 
 export const DatepickerChangeMonthButton = process.env['APP'] === 'web' ? 
 styled.button`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
     border: 0;
     background-color: transparent;
     cursor: pointer;
+    
+    &:hover {
+        background-color: ${props => props.theme.clearGray};
+    }
 `
 :
 styled(TouchableOpacity)``
@@ -103,7 +118,6 @@ styled(View)``
 
 export const DayOfTheWeekAndDaysOfTheMonthCell = process.env['APP'] === 'web' ?
 styled.button`
-    background-color: transparent;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -115,6 +129,7 @@ styled.button`
     ${props => props.isDaysOfTheMonthCell === true ?
         props.isFromTheCurrentMonth === true ?  
             `
+            background-color: ${props.isSelectedDay === true ? `${props.theme.green_REFLOW}50` : 'transparent'};
             cursor: ${props.isFromTheCurrentMonth === true && props.isBelowToday === false ? 'pointer': 'default'};
             border-right: 1px solid ${props.theme.clearGray};
             border-bottom: 1px solid ${props.theme.clearGray};
@@ -123,11 +138,12 @@ styled.button`
             transition: background-color 0.2s ease-in-out;
 
             &:hover {
-                background-color: ${props.theme.clearGray};
+                background-color: ${props.isSelectedDay === true ? `${props.theme.green_REFLOW}50` : props.theme.clearGray};
             }
             `
             :
             `
+            background-color: transparent;
             ${props.isTopCell === true ? `border-bottom: 1px solid ${props.theme.clearGray}` : 'border-bottom: 0'};
             border-right: 0;
             border-left: 0;
@@ -135,6 +151,7 @@ styled.button`
             `
         : 
         `
+        background-color: transparent;
         border: 0;
         `}
 `
@@ -148,6 +165,8 @@ styled.p`
     color: ${props => props.theme.darkBlue};
     padding: 0;
     text-align: center;
+    font-family: Roboto;
+    user-select: none;
 `
 :
 styled(Text)``
@@ -160,6 +179,8 @@ styled.p`
     color: ${props => props.isBelowToday === true ? props.theme.clearGray : props.theme.darkBlue};
     padding: 0;
     text-align: center;
+    font-family: Roboto;
+    user-select: none;
 `
 :
 styled(Text)``

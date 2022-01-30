@@ -147,7 +147,7 @@ class ForeignKeyField extends Field {
 
         if (
             (relatedTo instanceof Function && Object.getPrototypeOf(relatedTo).name !== 'Model') || 
-            (!relatedTo instanceof Function && typeof relatedTo !== 'string')
+            ((relatedTo instanceof Function) === false && typeof relatedTo !== 'string')
         ) {
             throw new InvalidRelationError(`The relatedTo parameter must be a string with the name of your model or the actual model itself`)
         }

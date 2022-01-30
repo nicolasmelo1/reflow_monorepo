@@ -10,10 +10,10 @@ const BASE_PATH = path.dirname(path.resolve(__dirname))
 const ROOT_URLCONF = BASE_PATH + '/src/routes'
 
 const INSTALLED_APPS = [
-    'src/core',
-    'src/authentication', 
-    'src/area',
-    'src/app_management_formulary',
+    path.join('src', 'core'),
+    path.join('src', 'authentication'),
+    path.join('src', 'area'),
+    path.join('src', 'app_management_formulary'),
 ]
 
 const WEBSOCKETS = {

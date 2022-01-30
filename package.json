@@ -6,6 +6,7 @@
         "packages/*"
     ],
     "scripts": {
+        "install": "node ./scripts/install.js",
         "build": "turbo run build",
         "web:dev": "turbo run dev web:dev --parallel",
         "server:makemigrations": "turbo run makemigrations --parallel",

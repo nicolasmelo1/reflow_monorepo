@@ -3,29 +3,18 @@ import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
  
 export default function DatepickerWebLayout(props) {
-    const CustomInputComponent = props.customInputComponent
+    const InputComponent = ![null, undefined].includes(props.customInputComponent) ? props.customInputComponent : Styled.Input
 
     return (
         <div>
-            {![null, undefined].includes(CustomInputComponent) ? (
-                <CustomInputComponent
-                ref={props.dateInputRef}
-                value={props.dateValue}
-                onBlur={(e) => props.onToggleInputFocus(true)}
-                onChange={(e) => props.onChangeText(e.target.value)}
-                onClick={(e) => props.onToggleInputFocus(true)}
-                type={'text'}
-                />
-            ) : (
-                <Styled.Input 
-                ref={props.dateInputRef}
-                value={props.dateValue}
-                onBlur={(e) => props.onToggleInputFocus(true)}
-                onChange={(e) => props.onChangeText(e.target.value)}
-                onClick={(e) => props.onToggleInputFocus(true)}
-                type={'text'}
-                />
-            )}
+            <InputComponent
+            ref={props.dateInputRef}
+            value={props.dateValue}
+            onBlur={(e) => props.isInputFocused === true ? props.dateInputRef.current.focus() : null}
+            onChange={(e) => props.onChangeText(e.target.value)}
+            onFocus={(e) => props.onToggleInputFocus(true)}
+            type={'text'}
+            />
             {props.isInputFocused === true ? (
                 <Styled.DatepickerWrapper
                 positionAndMaxHeight={props.positionAndMaxHeight}
@@ -36,7 +25,7 @@ export default function DatepickerWebLayout(props) {
                     >
                         <Styled.DatepickerHeader>
                             <Styled.DatepickerMonthTitle>
-                                {props.monthsOfTheYear[props.currentMonth]}
+                                {`${props.monthsOfTheYear[props.currentMonth]} ${props.currentYear}`}
                             </Styled.DatepickerMonthTitle>
                             <Styled.DatepickerChangeMonthButtonsContainer>
                                 <Styled.DatepickerChangeMonthButton
@@ -73,9 +62,15 @@ export default function DatepickerWebLayout(props) {
                                 >   
                                     {Array(props.daysGridNumberOfColumns).fill(null).map((_, columnIndex) => {
                                         const dayIndex = (rowIndex * props.daysGridNumberOfColumns) + columnIndex
-                                        const date = props.days[dayIndex] !== undefined ? props.days[dayIndex] : ''
+                                        const date = props.daysOfTheCurrentMonth[dayIndex] !== undefined ? props.daysOfTheCurrentMonth[dayIndex] : ''
                                         const isFromTheCurrentMonth = date instanceof Date ? date.getMonth() === props.currentMonth : false
                                         const isBelowToday = date instanceof Date && props.canSelectDateBelowToday === false ? date.getDate() < props.today.getDate() : false
+                                        const isSelectedDay = date instanceof Date && props.selectedDate instanceof Date ? 
+                                            date.getDate() === props.selectedDate.getDate() &&
+                                            date.getMonth() === props.selectedDate.getMonth() && 
+                                            date.getFullYear() === props.selectedDate.getFullYear()
+                                            : 
+                                            false
                                         return (
                                             <Styled.DayOfTheWeekAndDaysOfTheMonthCell
                                             key={columnIndex}
@@ -85,6 +80,8 @@ export default function DatepickerWebLayout(props) {
                                             isDaysOfTheMonthCell={true}
                                             isBelowToday={isBelowToday}
                                             isFromTheCurrentMonth={isFromTheCurrentMonth}
+                                            isSelectedDay={isSelectedDay}
+                                            onClick={() => isFromTheCurrentMonth ? props.onSelectDate(date) : null}
                                             >
                                                 {isFromTheCurrentMonth ? (
                                                     <Styled.DayLabel
@@ -100,7 +97,6 @@ export default function DatepickerWebLayout(props) {
                                 </Styled.TableRowContainer>
                             ))}
                         </Styled.DayOfTheWeekAndDaysOfTheMonthContainer>
-                        
                     </Styled.DatepickerContainer>
                 </Styled.DatepickerWrapper>
             ) : ''}

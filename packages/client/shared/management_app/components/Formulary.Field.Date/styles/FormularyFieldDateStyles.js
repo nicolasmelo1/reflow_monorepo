@@ -1,5 +1,12 @@
 import styled from 'styled-components'
-import { TextInput } from 'react-native'
+import { TextInput, View } from 'react-native'
+
+export const Container = process.env['APP'] === 'web' ?
+styled.div`
+    width: calc(100% - 20px);
+`
+:
+styled(View)``
 
 export const CustomInputForDatepicker = process.env['APP'] === 'web' ?
 styled.input`

@@ -16,6 +16,7 @@
         "express": "^4.17.2",
         "ioredis": "^4.28.2",
         "pg": "^8.7.1",
+        "pg-hstore": "^2.3.4",
         "pm2": "^5.1.2",
         "readline-sync": "^1.4.10",
         "sequelize": "^6.12.2"

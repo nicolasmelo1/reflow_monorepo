@@ -15,11 +15,11 @@ const handleCommands = () => {
 
     switch (cliArguments[0]) {
         case 'migrate':
-            const migrate = require('./database/migrations/migrate')
+            const migrate = require('../database/migrations/migrate')
             Promise.resolve(migrate(settings))
             break
         case 'makemigrations':
-            const makemigrations = require('./database/migrations/makemigrations')
+            const makemigrations = require('../database/migrations/makemigrations')
             makemigrations(settings)
             break
         case 'runserver':

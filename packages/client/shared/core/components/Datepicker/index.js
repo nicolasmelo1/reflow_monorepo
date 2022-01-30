@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
+import { useClickedOrPressedOutside } from '../../hooks'
 import { strings } from '../../utils/constants'
 import Layouts from './layouts'
 
@@ -9,9 +10,23 @@ import Layouts from './layouts'
  * Yes, this has functions similar to the ones in the 'shared/flow/helpers/datetime.js' file. We don't use flow helpers here
  * because it'll be a HELL lot easier to maintain if we keep flow isolated from the rest and this also isolated.
  * 
+ * It's important to understand that similar to other util components, this component is also self contained. It works on it's own
+ * without the need of ANY external props. All of the props passed are optional and if they change outside of this component it
+ * will reflect here. 
+ * 
+ * IMPORTANT: The format of the date is CLOSELY tied to the value. This means that for the given time we CANNOT support formats
+ * like `D` for example. Imagine that `D` accepts `1` or `10` as value. We have no way of knowing if the user is typing 
+ * `1/12/2020` or `11/2/2020`. So we cannot guess right the mask of the number. Also be aware, on `onChangeText` function we check
+ * if the length of the string is equal to the length of the mask, if it is dynamic, you need to change this function.
+ * 
+ * @param {object} props - The props that the datepicker component recieves.
+ * @param {(date: Date) => {} | undefined} [props.onChangeSelectedDate=null] - This is the callback function that will be called
+ * when the user selects a date inside of the input.
+ * @param {}
  */
 export default function Datepicker(props) {
     const today = new Date()
+    const onChangeSelectedDate = typeof props.onChangeSelectedDate === 'function' ? props.onChangeSelectedDate : null
     const onOpenDatepicker = typeof props.onOpenDatepicker === 'function' ? props.onOpenDatepicker : null
     const canSelectDateBelowToday = typeof props.canSelectDateBelowToday === 'boolean' ? props.canSelectDateBelowToday : true
     const daysOfTheWeek = Array.isArray(props.daysOfTheWeek) && props.daysOfTheWeek.length === 7 ? props.daysOfTheWeek : [
@@ -49,54 +64,67 @@ export default function Datepicker(props) {
                 const isCharacterANumber = /^\d$/.test(character)
                 if (isCharacterANumber && [0, 1, 2, 3].includes(position)) return character
                 else return ''
+            },
+            getValueFromDate: (date) => {
+                return `${date.getFullYear()}`
+            },
+            getNumberFromValue: (value) => {
+                return parseInt(value)
             }
         },
         MM: {
             represents: 'month',
             validateCharacterAtPosition: (character, position) => {
                 const isCharacterANumber = /^\d$/.test(character)
-                if (isCharacterANumber && [0, 1].includes(position)) return character
-                else return ''
+                if (isCharacterANumber) {
+                    if (position === 0 && parseInt(character) > 1) return `0${character}`
+                    else return character
+                }
+                return ''
+            },
+            getValueFromDate: (date) => {
+                const originalMonth = date.getMonth() + 1
+                if (originalMonth < 10) return `0${originalMonth}`
+                else return `${originalMonth}`
+            },
+            getNumberFromValue: (value) => {
+                return parseInt(value) - 1
             }
         },
+        mmm: {
+            represents: 'month',
+            validateCharacterAtPosition: (character, position) => {
+                // Reference: https://stackoverflow.com/questions/3617797/regex-to-match-only-letters#comment117866996_3617818
+                const isCharacterAText = /\p{Letter}/gu.test(character)
+                if (isCharacterAText && [0, 1, 2].includes(position)) return character
+                else return ''
+            },
+            getValueFromDate: (date) => {
+                const originalMonth = date.getMonth()
+                return monthsOfTheYear[originalMonth].slice(0, 3)
+            },
+            getNumberFromValue: (value) => {
+                const findIndex = monthsOfTheYear.findIndex(month => month.toLowerCase().slice(0, 3) === value.toLowerCase())
+                return findIndex
+            }
+        }, 
         DD: {
             represents: 'day',
             validateCharacterAtPosition: (character, position) => {
                 const isCharacterANumber = /^\d$/.test(character)
-                if (isCharacterANumber && [0, 1].includes(position)) return character
-                else return ''
-            }
-        },
-        hh: {
-            represents: 'hour',
-            validateCharacterAtPosition: (character, position) => {
-                const isCharacterANumber = /^\d$/.test(character)
-                if (isCharacterANumber && [0, 1].includes(position)) return character
-                else return ''
-            }
-        },
-        HH: {
-            represents: 'hour',
-            validateCharacterAtPosition: (character, position) => {
-                const isCharacterANumber = /^\d$/.test(character)
-                if (isCharacterANumber && [0, 1].includes(position)) return character
-                else return ''
-            }
-        },
-        mm: {
-            represents: 'minute',
-            validateCharacterAtPosition: (character, position) => {
-                const isCharacterANumber = /^\d$/.test(character)
-                if (isCharacterANumber && [0, 1].includes(position)) return character
-                else return ''
-            }
-        },
-        ss: {
-            represents: 'second',
-            validateCharacterAtPosition: (character, position) => {
-                const isCharacterANumber = /^\d$/.test(character)
-                if (isCharacterANumber && [0, 1].includes(position)) return character
-                else return ''
+                if (isCharacterANumber) {
+                    if (position === 0 && parseInt(character) > 3) return `0${character}`
+                    else return character
+                }
+                return ''
+            },
+            getValueFromDate: (date) => {
+                const day = date.getDate()
+                if (day < 10) return `0${day}`
+                else return `${day}`
+            },
+            getNumberFromValue: (value) => {
+                return parseInt(value)
             }
         }
     }
@@ -105,7 +133,7 @@ export default function Datepicker(props) {
     const datePickerRef = useRef()
     const nonFormatRegex = useRef(null)
     const startAndEndPositionsOfFormatsInStringRef = useRef(null)
-    const [days, setDays] = useState(getMonthDays(dateSelected.getFullYear(), dateSelected.getMonth()))
+    const [daysOfTheCurrentMonth, setDaysOfTheCurrentMonth] = useState(getMonthDays(dateSelected.getFullYear(), dateSelected.getMonth()))
     const [isInputFocused, setIsInputFocused] = useState(false)
     const [selectedDate, setSelectedDate] = useState(dateSelected)
     const [currentYear, setCurrentYear] = useState(dateSelected.getFullYear())
@@ -116,7 +144,12 @@ export default function Datepicker(props) {
         wasCalculated:false
     })
     const [dateValue, setDateValue] = useState('')
-    
+    useClickedOrPressedOutside({ref: dateInputRef, callback: (e) => {
+        if (datePickerRef.current && !datePickerRef.current.contains(e.target)) {
+            onToggleInputFocus(false)
+        }
+    }})
+
     /**
      * Get the regex for the parts of the string that are not formats. So on the example date format: 
      * YYYY-MM::DD
@@ -172,6 +205,18 @@ export default function Datepicker(props) {
         }
     }
 
+    /**
+     * Function used for retrieving all of the days of the month of the year. This will loop by the daysGridNumberOfDays and with that we will create a new 
+     * array of Date object instances instances.
+     * 
+     * We then use this array to populate the `daysOfTheCurrentMonth` state with the dates of the current, the previous and the next month. 
+     * (Not all of the dates but the ones needed to fill the grid of the calendar)
+     * 
+     * @param {number} year - The year of the month we want to get the days of.
+     * @param {number} month - The month of the year we want to get the days of.
+     * 
+     * @returns {Date[]} - An array of Date objects.
+     */
     function getMonthDays(year, month) {
         const monthDayOfTheWeekStart = (new Date(year, month)).getDay()
         let monthArray = []
@@ -221,6 +266,62 @@ export default function Datepicker(props) {
     }
 
     /**
+     * Function used for effectively converting the input string to the actual selected date.
+     * 
+     * What happens is that while the user typing, we cannot convert it to a real date object.
+     * What we need to do is wait until the user finishes typing the hole date to update the selected date.
+     * For that to work what we do is that we store each part of the date `year`, `month` and `day` in the 
+     * `dateInformation` store state, and then when we want, with this retrieve the actual date of the date typed
+     * we use the `getDateValue` function.
+     * 
+     * After that we update the `selectedDate` state with the new date generated from the value.
+     * 
+     * @param {string} formatedValue - The value formated of the date (actually the input value).
+     */
+    function convertValueToDate(formatedValue) {
+        /**
+         * Works like a store, for storing each part of the date so we can retrieve it later.
+         */
+        function dateInformation () {
+            let dateParts = {
+                year: null,
+                month: null,
+                day: null
+            }
+            return {
+                storeDateValue: (datePart, value) => {
+                    dateParts[datePart] = value
+                },
+                getDateValue: (datePart) => {
+                    return dateParts[datePart]
+                }
+            }
+        }
+        const dateInformationStore = dateInformation()
+
+        for (const validDateFormat of Object.keys(datePartsFormats)) {
+            const formatRegex = new RegExp(validDateFormat, 'g')
+            const doesFormatPartExistsInDateFormat = formatRegex.test(dateFormat)
+            if (doesFormatPartExistsInDateFormat === true) {
+                let formatIndex = dateFormat.indexOf(validDateFormat)
+                if (formatIndex !== -1) {
+                    const datePartFormatRepresents = datePartsFormats[validDateFormat].represents
+                    let valueExtracted = formatedValue.substring(formatIndex, formatIndex + validDateFormat.length)
+                    valueExtracted = datePartsFormats[validDateFormat].getNumberFromValue(valueExtracted)
+                    dateInformationStore.storeDateValue(datePartFormatRepresents, valueExtracted)
+                }
+            }
+        }
+
+        const date = new Date(
+            dateInformationStore.getDateValue('year'), 
+            dateInformationStore.getDateValue('month'), 
+            dateInformationStore.getDateValue('day')
+        )
+        onSelectDate(date)
+    }
+
+    /**
      * Function used for beautifuly format the date in the input. Yep, although this component is a Datepicker component, ofter times the user will want
      * to write the date instead of picking it from the calendar. It's a feedback we recieved from our users/clients, so this is definetly needed for the
      * datepicker.
@@ -248,6 +349,9 @@ export default function Datepicker(props) {
      * 3 - We replace the date value removing all of the parts that are non date values. (For example, the '-' and ':' characters) and then split the string.
      * 4 - Retrieve the formated value from the value splitted.
      * 
+     * 5(optional) - If the length of the formated value is EQUAL the length of the dateFormat, we will then automatically select a date using the
+     * `convertValueToDate` function.
+     * 
      * @param {string} newValue - The date value of the input that we want to change and format.
      */
     function onChangeText(newValue) {
@@ -263,7 +367,7 @@ export default function Datepicker(props) {
         function getFormatedValue(valueSplitted) {
             let formatedValue = ''
             let offsetIndex = 0
-                       
+            
             for (let i=0; i < valueSplitted.length + offsetIndex; i++) {
                 const characterAtPositionInValue = valueSplitted[i-offsetIndex]
                 const formatInPosition = startAndEndPositionsOfFormatsInStringRef.current[i]
@@ -278,16 +382,29 @@ export default function Datepicker(props) {
             }
             return formatedValue
         }
-        
+
         getNonDatePartFormatRegex()
         getFormatPositions()
 
         const valueSplitted = newValue.replace(new RegExp(nonFormatRegex.current, 'g'), '').split('')
         let formatedValue = getFormatedValue(valueSplitted)        
 
-        setDateValue(formatedValue)
+        if (formatedValue.length !== dateFormat.length) {
+            setDateValue(formatedValue)
+        } else {
+            convertValueToDate(formatedValue)
+        }
     }
     
+    /**
+     * This will pass or reduce the current month from the date array. This is activated and used when the user clicks on the arrows
+     * to change the month.
+     * 
+     * When we do that what we do is that we change the current month and the current year. If the month is below 0, we will subtract 
+     * a year, otherwise, if the month is above 11 we will add a year.
+     * 
+     * After everything we change the daysOfTheCurrentMonth state with new days to use.
+     */
     function onAddOrReduceCurrentMonth(amount) {
         let newMonth = currentMonth + amount
         let newYear = currentYear
@@ -300,7 +417,40 @@ export default function Datepicker(props) {
         }        
         setCurrentMonth(newMonth)
         setCurrentYear(newYear)
-        setDays(getMonthDays(newYear, newMonth))
+        setDaysOfTheCurrentMonth(getMonthDays(newYear, newMonth))
+    }
+
+    /**
+     * This function is used for when the user selects a day from the datepicker calendar. It can also be used for when the user
+     * finishes typing the date in the input. This will effectively change the date of the input. I mean, while the user is typing
+     * the date of the input WILL NOT change, it will only reflect a change when the user finishes typing the date. It's nice that we
+     * do not use ANY TYPE of library here so any new format that you might want to support, you can do it, and just add the logic.
+     * 
+     * After everything has been changed we also notify the parent component about the new date passing the date object selected.
+     * 
+     * @param {Date} date - A date instance that was selected by the user or typed.
+     */
+    function onSelectDate(date) {
+        const year = date.getFullYear()
+        const month = date.getMonth()
+        setSelectedDate(date)
+        setCurrentMonth(month)
+        setCurrentYear(year)
+        setDaysOfTheCurrentMonth(getMonthDays(year, month))
+
+        let newDateValue = dateFormat
+        for (const validDateFormat of Object.keys(datePartsFormats)) {
+            const formatRegex = new RegExp(validDateFormat, 'g')
+            const doesFormatPartExistsInDateFormat = formatRegex.test(dateFormat)
+            if (doesFormatPartExistsInDateFormat) {
+                newDateValue = newDateValue.replace(formatRegex, datePartsFormats[validDateFormat].getValueFromDate(date))
+            }
+        }
+        setDateValue(newDateValue)
+
+        if (onChangeSelectedDate !== null) {
+            onChangeSelectedDate(date)
+        }
     }
 
     /**
@@ -329,6 +479,7 @@ export default function Datepicker(props) {
     useEffect(() => {
         getFormatPositions(true)
         getNonDatePartFormatRegex(true)
+        onSelectDate(selectedDate)
     }, [props.dateFormat])
 
     return process.env['APP'] === 'web' ? (
@@ -345,10 +496,11 @@ export default function Datepicker(props) {
         currentYear={currentYear}
         daysOfTheWeek={daysOfTheWeek}
         dateValue={dateValue}
+        onSelectDate={onSelectDate}
         positionAndMaxHeight={positionAndMaxHeight}
         daysGridNumberOfRows={daysGridNumberOfRows}
         daysGridNumberOfColumns={daysGridNumberOfColumns}
-        days={days}
+        daysOfTheCurrentMonth={daysOfTheCurrentMonth}
         today={today}
         canSelectDateBelowToday={canSelectDateBelowToday}
         selectedDate={selectedDate}

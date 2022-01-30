@@ -1,20 +1,17 @@
-# Turborepo starter with NPM
+# Reflow Monorepo
+All of the source code for reflow 2.0 will be found here. This is a monorepo started from a `turborepo` template.
 
-This is an official starter turborepo.
+You will find from the client code, to the server side code here. 
+
+You will also see a `shared` package where we can share code between the client and the server.
 
 ## What's inside?
+This turborepo project uses [NPM](https://www.npmjs.com/) as a package manager. It is organized as the following:
 
-This turborepo uses [NPM](https://www.npmjs.com/) as a package manager. It includes the following packages/apps:
+### Root Folders
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org) app
-- `web`: another [Next.js](https://nextjs.org) app
-- `ui`: a stub React component library shared by both `web` and `docs` applications
-- `config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `tsconfig`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- `scripts`: Will hold all of the scripts of the root level, needed to run the application.
+- `packages`: Will hold all of the packages needed to run the hole application.
 
 ### Utilities
 
