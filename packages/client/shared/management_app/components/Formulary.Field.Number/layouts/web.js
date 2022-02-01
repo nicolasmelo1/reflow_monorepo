@@ -1,4 +1,5 @@
 import Styled from '../styles'
+import { strings } from '../../../../core'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 
@@ -36,7 +37,7 @@ export function DropdownMenuNumberFormatOptionWebLayout(props) {
                 <Styled.DropdownMenuOptionSelectButtonText>
                     {![null, undefined].includes(numberFormatTypeSelected) ? 
                     props.getNumberFormatTypeStringByName(numberFormatTypeSelected.name) : 
-                    'Selecione a formatação'}
+                    strings('pt-BR', 'formularyFieldNumberDropdownMenuNumberFormatOptionLabel')}
                 </Styled.DropdownMenuOptionSelectButtonText>
                 <FontAwesomeIcon icon={faChevronRight}/>
             </Styled.DropdownMenuOptionButton>

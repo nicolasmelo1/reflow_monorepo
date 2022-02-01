@@ -9,10 +9,12 @@ export default function DatepickerWebLayout(props) {
         <div>
             <InputComponent
             ref={props.dateInputRef}
+            placeholder={props.placeholder}
             value={props.dateValue}
             onBlur={(e) => props.isInputFocused === true ? props.dateInputRef.current.focus() : null}
             onChange={(e) => props.onChangeText(e.target.value)}
             onFocus={(e) => props.onToggleInputFocus(true)}
+            readOnly={props.canUserWriteDate === false}
             type={'text'}
             />
             {props.isInputFocused === true ? (
@@ -21,14 +23,18 @@ export default function DatepickerWebLayout(props) {
                 >
                     <Styled.DatepickerContainer
                     ref={props.datePickerRef}
+                    containerBackgroundColor={props.containerBackgroundColor}
                     positionAndMaxHeight={props.positionAndMaxHeight}
                     >
                         <Styled.DatepickerHeader>
-                            <Styled.DatepickerMonthTitle>
+                            <Styled.DatepickerMonthTitle
+                            containerBackgroundColor={props.containerBackgroundColor}
+                            >
                                 {`${props.monthsOfTheYear[props.currentMonth]} ${props.currentYear}`}
                             </Styled.DatepickerMonthTitle>
                             <Styled.DatepickerChangeMonthButtonsContainer>
                                 <Styled.DatepickerChangeMonthButton
+                                containerBackgroundColor={props.containerBackgroundColor}
                                 onClick={() => props.onAddOrReduceCurrentMonth(-1)}
                                 >
                                     <FontAwesomeIcon
@@ -36,6 +42,7 @@ export default function DatepickerWebLayout(props) {
                                     />
                                 </Styled.DatepickerChangeMonthButton>
                                 <Styled.DatepickerChangeMonthButton
+                                containerBackgroundColor={props.containerBackgroundColor}
                                 onClick={() => props.onAddOrReduceCurrentMonth(1)}
                                 >
                                     <FontAwesomeIcon
@@ -49,8 +56,11 @@ export default function DatepickerWebLayout(props) {
                                 {props.daysOfTheWeek.map(daysOfTheWeek => (
                                     <Styled.DayOfTheWeekAndDaysOfTheMonthCell
                                     key={daysOfTheWeek}
+                                    containerBackgroundColor={props.containerBackgroundColor}
                                     >
-                                        <Styled.DayOfTheWeekLabel>
+                                        <Styled.DayOfTheWeekLabel
+                                        containerBackgroundColor={props.containerBackgroundColor}
+                                        >
                                             {daysOfTheWeek.slice(0, 3)}
                                         </Styled.DayOfTheWeekLabel>
                                     </Styled.DayOfTheWeekAndDaysOfTheMonthCell>

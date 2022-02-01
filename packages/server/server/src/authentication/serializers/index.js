@@ -3,7 +3,11 @@
 const serializers = require('../../../../palmares/serializers')
 
 const { ReflowValidationError } = require('../../core/serializers')
-const { WorkspaceRelation } = require('../relations')
+const { 
+    WorkspaceRelation,
+    ProfileTypeRelation,
+    LocationTypeRelation
+} = require('../relations')
 const { User } = require('../models')
 const { UserService } = require('../services')
 const { JWT } = require('../utils')
@@ -59,6 +63,14 @@ class MeOutputSerializer extends serializers.ModelSerializer {
     }
 }
 //------------------------------------------------------------------------------
+class TypeOutputSerializer extends serializers.Serializer {
+    fields = {
+        profileType: new ProfileTypeRelation({ many: true }),
+        locationType: new LocationTypeRelation({ many: true })
+    }
+
+}
+//------------------------------------------------------------------------------
 /**
  * Serializer used for sending the new accessToken and the new refreshToken requested by the user after expiring
  * the old accessToken.
@@ -74,5 +86,6 @@ module.exports = {
     LoginInputSerializer,
     LoginOutputSerializer,
     MeOutputSerializer,
+    TypeOutputSerializer,
     RefreshTokenOutputSerializer,
 }

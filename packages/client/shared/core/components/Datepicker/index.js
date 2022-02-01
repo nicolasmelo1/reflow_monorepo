@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react'
+import { useTheme } from 'styled-components'
 import { useClickedOrPressedOutside } from '../../hooks'
-import { strings } from '../../utils/constants'
+import { strings } from '../../utils'
 import Layouts from './layouts'
 
 /**
@@ -22,10 +23,49 @@ import Layouts from './layouts'
  * @param {object} props - The props that the datepicker component recieves.
  * @param {(date: Date) => {} | undefined} [props.onChangeSelectedDate=null] - This is the callback function that will be called
  * when the user selects a date inside of the input.
- * @param {}
+ * @param {boolean} [props.isDatepickerOpen=false] - This is the boolean that determines if the datepicker is open or not, if you
+ * are controlling the state of this component (if it's open or not) from the outside, you should pass this prop.
+ * @param {(isOpen: boolean) => {} | undefined} [props.onChangeOpen=null] - This is the callback function that will be called
+ * when the user opens the datepicker component, in other words, when he clicks on the input.
+ * @param {boolean} [props.canSelectDateBelowToday=true] - This prop will determine if the user can select a date that
+ * is below than today or not. If true than the user can select a date that is below than today. Otherwise the dates before 
+ * than today will be blurred and he will not be able to click it.
+ * @param {Array<string>} [props.daysOfTheWeek=['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']] - An array
+ * of strings, to represent each day of the week. This array should have 7 elements only. The day of the week should start from
+ * Sunday and end with Saturday. With this we can translate the day of the week on the fly, without depending in the user's 
+ * predefined language.
+ * @param {Array<string>} [props.months=['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']] - 
+ * An array of strings where each string represent a month. This array should have 12 elements only. The month should start from
+ * January and end with December. With this we can translate the month on the fly, without depending in the user's predefined language.
+ * @param {string} [props.placeholder=''] - The placeholder of the input, after the user starts typing or before he selects a date we will
+ * show this text.
+ * @param {string} [props.dateFormat='DD/MM/YYYY'] - This is the format of the date that will be displayed inside the input. The possible 
+ * date format types are the following:
+ * - `YYYY` - 4 digits year
+ * - `MM` - 2 digits month (for example 8 should be represented as 08)
+ * - `mmm` - 3 letters month.
+ * - `DD` - 2 digits day (for example 8 should be represented as 08)
+ * @param {boolean} [props.doesAutoSelectDate=false] - This is the boolean that determines if the datepicker will automatically
+ * select the date that is currently selected.
+ * @param {Date} [props.dateSelected=new Date()] - The date that was selected by the user.
+ * @param {boolean} [props.canUserWriteDate=true] - This is the boolean that determines if the user can write the date inside the input
+ * or if the input will be read only.
+ * @param {string} [props.containerBackgroundColor='#fff'] - The background color of the container that contains the datepicker.
+ * @param {import('react').Component} [props.customInputComponent=import('./styles').Input] - This is the component that will be used as the input, 
+ * it is where the user can use to write.
+ * 
+ * @param {import('React').ReactElement} - Returns a React element to be rendered. It is an input that when you click it opens
+ * a datepicker component.
  */
 export default function Datepicker(props) {
+    const theme = useTheme() 
+    
     const today = new Date()
+    const doesAutoSelectDate = typeof props.doesAutoSelectDate === 'boolean' ? props.doesAutoSelectDate : false
+    const containerBackgroundColor = typeof props.containerBackgroundColor === 'string' ? props.containerBackgroundColor : theme.white
+    const canUserWriteDate = typeof props.canUserWriteDate === 'boolean' ? props.canUserWriteDate : true
+    const defaultPlaceholder = typeof props.placeholder === 'string' ? props.placeholder : ''
+    const isDatepickerOpen = typeof props.isDatepickerOpen === 'boolean' ? props.isDatepickerOpen : false 
     const onChangeSelectedDate = typeof props.onChangeSelectedDate === 'function' ? props.onChangeSelectedDate : null
     const onOpenDatepicker = typeof props.onOpenDatepicker === 'function' ? props.onOpenDatepicker : null
     const canSelectDateBelowToday = typeof props.canSelectDateBelowToday === 'boolean' ? props.canSelectDateBelowToday : true
@@ -56,7 +96,8 @@ export default function Datepicker(props) {
     const daysGridNumberOfColumns = daysOfTheWeek.length
     const daysGridNumberOfDays = daysGridNumberOfRows * daysGridNumberOfColumns
     const dateSelected = (props.dateSelected instanceof Date) ? props.dateSelected : today
-    const dateFormat = ![null, undefined].includes(props.dateFormat) ? props.dateFormat : 'YYYY-MM-DD'
+    const definedDateFormat = ![null, undefined].includes(props.dateFormat) ? props.dateFormat : 
+        strings('pt-BR', 'datePickerDefaultFormat')
     const datePartsFormats = {
         YYYY: {
             represents: 'year',
@@ -133,8 +174,10 @@ export default function Datepicker(props) {
     const datePickerRef = useRef()
     const nonFormatRegex = useRef(null)
     const startAndEndPositionsOfFormatsInStringRef = useRef(null)
+    const [dateFormat, setDateFormat] = useState(definedDateFormat)
+    const [placeholder, setPlaceholder] = useState(defaultPlaceholder)
     const [daysOfTheCurrentMonth, setDaysOfTheCurrentMonth] = useState(getMonthDays(dateSelected.getFullYear(), dateSelected.getMonth()))
-    const [isInputFocused, setIsInputFocused] = useState(false)
+    const [isInputFocused, setIsInputFocused] = useState(isDatepickerOpen)
     const [selectedDate, setSelectedDate] = useState(dateSelected)
     const [currentYear, setCurrentYear] = useState(dateSelected.getFullYear())
     const [currentMonth, setCurrentMonth] = useState(dateSelected.getMonth())
@@ -162,7 +205,7 @@ export default function Datepicker(props) {
             return nonFormatRegex.current
         } else {
             const dateFormatPartsRegex = Object.keys(datePartsFormats).map(format => `(${format})?`).join('')
-            nonFormatRegex.current = [...new Set(dateFormat.replaceAll(new RegExp(dateFormatPartsRegex, 'g'), '').split(''))].map(format => `(${format})?`).join('')
+            nonFormatRegex.current = [...new Set(definedDateFormat.replaceAll(new RegExp(dateFormatPartsRegex, 'g'), '').split(''))].map(format => `(${format})?`).join('')
         }
     }
 
@@ -190,9 +233,9 @@ export default function Datepicker(props) {
             startAndEndPositionsOfFormatsInStringRef.current = {}
             for (const validDateFormat of Object.keys(datePartsFormats)) {
                 const formatRegex = new RegExp(validDateFormat, 'g')
-                const doesFormatPartExistsInDateFormat = formatRegex.test(dateFormat)
+                const doesFormatPartExistsInDateFormat = formatRegex.test(definedDateFormat)
                 if (doesFormatPartExistsInDateFormat) {
-                    const startingPositionOfFormat = dateFormat.indexOf(validDateFormat)
+                    const startingPositionOfFormat = definedDateFormat.indexOf(validDateFormat)
                     const endindPositionOfFormat = startingPositionOfFormat + validDateFormat.length - 1
                     for (let i = startingPositionOfFormat; i <= endindPositionOfFormat; i++) {
                         startAndEndPositionsOfFormatsInStringRef.current[i] = {
@@ -301,9 +344,9 @@ export default function Datepicker(props) {
 
         for (const validDateFormat of Object.keys(datePartsFormats)) {
             const formatRegex = new RegExp(validDateFormat, 'g')
-            const doesFormatPartExistsInDateFormat = formatRegex.test(dateFormat)
+            const doesFormatPartExistsInDateFormat = formatRegex.test(definedDateFormat)
             if (doesFormatPartExistsInDateFormat === true) {
-                let formatIndex = dateFormat.indexOf(validDateFormat)
+                let formatIndex = definedDateFormat.indexOf(validDateFormat)
                 if (formatIndex !== -1) {
                     const datePartFormatRepresents = datePartsFormats[validDateFormat].represents
                     let valueExtracted = formatedValue.substring(formatIndex, formatIndex + validDateFormat.length)
@@ -374,8 +417,8 @@ export default function Datepicker(props) {
                 if (formatInPosition !== undefined) {
                     const datePartFormat = datePartsFormats[formatInPosition.format]
                     formatedValue += datePartFormat.validateCharacterAtPosition(characterAtPositionInValue, formatInPosition.position)
-                } else if (dateFormat[i] !== undefined) {
-                    const nonFormatCharacter = dateFormat[i]
+                } else if (definedDateFormat[i] !== undefined) {
+                    const nonFormatCharacter = definedDateFormat[i]
                     formatedValue += nonFormatCharacter
                     if (nonFormatCharacter !== characterAtPositionInValue) offsetIndex++
                 }
@@ -389,7 +432,7 @@ export default function Datepicker(props) {
         const valueSplitted = newValue.replace(new RegExp(nonFormatRegex.current, 'g'), '').split('')
         let formatedValue = getFormatedValue(valueSplitted)        
 
-        if (formatedValue.length !== dateFormat.length) {
+        if (formatedValue.length !== definedDateFormat.length) {
             setDateValue(formatedValue)
         } else {
             convertValueToDate(formatedValue)
@@ -431,25 +474,27 @@ export default function Datepicker(props) {
      * @param {Date} date - A date instance that was selected by the user or typed.
      */
     function onSelectDate(date) {
-        const year = date.getFullYear()
-        const month = date.getMonth()
-        setSelectedDate(date)
-        setCurrentMonth(month)
-        setCurrentYear(year)
-        setDaysOfTheCurrentMonth(getMonthDays(year, month))
+        if (canSelectDateBelowToday === false && date > today || canSelectDateBelowToday === true) {
+            const year = date.getFullYear()
+            const month = date.getMonth()
+            setSelectedDate(date)
+            setCurrentMonth(month)
+            setCurrentYear(year)
+            setDaysOfTheCurrentMonth(getMonthDays(year, month))
 
-        let newDateValue = dateFormat
-        for (const validDateFormat of Object.keys(datePartsFormats)) {
-            const formatRegex = new RegExp(validDateFormat, 'g')
-            const doesFormatPartExistsInDateFormat = formatRegex.test(dateFormat)
-            if (doesFormatPartExistsInDateFormat) {
-                newDateValue = newDateValue.replace(formatRegex, datePartsFormats[validDateFormat].getValueFromDate(date))
+            let newDateValue = definedDateFormat
+            for (const validDateFormat of Object.keys(datePartsFormats)) {
+                const formatRegex = new RegExp(validDateFormat, 'g')
+                const doesFormatPartExistsInDateFormat = formatRegex.test(definedDateFormat)
+                if (doesFormatPartExistsInDateFormat) {
+                    newDateValue = newDateValue.replace(formatRegex, datePartsFormats[validDateFormat].getValueFromDate(date))
+                }
             }
-        }
-        setDateValue(newDateValue)
+            setDateValue(newDateValue)
 
-        if (onChangeSelectedDate !== null) {
-            onChangeSelectedDate(date)
+            if (onChangeSelectedDate !== null) {
+                onChangeSelectedDate(date)
+            }
         }
     }
 
@@ -476,17 +521,83 @@ export default function Datepicker(props) {
         }
     }
 
+    /**
+     * On the first render, if the datepicker is open, then we will run this function. This effect will
+     * run the `onToggleInputFocus` function with the `isOpen` parameter set to true. With that we set
+     * the position of the datepicker, and after that we will also focus on the input.
+     * 
+     * If we define the `doesAutoSelectDate` as true, then we will also select the date of the input. This automatically
+     * selects the date and display it on the input.
+     */
+    useEffect(() => {
+        if (isDatepickerOpen === true) {
+            onToggleInputFocus(true)
+            if (dateInputRef.current) dateInputRef.current.focus()
+        }
+        if (doesAutoSelectDate === true) {
+            onSelectDate(selectedDate)
+        }
+    }, [])
+
+    /**
+     * This effect will run when the datepicker opens outside of this component, when the outside user wants for some reason
+     * open the datepicker, we will just update the local state with the new state of the `isInputFocused`
+     */
+    useEffect(() => {
+        if (typeof props.isDatepickerOpen === 'boolean' && props.isDatepickerOpen !== isInputFocused) {
+            onToggleInputFocus(isDatepickerOpen)
+            if (props.isDatepickerOpen === true && dateInputRef.current) dateInputRef.current.focus()
+        }
+    }, [props.isDatepickerOpen])
+
+    /**
+     * Effect for running when the dateSelected changes, so, outside of the datepicker component, when the date changes
+     * we will update the local state with the new date.
+     */
+    useEffect(() => {
+        if (props.dateSelected instanceof Date) {
+            const isDifferentFromInternalDate = dateSelected.getDate() !== props.dateSelected.getDate() &&
+                dateSelected.getMonth() !== props.dateSelected.getMonth() &&
+                dateSelected.getFullYear() !== props.dateSelected.getFullYear()
+            if (isDifferentFromInternalDate) {
+                onSelectDate(props.dateSelected)
+            }
+        }
+    }, [props.dateSelected])
+
+    /**
+     * This useEffect will be fired whenever the date format changes. That's exactly why we need to store the date format
+     * in the state, because when it changes we can know it has changed.
+     * 
+     * Everytime the date format changes we will also update the selected date value.
+     */
     useEffect(() => {
         getFormatPositions(true)
         getNonDatePartFormatRegex(true)
-        onSelectDate(selectedDate)
+        if (props.dateFormat !== dateFormat) {
+            setDateFormat(props.dateFormat)
+            onSelectDate(selectedDate)
+        }
     }, [props.dateFormat])
+
+    /**
+     * Effect for when the user changes the placeholder from outside of the datepicker component. This will update
+     * the local state with the new placeholder. This will show in the input.
+     */
+    useEffect(() => {
+        if (typeof props.placeholder === 'string' && props.placeholder !== placeholder) {
+            setPlaceholder(props.placeholder)
+        }
+    }, [props.placeholder])
 
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
         datePickerRef={datePickerRef}
         dateInputRef={dateInputRef}
+        containerBackgroundColor={containerBackgroundColor}
         customInputComponent={props.customInputComponent}
+        canUserWriteDate={canUserWriteDate}
+        placeholder={placeholder}
         isInputFocused={isInputFocused}
         onToggleInputFocus={onToggleInputFocus}
         onChangeText={onChangeText}

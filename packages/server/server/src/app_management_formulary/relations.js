@@ -7,6 +7,7 @@ const {
     SectionType, 
     Section, 
     Field,
+    FieldAttachment,
     FieldConnection,
     FieldUser,
     FieldNumber,
@@ -138,6 +139,18 @@ class FieldConnectionRelation extends serializers.ModelSerializer {
     }
 }
 
+class FieldAttachmentRelation extends serializers.ModelSerializer {
+    async toRepresentation(fieldId) {
+        const fieldAttachment = await FieldAttachment.APP_MANAGEMENT_FORMULARY.fieldAttachmentByFieldId(fieldId)
+        return await super.toRepresentation(fieldAttachment)
+    }
+
+    options = {
+        model: FieldAttachment,
+        exclude: ['id', 'fieldId']
+    }
+}
+
 /**
  * Relation for holding all of the options for `option` or `tag` field types. Other field types
  * can hold the options also but you be sure to explain it to future developers.
@@ -175,6 +188,7 @@ class FieldRelation extends serializers.ModelSerializer {
 
     fields = {
         sectionUUID: new serializers.UUIDField(),
+        attachmentField: new FieldAttachmentRelation({ source: 'id' }),
         connectionField: new FieldConnectionRelation({ source: 'id' }),
         userField: new FieldUserRelation({ source: 'id' }),
         numberField: new FieldNumberRelation({ source: 'id' }),

@@ -4,6 +4,7 @@ const NumberFormatTypeAppManagementFormularyManager = require('./numberFormatTyp
 const SectionTypeAppManagementFormularyManager = require('./sectionType')
 const TimeFormatTypeAppManagementFormularyManager = require('./timeFormatType')
 const FieldConnectionAppManagementFormularyManager = require('./fieldConnection')
+const FieldAttachmentAppManagementFormularyManager = require('./fieldAttachment')
 const FieldDateAppManagementFormularyManager = require('./fieldDate')
 const FieldNumberAppManagementFormularyManager = require('./fieldNumber')
 const FieldFormulaAppManagementFormularyManager = require('./fieldFormula')
@@ -20,7 +21,8 @@ module.exports = {
     NumberFormatTypeAppManagementFormularyManager,
     SectionTypeAppManagementFormularyManager,
     TimeFormatTypeAppManagementFormularyManager,
-    FieldConnectionAppManagementFormularyManager, 
+    FieldConnectionAppManagementFormularyManager,
+    FieldAttachmentAppManagementFormularyManager,
     FieldDateAppManagementFormularyManager,
     FieldNumberAppManagementFormularyManager,
     FieldFormulaAppManagementFormularyManager,

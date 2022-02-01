@@ -24,11 +24,13 @@ export default {
     formularyFieldEditDeleteLabel: 'Excluir',
     formularyFieldNumberDefaultDecimalCharacter: ',',
     formularyFieldNumberDefaultThousandSeparatorCharacter: '.',
+    formularyFieldNumberDropdownMenuNumberFormatOptionLabel: 'Selecione a formatação',
     formularyFieldOptionCustomHelperLabel: 'Selecione uma opção ou escreva para criar uma nova',
     formularyFieldOptionCreateOptionLabel: 'Criar',
     formularyFieldOptionEditOptionMenuRenameButtonLabel: 'Renomear',
     formularyFieldOptionEditOptionMenuDeleteButtonLabel: 'Excluir',
     formularyFieldOptionEditOptionMenuColorLabel: 'Cores',
+    formularyFieldAttachmentPlaceholder: 'Clique ou arraste os arquivos aqui',
     numberFormatTypeNumberLabel: 'Dinâmico',
     numberFormatTypeIntegerLabel: 'Inteiro',
     numberFormatTypeCurrencyLabel: 'Monetário',
@@ -51,5 +53,6 @@ export default {
     datePickerDayOfTheWeekWednesdayLabel: 'Quarta',
     datePickerDayOfTheWeekThursdayLabel: 'Quinta',
     datePickerDayOfTheWeekFridayLabel: 'Sexta',
-    datePickerDayOfTheWeekSaturdayLabel: 'Sábado'
+    datePickerDayOfTheWeekSaturdayLabel: 'Sábado',
+    datePickerDefaultFormat: 'DD/MM/YYYY'
 }

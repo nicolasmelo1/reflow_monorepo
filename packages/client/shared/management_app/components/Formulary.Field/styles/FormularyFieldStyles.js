@@ -67,11 +67,11 @@ styled(TextInput)``
 export const FieldEditMenu = process.env['APP'] === 'web' ?
 styled.div`
     display: flex;
-    flex-direction: ${props => props.isAtBottom ? 'column': 'column-reverse'};
+    flex-direction: column;
     align-items: flex-end;
     position: absolute;
     right: 5px;
-    ${props => props.isAtBottom ? 'top: 5px;' : 'bottom: calc(100% - 22px);'}
+    top: 5px;
     opacity: ${props => props.isHovering ? '1' : '0'};
     transition: opacity 0.1s ease-in-out, top 0.1s ease-in-out, bottom 0.1s ease-in-out;
 `
@@ -92,8 +92,23 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
+export const FieldEditMenuWrapper = process.env['APP'] === 'web' ?
+styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: var(--app-height);
+    width: var(--app-width);
+    background-color: transparent;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 2
+`
+:
+styled(View)``
+
 export const FieldEditMenuDropdownContainer = process.env['APP'] === 'web' ?
 styled.div`
+    position: fixed;
     display: flex;
     flex-direction: column;
     padding: 10px;
@@ -103,8 +118,12 @@ styled.div`
     border-radius: 5px;
     z-index: 1;
     min-height: 50px;
-    ${props => props.maximumHeight !== undefined ? `max-height: ${props.maximumHeight}px;` : ''}
+    top: ${props => props.editMenuPosition.position.y}px;
+    left: ${props => props.editMenuPosition.position.x}px;
+    max-height: ${props => props.editMenuPosition.maxHeight !== null ? `${props.editMenuPosition.maxHeight}px` : 'var(--app-height)'};
     overflow-y: auto;
+    opacity: ${props => props.editMenuPosition.wasCalculated ? '1' : '0'};
+    transition: opacity 0.2s ease-in-out;
 `
 :
 styled(View)``
@@ -133,7 +152,6 @@ styled.hr`
     color: ${props => props.theme.clearGray};
     background-color: ${props => props.theme.clearGray};
     border: 1px solid ${props => props.theme.clearGray};
-    width: calc(100% - 5px);
     margin: 2px 0;
 `
 :

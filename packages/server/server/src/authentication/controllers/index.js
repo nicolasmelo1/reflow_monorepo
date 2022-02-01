@@ -11,6 +11,7 @@ const {
     LoginInputSerializer, 
     LoginOutputSerializer,
     MeOutputSerializer,
+    TypeOutputSerializer,
     RefreshTokenOutputSerializer
 } = require('../serializers')
 
@@ -67,6 +68,28 @@ class MeController extends controllers.Controller {
     
     async get(req, res) {
         const serializer = new this.outputSerializer({ instance: req.user })
+        return res.status(status.HTTP_200_OK).json({
+            status: 'ok',
+            data: await serializer.toRepresentation()
+        })
+    }
+}
+//------------------------------------------------------------------------------
+/**
+ * Controller responsible for retrieving the types for the authentication app. This types are stuff like the profile type
+ * the location type (with all of the possible locations we can have this application in) and so on. The idea of this types
+ * is to get it before retrieving the data about the user. With this we are able to know if the user is an admin, or what type
+ * of access does the user have.
+ */
+class TypeController extends controllers.Controller {
+    outputSerializer = TypeOutputSerializer
+
+    /**
+     * This will retrieve the authentication types, responsible for knowing the profile of the user and all the information needed
+     * to understand better the user/company.
+     */
+    async get(req, res) {
+        const serializer = new this.outputSerializer()
         return res.status(status.HTTP_200_OK).json({
             status: 'ok',
             data: await serializer.toRepresentation()
@@ -140,5 +163,6 @@ module.exports = {
     LoginController,
     RefreshTokenController,
     TestTokenController,
-    MeController
+    MeController,
+    TypeController
 }

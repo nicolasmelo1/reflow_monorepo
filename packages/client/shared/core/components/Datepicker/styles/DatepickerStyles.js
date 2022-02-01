@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { TextInput, View, Text } from 'react-native'
+import { whiteOrBlackColor } from '../../../utils'
 
 export const Input = process.env['APP'] === 'web' ? 
 styled.input`
@@ -33,11 +34,12 @@ export const DatepickerContainer = process.env['APP'] === 'web' ?
 styled.div`
     position: fixed;
     overflow: auto;
+    border: 1px solid ${props => props.theme.moreClearGray};
     top: ${props => props.positionAndMaxHeight.position.y}px;
     left: ${props => props.positionAndMaxHeight.position.x}px;
     max-height: ${props => props.positionAndMaxHeight.maxHeight !== null ? `${props.positionAndMaxHeight.maxHeight}px` : 'var(--app-height)'};
     border-radius: 5px;
-    background-color: ${props => props.theme.white};
+    background-color: ${props => props.containerBackgroundColor};
     padding: 10px;
     box-shadow: rgb(56 66 95 / 8%) 4px 4px 12px;
 `
@@ -58,7 +60,7 @@ styled.h2`
     font-size: 20px;
     margin: 0;
     font-family: Roboto;
-    color: ${props => props.theme.gray_REFLOW};
+    color: ${props => whiteOrBlackColor(props.containerBackgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.clearGray};
     user-select: none;
     cursor: default;
 `
@@ -85,11 +87,12 @@ styled.button`
     height: 25px;
     border-radius: 5px;
     border: 0;
+    color: ${props => whiteOrBlackColor(props.containerBackgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.clearGray};
     background-color: transparent;
     cursor: pointer;
     
     &:hover {
-        background-color: ${props => props.theme.clearGray};
+        background-color: ${props => whiteOrBlackColor(props.containerBackgroundColor) === 'black' ? props.theme.clearGray : props.theme.gray_REFLOW};
     }
 `
 :
@@ -129,7 +132,7 @@ styled.button`
     ${props => props.isDaysOfTheMonthCell === true ?
         props.isFromTheCurrentMonth === true ?  
             `
-            background-color: ${props.isSelectedDay === true ? `${props.theme.green_REFLOW}50` : 'transparent'};
+            background-color: ${props.isSelectedDay === true ? `${props.theme.green_REFLOW}70` : 'transparent'};
             cursor: ${props.isFromTheCurrentMonth === true && props.isBelowToday === false ? 'pointer': 'default'};
             border-right: 1px solid ${props.theme.clearGray};
             border-bottom: 1px solid ${props.theme.clearGray};
@@ -138,7 +141,7 @@ styled.button`
             transition: background-color 0.2s ease-in-out;
 
             &:hover {
-                background-color: ${props.isSelectedDay === true ? `${props.theme.green_REFLOW}50` : props.theme.clearGray};
+                background-color: ${props.isSelectedDay === true ? `${props.theme.green_REFLOW}70` : props.theme.clearGray};
             }
             `
             :

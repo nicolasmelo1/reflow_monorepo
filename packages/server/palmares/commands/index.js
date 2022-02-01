@@ -1,6 +1,5 @@
 const logger = require('../logging')
 const { spawn } = require('child_process')
-const pm2 = require('pm2')
 const path = require('path')
 
 /**
@@ -12,6 +11,7 @@ const handleCommands = () => {
     const cliArguments = process.argv.slice(2)
 
     logger.INFO.USING_SETTINGS(process.env.PALMARES_SETTINGS_MODULE)
+    const settings = require(process.env.PALMARES_SETTINGS_MODULE)
 
     switch (cliArguments[0]) {
         case 'migrate':

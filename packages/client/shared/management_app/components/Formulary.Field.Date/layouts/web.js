@@ -7,6 +7,7 @@ export default function FormularyFieldDateWebLayout(props) {
         <Styled.Container>
             <Datepicker
             dateFormat={'DD/MM/YYYY'}
+            placeholder={props.field.placeholder}
             onOpenDatepicker={props.setIsOpen}
             customInputComponent={Styled.CustomInputForDatepicker}
             />

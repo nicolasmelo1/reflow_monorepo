@@ -1,6 +1,6 @@
 const serializers = require('../../../../palmares/serializers')
 
-const { Workspace, UserWorkspaces } = require('../models')
+const { Workspace, UserWorkspaces, ProfileType } = require('../models')
 
 /**
  * This is used to retrieve all of the workspaces that are active that a specific user user is a member of.
@@ -32,6 +32,22 @@ class WorkspaceRelation extends serializers.ModelSerializer {
     }
 }
 
+class ProfileTypeRelation extends serializers.ModelSerializer {
+    options = {
+        model: ProfileType,
+        exclude: ['order']
+    }
+}
+
+class LocationTypeRelation extends serializers.ModelSerializer {
+    options = {
+        model: LocationType,
+        exclude: ['order']
+    }
+}
+
 module.exports = {
-    WorkspaceRelation
+    WorkspaceRelation,
+    ProfileTypeRelation,
+    LocationTypeRelation
 }

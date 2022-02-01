@@ -6,6 +6,7 @@ const {
     DateFormatTypeAppManagementFormularyManager, 
     NumberFormatTypeAppManagementFormularyManager,
     SectionTypeAppManagementFormularyManager,
+    FieldAttachmentAppManagementFormularyManager,
     FieldConnectionAppManagementFormularyManager,
     FieldDateAppManagementFormularyManager,
     FieldNumberAppManagementFormularyManager,
@@ -420,6 +421,29 @@ class FieldFormula extends models.Model {
 }
 
 /**
+ * This will hold the attributes for the attachments, the configuration for the attachments is really simple.
+ * A user can add one or multiple files as attachment. That's the catch.
+ * If the maxNumberOfAttachments is null then we consider it as unlimited, so the user can add an unlimited amount
+ * of files.
+ */
+class FieldAttachment extends models.Model {
+    attributes = {
+        uuid: new models.fields.UUIDField({ autoGenerate: true }),
+        field: new models.fields.OneToOneField({
+            relatedTo: 'Field',
+            onDelete: models.fields.ON_DELETE.CASCADE
+        }),
+        maxNumberOfAttachments: new models.fields.IntegerField({ defaultValue: null, allowNull: true }),
+    }
+
+    options = {
+        tableName: 'field_attachment'
+    }
+
+    static APP_MANAGEMENT_FORMULARY = new FieldAttachmentAppManagementFormularyManager()
+}
+
+/**
  * This are the options for some fieldTypes that display options. Right now the fields that will have options are
  * both the `tags` and `option` field types. That's all this does. This is also used to display the columns of the
  * kanban visualization board.
@@ -462,6 +486,7 @@ module.exports = {
     FieldConnection,
     FieldDate,
     FieldNumber,
+    FieldAttachment,
     Option,
     FieldUser,
     FieldFormula

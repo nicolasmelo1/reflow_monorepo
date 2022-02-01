@@ -12,10 +12,12 @@ const {
     RefreshTokenController,
     TestTokenController,
     MeController,
+    TypeController,
 } = require('./controllers')
 
 
 const loginRequiredRoutes = [
+    path('/types', ...loggedUserRecipe, TypeController.asController()),
     path('/me', ...loggedUserRecipe, MeController.asController()),
     path('/test_token', jwtRequiredMiddleware, TestTokenController.asController()),
 ]

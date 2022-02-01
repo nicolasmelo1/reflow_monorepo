@@ -25,11 +25,7 @@ export default function FormularyFieldWebLayout(props) {
 
     return (
         <Styled.Container
-        onMouseOver={() => {props.onHoverFieldWeb(true)}}
-        onMouseLeave={() => {
-            props.setIsRenaming(false)
-            props.onHoverFieldWeb(false)
-        }}
+        ref={props.fieldRef}
         >   
             {props.isRenaming ? (
                 <Styled.LabelNameInput
@@ -54,7 +50,6 @@ export default function FormularyFieldWebLayout(props) {
             ) : ''}
             <Styled.FieldEditMenu
             isHovering={props.isHovering}
-            isAtBottom={props.isEditMenuAtBottom}
             >
                 <Styled.FieldEditButtonMenu
                 ref={props.fieldEditMenuButtonRef}
@@ -65,10 +60,12 @@ export default function FormularyFieldWebLayout(props) {
                     icon={faEllipsisH}
                     />
                 </Styled.FieldEditButtonMenu>
-                {props.isEditMenuOpen === true ? (
+            </Styled.FieldEditMenu>
+            {props.isEditMenuOpen === true ? (
+                <Styled.FieldEditMenuWrapper>
                     <Styled.FieldEditMenuDropdownContainer
                     ref={props.fieldEditDropdownMenuRef}
-                    maximumHeight={props.editMenuMaximumHeight}
+                    editMenuPosition={props.editMenuPosition}
                     >
                         <Styled.FieldEditMenuDropdownSwitchContainer
                         onClick={() => props.onChangeFieldIsRequired(!props.field.required)}
@@ -166,8 +163,8 @@ export default function FormularyFieldWebLayout(props) {
                             {strings('pt-BR', 'formularyFieldEditDeleteLabel')}
                         </Styled.FieldEditMenuDropdownButton>
                     </Styled.FieldEditMenuDropdownContainer>
-                ) : ''}
-            </Styled.FieldEditMenu>
+                </Styled.FieldEditMenuWrapper>
+            ) : ''}
             {props.field.fieldIsHidden === false ? fieldTypeName === 'text' ? (
                 <FormularyFieldText
                 {...props}

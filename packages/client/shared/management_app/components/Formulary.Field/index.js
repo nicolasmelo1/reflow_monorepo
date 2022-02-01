@@ -5,22 +5,32 @@ import { useClickedOrPressedOutside } from '../../../core/hooks'
 
 export default function FormularyField(props) {
     const fieldTypeNameCacheRef = useRef()
+    const fieldRef = useRef()
     const fieldEditMenuButtonRef = useRef()
     const fieldEditDropdownMenuRef = useRef()
     const optionsForDropdownMenuRef = useRef([])
+    const isHoveringRef = useRef(false)
     const { state: { types } } = useContext(AppManagementTypesContext)
     const [numberOfCustomOptionComponents, setNumberOfCustomOptionComponents] = useState(0)
     const [isPlaceholderOpen, setIsPlaceholderOpen] = useState(!['', null, undefined].includes(props.field.placeholder))
-    const [isHovering, setIsHovering] = useState(false)
+    const [isHovering, _setIsHovering] = useState(isHoveringRef.current)
     const [isEditMenuOpen, setIsEditMenuOpen] = useState(false)
     const [isRenaming, setIsRenaming] = useState(false)
-    const [editMenuMaximumHeight, setEditMenuMaximumHeight] = useState(undefined)
-    const [isEditMenuAtBottom, setIsEditMenuAtBottom] = useState(true)
+    const [editMenuPosition, setEditMenuPosition] = useState({
+        position: { x: 0, y: 0 }, 
+        maxHeight: null, 
+        wasCalculated:false
+    })
     useClickedOrPressedOutside({ ref: fieldEditDropdownMenuRef, callback: (e) => {
         if (fieldEditMenuButtonRef.current && !fieldEditMenuButtonRef.current.contains(e.target)) {
-            setIsEditMenuOpen(false)
+            onToggleEditFieldMenu(false)
         }
     }})
+
+    function setIsHovering(isUserHoveringOnField=!isHovering) {
+        isHoveringRef.current = isUserHoveringOnField
+        _setIsHovering(isUserHoveringOnField)
+    }
 
     /**
      * This will add components to the dropdown menu so the user can edit it.
@@ -113,7 +123,7 @@ export default function FormularyField(props) {
     function onHoverFieldWeb(isUserHoveringField) {
         if (isUserHoveringField === false) {
             setIsHovering(isUserHoveringField)
-            setIsEditMenuOpen(false)
+            onToggleEditFieldMenu(false)
         } else {
             setIsHovering(isUserHoveringField)
         }
@@ -170,34 +180,52 @@ export default function FormularyField(props) {
      * to 60px if we position at the bottom and subtract 40px if we position at the top (actually at the top it's more then just format niely, but
      * the element gets cut because of the overflow.)
      */
-    function loadEditMenuTopOrDownAndDefineHeight() {
-        if (fieldEditDropdownMenuRef.current && props.formularyContainerRef.current) {
-            const formularyContainerRect = props.formularyContainerRef.current.getBoundingClientRect()
-            const fieldEditDropdownRect = fieldEditDropdownMenuRef.current.getBoundingClientRect()
-            const spaceAtBottom = window.innerHeight - (isEditMenuAtBottom ? fieldEditDropdownRect.top : fieldEditDropdownRect.bottom + 20)
-            const spaceAtTop = window.innerHeight - spaceAtBottom - formularyContainerRect.top
-            const hasMoreSpaceAtBottom = spaceAtBottom > spaceAtTop
-            if (hasMoreSpaceAtBottom) {
-                const fieldEditDropdownOverflowToBottom = (isEditMenuAtBottom ? fieldEditDropdownRect.top : fieldEditDropdownRect.bottom) +
-                    fieldEditDropdownMenuRef.current.scrollHeight - window.innerHeight + 60
-                if (fieldEditDropdownOverflowToBottom > 0) {
-                    const maximumHeight = fieldEditDropdownMenuRef.current.scrollHeight - fieldEditDropdownOverflowToBottom
-                    setEditMenuMaximumHeight(maximumHeight) 
-                } else {
-                    setEditMenuMaximumHeight(undefined)
-                }
-                setIsEditMenuAtBottom(true)
-            } else {
-                const fieldEditDropdownOverflowToTop = spaceAtTop - fieldEditDropdownMenuRef.current.scrollHeight - 40
-                if (fieldEditDropdownOverflowToTop < 0) {
-                    // This is basic maths but - with - is +, so - ( - 1 ) is + 1
-                    const maximumHeight = fieldEditDropdownMenuRef.current.scrollHeight - ( - fieldEditDropdownOverflowToTop)
-                    setEditMenuMaximumHeight(maximumHeight)
-                } else {
-                    setEditMenuMaximumHeight(undefined)
-                }
-                setIsEditMenuAtBottom(false)
+    function webLoadEditMenuTopOrDownAndDefineHeight() {
+        if (process.env['APP'] === 'web' && fieldEditMenuButtonRef.current && fieldEditDropdownMenuRef.current) {
+            const fieldEditMenuButtonRect = fieldEditMenuButtonRef.current.getBoundingClientRect()
+            const fieldEditDropdownMenuRect = fieldEditDropdownMenuRef.current.getBoundingClientRect()
+            const doesDatePickerPassBottom = fieldEditMenuButtonRect.bottom + fieldEditDropdownMenuRect.height > window.innerHeight
+            const doesDatePickerPassRight = fieldEditMenuButtonRect.right + fieldEditDropdownMenuRect.width > window.innerWidth
+            let maxHeight = window.innerHeight - fieldEditMenuButtonRect.bottom
+            let yPosition = fieldEditMenuButtonRect.bottom
+            let xPosition = fieldEditMenuButtonRect.left
+            if (doesDatePickerPassBottom === true) {
+                // will load on top
+                yPosition = fieldEditMenuButtonRect.top - fieldEditDropdownMenuRect.height
+                if (yPosition < 0) yPosition = 0
+
+                maxHeight = fieldEditMenuButtonRect.top - fieldEditMenuButtonRect.height - 5
             }
+            if (doesDatePickerPassRight === true) {
+                xPosition = fieldEditMenuButtonRect.right - fieldEditDropdownMenuRect.width
+                if (xPosition < 0) xPosition = 0
+            }
+
+            setEditMenuPosition({
+                wasCalculated: true,
+                position: { 
+                    x: xPosition, 
+                    y: yPosition 
+                }, 
+                maxHeight: maxHeight
+            })
+        }
+    }
+
+    /**
+     * / * WEB ONLY * /
+     * 
+     * This is a web only function that is used to show or dismiss the menu button on the field. This way the admin
+     * can easily edit and change the field settings in a dropdown menu. Also by activating this on hover we are able 
+     * to progressively make the user understand the platform.
+     * 
+     * @param {MouseEvent} e - The mouse event that is triggered when the user hovers over the document.
+     */
+    function webDismissEditFieldButton(e) {
+        if (fieldRef.current && fieldRef.current.contains(e.target) && isHoveringRef.current === false) {
+            onHoverFieldWeb(true)
+        } else if (fieldRef.current && !fieldRef.current.contains(e.target) && isHoveringRef.current === true) {
+            onHoverFieldWeb(false)
         }
     }
 
@@ -208,9 +236,20 @@ export default function FormularyField(props) {
      */
     function onToggleEditFieldMenu(isOpen=!isEditMenuOpen) {
         setIsEditMenuOpen(isOpen)
-        setTimeout(() => {
-            loadEditMenuTopOrDownAndDefineHeight()
-        })
+        if (isOpen === true) {
+            setTimeout(() => {
+                webLoadEditMenuTopOrDownAndDefineHeight()
+            })
+        } else {
+            setEditMenuPosition({
+                wasCalculated: false,
+                position: {
+                    x: 0,
+                    y: 0
+                },
+                maxHeight: null
+            })
+        }
     }
     
     /**
@@ -340,14 +379,21 @@ export default function FormularyField(props) {
     }
 
     useEffect(() => {
-        if (process.env['APP'] === 'web') window.addEventListener('resize', loadEditMenuTopOrDownAndDefineHeight)
+        if (process.env['APP'] === 'web') {
+            window.addEventListener('resize', webLoadEditMenuTopOrDownAndDefineHeight)
+            document.addEventListener('mousemove', webDismissEditFieldButton)
+        }
         return () => {
-            if (process.env['APP'] === 'web') window.removeEventListener('resize', loadEditMenuTopOrDownAndDefineHeight)
+            if (process.env['APP'] === 'web') {
+                document.removeEventListener('mousemove', webDismissEditFieldButton)
+                window.removeEventListener('resize', webLoadEditMenuTopOrDownAndDefineHeight)
+            }
         }
     }, [])
         
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
+        fieldRef={fieldRef}
         fieldEditMenuButtonRef={fieldEditMenuButtonRef}
         fieldEditDropdownMenuRef={fieldEditDropdownMenuRef}
         optionsForDropdownMenuRef={optionsForDropdownMenuRef}
@@ -355,11 +401,9 @@ export default function FormularyField(props) {
         types={types}
         field={props.field}
         retrieveFieldTypeName={retrieveFieldTypeName}
-        onHoverFieldWeb={onHoverFieldWeb}
         isHovering={isHovering}
         onToggleEditFieldMenu={onToggleEditFieldMenu}
-        editMenuMaximumHeight={editMenuMaximumHeight}
-        isEditMenuAtBottom={isEditMenuAtBottom}
+        editMenuPosition={editMenuPosition}
         isEditMenuOpen={isEditMenuOpen}
         setIsRenaming={setIsRenaming}
         isRenaming={isRenaming}
