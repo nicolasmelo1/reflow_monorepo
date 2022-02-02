@@ -1,5 +1,5 @@
 import { requests } from '../core/agent'
-import { generateUUID, base64 } from '../../../shared/utils'
+import { generateUUID, httpStatus } from '../../../shared/utils'
 
 /**
  * Agent function for uploading drafts. As said before, drafts are temporary files or values that lives for a certain time in our database
@@ -42,7 +42,6 @@ async function uploadDraftFile(workspaceUUID, file) {
                 requests.post(`/draft/${workspaceUUID}/file`, {
                     headers: {
                         'Content-Type': 'application/octet-stream',
-                        'Content-Length': dataToUpload.length
                     },
                     params: {
                         name: fileName,
@@ -53,7 +52,7 @@ async function uploadDraftFile(workspaceUUID, file) {
                     },
                     body: dataToUpload
                 }).then(response => {
-                    if (response && response.status > 200 && response.status < 299) {
+                    if (response && httpStatus.isSuccess(response.status)) {
                         if (isLastChunk) resolve(response)
                         else batchUpload(fileUUID, currentChunkIndex + 1)
                     } else {

@@ -70,7 +70,7 @@ class Base64 {
             encode1 = encode2 = encode3 = encode4 = ""
         }
 
-        return output.join('')
+        return output.join('').replace('\0', '').replace('\x00', '')
     }
 
     static decode(string) {
@@ -88,7 +88,7 @@ class Base64 {
         }
         string = string.replace(/[^A-Za-z0-9\+\/\=]/g, "")
 
-        while (i <= string.length) {
+        do {
             encode1 = keyString.indexOf(string.charAt(i++))
             encode2 = keyString.indexOf(string.charAt(i++))
             encode3 = keyString.indexOf(string.charAt(i++))
@@ -110,9 +110,9 @@ class Base64 {
             char1 = char2 = char3 = ""
             encode1 = encode2 = encode3 = encode4 = ""
 
-        }
+        } while (i < string.length) 
 
-        return output
+        return output.replace('\0', '').replace('\x00', '')
     }
 
     static isBase64(string) {

@@ -1,43 +1,43 @@
-const path = require('path')
 
-let DEFAULT_PROJECT_SETTINGS_PATH = process.env.PALMARES_SETTINGS_MODULE !== undefined ? 
-    process.env.PALMARES_SETTINGS_MODULE :
-    path.join(path.dirname(__dirname), 'src', 'settings.js')
+/**
+ * This will initialize the project settings, it will hold all of the settings configurations and as you can see below
+ * it's the first thing we do when we load this file.
+ * 
+ * It holds the state for the settings inside of the app so others can retrieve the settings from the app.
+ * 
+ * @returns {{
+ *      get: () => object,
+ *      set: (settings: object) => void
+ * }} - Returns two functions: get for retrieving the settings of the application and `set` for defining the settings of the application.
+ */
+function initializeProjectSettings() {
+    let defaultSettings = {}
+    if (process.env.PALMARES_SETTINGS_MODULE !== undefined) {
+        try {
+            defaultSettings = require(process.env.PALMARES_SETTINGS_MODULE)
+        } catch (e) {
+            if (e.code !== 'MODULE_NOT_FOUND') {
+                throw e
+            }
+        }
+    }
+    let settings = {
+        current: defaultSettings
+    }
 
-let settings = {}
-try {
-    settings = require(DEFAULT_PROJECT_SETTINGS_PATH)
-} catch (e) {
-    if (e.code !== 'MODULE_NOT_FOUND') {
-        throw e
+    return {
+        get: () => {
+            return settings.current
+        },
+        set: (newSettings) => {
+            settings.current = newSettings
+        } 
     }
 }
 
-/**
- * This is used to change the default settings path. It should be used before the app is initialized. 
- * To prevend any issues, it's better if you add this to `manage.js` where you will run all of the framework commands.
- * 
- * @param {string} defaultPathToSettings - The FULL path to the settings.js file.
- */
-function defineDefaultPathToSettings(defaultPathToSettings) {
-    process.env.PALMARES_SETTINGS_MODULE = defaultPathToSettings
-    DEFAULT_PROJECT_SETTINGS_PATH = defaultPathToSettings
-    settings = require(defaultPathToSettings)
-}
-
-/**
- * The path to the settings can be either set in the path `PALMARES_SETTINGS_MODULE` or
- * it defaults to `src/settings.js`.
- * 
- * @return {object} - Returns the settings object with all of the settings, if you want to define some default values to
- * the setting before retrieving it this is where you will do it.
- */
-function getProjectSettings() {
-    return settings
-}
+projectSettings = initializeProjectSettings()
 
 module.exports = {
-    DEFAULT_PROJECT_SETTINGS_PATH,
-    settings: getProjectSettings(),
-    defineDefaultPathToSettings
+    settings: projectSettings.get(),
+    defineSettings: projectSettings.set
 }

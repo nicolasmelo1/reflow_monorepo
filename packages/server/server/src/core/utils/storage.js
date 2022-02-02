@@ -8,29 +8,46 @@ const AWS = require('aws-sdk')
  */
 class Bucket {
     constructor(bucket=null) {
-        if (bucket === null) {
-            this.bucket = settings.S3_BUCKET
-        } else {
-            this.bucket = bucket
-        }
+        this.bucket = bucket === null ? settings.S3_BUCKET : bucket
     }
 
-    _getClient() {
-        let awsConfig = {}
+    /**
+     * This will retrieve the client connection to the S3. If we are in the local development environment
+     * we are going to connect to the localstack endpoint, this way we do not need to use the default staging
+     * configuration.
+     * 
+     * On development environment we create the `reflow-crm` bucket every time we retrive the client.
+     */
+    async _getClient() {
         if (settings.ENV === 'development') {
-            awsConfig = {
+            const client = new AWS.S3({
                 endpoint: `http://${settings.LOCALSTACK_ENDPOINT}:${settings.LOCALSTACK_PORT}`,
-                sslEnabled: true
-            }
+                sslEnabled: true,
+                accessKeyId: 'foo',
+                secretAccessKey: 'bar',
+                region: settings.S3_REGION_NAME,
+                s3ForcePathStyle: true
+            })
+            
+            return new Promise((resolve, reject) => {
+                client.createBucket({ Bucket: settings.S3_BUCKET}, function (err, data) {
+                    if (err && err.code !== 'BucketAlreadyExists') {
+                        reject(err)
+                    } else {
+                        const doesBucketAlreadyExists = err && err.code === 'BucketAlreadyExists' ? true : false
+                        if (!doesBucketAlreadyExists) console.log('Created Bucket in development server: ' + settings.S3_BUCKET)
+                        resolve(client)
+                    }
+                })
+            })
         } else {
-            awsConfig = {
+            return new AWS.S3({
                 accessKeyId: settings.AWS_ACCESS_KEY_ID,
                 secretAccessKey: settings.AWS_SECRET_ACCESS_KEY,
                 region: settings.S3_REGION_NAME,
                 signatureVersion: 'v4'
-            }
+            })
         }
-        return new AWS.S3(awsConfig)
     }
 
     /**
@@ -52,7 +69,7 @@ class Bucket {
                 ACL: 'public-read'
             }
         }
-        const data = await this._getClient().upload({
+        const data = await (await this._getClient()).upload({
             Bucket: settings.S3_BUCKET,
             Key: key,
             Body: file,
@@ -71,7 +88,7 @@ class Bucket {
      * @returns {Promise<string>} - The url of the file.
      */
     async copy(sourceKey, destinationKey) {
-        await this._getClient().copyObject({
+        await (await this._getClient()).copyObject({
             Bucket: settings.S3_BUCKET,
             CopySource: `${settings.S3_BUCKET}/${sourceKey}`,
             Key: destinationKey
@@ -88,10 +105,10 @@ class Bucket {
      * @param {string} key - The key of the file you wish to get the url from.
      * @param {number} [expires=3600] - The expiration time in seconds. By default it's set to 1 hour.
      * 
-     * @returns {string} - The url of the file.
+     * @returns {Promise<string>} - The url of the file.
      */
     async getUrlFromKey(key, expires=3600) {
-        const data = await this._getClient().getSignedUrl('getObject', {
+        const data = await (await this._getClient()).getSignedUrl('getObject', {
             Bucket: settings.S3_BUCKET,
             Key: key,
             Expires: expires

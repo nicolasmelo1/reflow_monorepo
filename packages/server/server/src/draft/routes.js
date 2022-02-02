@@ -3,14 +3,17 @@ const bodyParser = require('body-parser')
 const { path } = require('../../../palmares/routers')
 
 const {
-    DraftSaveFileController
+    DraftSaveFileController,
+    DraftFileUrlController
 } = require('./controllers')
-const { fileUpload } = require('../core/utils')
 const { workspaceRequiredRecipe } = require('../authentication/middlewares')
 
 const routes = [
     path('/:workspaceUUID', [
-        path('/file', ...workspaceRequiredRecipe, bodyParser.raw({type:'application/octet-stream'}) /*fileUpload.any()*/, DraftSaveFileController.asController())
+        path('/file', ...workspaceRequiredRecipe, [
+            path('', bodyParser.raw({type:'application/octet-stream'}), DraftSaveFileController.asController()),
+            path('/url/:draftStringId', DraftFileUrlController.asController())
+        ])
     ])
 ]
 

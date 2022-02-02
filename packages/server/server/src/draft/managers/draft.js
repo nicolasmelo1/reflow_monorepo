@@ -80,6 +80,23 @@ class DraftDraftManager extends models.Manager {
             transaction: transaction
         })
     }
+
+    /**
+     * Retrieves the value stored in a draft by it's uuid.
+     * 
+     * @param {string} uuid - The uuid to check the value for
+     * 
+     * @returns {Promise<string | null>} - Returns the value stored in the draft or null if uuid does not exists
+     */
+    async draftValueByUUID(uuid) {
+        const result = await this.getInstance().findOne({
+            attributes: ['value'],
+            where: {
+                uuid: uuid
+            }
+        })
+        return result?.value ? result.value : null
+    }
 }
 
 module.exports = DraftDraftManager

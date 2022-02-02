@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useDraft } from '../../../drafts'
-import { generateUUID } from '../../../../../shared/utils'
+import { generateUUID, httpStatus } from '../../../../../shared/utils'
 import Layouts from './layouts'
 
 export default function FormularyFieldAttachment(props) {
@@ -25,7 +25,12 @@ export default function FormularyFieldAttachment(props) {
     }
 
     function onUploadAttachment(file) {
-        drafts.uploadFile(props.workspace.uuid, file)
+        drafts.uploadFile(props.workspace.uuid, file).then(response => {
+            if (response && httpStatus.isSuccess(response.status)) {
+                const draftStringId = response.data.data.draftStringId
+                setValues([...values, draftStringId])
+            }
+        })
     }
     
     /**

@@ -97,8 +97,7 @@ class Draft extends models.Model {
     }
 
     options = {
-        tableName: 'draft',
-        ordering: ['order']
+        tableName: 'draft'
     }
 
     static DRAFT = new DraftDraftManager()

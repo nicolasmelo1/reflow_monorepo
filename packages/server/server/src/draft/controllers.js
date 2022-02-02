@@ -3,15 +3,24 @@ const status = require('../../../palmares/status')
 
 const { reflowJSONError } = require('../core/services')
 const { deepCopy } = require('../../../../shared/utils') 
-const { DraftFileInputSerializer } = require('./serializers')
+const { 
+    DraftFileInputSerializer,
+    DraftSaveFileOutputSerializer
+} = require('./serializers')
 
 const fs = require('fs')
 const os = require('os') 
 const path = require('path')
+const DraftService = require('./services')
+const e = require('express')
 
 let lastClearCacheDate = new Date()
 let uploadingFiles = {}
 
+/**
+ * This will update the memory cache with the file that is being uploaded. Be aware that this service is not stateless at the current time
+ * but we want to make it stateless by creating a blob table so we can store all of the chunks.
+ */
 function updateUploadingFile(fileUUID, fileName, fileSize, filePath) {
     uploadingFiles[fileUUID] = {
         fileName: fileName,
@@ -39,7 +48,7 @@ async function removeUploadingFileCache(fileUUID) {
             const maximumCacheDate = new Date(uploadingFiles[key].uploadedDate.getTime() + expiryHours * 60 * 60 * 1000)
             if (now < maximumCacheDate) {
                 newUploadingFiles[key] = uploadingFiles[key]
-            }
+            } 
         }
         uploadingFiles = newUploadingFiles
         lastClearCacheDate = now
@@ -51,6 +60,7 @@ async function removeUploadingFileCache(fileUUID) {
  */
 class DraftSaveFileController extends controllers.Controller {
     inputSerializer = DraftFileInputSerializer
+    outputSerializer = DraftSaveFileOutputSerializer
     
     /**
      * Will upload and store the file in the draft storage so when we save the data we can retrieve the data from the storage
@@ -70,49 +80,73 @@ class DraftSaveFileController extends controllers.Controller {
      * @param {object} transaction - The transaction object recived from the sequelize ORM to use in the controller lifecycle.
      */
     async post(req, res, next, transaction) {
-        const { uuid, name, size, currentChunkIndex, totalChunks } = req.query
-        const isLastChunk = parseInt(currentChunkIndex) === parseInt(totalChunks) - 1
-        const isFirstChunk = parseInt(currentChunkIndex) === 0
+        const serializer = new this.inputSerializer({ data: req.query })
+        if (await serializer.isValid()) {
+            const { uuid, name, size, currentChunkIndex, totalChunks } = serializer.internalData
+            const isLastChunk = parseInt(currentChunkIndex) === parseInt(totalChunks) - 1
+            const isFirstChunk = parseInt(currentChunkIndex) === 0
 
-        const osTempDir = os.tmpdir()
-        const data = req.body.toString().split(',')
-        const filePath = path.join(osTempDir, uuid)
+            const osTempDir = os.tmpdir()
+            const data = req.body.toString().split(',')
+            const filePath = path.join(osTempDir, uuid)
 
-        if (data.length > 1) {
-            const buffer = Buffer.from(data, 'base64')
-            fs.appendFileSync(filePath, buffer)
-        }
+            if (isFirstChunk) updateUploadingFile(uuid, name, size, filePath)
 
-        if (isFirstChunk) updateUploadingFile(uuid, name, size, filePath)
+            if (data.length > 1) {
+                const buffer = Buffer.from(data[1], 'base64')
+                fs.appendFileSync(filePath, buffer)
+            }
+            if (isLastChunk) {
+                const file = deepCopy(uploadingFiles[uuid])
+                removeUploadingFileCache(uuid)
 
-        if (isLastChunk) {
-            const file = deepCopy(uploadingFiles[uuid])
-            removeUploadingFileCache(uuid)
-
-            const serializer = new this.inputSerializer()
-            if (await serializer.isValid()) {
                 const draftStringId = await serializer.toSave(req.user.id, req.workspace.id, file, transaction)
+                const outputSerializer = new this.outputSerializer({ instance: { draftStringId: draftStringId }})
                 return res.status(status.HTTP_201_CREATED).json({
+                    status: 'ok',
+                    data: await outputSerializer.toRepresentation()
+                })
+            } else if (data.length > 1 && isLastChunk === false) {
+                return res.status(status.HTTP_206_PARTIAL_CONTENT).json({
                     status: 'ok'
                 })
             }
-        } else if (data.length > 1 && isLastChunk === false) {
-            return res.status(status.HTTP_206_PARTIAL_CONTENT).json({
-                status: 'ok'
+
+            removeUploadingFileCache(uuid)
+            return res.status(status.HTTP_406_NOT_ACCEPTABLE).json({
+                status: 'error',
+                error: reflowJSONError({
+                    reason: 'invalid_file',
+                    detail: 'For some reason the file was not uploaded or we have mismatch data' +
+                            ' (workspaceUUID or user does not exist anymore), so try to upload it again.'
+                })
             })
         }
 
-        return res.status(status.HTTP_406_NOT_ACCEPTABLE).json({
+        return res.status(status.HTTP_400_BAD_REQUEST).json({
             status: 'error',
             error: reflowJSONError({
-                reason: 'invalid_file',
-                detail: 'For some reason the file was not uploaded or we have mismatch data' +
-                        ' (workspaceUUID or user does not exist anymore), so try to upload it again.'
+                reason: error.errorKey ? error.errorKey : error.reason,
+                detail: error.detail ? error.detail : error.reason,
+                metadata: error.fieldName ? { fieldName: error.fieldName } : {}
             })
         })
     }
 }
 
+class DraftFileUrlController extends controllers.Controller {
+    async get(req, res) {
+        const draftService = new DraftService(req.user.id, req.workspace.id)
+        const urlToRedirect = await draftService.retrieveDraftFileUrl(req.params.draftStringId)
+        if (urlToRedirect === 'string') {
+            res.redirect(urlToRedirect)
+        } else {
+            res.send('')
+        }
+    }
+}
+
 module.exports = {
-    DraftSaveFileController
+    DraftSaveFileController,
+    DraftFileUrlController
 }

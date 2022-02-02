@@ -1,5 +1,6 @@
 const path = require('path')
 
+const ENV = ![null, undefined, ''].includes(process.env.NODE_ENV) ? process.env.NODE_ENV : 'development'
 const DEBUG = true
 const PORT = 4000
 const SECRET_KEY = 'teste'
@@ -224,6 +225,10 @@ is multiplied by it, and every decimal is saved following the rule FLOATNUMBER *
 */
 const DEFAULT_BASE_NUMBER_FIELD_FORMAT = 100000000
 
+// DEVELOPMENT LOCALSTACK CONFIGURATION
+const LOCALSTACK_ENDPOINT = 'localhost.localstack.cloud'
+const LOCALSTACK_PORT = 4566
+
 // AWS CONFIGURATION
 const AWS_SECRET_ACCESS_KEY = 'T9F/BhjffmkIFDpxoLkaguAB3gTUrRXACIp2Y8gg'
 const AWS_ACCESS_KEY_ID = 'AKIAIBXGLOHWXNYYZJYQ'
@@ -249,6 +254,7 @@ const FREE_TRIAL_DAYS = 15
 const MIXPANEL_TOKEN = 'c128d8d78f06b4b00882a83b4f3d8021'
 
 module.exports = {
+    ENV,
     PERMISSIONS,
     EVENTS,
     DEBUG,
@@ -263,6 +269,8 @@ module.exports = {
     DEFAULT_PSQL_DATE_FIELD_FORMAT,
     DEFAULT_DATE_FIELD_FORMAT,
     DEFAULT_BASE_NUMBER_FIELD_FORMAT,
+    LOCALSTACK_ENDPOINT,
+    LOCALSTACK_PORT,
     AWS_SECRET_ACCESS_KEY,
     AWS_ACCESS_KEY_ID,
     S3_REGION_NAME,
