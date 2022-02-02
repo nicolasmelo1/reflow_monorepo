@@ -2,17 +2,17 @@ const controllers = require('../../../palmares/controllers')
 const status = require('../../../palmares/status')
 
 const { reflowJSONError } = require('../core/services')
-const { deepCopy } = require('../../../../shared/utils') 
+const DraftService = require('./services')
 const { 
     DraftFileInputSerializer,
     DraftSaveFileOutputSerializer
 } = require('./serializers')
 
+const { deepCopy } = require('../../../../shared/utils') 
+
 const fs = require('fs')
 const os = require('os') 
 const path = require('path')
-const DraftService = require('./services')
-const e = require('express')
 
 let lastClearCacheDate = new Date()
 let uploadingFiles = {}
@@ -31,7 +31,12 @@ function updateUploadingFile(fileUUID, fileName, fileSize, filePath) {
     }
 }
 
+/**
+ * This will remove the file from the cache so we will not be able to use it anymore from the memory, instead we will just be able
+ * to see the file again from the s3.
+ */
 async function removeUploadingFileCache(fileUUID) {
+    try { fs.unlink(uploadingFiles[fileUUID].path, (error) => {console.log(`${uploadingFiles[fileUUID].path} was deleted after upload.`)}) } catch (e) {}
     delete uploadingFiles[fileUUID]
 
     /**
@@ -48,7 +53,9 @@ async function removeUploadingFileCache(fileUUID) {
             const maximumCacheDate = new Date(uploadingFiles[key].uploadedDate.getTime() + expiryHours * 60 * 60 * 1000)
             if (now < maximumCacheDate) {
                 newUploadingFiles[key] = uploadingFiles[key]
-            } 
+            } else {
+                try { fs.unlink(uploadingFiles[key].path, (error) => {console.log(`${uploadingFiles[fileUUID].path} was deleted from cache.`)}) } catch (e) {}
+            }
         }
         uploadingFiles = newUploadingFiles
         lastClearCacheDate = now
@@ -98,9 +105,9 @@ class DraftSaveFileController extends controllers.Controller {
             }
             if (isLastChunk) {
                 const file = deepCopy(uploadingFiles[uuid])
-                removeUploadingFileCache(uuid)
-
                 const draftStringId = await serializer.toSave(req.user.id, req.workspace.id, file, transaction)
+                
+                removeUploadingFileCache(uuid)
                 const outputSerializer = new this.outputSerializer({ instance: { draftStringId: draftStringId }})
                 return res.status(status.HTTP_201_CREATED).json({
                     status: 'ok',
