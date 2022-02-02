@@ -1,6 +1,11 @@
 const { settings } = require('../../../palmares/conf')
 const { models } = require('../../../palmares/database')
 
+const {
+    DraftTypeDraftManager,
+    DraftDraftManager
+} = require('./managers')
+
 /**
  * As explaied in `Draft` model there are two types of drafts in the system:
  * - file: This is a file that is uploaded by the user.
@@ -16,6 +21,8 @@ class DraftType extends models.Model {
         tableName: 'draft_type',
         ordering: ['order']
     }
+
+    static DRAFT = new DraftTypeDraftManager()
 }
 
 /**
@@ -67,12 +74,7 @@ class Draft extends models.Model {
             allowNull: true,
             allowBlank: true
         }),
-        fileMimeType: new models.fields.CharField({
-            maxLength: 255,
-            allowNull: true,
-            allowBlank: true,
-            defaultValue: null
-        }),
+
         fileDraftPath: new models.fields.CharField({
             maxLength: 255,
             allowNull: true,
@@ -98,6 +100,8 @@ class Draft extends models.Model {
         tableName: 'draft',
         ordering: ['order']
     }
+
+    static DRAFT = new DraftDraftManager()
 }
 
 module.exports = {

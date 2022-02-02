@@ -8,7 +8,7 @@ class DraftFileInputSerializer extends serializers.Serializer {
     async save(_, userId, workspaceId, file, transaction) {
         const draftService = new DraftService(userId, workspaceId)
 
-        return await draftService.saveNewDraft({
+        return await draftService.saveDraft({
             draftFile: file
         }, transaction)
     }

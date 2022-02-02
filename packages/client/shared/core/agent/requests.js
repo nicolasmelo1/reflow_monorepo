@@ -80,11 +80,11 @@ const requests = {
     get: async (url, { params={}, headers={}, source=null } = {}) => {
         return await requests.request(url, 'GET', { params, headers, source })
     },
-    put: async (url, { body={}, headers={}, source=null } = {}) => {
-        return await requests.request(url, 'PUT', { data: body, headers, source })
+    put: async (url, { body={}, headers={}, source=null, params={} } = {}) => {
+        return await requests.request(url, 'PUT', { data: body, headers, source, params })
     },
-    post: async (url, { body={}, headers={}, source=null } = {}) => {
-        return await requests.request(url, 'POST', { data: body, headers, source })
+    post: async (url, { body={}, headers={}, source=null, params={} } = {}) => {
+        return await requests.request(url, 'POST', { data: body, headers, source, params })
     }
 }
 

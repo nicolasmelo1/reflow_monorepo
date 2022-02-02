@@ -2,7 +2,10 @@ const { settings } = require('../../../../palmares/conf')
 
 const AWS = require('aws-sdk')
 
-
+/**
+ * This class is used to interact with AWS S3. When on local development we will use the localstack 
+ * instead of the real S3.
+ */
 class Bucket {
     constructor(bucket=null) {
         if (bucket === null) {
@@ -40,7 +43,7 @@ class Bucket {
      * request comes from an unlogged user or not. Here the isPublic refers to s3 implementation for the
      * public file.
      * 
-     * @returns {string} The url of the file.
+     * @returns {Promise<string>} The url of the file.
      */
     async upload(file, key, isPublic=false) {
         let extraArgs = {}
@@ -65,7 +68,7 @@ class Bucket {
      * @param {string} sourceKey - The key of the file you wish to copy.
      * @param {string} destinationKey - The key of the file you wish to copy to.
      * 
-     * @returns {string} - The url of the file.
+     * @returns {Promise<string>} - The url of the file.
      */
     async copy(sourceKey, destinationKey) {
         await this._getClient().copyObject({

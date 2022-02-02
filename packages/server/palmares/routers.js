@@ -93,13 +93,15 @@ class RouterPattern {
             async function transactionHandler(...args) {
                 const callback = async (...callbackArgs) => {
                     try {
-                        return await Promise.resolve(handler(...callbackArgs))
+                        const result = handler(...callbackArgs)
+                        if (result instanceof Promise) return await result
+                        else return result
                     } catch (e) {
                         const res = callbackArgs[1]
                         debugging(res, e)
                     }
                 }
-                getEngineInstance().transaction(callback, ...args)
+                await getEngineInstance().transaction(callback, ...args)
             }
             newFunctions.push(transactionHandler.bind(handler))
         }
