@@ -13,6 +13,11 @@ export default function FormularyFieldAttachmentWebLayout(props) {
                     {typeof props.field.placeholder === 'string' ? 
                         props.field.placeholder : strings('pt-BR', 'formularyFieldAttachmentPlaceholder')}
                 </Styled.ButtonPlaceholderText>
+                <input 
+                onChange={(e) => props.onUploadAttachment(e.target.files[0])}
+                type={'file'} 
+                style={{ display: 'none'}}
+                />
             </Styled.Button>
         </Styled.Container>
     )

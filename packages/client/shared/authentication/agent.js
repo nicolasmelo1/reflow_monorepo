@@ -19,7 +19,12 @@ function getMe() {
     return requests.get('/authentication/me')
 }
 
+function getTypes() {
+    return requests.get('/authentication/types')
+}
+
 export default {
     authenticate,
-    getMe
+    getMe,
+    getTypes
 }

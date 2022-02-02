@@ -1,6 +1,5 @@
 const models = require('../../../../palmares/database/models')
 
-
 class UserAuthenticationManager extends models.Manager {
     /**
      * Retrieves a user by it's username or by it's email.

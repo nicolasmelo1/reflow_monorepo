@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useContext } from 'react'
 import Layouts from './layouts'
 import homeAgent from '../../agent'
-import { UserContext } from '../../../authentication/contexts'
+import { WorkspaceContext, UserContext } from '../../../authentication/contexts'
 import { AreaContext, HomeContext } from '../../contexts'
 import { generateUUID } from '../../../../../shared/utils'
 import { useRouterOrNavigationRedirect } from '../../../core/hooks'
@@ -26,6 +26,7 @@ import { paths, strings } from '../../../core/utils/constants'
 export default function Sidebar(props) {
     const redirect = useRouterOrNavigationRedirect()
     const { user } = useContext(UserContext)
+    const { state: { selectedWorkspace } } = useContext(WorkspaceContext)
     const { areas, setAreas, retrieveFromPersist, recursiveTraverseAreas } = useContext(AreaContext)
     const { setIsEditingArea } = useContext(HomeContext)
     const isResizingRef = useRef(false)
@@ -80,10 +81,10 @@ export default function Sidebar(props) {
      * database, the user cannot create any new areas.
      */
     function onCreateArea() {
-        if (isCreatingArea === false) {
+        if (isCreatingArea === false && selectedWorkspace.uuid !== null) {
             setIsCreatingArea(true)
             retrieveNewArea().then(newArea => {
-                homeAgent.createArea(user.workspaces[0].uuid, newArea).then(response => {
+                homeAgent.createArea(selectedWorkspace.uuid, newArea).then(response => {
                     if (response && response.status === 201) {
                         areas.push(newArea)
                         setIsEditingArea(true)
@@ -239,8 +240,8 @@ export default function Sidebar(props) {
      * to.
      */
     useEffect(() => {
-        if (user.workspaces.length > 0) {
-            homeAgent.getAreas(user.workspaces[0].uuid).then(response => {
+        if (selectedWorkspace.uuid !== null) {
+            homeAgent.getAreas(selectedWorkspace.uuid).then(response => {
                 if (response && response.status === 200) {
                     setAreas(response.data.data)
                 } else {
@@ -250,7 +251,7 @@ export default function Sidebar(props) {
                 retrieveFromPersist()
             })
         }
-    }, [user])
+    }, [selectedWorkspace])
 
     return process.env['APP'] === 'web' ? (
         <Layouts.Web

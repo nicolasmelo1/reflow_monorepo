@@ -7,7 +7,9 @@ const AbstractUser = require('../../../palmares/authentication/user')
 const { 
     UserAuthenticationManager,
     WorkspaceAuthenticationManager,
-    UserWorkspacesAuthenticationManager
+    UserWorkspacesAuthenticationManager,
+    ProfileTypeAuthenticationManager,
+    LocationTypeAuthenticationManager
 } = require('./managers')
 
 /**
@@ -24,6 +26,8 @@ class LocationType extends models.Model {
         tableName: 'location_type',
         ordering: ['order']
     }
+
+    static AUTHENTICATION = new LocationTypeAuthenticationManager()
 }
 
 /**
@@ -47,6 +51,8 @@ class ProfileType extends models.Model {
         tableName: 'profile_type',
         ordering: ['order']
     }
+
+    static AUTHENTICATION = new ProfileTypeAuthenticationManager()
 }
 
 /**

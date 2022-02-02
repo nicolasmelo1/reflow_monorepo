@@ -68,8 +68,12 @@ export { initializedExceptionObserver as exceptionObserver }
  * @returns {object} - The object with the authentication bearer.
  */
 export function setTokenInHeader(token) {
-    return {
-        Authorization: `${BEARER} ${token}`
+    if (!['', null, undefined].includes(token)) {
+        return {
+            Authorization: `${BEARER} ${token}`
+        }
+    } else {
+        return {}
     }
 }
 
@@ -89,7 +93,7 @@ export async function getRefreshToken() {
 /**
  * This will retrieve the token from the localstorage or from the async storage if it's in a mobile environment
  * 
- * @returns {string} - The token to use in the request.
+ * @returns {Promise<string>} - The token to use in the request.
  */
 export async function getToken() {
     if (process.env['APP'] === 'web' && localStorage !== undefined) {

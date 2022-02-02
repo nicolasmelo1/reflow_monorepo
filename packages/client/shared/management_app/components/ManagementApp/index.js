@@ -1,13 +1,13 @@
 import { useEffect, useState, useContext, useRef } from 'react'
 import axios from 'axios'
-import { UserContext } from '../../../authentication/contexts'
+import { WorkspaceContext } from '../../../authentication/contexts'
 import { AppManagementTypesContext } from '../../contexts'
 import appManagementAgent from '../../agent'
 import Layouts from './layouts'
 
 export default function ManagementApp(props) {
     const sourceRef = useRef()
-    const { user } = useContext(UserContext)
+    const { state: { selectedWorkspace }} = useContext(WorkspaceContext)
     const { setTypes, retrieveFromPersist } = useContext(AppManagementTypesContext)
     const [isFormularyOpen, setIsFormularyOpen] = useState(false)
     
@@ -39,8 +39,8 @@ export default function ManagementApp(props) {
      * If we do not set the types. Then we will not be able to build this applications, this is the first thing that is needed here.
      */
     useEffect(() => {
-        if (user && user.workspaces.length > 0 && props.app?.uuid) {
-            appManagementAgent.getFormularyTypes(sourceRef.current, user.workspaces[0].uuid, props.app.uuid).then(response => {
+        if (selectedWorkspace.uuid !== null && props.app?.uuid) {
+            appManagementAgent.getFormularyTypes(sourceRef.current, selectedWorkspace.uuid, props.app.uuid).then(response => {
                 if (response && response.status === 200) {
                     setTypes(
                         response.data.data.numberFormatType, 
@@ -56,11 +56,11 @@ export default function ManagementApp(props) {
                 retrieveFromPersist()
             })
         }
-    }, [user, props.app])
+    }, [selectedWorkspace, props.app])
 
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
-        workspaceUUID={user && user.workspaces.length > 0 ? user.workspaces[0].uuid : null}
+        workspace={selectedWorkspace}
         app={props.app}
         isFormularyOpen={isFormularyOpen}
         onOpenFormulary={onOpenFormulary}

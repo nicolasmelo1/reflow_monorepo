@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from 'react'
 import { HomeDefaultsContext, AreaContext, HomeContext } from '../../contexts'
-import { UserContext } from '../../../authentication/contexts'
+import { WorkspaceContext } from '../../../authentication/contexts'
 import { delay } from '../../../../../shared/utils'
 import Layouts from './layouts'
 import { useClickedOrPressedOutside, useRouterOrNavigationRedirect } from '../../../core/hooks'
@@ -14,7 +14,7 @@ export default function Home(props) {
     const areaDropdownEditMenuRef = useRef()
     const areaDropdownEditButtonRef = useRef()
     const redirect = useRouterOrNavigationRedirect()
-    const { user } = useContext(UserContext)
+    const { state: { selectedWorkspace }} = useContext(WorkspaceContext)
     const { state: { isEditingArea }, setIsEditingArea } = useContext(HomeContext)
     const { state: { areas, nonUniqueAreaUUIDs }, setAreas, recursiveTraverseAreas } = useContext(AreaContext)
     const { 
@@ -62,8 +62,8 @@ export default function Home(props) {
                 foundArea.labelName = newAreaData.labelName
                 foundArea.color = newAreaData.color
                 setAreas([...areas]).then(({nonUniqueAreaUUIDs}) => {
-                    if (!nonUniqueAreaUUIDs.includes(newAreaData.uuid)) {
-                        homeAgent.updateArea(user.workspaces[0].uuid, newAreaData.uuid, newAreaData)
+                    if (!nonUniqueAreaUUIDs.includes(newAreaData.uuid) && selectedWorkspace.uuid !== null) {
+                        homeAgent.updateArea(selectedWorkspace.uuid, newAreaData.uuid, newAreaData)
                     }
                 })
             }
@@ -223,35 +223,37 @@ export default function Home(props) {
      * @param {string} areaUUID - the uuid of the area that we want to remove.
      */
     function onRemoveArea(areaUUID) {
-        const traverseAndRemove = (areas) => {
-            let newAreas = []
-            let order = 0
-            for (const area of areas) {
-                if (area.subAreas && area.subAreas.length > 0) {
-                    area.subAreas = traverseAndRemove(area.subAreas)
+        if (selectedWorkspace.uuid !== null) {
+            const traverseAndRemove = (areas) => {
+                let newAreas = []
+                let order = 0
+                for (const area of areas) {
+                    if (area.subAreas && area.subAreas.length > 0) {
+                        area.subAreas = traverseAndRemove(area.subAreas)
+                    }
+                    if (area.uuid !== areaUUID) {
+                        area.order = order
+                        newAreas.push(area)
+                    } 
+                    order++
                 }
-                if (area.uuid !== areaUUID) {
-                    area.order = order
-                    newAreas.push(area)
-                } 
-                order++
+                return newAreas
             }
-            return newAreas
-        }
 
-        if (isRemovingArea === false) {
-            setIsRemovingArea(true)
-            homeAgent.removeArea(user.workspaces[0].uuid, areaUUID).then(response => {
-                if (response && response.status === 200) {
-                    const newAreas = traverseAndRemove(areas)
-                    setAreas(newAreas)
-                    findFirstAreaAndAppAndSetDefault()
-                }
-                setIsRemovingArea(false)
-            }).catch(e => {
-                setIsRemovingArea(false)
-            })
-        } 
+            if (isRemovingArea === false) {
+                setIsRemovingArea(true)
+                homeAgent.removeArea(selectedWorkspace.uuid, areaUUID).then(response => {
+                    if (response && response.status === 200) {
+                        const newAreas = traverseAndRemove(areas)
+                        setAreas(newAreas)
+                        findFirstAreaAndAppAndSetDefault()
+                    }
+                    setIsRemovingArea(false)
+                }).catch(e => {
+                    setIsRemovingArea(false)
+                })
+            } 
+        }
     }
 
     /**

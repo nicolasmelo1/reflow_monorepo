@@ -6,7 +6,8 @@ const routes = [
     path('/authentication', require('./authentication/routes')),
     path('/app/:workspaceUUID', [
         path('/management/:appUUID/formulary', require('./app_management_formulary/routes')),
-    ])
+    ]),
+    path('/draft', require('./draft/routes'))
 ]
 
 module.exports = routes

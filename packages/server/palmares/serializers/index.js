@@ -159,7 +159,7 @@ class Serializer extends fields.Field {
      * if an error occurs we will append the error data to _error. It has an underline because `_error` is not supposed to
      * be called directly, you should call `error()` to get the error.
      * 
-     * @returns {Boolean} - Returns true or false, true if the data is valid and false if not.
+     * @returns {Promise<Boolean>} - Returns true or false, true if the data is valid and false if not.
      */
     async isValid(...args) {
         try {
@@ -190,6 +190,8 @@ class Serializer extends fields.Field {
     async toRepresentation(data=undefined, ...args) {
         if (data === undefined && this.instance !== null) {
             data = this.instance
+        } else if (data === undefined && Object.keys(this.fields).length === 0) {
+            data = {}
         } else if (data === undefined) {
             throw new Error(`You should pass the 'instance' option in ${this.constructor.name} initialization before calling 'toRepresentation' method. Example: \nnew ${this.constructor.name}({instance: { fieldName: "value1"}})`)
         }
@@ -199,6 +201,8 @@ class Serializer extends fields.Field {
     async toInternal(data=undefined, ...args) {
         if (data === undefined && this.internalData !== null) {
             data = this.internalData
+        } else if (data === undefined && Object.keys(this.fields).length === 0) {
+            data = {}
         } else if (data === undefined) {
             throw new Error(`You should pass the 'data' option in ${this.constructor.name} initialization before calling 'toInternal' method. Example: \nnew ${this.constructor.name}({data: { fieldName: "value1"}})`)
         }
@@ -217,9 +221,9 @@ class Serializer extends fields.Field {
     async #getData(functionToCallInChildren, data, ...args) {
         const formatObjectInstance = async (instance, ...args) => {
             const newInstance = {}
-            
-            if ([undefined, null].includes(instance)) return instance
 
+            if ([undefined, null].includes(instance)) return instance
+            
             for (const [key, field] of Object.entries(this.fields)) {
                 // By default we try to get the value in the object by the key
                 field._fieldName = key
@@ -255,8 +259,9 @@ class Serializer extends fields.Field {
                     }
                 }
             }
-            // setting the value to undefined will trigger the checks on the parent `toRepresentation` and `toInternal`
-            return Object.keys(newInstance).length > 0 ? newInstance : undefined
+            // setting the value to undefined will trigger the checks on the parent `toRepresentation` and `toInternal`, 
+            // if the fields of the serializer are not defined then we just pass (the serializer hasn't implemented the `fields = {}` object)
+            return Object.keys(newInstance).length > 0 || Object.keys(this.fields).length === 0  ? newInstance : undefined
         }
 
         let newData = []

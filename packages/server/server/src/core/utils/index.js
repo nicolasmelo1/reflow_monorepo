@@ -25,6 +25,7 @@ function camelCaseToSnakeCase(string) {
 module.exports = {
     snakeCaseToCamelCase,
     camelCaseToSnakeCase,
+    fileUpload: require('./fileUpload'),
     Encrypt: require('./encrypt'),
     CORS: require('./cors'),
     Bucket: require('./storage')

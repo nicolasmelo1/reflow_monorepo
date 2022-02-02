@@ -10,6 +10,7 @@ export default function FormularySectionWebLayout(props) {
                 <FormularyField
                 formularyContainerRef={props.formularyContainerRef}
                 key={field.uuid}
+                workspace={props.workspace}
                 field={field}
                 onUpdateFormulary={props.onUpdateFormulary}
                 onRemoveField={props.onRemoveField}

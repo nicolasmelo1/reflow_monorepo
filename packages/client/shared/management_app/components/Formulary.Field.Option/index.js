@@ -232,6 +232,7 @@ function CustomOptionSelect(props) {
         onHoverOption={onHoverOption}
         isEditing={isEditing}
         isRenaming={isRenaming}
+        isUserAnAdmin={props.isUserAnAdmin}
         editMenuPosition={editMenuPosition}
         onToggleEditing={onToggleEditing}
         onToggleRenaming={onToggleRenaming}
@@ -394,7 +395,8 @@ export default function FormularyFieldOption(props) {
         onMoveOptionDown,
         onRemoveOption,
         onRenameOption,
-        onChangeOptionColor
+        onChangeOptionColor,
+        isUserAnAdmin: props.isUserAnAdmin,
     }
 
     useEffect(() => {
@@ -413,6 +415,7 @@ export default function FormularyFieldOption(props) {
         isOpen={isOpen}
         onOpenSelect={onOpenSelect}
         options={options}
+        isUserAnAdmin={props.isUserAnAdmin}
         types={props.types}
         field={props.field}
         />

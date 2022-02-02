@@ -47,13 +47,15 @@ export default function SidebarDropdown(props) {
      * so we can use it.
      */ 
     function submitAreaChanges(areaData) {
-        defaultDelay(() => {
-            props.onChangeWorkspace(areaData).then(({ nonUniqueAreaUUIDs }) => {
-                if (!nonUniqueAreaUUIDs.includes(areaData.uuid)) {
-                    homeAgent.updateArea(user.workspaces[0].uuid, areaData.uuid, areaData)
-                }
+        if (selectedWorkspace.uuid !== null) {
+            defaultDelay(() => {
+                props.onChangeWorkspace(areaData).then(({ nonUniqueAreaUUIDs }) => {
+                    if (!nonUniqueAreaUUIDs.includes(areaData.uuid)) {
+                        homeAgent.updateArea(selectedWorkspace.uuid, areaData.uuid, areaData)
+                    }
+                })
             })
-        })
+        }
     }
 
     /**

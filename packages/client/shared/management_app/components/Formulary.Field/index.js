@@ -1,7 +1,7 @@
 import { useRef, useContext, useState, useEffect } from 'react'
-import Layouts from './layouts'
 import { AppManagementTypesContext } from '../../contexts'
 import { useClickedOrPressedOutside } from '../../../core/hooks'
+import Layouts from './layouts'
 
 export default function FormularyField(props) {
     const fieldTypeNameCacheRef = useRef()
@@ -390,7 +390,7 @@ export default function FormularyField(props) {
             }
         }
     }, [])
-        
+
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
         fieldRef={fieldRef}
@@ -398,6 +398,7 @@ export default function FormularyField(props) {
         fieldEditDropdownMenuRef={fieldEditDropdownMenuRef}
         optionsForDropdownMenuRef={optionsForDropdownMenuRef}
         numberOfCustomOptionComponents={numberOfCustomOptionComponents}
+        workspace={props.workspace}
         types={types}
         field={props.field}
         retrieveFieldTypeName={retrieveFieldTypeName}

@@ -32,11 +32,11 @@ export default function Formulary(props) {
     }, [])  
 
     useEffect(() => {
-        const isAppDefined = ![null, undefined].includes(props.app)
-        const isWorkspaceUUIDDefined = ![null, undefined].includes(props.workspaceUUID)
-
+        const isAppDefined = ![null, undefined].includes(props.app) && typeof props.app.uuid === 'string'
+        const isWorkspaceUUIDDefined = ![null, undefined].includes(props.workspace) && typeof props.workspace.uuid === 'string'
+        
         if (isAppDefined && isWorkspaceUUIDDefined) {
-            managementAppAgent.getFormulary(sourceRef.current, props.workspaceUUID, props.app.uuid).then(response => {
+            managementAppAgent.getFormulary(sourceRef.current, props.workspace.uuid, props.app.uuid).then(response => {
                 if (response && response.status === 200) {
                     if (response.data.data !== null) {
                         setFormulary(props.app.uuid, response.data.data)
@@ -48,11 +48,12 @@ export default function Formulary(props) {
                 retrieveFromPersist(props.app.uuid)
             })
         }
-    }, [props.workspaceUUID, props.app]) 
+    }, [props.workspace, props.app]) 
 
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
         formularyContainerRef={formularyContainerRef}
+        workspace={props.workspace}
         app={props.app}
         formulary={formulary}
         onUpdateFormulary={onUpdateFormulary}

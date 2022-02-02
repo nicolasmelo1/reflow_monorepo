@@ -67,7 +67,7 @@ export function CustomOptionSelectWebLayout(props) {
                     {props.option.label}
                 </Styled.SelectButton>
             )}
-            {props.isRenaming ? (
+            {props.isUserAnAdmin === true ? props.isRenaming ? (
                 <Styled.SelectHelperButtonsContainer
                 isHovering={props.isHovering}
                 >
@@ -154,7 +154,7 @@ export function CustomOptionSelectWebLayout(props) {
                         </Styled.EditOptionMenuOverlay>
                     ) : ''}
                 </Styled.SelectHelperButtonsContainer>
-            )}
+            ) : ''}
         </Styled.SelectContainer>
     )
 }
@@ -165,9 +165,11 @@ export default function FormularyFieldOptionWebLayout(props) {
         isOpen={props.isOpen}
         >
             <Select
-            creatable={true}
+            creatable={props.isUserAnAdmin}
             customProps={props.customOptionComponentProps}
-            customHelperLabel={strings('pt-BR', 'formularyFieldOptionCustomHelperLabel')}
+            customHelperLabel={props.isUserAnAdmin === true ? 
+                strings('pt-BR', 'formularyFieldOptionCustomHelperLabelIfIsAdmin') : 
+                strings('pt-BR', 'formularyFieldOptionCustomHelperLabelIfIsNotAdmin')}
             customCreateOptionComponent={props.customCreateOptionComponent}
             selectedComponents={props.customSelectedComponent}
             optionComponents={props.customOptionComponent}

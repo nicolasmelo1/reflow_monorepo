@@ -8,7 +8,7 @@
         "palmares"
     ],
     "scripts": {
-        "startapp": "pm2 kill && pm2 start --interpreter node commands/startapp.js --watch --no-daemon"
+        "startapp": "pm2 kill && pm2 start config/ecosystem.config.js --only palmares_development --no-daemon"
     },
     "author": "Reflow Desenvolvimento de Software LTDA",
     "license": "ISC",

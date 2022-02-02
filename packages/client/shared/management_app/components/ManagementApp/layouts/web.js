@@ -28,7 +28,7 @@ export default function ManagementAppWebLayout(props) {
             </div>
             {props.isFormularyOpen ? (
                 <Formulary
-                workspaceUUID={props.workspaceUUID}
+                workspace={props.workspace}
                 app={props.app}
                 />
             ) : ''}

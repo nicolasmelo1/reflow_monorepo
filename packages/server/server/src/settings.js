@@ -14,6 +14,7 @@ const INSTALLED_APPS = [
     path.join('src', 'authentication'),
     path.join('src', 'area'),
     path.join('src', 'app_management_formulary'),
+    path.join('src', 'draft')
 ]
 
 const WEBSOCKETS = {
@@ -25,6 +26,7 @@ const WEBSOCKETS = {
 
 const MIDDLEWARE = [
     require('./core/middlewares').corsMiddleware(),
+    require('compression')(),
     require('helmet')(),
     require('express').json(),
     require('express').urlencoded({extended: false}),

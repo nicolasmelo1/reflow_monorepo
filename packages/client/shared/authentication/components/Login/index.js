@@ -1,7 +1,13 @@
 import { useState, useContext } from 'react'
 import Layouts from './layouts'
 import authenticationAgent from '../../agent'
-import { AuthenticationContext, UserContext } from '../../contexts'
+import { 
+    AuthenticationContext, 
+    UserContext, 
+    AuthenticationTypesContext, 
+    WorkspaceContext 
+} from '../../contexts'
+import { isAdmin } from '../../utils'
 import { setTokens } from '../../../core/agent/utils'
 
 /**
@@ -21,6 +27,8 @@ import { setTokens } from '../../../core/agent/utils'
  */
 const Login = (props) => {
     const { setIsAuthenticated } = useContext(AuthenticationContext) 
+    const { setSelectedWorkspace } = useContext(WorkspaceContext)
+    const { setTypes } = useContext(AuthenticationTypesContext)
     const { setUser } = useContext(UserContext)
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
@@ -33,10 +41,33 @@ const Login = (props) => {
             if (response && response.status === 200) {
                 setIsAuthenticated(true)
                 setTokens(response.data.data.accessToken, response.data.data.refreshToken).then(() => {
-                    authenticationAgent.getMe().then(response => {
+                    
+                    authenticationAgent.getTypes().then(response => {
                         if (response && response.status === 200) {
-                            setUser(response.data.data)
-                            props.onLoginSuccessful()
+                            const profileTypes = response.data.data.profileType
+                            const locationTypes = response.data.data.locationType
+                            setTypes(profileTypes, locationTypes)
+
+                            authenticationAgent.getMe().then(response => {
+                                if (response && response.status === 200) {
+                                    setUser(response.data.data)
+                                    const { workspaces } = response.data.data
+                                    if (workspaces && workspaces.length > 0) {
+                                        const defaultWorkspace = workspaces[0]
+                                        const isUserAdminInWorkspace = isAdmin(profileTypes, defaultWorkspace.profileTypeId)
+                                        setSelectedWorkspace(
+                                            defaultWorkspace.uuid, 
+                                            defaultWorkspace.profileTypeId,
+                                            isUserAdminInWorkspace,
+                                            defaultWorkspace.name,
+                                            defaultWorkspace.logoImageUrl,
+                                            defaultWorkspace.endpoint,
+                                            defaultWorkspace.createdAt
+                                        )
+                                    }
+                                    props.onLoginSuccessful()
+                                }
+                            })
                         }
                     })
                 })

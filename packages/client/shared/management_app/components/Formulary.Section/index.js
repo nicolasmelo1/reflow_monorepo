@@ -43,6 +43,7 @@ export default function FormularySection(props) {
     return process.env['APP'] === 'web' ? (
         <Layouts.Web
         formularyContainerRef={props.formularyContainerRef}
+        workspace={props.workspace}
         section={props.section}
         onUpdateFormulary={props.onUpdateFormulary}
         onRemoveField={onRemoveField}

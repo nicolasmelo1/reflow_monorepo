@@ -1,12 +1,12 @@
 import { useEffect, useContext } from 'react'
-import { UserContext } from '../../../authentication/contexts'
+import { WorkspaceContext } from '../../../authentication/contexts'
 import { AppContext, HomeDefaultsContext } from '../../contexts'
 import homeAgent from '../../agent'
 import Layouts from './layout'
 
 export default function App(props) {
     const { state: { app }, setApp, retrieveFromPersist } = useContext(AppContext)
-    const { user } = useContext(UserContext)
+    const { state: { selectedWorkspace } } = useContext(WorkspaceContext)
     const { state: { selectedApp, selectedArea }} = useContext(HomeDefaultsContext)
     
     /**
@@ -15,8 +15,8 @@ export default function App(props) {
      * to load the app. We need to know what type of app it is.
      */
     useEffect(() => {
-        if (user.workspaces.length > 0 && selectedApp.uuid !== null && selectedArea.uuid !== null) {         
-            homeAgent.getApp(user.workspaces[0].uuid, selectedArea.uuid, selectedApp.uuid).then(response => {
+        if (selectedWorkspace.uuid !== null && selectedApp.uuid !== null && selectedArea.uuid !== null) {         
+            homeAgent.getApp(selectedWorkspace.uuid, selectedArea.uuid, selectedApp.uuid).then(response => {
                 if (response && response.status === 200) {
                     setApp(response.data.data)
                 } else {

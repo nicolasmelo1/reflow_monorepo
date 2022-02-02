@@ -37,6 +37,7 @@ export default function FormularyWebLayout(props) {
                 {props.formulary?.sections.map(section => (
                     <FormularySection 
                     formularyContainerRef={props.formularyContainerRef}
+                    workspace={props.workspace}
                     key={section.uuid}
                     section={section}
                     onUpdateFormulary={props.onUpdateFormulary}

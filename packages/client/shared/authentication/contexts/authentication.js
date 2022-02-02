@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react'
 import GlobalProvider, { setPersistState, getPersistState } from '../../core/contexts'
 
+const persistContext = 'authenticationContext'
 const initialState = {
     state: {
         isAuthenticated: false,
@@ -19,19 +20,21 @@ export const AuthenticationContext = createContext(initialState)
  * then redirect the user to one place or another.
  */
 function AuthenticationProvider(props) {
-    const [state, _setState] = useState(initialState.state)
-    
-    function setState(value) {
-        setPersistState('authenticationContext', value)
-        _setState(value)
-    }
+    const [state, setState] = useState(initialState.state)
 
-    function setIsAuthenticated(value) {
-        setState({ isAuthenticated: value })
+    /**
+     * Defines the state if the user is authenticated or not.
+     * 
+     * @param {boolean} isAuthenticated -  If true then the user is authenticated. Otherwise the user is not authenticated.
+     */
+    function setIsAuthenticated(isUserAuthenticated) {
+        setPersistState(persistContext, {
+            isAuthenticated: isUserAuthenticated
+        }, setState)
     }
 
     useEffect(() => {
-        getPersistState('authenticationContext', state, _setState)
+        getPersistState('authenticationContext', state, setState)
     }, [])
 
     return (

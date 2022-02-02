@@ -57,7 +57,7 @@ function snakeToCamelCaseQueryParams() {
  */
 function poweredByReflowMiddleware() {
     return async (req, res, next) => {
-        res.setHeader('X-Powered-By', 'reflow')
+        res.setHeader('X-Powered-By', "reflow's palmares")
         next()
     }
 }

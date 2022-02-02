@@ -4,7 +4,9 @@
     "description": "\"The server of reflow. It is a customized express App that will feel like home for django developers\"",
     "main": "index.js",
     "scripts": {
-        "dev": "npm run dev --prefix server"
+        "dev": "npm run dev --prefix server",
+        "makemigrations": "npm run makemigrations --prefix server",
+        "migrate": "npm run migrate --prefix server"
     },
     "keywords": [
         "reglow",

@@ -8,7 +8,11 @@ const {
     ProfileTypeRelation,
     LocationTypeRelation
 } = require('../relations')
-const { User } = require('../models')
+const {
+    User, 
+    ProfileType, 
+    LocationType 
+} = require('../models')
 const { UserService } = require('../services')
 const { JWT } = require('../utils')
 //------------------------------------------------------------------------------
@@ -63,7 +67,20 @@ class MeOutputSerializer extends serializers.ModelSerializer {
     }
 }
 //------------------------------------------------------------------------------
+/**
+ * Serializer that holds the types needed for the authentication, in other words, what is needed for the authentication in order to fully
+ * understand the permissions of the user inside of the application. Without this information the user will not be able to effectively use 
+ * the platform.
+ */
 class TypeOutputSerializer extends serializers.Serializer {
+    async toRepresentation() {
+        const data = {
+            profileType: await ProfileType.AUTHENTICATION.all(),
+            locationType: await LocationType.AUTHENTICATION.all()
+        }
+        return await super.toRepresentation(data)
+    }
+
     fields = {
         profileType: new ProfileTypeRelation({ many: true }),
         locationType: new LocationTypeRelation({ many: true })
