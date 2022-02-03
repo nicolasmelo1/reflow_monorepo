@@ -25,10 +25,12 @@ export default function FormularyFieldAttachment(props) {
     }
 
     function onUploadAttachment(file) {
-        drafts.uploadFile(props.workspace.uuid, file).then(response => {
-            if (response && httpStatus.isSuccess(response.status)) {
-                const draftStringId = response.data.data.draftStringId
-                setValues([...values, draftStringId])
+        drafts.uploadFile(props.workspace.uuid, file).then(draftStringId => {
+            if (draftStringId !== null) {
+                setValues([...values, {
+                    uuid: generateUUID(),
+                    value: draftStringId
+                }])
             }
         })
     }
@@ -52,6 +54,8 @@ export default function FormularyFieldAttachment(props) {
         <Layouts.Web
         onUploadAttachment={onUploadAttachment}
         values={values}
+        drafts={drafts}
+        workspace={props.workspace}
         types={props.types}
         field={props.field}
         />

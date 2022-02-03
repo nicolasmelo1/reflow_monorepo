@@ -2,11 +2,11 @@ import axios from 'axios'
 import { API_HOST } from '../../conf'
 import { setTokenInHeader, exceptionObserver, getToken } from './utils'
 
-const getUrl = (path) => {
+export const getUrl = (path) => {
     return `${API_HOST}${path}`
 }
 
-const requests = {
+export const requests = {
     /**
      * This is used to make a request, instead of defining the request directly using axios we will use this function by default.
      * By doing this we are able to cancel the request, remake the request again and all of that stuff.
@@ -87,5 +87,3 @@ const requests = {
         return await requests.request(url, 'POST', { data: body, headers, source, params })
     }
 }
-
-export default requests

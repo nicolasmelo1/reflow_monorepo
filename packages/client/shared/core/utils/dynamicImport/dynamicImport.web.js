@@ -49,7 +49,8 @@ const dynamicImport = (module, alias='default') => {
             // update here to add new packages for web
             const packages = {
                 'next/router': require('next/router'),
-                'next/link': require('next/link')
+                'next/link': require('next/link'),
+                'next/image': require('next/image')
             }
             if (alias !== '') {
                 return packages[module][alias]

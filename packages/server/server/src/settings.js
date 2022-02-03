@@ -238,6 +238,7 @@ const AWS_ACCESS_KEY_ID = 'AKIAIBXGLOHWXNYYZJYQ'
 const S3_REGION_NAME = 'us-east-2'
 const S3_BUCKET = 'reflow-crm'
 const S3_COMPANY_LOGO_PATH = 'company-logo'
+const S3_USER_PROFILE_IMAGE_PATH = 'user-profile'
 const S3_FILE_ATTACHMENTS_PATH = 'file-attachments'
 const S3_FILE_DRAFT_PATH = 'file-draft'
 
@@ -276,6 +277,7 @@ module.exports = {
     S3_REGION_NAME,
     S3_BUCKET,
     S3_COMPANY_LOGO_PATH,
+    S3_USER_PROFILE_IMAGE_PATH,
     S3_FILE_ATTACHMENTS_PATH,
     S3_FILE_DRAFT_PATH,
     JWT_ENCODING,

@@ -162,6 +162,9 @@ class UserWorkspaces extends models.Model {
             relatedTo: 'ProfileType',
             onDelete: models.fields.ON_DELETE.CASCADE
         }),
+        profileImageBucket: new models.fields.CharField({ maxLength: 200, defaultValue: settings.S3_BUCKET}),
+        profileImagePath: new models.fields.CharField({ maxLength:250, defaultValue: settings.S3_USER_PROFILE_IMAGE_PATH }),
+        profileImageUrl: new models.fields.TextField({ allowNull: true, allowBlank: true }),
         dateJoined: new models.fields.DatetimeField({ autoNowAdd: true, allowNull: true}),
         isActive: new models.fields.BooleanField({ defaultValue: true })
     }

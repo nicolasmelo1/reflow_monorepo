@@ -36,7 +36,8 @@ function updateUploadingFile(fileUUID, fileName, fileSize, filePath) {
  * to see the file again from the s3.
  */
 async function removeUploadingFileCache(fileUUID) {
-    try { fs.unlink(uploadingFiles[fileUUID].path, (error) => {console.log(`${uploadingFiles[fileUUID].path} was deleted after upload.`)}) } catch (e) {}
+    const pathToRemove = uploadingFiles[fileUUID].path
+    try { fs.unlink(pathToRemove, (error) => {console.log(`${pathToRemove} was deleted after upload.`)}) } catch (e) {}
     delete uploadingFiles[fileUUID]
 
     /**
@@ -54,7 +55,8 @@ async function removeUploadingFileCache(fileUUID) {
             if (now < maximumCacheDate) {
                 newUploadingFiles[key] = uploadingFiles[key]
             } else {
-                try { fs.unlink(uploadingFiles[key].path, (error) => {console.log(`${uploadingFiles[fileUUID].path} was deleted from cache.`)}) } catch (e) {}
+                const removingPath = uploadingFiles[key].path
+                try { fs.unlink(removingPath, (error) => {console.log(`${removingPath} was deleted from cache.`)}) } catch (e) {}
             }
         }
         uploadingFiles = newUploadingFiles
@@ -143,12 +145,13 @@ class DraftSaveFileController extends controllers.Controller {
 
 class DraftFileUrlController extends controllers.Controller {
     async get(req, res) {
+        console.log('teste')
         const draftService = new DraftService(req.user.id, req.workspace.id)
         const urlToRedirect = await draftService.retrieveDraftFileUrl(req.params.draftStringId)
-        if (urlToRedirect === 'string') {
-            res.redirect(urlToRedirect)
+        if (typeof urlToRedirect === 'string') {
+            return res.redirect(urlToRedirect)
         } else {
-            res.send('')
+            return res.send('')
         }
     }
 }

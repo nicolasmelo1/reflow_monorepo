@@ -12,6 +12,7 @@ styled.div`
     border-radius: 5px;
     padding: 10px;
     background-color: ${props => props.theme.moreClearGray};
+    margin-bottom: 500px;
 `
 :
 styled(View)``
@@ -48,3 +49,40 @@ styled.small`
 :
 styled(Text)`
 `
+
+export const ContainerWrapper = process.env['APP'] === 'web' ?
+styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+`
+:
+styled(View)``
+
+
+export const FileContainer = process.env['APP'] === 'web' ?
+styled.div`
+    display: flex;
+    flex-direction: column;
+    border: 1px solid ${props => props.theme.darkBlue}50;
+    padding: 5px;
+    border-radius: 5px;
+`
+:
+styled(View)``
+
+
+export const ImageWrapper = process.env['APP'] === 'web' ?
+styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+`
+:
+styled(View)``
+

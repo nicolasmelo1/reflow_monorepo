@@ -1,4 +1,4 @@
-import { requests } from '../core/agent'
+import { requests, getUrl, getToken } from '../core/agent'
 import { generateUUID, httpStatus } from '../../../shared/utils'
 
 /**
@@ -66,6 +66,23 @@ async function uploadDraftFile(workspaceUUID, file) {
     })
 }
 
+/**
+ * This is defined here but it does not call axios directly, what we do instead is that we return the url 
+ * to get the draft file. This url will redirect the user for the original url where he is able to retrieve the content
+ * that he wants.
+ * 
+ * @param {string} workspaceUUID - The id of the workspace where the draft will be stored, in other words, this is the company that stored the draft.
+ * @param {string} draftStringId - A base64 encoded string that represents the draft uuid. This is the uuid of the draft that
+ * was uploaded.
+ * 
+ * @returns {Promise<string>} - Returns the url to get the draft file.
+ */
+async function retrieveDraftFileUrl(workspaceUUID, draftStringId) {
+    const token = await getToken()
+    return getUrl(`/draft/${workspaceUUID}/file/url/${draftStringId}?token=${token}`)
+}
+
 export default {
-    uploadDraftFile
+    uploadDraftFile,
+    retrieveDraftFileUrl
 }

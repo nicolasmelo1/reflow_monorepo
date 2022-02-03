@@ -1,1 +1,2 @@
-export { default as requests } from './requests'
+export { requests, getUrl } from './requests'
+export { getToken } from './utils'
