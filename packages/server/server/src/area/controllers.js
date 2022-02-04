@@ -36,7 +36,10 @@ class AreaController extends controllers.Controller {
      */
     async post(req, res, next, transaction) {
         const serializer = new this.inputSerializer({
-            data: req.body
+            data: req.body,
+            context: {
+                language: req.preferredLanguage
+            }
         })
         if (await serializer.isValid(req.workspace.id, req.user.id)) {
             await serializer.toSave(transaction)
@@ -68,7 +71,10 @@ class AreaEditController extends controllers.Controller {
      */
     async put(req, res, next, transaction) {
         const serializer = new this.inputSerializer({
-            data: req.body
+            data: req.body,
+            context: {
+                language: req.preferredLanguage
+            }
         })
         if (await serializer.isValid(req.workspace.id, req.user.id, req.params.areaUUID)) {
             await serializer.toSave(transaction)

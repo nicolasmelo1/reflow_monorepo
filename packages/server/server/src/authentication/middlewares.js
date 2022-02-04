@@ -3,9 +3,9 @@
 const status = require('../../../palmares/status')
 const websocket = require('../../../palmares/websockets')
 
+const { strings } = require('../core/utils')
 const { JWT } = require('./utils')
 const { User, Workspace } = require('./models')
-const { Encrypt } = require('../core/utils')
 const { reflowJSONError } = require('../core/services')
 const { validatePermissionsFromRequest, PermissionsError } = require('../core/permissions')
 
@@ -29,12 +29,12 @@ async function websocketJwtRequiredMiddleware(scope, __, next) {
         next()
     } else if (['jwt_not_defined', 'unknown_error'].includes(jwt.error)) {
         const error = JSON.stringify(
-            reflowJSONError({reason: 'login_required', detail: 'JWT token was not provided in the request'})
+            reflowJSONError({reason: 'login_required', detail: strings(scope.preferredLanguage, 'jwtTokenNotProvidedError')})
         )
         throw new websocket.DenyConnection(error)
     } else {
         const error = JSON.stringify(
-            reflowJSONError({reason: jwt.error, detail: 'JWT token it not valid anymore'})
+            reflowJSONError({reason: jwt.error, detail: strings(scope.preferredLanguage, 'jwtTokenNotValidError')})
         )
         throw new websocket.DenyConnection(error)
     }
@@ -57,12 +57,12 @@ async function jwtRequiredMiddleware(req, res, next) {
     } else if (['jwt_not_defined', 'unknown_error'].includes(jwt.error)) {
         res.status(status.HTTP_403_FORBIDDEN).send({
             status: 'error',
-            error: reflowJSONError({reason: 'login_required', detail: 'JWT token was not provided in the request'})
+            error: reflowJSONError({reason: 'login_required', detail: strings(req.preferredLanguage, 'jwtTokenNotProvidedError')})
         })
     } else {
         res.status(status.HTTP_403_FORBIDDEN).send({
             status: 'error',
-            error: reflowJSONError({reason: jwt.error, detail: 'JWT token it not valid anymore'})
+            error: reflowJSONError({reason: jwt.error, detail: strings(req.preferredLanguage, 'jwtTokenNotProvidedError')})
         })
     }
 }

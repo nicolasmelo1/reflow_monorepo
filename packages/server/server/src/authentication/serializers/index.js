@@ -2,6 +2,7 @@
 
 const serializers = require('../../../../palmares/serializers')
 
+const { strings } = require('../../core/utils')
 const { ReflowValidationError } = require('../../core/serializers')
 const { 
     WorkspaceRelation,
@@ -28,7 +29,10 @@ class LoginInputSerializer extends serializers.Serializer {
     async validate(data) {
         this.user = await UserService.authenticate(data.username, data.password)
         if (this.user === null) {
-            throw new ReflowValidationError({reason: 'invalid_pass_or_user', detail: 'Either the user or the password are not valid'})
+            throw new ReflowValidationError({
+                reason: 'invalid_pass_or_user', 
+                detail: strings(this.context.language, 'loginInvalidPassOrUserError')
+            })
         }
     }
     

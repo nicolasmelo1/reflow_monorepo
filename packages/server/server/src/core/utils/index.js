@@ -28,5 +28,6 @@ module.exports = {
     fileUpload: require('./fileUpload'),
     Encrypt: require('./encrypt'),
     CORS: require('./cors'),
-    Bucket: require('./storage')
+    Bucket: require('./storage'),
+    strings: require('./strings')
 }

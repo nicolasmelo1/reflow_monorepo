@@ -1,6 +1,7 @@
 const controllers = require('../../../palmares/controllers')
 const status = require('../../../palmares/status')
 
+const { strings } = require('../core/utils')
 const { reflowJSONError } = require('../core/services')
 const DraftService = require('./services')
 const { 
@@ -126,8 +127,7 @@ class DraftSaveFileController extends controllers.Controller {
                 status: 'error',
                 error: reflowJSONError({
                     reason: 'invalid_file',
-                    detail: 'For some reason the file was not uploaded or we have mismatch data' +
-                            ' (workspaceUUID or user does not exist anymore), so try to upload it again.'
+                    detail: strings(req.preferredLanguage, 'draftFileNotUploadedError')
                 })
             })
         }

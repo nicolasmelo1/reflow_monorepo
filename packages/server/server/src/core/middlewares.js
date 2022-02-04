@@ -62,8 +62,25 @@ function poweredByReflowMiddleware() {
     }
 }
 
+/**
+ * Retrieves the current prefered language of the user from the request so we can translate the response and other
+ * parts of the backend application.
+ */
+function retrieveUsersPreferredLanguage() {
+    return async (req, res, next) => {
+        const acceptedLanguages = req.acceptsLanguages()
+        let language = 'default'
+        if (acceptedLanguages.length > 0 && acceptedLanguages[0] !== '*') {
+            language = acceptedLanguages[0]
+        }
+        req.preferredLanguage = language
+        next()
+    }
+}
+
 module.exports = {
     corsMiddleware,
     snakeToCamelCaseQueryParams,
-    poweredByReflowMiddleware
+    poweredByReflowMiddleware,
+    retrieveUsersPreferredLanguage
 }

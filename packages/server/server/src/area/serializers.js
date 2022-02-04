@@ -1,5 +1,7 @@
 const serializers = require('../../../palmares/serializers')
 
+const { strings } = require('../core/utils')
+
 const { ReflowValidationError } = require('../core/serializers')
 const { AppRelation, SelectedAppRelation, AppConfigurationRelation } = require('./relations')
 const { Area, App } = require('./models')
@@ -84,7 +86,7 @@ class AreaInputSerializer extends serializers.ModelSerializer {
         if (!isLabelNameUnique) {
             throw new ReflowValidationError({
                 reason: 'area_name_exists',
-                detail: 'The name of the area should be unique for the hole workspace',
+                detail: strings(this.context.language, 'areaNameExistsError'),
                 metadata: {
                     uuid: data.uuid,
                     labelName: data.labelName

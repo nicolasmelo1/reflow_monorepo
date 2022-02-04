@@ -8,7 +8,6 @@ const { resolve, dirname } = require('path')
 const { readdir } = require('fs').promises
 
 /**
- * 
  * Reference: https://stackoverflow.com/a/45130990
  * Disclaimer: i don't want to blow your head off, the directory structure here can grow to
  * be REALLY huge. So it's the solution better suited for this project.

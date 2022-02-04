@@ -59,6 +59,12 @@ module.exports = {
         datePickerDefaultFormat: 'DD/MM/YYYY'
     },
     server: {
-
+        loginInvalidPassOrUserError: 'Usuário ou senha inválidos',
+        areaNameExistsError: 'O nome da área deve ser único para todo o workspace',
+        jwtTokenNotProvidedError: 'Token JWT não fornecido na requisição',
+        jwtTokenNotValidAnymoreError: 'JWT token fornecido expirou e não é mais válido',
+        refreshTokenIsNotARefreshTokenOrDoesNotExistError: 'Refresh token não é um refresh token ou não existe',
+        refreshTokenIsNotValid: 'Refresh token não é válido',
+        draftFileNotUploadedError: 'Por alguma razão o arquivo não foi carregado ou os dados recebidos não são válidos (o workspace não foi encontrado), então tente fazer o upload novamente'
     }
 }

@@ -28,10 +28,11 @@ const WEBSOCKETS = {
 const MIDDLEWARE = [
     require('./core/middlewares').corsMiddleware(),
     require('compression')(),
-    require('helmet')(),
     require('express').json(),
     require('express').urlencoded({extended: false}),
     require('./core/middlewares').snakeToCamelCaseQueryParams(),
+    require('./core/middlewares').retrieveUsersPreferredLanguage(),
+    require('helmet')(),
     require('./core/middlewares').poweredByReflowMiddleware(),
 ]
 

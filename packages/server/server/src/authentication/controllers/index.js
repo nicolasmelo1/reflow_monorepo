@@ -3,6 +3,7 @@
 const controllers = require('../../../../palmares/controllers')
 const status = require('../../../../palmares/status')
 
+const { strings } = require('../../core/utils')
 const { User } = require('../models')
 const { UserService } = require('../services') 
 const { reflowJSONError } = require('../../core/services')
@@ -29,7 +30,12 @@ class LoginController extends controllers.Controller {
      * If login information is valid we return to him the jwt tokens.
      */
     async post(req, res, next) {   
-        const serializer = new this.inputSerializer({ data: req.body })
+        const serializer = new this.inputSerializer({ 
+            data: req.body,
+            context: {
+                language: req.preferredLanguage
+            }
+        })
         if (await serializer.isValid()) {
             const { accessToken, refreshToken } = await serializer.toSave()
             req.user = serializer.user
@@ -129,7 +135,7 @@ class RefreshTokenController extends controllers.Controller {
                     status: 'error',
                     error: reflowJSONError({
                         reason: 'must_be_refresh_token_or_user_does_not_exist',
-                        detail: 'You are passing an access token but it should be a refreshToken. Otherwise the user encoded on the token does not exist.'
+                        detail: strings(req.preferredLanguage, 'refreshTokenIsNotARefreshTokenOrDoesNotExistError')
                     })
                 })
             }
@@ -138,7 +144,7 @@ class RefreshTokenController extends controllers.Controller {
                 status: 'error',
                 error: reflowJSONError({
                     reason: jwt.error,
-                    detail: 'The token is not valid'
+                    detail: strings(req.preferredLanguage, 'refreshTokenIsNotValid')
                 })
             })
         }

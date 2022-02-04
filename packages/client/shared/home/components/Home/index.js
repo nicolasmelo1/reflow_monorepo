@@ -312,7 +312,7 @@ export default function Home(props) {
      * @param {React.SyntheticEvent} event - The event that triggered the function.
      */
     function webClickOutsideToClose(e) {
-        if (process.env?.APP === 'web') {
+        if (APP === 'web') {
             if(areaDropdownEditButtonRef.current !== null && !areaDropdownEditButtonRef.current.contains(e.target)) {
                 setIsEditingArea(false)
             }
