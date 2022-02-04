@@ -1,8 +1,9 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, TouchableOpacity, Text } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 
-export const Container = process.env['APP'] === 'web' ? 
+export const Container = APP === 'web' ? 
 styled.div`
     display: flex;
     flex-direction: column;
@@ -17,7 +18,7 @@ styled.div`
 :
 styled(View)``
 
-export const Button = process.env['APP'] === 'web' ? 
+export const Button = APP === 'web' ? 
 styled.label`
     display: flex;
     flex-direction: column;
@@ -40,7 +41,7 @@ export const ButtonIcon = styled(FontAwesomeIcon)`
     color: ${props => props.theme.darkBlue};
 `
 
-export const ButtonPlaceholderText = process.env['APP'] === 'web' ? 
+export const ButtonPlaceholderText = APP === 'web' ? 
 styled.small`
     text-align: center;
     font-size: 12px;
@@ -50,7 +51,7 @@ styled.small`
 styled(Text)`
 `
 
-export const ContainerWrapper = process.env['APP'] === 'web' ?
+export const ContainerWrapper = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -62,7 +63,7 @@ styled.div`
 styled(View)``
 
 
-export const FileContainer = process.env['APP'] === 'web' ?
+export const FileContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
@@ -74,7 +75,7 @@ styled.div`
 styled(View)``
 
 
-export const ImageWrapper = process.env['APP'] === 'web' ?
+export const ImageWrapper = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;

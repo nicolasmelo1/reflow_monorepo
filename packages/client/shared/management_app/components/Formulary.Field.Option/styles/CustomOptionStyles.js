@@ -1,9 +1,10 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, TouchableOpacity, Text } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import whiteOrBlackColor from '../../../../core/utils/whiteOrBlackColor'
 
-export const CreateOptionLabel = process.env['APP'] === 'web' ?
+export const CreateOptionLabel = APP === 'web' ?
 styled.span`
     width: 100%;
     background-color: ${props => props.theme.clearGray};
@@ -15,7 +16,7 @@ styled.span`
 :
 styled(Text)``
 
-export const SelectContainer = process.env['APP'] === 'web' ?
+export const SelectContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -28,7 +29,7 @@ styled.div`
 :
 styled(View)``
 
-export const RenameInput = process.env['APP'] === 'web' ?
+export const RenameInput = APP === 'web' ?
 styled.input`
     width: 100%;
     padding: 10px 5px;
@@ -40,7 +41,7 @@ styled.input`
 :
 styled(Text)``
 
-export const SelectButton = process.env['APP'] === 'web' ?
+export const SelectButton = APP === 'web' ?
 styled.button`
     cursor: pointer;
     overflow: hidden;
@@ -66,7 +67,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const SelectHelperButtonsContainer = process.env['APP'] === 'web' ?
+export const SelectHelperButtonsContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -80,7 +81,7 @@ styled.div`
 :
 styled(View)``
 
-export const SelectHelperButtons = process.env['APP'] === 'web' ?
+export const SelectHelperButtons = APP === 'web' ?
 styled.button`
     font-family: Roboto;
     display: flex;
@@ -105,7 +106,7 @@ export const SelectHelperButtonIcon = styled(FontAwesomeIcon)`
         props.theme.gray_REFLOW};
 `
 
-export const EditOptionMenuOverlay = process.env['APP'] === 'web' ?
+export const EditOptionMenuOverlay = APP === 'web' ?
 styled.div`
     top: 0px;
     right: 0;
@@ -118,7 +119,7 @@ styled.div`
 :
 styled(View)``
 
-export const EditOptionMenuContainer = process.env['APP'] === 'web' ?
+export const EditOptionMenuContainer = APP === 'web' ?
 styled.div`
     padding: 5px;
     display: flex;
@@ -136,7 +137,7 @@ styled.div`
 :
 styled(View)``
 
-export const EditOptionMenuButton = process.env['APP'] === 'web' ?
+export const EditOptionMenuButton = APP === 'web' ?
 styled.button`
     font-family: Roboto;
     display: flex;
@@ -158,7 +159,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const ColorsSelectorWrapper = process.env['APP'] === 'web' ?
+export const ColorsSelectorWrapper = APP === 'web' ?
 styled.div`
     margin-top: 5px;
     display: flex;
@@ -170,7 +171,7 @@ styled.div`
 :
 styled(View)``
 
-export const ColorsSelectorTitle = process.env['APP'] === 'web' ?
+export const ColorsSelectorTitle = APP === 'web' ?
 styled.div`
     margin-top: 5px;
     margin-bottom: 5px;
@@ -180,7 +181,7 @@ styled.div`
 :
 styled(View)``
 
-export const ColorsSelectorContainer = process.env['APP'] === 'web' ?
+export const ColorsSelectorContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -191,7 +192,7 @@ styled.div`
 :
 styled(View)``
 
-export const ColorButton = process.env['APP'] === 'web' ?
+export const ColorButton = APP === 'web' ?
 styled.button`
     cursor: pointer;
     border: 0px;
@@ -210,7 +211,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const SelectedOption = process.env['APP'] === 'web' ?
+export const SelectedOption = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -225,7 +226,7 @@ styled.div`
 styled(View)``
 
 
-export const SelectedOptionLabel = process.env['APP'] === 'web' ?
+export const SelectedOptionLabel = APP === 'web' ?
 styled.p`
     margin: 0;
     font-family: Roboto;
@@ -239,7 +240,7 @@ styled.p`
 styled(Text)``
 
 
-export const SelectedOptionRemoveButton = process.env['APP'] === 'web' ?
+export const SelectedOptionRemoveButton = APP === 'web' ?
 styled.button`
     user-select: none;
     font-family: Roboto;

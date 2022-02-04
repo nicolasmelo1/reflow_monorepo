@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDraft } from '../../../drafts'
 import { generateUUID, httpStatus } from '../../../../../shared/utils'
-import Layouts from './layouts'
+import Layout from './layouts'
 
 export default function FormularyFieldAttachment(props) {
     const [values, setValues] = useState([])
@@ -50,8 +50,8 @@ export default function FormularyFieldAttachment(props) {
         onDefaultCreateAttachmentOptionsIfDoesNotExist()
     }, [])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         onUploadAttachment={onUploadAttachment}
         values={values}
         drafts={drafts}
@@ -59,7 +59,5 @@ export default function FormularyFieldAttachment(props) {
         types={props.types}
         field={props.field}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

@@ -240,7 +240,7 @@
     /**
      * Returns the actual value from the values appended in the `appendValues()` method.
      * 
-     * Here we actually transform the date value to something that python can understand. 
+     * Here we actually transform the date value to something that javascript can understand. 
      * Sometimes you can convert something while appending and sometimes you need to convert 
      * while retrieving the value. So it needs some thinking before you come up with a solution.
      * 

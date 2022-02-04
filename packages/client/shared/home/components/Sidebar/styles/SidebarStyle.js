@@ -1,3 +1,4 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, TouchableOpacity, Text } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -8,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
  * it is not attached to the side and will not shrink the contents.
  * @param {boolean} props.isOpen - Wheather the sidebar is open or not when it is on the floating state.
  */
-export const Container = process.env['APP'] === 'web' ? 
+export const Container = APP === 'web' ? 
 styled.nav`
     display: flex;
     flex-direction: row;
@@ -34,7 +35,7 @@ styled.nav`
 :
 styled(View)``
 
-export const Wrapper = process.env['APP'] === 'web' ? 
+export const Wrapper = APP === 'web' ? 
 styled.div`
     padding: 10px;
     display: flex;
@@ -46,7 +47,7 @@ styled.div`
 :
 styled(View)``
 
-export const SidebarWidth =  process.env['APP'] === 'web' ? 
+export const SidebarWidth =  APP === 'web' ? 
 styled.button`
     border: 0;
     background-color: transparent;
@@ -63,7 +64,7 @@ styled.button`
 :
 styled(View)``
 
-export const TopItemsContainer = process.env['APP'] === 'web' ?
+export const TopItemsContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
@@ -72,7 +73,7 @@ styled.div`
 styled(View)`
 `
 
-export const UserInfoAndCloseSidebarButtonContainer = process.env['APP'] === 'web' ?
+export const UserInfoAndCloseSidebarButtonContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -82,7 +83,7 @@ styled.div`
 :
 styled(View)``
 
-export const UserInfoContainer = process.env['APP'] === 'web' ?
+export const UserInfoContainer = APP === 'web' ?
 styled.div`
     overflow: hidden;
     padding: 0 5px;
@@ -94,7 +95,7 @@ styled.div`
 styled(View)`
 `
 
-export const UserNameContainer = process.env['APP'] === 'web' ?
+export const UserNameContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
@@ -103,7 +104,7 @@ styled.div`
 :
 styled(View)``
 
-export const UserHelloAndNameText = process.env['APP'] === 'web' ?
+export const UserHelloAndNameText = APP === 'web' ?
 styled.p`
     user-select: none;
     margin: 0;
@@ -116,7 +117,7 @@ styled.p`
 :
 styled(Text)``
 
-export const UserNameText = process.env['APP'] === 'web' ?
+export const UserNameText = APP === 'web' ?
 styled.span`
     user-select: none;
     margin: 0;
@@ -128,7 +129,7 @@ styled.span`
 :
 styled(Text)``
 
-export const UserEmailText = process.env['APP'] === 'web' ?
+export const UserEmailText = APP === 'web' ?
 styled.span`
     user-select: none;
     margin: 0;
@@ -141,7 +142,7 @@ styled.span`
 :
 styled(Text)``
 
-export const UserDropdownButton = process.env['APP'] === 'web' ?
+export const UserDropdownButton = APP === 'web' ?
 styled.button`
     display: flex;
     flex-direction: row;
@@ -165,7 +166,7 @@ export const UserDropdownButtonIcon = styled(FontAwesomeIcon)`
     color: #000
 `
 
-export const CloseSidebarButton = process.env['APP'] === 'web' ?
+export const CloseSidebarButton = APP === 'web' ?
 styled.button`
     display: flex;
     flex-direction: row;
@@ -189,7 +190,7 @@ export const CloseSidebarButtonIcon = styled(FontAwesomeIcon)`
     color: ${props => props.theme.gray_REFLOW}
 `
 
-export const NavigationButton = process.env['APP'] === 'web' ?
+export const NavigationButton = APP === 'web' ?
 styled.button`
     display: flex;
     background-color: transparent;
@@ -213,7 +214,7 @@ export const NavigationButtonIcon = styled(FontAwesomeIcon)`
     font-size: 18px;
 `
 
-export const NavigationButtonText = process.env['APP'] === 'web' ?
+export const NavigationButtonText = APP === 'web' ?
 styled.p`
     user-select: none;
     margin-left: 10px;
@@ -231,7 +232,7 @@ styled.p`
 :
 styled(Text)``
 
-export const AppsContainer = process.env['APP'] === 'web' ?
+export const AppsContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
@@ -240,7 +241,7 @@ styled.div`
 :
 styled(View)``
 
-export const CreateNewWorkspaceButton = process.env['APP'] === 'web' ?
+export const CreateNewWorkspaceButton = APP === 'web' ?
 styled.button`
     font-family: Roboto;
     display: flex;
@@ -265,7 +266,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const AppsAndAreasList = process.env['APP'] === 'web' ?
+export const AppsAndAreasList = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
@@ -276,7 +277,7 @@ styled.div`
 styled(View)`
 `
 
-export const WorkspacesHeadingTitle = process.env['APP'] === 'web' ?
+export const WorkspacesHeadingTitle = APP === 'web' ?
 styled.h1`
     user-select: none;
     margin: 10px 0 10px 0;

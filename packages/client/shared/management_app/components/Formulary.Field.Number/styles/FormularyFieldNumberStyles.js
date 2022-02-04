@@ -1,14 +1,15 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { TextInput } from 'react-native'
 
-export const Container = process.env['APP'] === 'web' ?
+export const Container = APP === 'web' ?
 styled.div`
     width: calc(100% - 20px);
 `
 :
 styled(View)``
 
-export const Input = process.env['APP'] === 'web' ?
+export const Input = APP === 'web' ?
 styled.input`
     width: 100%;
     font-family: Roboto;
@@ -26,7 +27,7 @@ styled.input`
 :
 styled(TextInput)``
 
-export const DropdownMenuOptionButton = process.env['APP'] === 'web' ?
+export const DropdownMenuOptionButton = APP === 'web' ?
 styled.button`
     display: flex;
     flex-direction: row;
@@ -50,7 +51,7 @@ styled.button`
 :
 styled(View)``
 
-export const DropdownMenuOptionSelectContainer = process.env['APP'] === 'web' ?
+export const DropdownMenuOptionSelectContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
@@ -70,7 +71,7 @@ styled.div`
 :
 styled(View)``
 
-export const DropdownMenuOptionSelectButton = process.env['APP'] === 'web' ?
+export const DropdownMenuOptionSelectButton = APP === 'web' ?
 styled.button`
     text-align: left;
     background-color: ${props => props.isSelected ? `${props.theme.green_REFLOW}50` : 'transparent'};
@@ -87,7 +88,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const DropdownMenuOptionSelectButtonText = process.env['APP'] === 'web' ?
+export const DropdownMenuOptionSelectButtonText = APP === 'web' ?
 styled.p`
     margin-bottom: 0px;
     margin-top: 0px;

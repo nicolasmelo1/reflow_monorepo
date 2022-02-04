@@ -1,5 +1,5 @@
 import { emailValidation } from '../../../../../shared/utils'
-import Layouts from './layouts'
+import Layout from './layouts'
 
 export default function FormularyFieldEmail(props) {
     /**
@@ -10,13 +10,11 @@ export default function FormularyFieldEmail(props) {
         const isValidEmail = emailValidation(email)
     }
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         types={props.types}
         field={props.field}
         onChangeValue={onChangeValue}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

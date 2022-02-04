@@ -1,3 +1,5 @@
+import { APP } from '../../../conf'
+
 /**
  *     /-----------/
  *   /MOBILE ONLY/
@@ -46,7 +48,7 @@
  * `const html2pdf = dynamicImport('html2pdf', '')`
  */
 const dynamicImport = (module, alias='default') => {
-    if (process.env['APP'] !== 'web') {
+    if (APP === 'mobile') {
         try {
             // update here to add new packages for mobile
             const packages = {

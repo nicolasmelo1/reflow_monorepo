@@ -104,7 +104,7 @@ function SidebarWebLayout(props) {
                 </Styled.CreateNewWorkspaceButton>
             </Styled.Wrapper>
             <Styled.SidebarWidth
-            onMouseDown={(e) => props.onStartResizingSidebar()}
+            onMouseDown={(e) => props.webOnStartResizingSidebar()}
             />
         </Styled.Container>
     )

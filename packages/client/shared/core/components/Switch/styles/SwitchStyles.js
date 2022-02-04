@@ -1,7 +1,8 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { TouchableOpacity } from 'react-native'
 
-export const Button = process.env['APP'] === 'web' ? 
+export const Button = APP === 'web' ? 
 styled.button`
     background-color: ${props => props.isSelected ? props.theme.green_REFLOW : 
         ![undefined, null].includes(props.nonSelectedBackgroundColor) ? props.nonSelectedBackgroundColor : props.theme.clearGray};
@@ -16,7 +17,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const Dot = process.env['APP'] === 'web' ? 
+export const Dot = APP === 'web' ? 
 styled.div`
     width: ${props => props.dotSize}px;
     height: ${props => props.dotSize}px;

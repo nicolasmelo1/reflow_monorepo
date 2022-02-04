@@ -1,14 +1,15 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, TextInput } from 'react-native'
 
-export const Container = process.env['APP'] === 'web' ?
+export const Container = APP === 'web' ?
 styled.div`
     width: calc(100% - 20px);
 `
 :
 styled(View)``
 
-export const Input = process.env['APP'] === 'web' ?
+export const Input = APP === 'web' ?
 styled.input`
     width: 100%;
     font-family: Roboto;

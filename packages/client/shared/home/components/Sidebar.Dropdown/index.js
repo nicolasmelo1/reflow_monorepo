@@ -1,18 +1,17 @@
 import { useState, useEffect, useContext } from 'react'
-import { UserContext } from '../../../authentication/contexts'
-import { AreaContext, HomeDefaultsContext } from '../../contexts'
-import Layouts from './layouts'
+import { AreaContext } from '../../contexts'
+import { APP } from '../../../conf'
 import { delay } from '../../../../../shared/utils'
 import homeAgent from '../../agent'
 import { useRouterOrNavigationRedirect } from '../../../core/hooks'
 import { paths } from '../../../core/utils/constants'
+import Layout from './layouts'
 
 const defaultDelay = delay(300)
 
 export default function SidebarDropdown(props) {
     let appUUIDByIndexReference = {}
     const redirect = useRouterOrNavigationRedirect()
-    const { user } = useContext(UserContext)
     const [workspace, setWorkspace] = useState(props.workspace)
     const { state: { nonUniqueAreaUUIDs }} = useContext(AreaContext)
     const [isOpen, setIsOpen] = useState(false)
@@ -171,9 +170,9 @@ export default function SidebarDropdown(props) {
      * since the apps and areas are dynamic, because of that we set this by hand.
      */
     useEffect(() => {
-        if (process.env['APP'] === 'web') document.addEventListener('click', onUserClicksOutsideOfDropdown)
+        if (APP === 'web') document.addEventListener('click', onUserClicksOutsideOfDropdown)
         return () => {
-            if (process.env['APP'] === 'web') document.removeEventListener('click', onUserClicksOutsideOfDropdown)
+            if (APP === 'web') document.removeEventListener('click', onUserClicksOutsideOfDropdown)
         }
     }, [])
 
@@ -185,8 +184,8 @@ export default function SidebarDropdown(props) {
         setWorkspace({...props.workspace})
     }, [props.workspace.labelName, props.workspace.color])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         isOpen={isOpen}
         isHovering={isHovering}
         nonUniqueAreaUUIDs={nonUniqueAreaUUIDs}
@@ -205,7 +204,5 @@ export default function SidebarDropdown(props) {
         workspace={workspace}
         nestingLevel={props.nestingLevel}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

@@ -1,8 +1,9 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { Text, View, TouchableOpacity, TextInput } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 
-export const WorkspaceContainer = process.env['APP'] === 'web' ?
+export const WorkspaceContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
@@ -10,7 +11,7 @@ styled.div`
 :
 styled(View)``
 
-export const WorkspaceAreaSelector = process.env['APP'] === 'web' ?
+export const WorkspaceAreaSelector = APP === 'web' ?
 styled.div`
     border: 0;
     background-color: ${props => props.isEditing ? `${props.theme.clearGray}` : 'transparent'};
@@ -35,7 +36,7 @@ styled.div`
 :
 styled(TouchableOpacity)``
 
-export const WorkspaceDropdownIconAndTextContainer = process.env['APP'] === 'web' ?
+export const WorkspaceDropdownIconAndTextContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -46,7 +47,7 @@ styled.div`
 :
 styled(View)``
 
-export const WorkspaceDropdownButton = process.env['APP'] === 'web' ?
+export const WorkspaceDropdownButton = APP === 'web' ?
 styled.button`
     border: 0;
     border-radius: 5px;
@@ -69,7 +70,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const WorkspaceDropdownButtonText = process.env['APP'] === 'web' ?
+export const WorkspaceDropdownButtonText = APP === 'web' ?
 styled.p`
     user-select: none;
     text-align: left;
@@ -85,7 +86,7 @@ styled.p`
 :
 styled(Text)``
 
-export const HoveringButtonsContainer = process.env['APP'] === 'web' ?
+export const HoveringButtonsContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -97,7 +98,7 @@ styled.div`
 :
 styled(View)``
 
-export const WorkspaceOrAppButtonEdit = process.env['APP'] === 'web' ?
+export const WorkspaceOrAppButtonEdit = APP === 'web' ?
 styled.button`
     display: flex;
     align-items: center;
@@ -119,7 +120,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const WorkspaceOrAppEditNameInput = process.env['APP'] === 'web' ?
+export const WorkspaceOrAppEditNameInput = APP === 'web' ?
 styled.input`
     border: 0;
     font-size: 18px;
@@ -142,7 +143,7 @@ export const WorkspaceDropdownButtonIcon = styled(FontAwesomeIcon)`
     font-size: 18px;
 `
 
-export const WorkspaceAppsContainer =  process.env['APP'] === 'web' ?
+export const WorkspaceAppsContainer =  APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
@@ -150,7 +151,7 @@ styled.div`
 :
 styled(View)``
 
-export const AppButton = process.env['APP'] === 'web' ?
+export const AppButton = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -172,7 +173,7 @@ styled.div`
 :
 styled(TouchableOpacity)``
 
-export const AppButtonText = process.env['APP'] === 'web' ?
+export const AppButtonText = APP === 'web' ?
 styled.p`
     user-select: none;
     margin: 0;

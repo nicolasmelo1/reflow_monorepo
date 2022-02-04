@@ -15,7 +15,7 @@ export default function HomeWebLayout(props) {
             <Sidebar
             onChangeArea={props.onChangeArea}
             selectedAreaUUID={props.selectedArea.uuid}
-            onResizeSidebar={props.onResize}
+            webOnResizeSidebar={props.webOnResize}
             onEnableOrDisableFloating={props.onEnableOrDisableFloatingSidebar}
             isFloating={props.isFloatingSidebar}
             isOpen={props.isOpenSidebar}

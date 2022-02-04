@@ -1,5 +1,6 @@
 let API_HOST = ''
 let BEARER = 'Client'
+const APP = process.env['APP'] === 'web' ? 'web' : 'mobile' 
 
 /**
  * This function is used to configure all of the config variables for the shared component.
@@ -17,5 +18,5 @@ function configureConf({ apiHost, bearer='Client' } = {}) {
     BEARER = bearer
 }
 
-export { API_HOST, BEARER }
+export { APP, API_HOST, BEARER }
 export { configureConf }

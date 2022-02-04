@@ -1,3 +1,4 @@
+import { APP } from '../../../../conf'
 import MobileField, { 
     CustomOptionSelectMobileLayout, 
     CustomCreateOptionButtonMobileLayout, 
@@ -9,17 +10,14 @@ import WebField, {
     CustomSelectedOptionWebLayout
 } from './web'
 
-export default {
-    Mobile: {
-        Field: MobileField,
-        CustomOptionSelect: CustomOptionSelectMobileLayout,
-        CustomCreateOptionButton: CustomCreateOptionButtonMobileLayout,
-        CustomSelectedOption: CustomSelectedOptionMobileLayout
-    },
-    Web: {
-        Field: WebField,
-        CustomOptionSelect: CustomOptionSelectWebLayout,
-        CustomCreateOptionButton: CustomCreateOptionButtonWebLayout,
-        CustomSelectedOption: CustomSelectedOptionWebLayout
-    }
+export default APP === 'web' ? {
+    Field: WebField,
+    CustomOptionSelect: CustomOptionSelectWebLayout,
+    CustomCreateOptionButton: CustomCreateOptionButtonWebLayout,
+    CustomSelectedOption: CustomSelectedOptionWebLayout
+} : {
+    Field: MobileField,
+    CustomOptionSelect: CustomOptionSelectMobileLayout,
+    CustomCreateOptionButton: CustomCreateOptionButtonMobileLayout,
+    CustomSelectedOption: CustomSelectedOptionMobileLayout
 }

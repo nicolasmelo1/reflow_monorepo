@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { APP } from '../../conf'
 import { useClickedOrPressedOutside } from '../../core/hooks'
 
 /**
@@ -36,8 +37,8 @@ export default function useDropdownMenuSelect({
     const [isOpen, setIsOpen] = useState(isMenuOpen)
     const [menuPosition, setMenuPosition] = useState(null)
     
-    if (process.env['APP'] === 'web') {
-        useClickedOrPressedOutside({ ref: menuRef, callback: onUserClickOutsideMenu})
+    if (APP === 'web') {
+        useClickedOrPressedOutside({ ref: menuRef, callback: webOnUserClickOutsideMenu})
     }
 
     /** 
@@ -49,8 +50,8 @@ export default function useDropdownMenuSelect({
      * @param {MouseEvent} e - The mouse event recieved from the browser because of the document
      * click.
      */
-    function onUserClickOutsideMenu(e) {
-        if (process.env['APP'] === 'web') {
+    function webOnUserClickOutsideMenu(e) {
+        if (APP === 'web') {
             if (buttonRef.current && !buttonRef.current.contains(e.target)) {
                 setIsOpen(false)
             }
@@ -71,7 +72,7 @@ export default function useDropdownMenuSelect({
      */
     function onOpenMenu(isMenuOpen=!isOpen) {
         setIsOpen(isMenuOpen)
-        if (process.env['APP'] === 'web' && isMenuOpen === true) {
+        if (APP === 'web' && isMenuOpen === true) {
             setTimeout(() => {
                 if (buttonRef.current && menuRef.current) {
                     const menuRect = menuRef.current.getBoundingClientRect()

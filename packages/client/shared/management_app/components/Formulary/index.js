@@ -2,7 +2,7 @@ import { useEffect, useRef, useContext } from 'react'
 import axios from 'axios'
 import managementAppAgent from '../../agent'
 import { FormularyContext } from '../../contexts'
-import Layouts from './layouts'
+import Layout from './layouts'
 
 export default function Formulary(props) {
     const sourceRef = useRef()
@@ -50,15 +50,13 @@ export default function Formulary(props) {
         }
     }, [props.workspace, props.app]) 
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         formularyContainerRef={formularyContainerRef}
         workspace={props.workspace}
         app={props.app}
         formulary={formulary}
         onUpdateFormulary={onUpdateFormulary}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

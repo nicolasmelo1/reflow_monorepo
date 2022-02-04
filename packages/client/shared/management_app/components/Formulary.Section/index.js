@@ -1,5 +1,5 @@
-import Layouts from './layouts'
 import { generateUUID, deepCopy } from '../../../../../shared/utils'
+import Layout from './layouts'
 
 export default function FormularySection(props) {
     /**
@@ -40,8 +40,8 @@ export default function FormularySection(props) {
         props.onUpdateFormulary()
     }
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         formularyContainerRef={props.formularyContainerRef}
         workspace={props.workspace}
         section={props.section}
@@ -49,7 +49,5 @@ export default function FormularySection(props) {
         onRemoveField={onRemoveField}
         onDuplicateField={onDuplicateField}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

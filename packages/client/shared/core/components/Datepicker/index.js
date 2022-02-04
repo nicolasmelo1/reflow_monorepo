@@ -2,7 +2,8 @@ import { useRef, useEffect, useState } from 'react'
 import { useTheme } from 'styled-components'
 import { useClickedOrPressedOutside } from '../../hooks'
 import { strings } from '../../utils'
-import Layouts from './layouts'
+import { APP } from '../../../conf'
+import Layout from './layouts'
 
 /**
  * This is a minimal component that also serves as a template for the daterangepicker. So we can use the same component
@@ -284,7 +285,7 @@ export default function Datepicker(props) {
      * (there is no scroll).
      */
     function webRenderOnTopOrBottomAndGetPosition() {
-        if (process.env['APP'] === 'web') {
+        if (APP === 'web') {
             const dateInputRect = dateInputRef.current.getBoundingClientRect()
             const datePickerRect = datePickerRef.current.getBoundingClientRect()
             const bottomOfInput = dateInputRect.bottom
@@ -512,11 +513,11 @@ export default function Datepicker(props) {
             onOpenDatepicker(isOpen)
         }
 
-        if (isOpen === true && process.env['APP'] === 'web') {
+        if (isOpen === true && APP === 'web') {
             setTimeout(() => {
                 webRenderOnTopOrBottomAndGetPosition()                
             }, 1)
-        } else if (isOpen === false && process.env['APP'] === 'web') {
+        } else if (isOpen === false && APP === 'web') {
             setPositionAndMaxHeight({ ...positionAndMaxHeight, wasCalculated: false })
         }
     }
@@ -590,8 +591,8 @@ export default function Datepicker(props) {
         }
     }, [props.placeholder])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         datePickerRef={datePickerRef}
         dateInputRef={dateInputRef}
         containerBackgroundColor={containerBackgroundColor}
@@ -616,7 +617,5 @@ export default function Datepicker(props) {
         canSelectDateBelowToday={canSelectDateBelowToday}
         selectedDate={selectedDate}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

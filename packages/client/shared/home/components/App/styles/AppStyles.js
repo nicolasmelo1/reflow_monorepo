@@ -1,6 +1,7 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 
-export const AppLayout = process.env['APP'] === 'web' ?
+export const AppLayout = APP === 'web' ?
 styled.div`
     height: 100%;
     width: 100%;

@@ -1,4 +1,4 @@
-import ptBR from './pt-BR'
+const ptBR = require('./pt-BR')
 
 const languagePack = {
     'pt-BR': ptBR
@@ -15,12 +15,17 @@ const languagePack = {
  * to support another language, just create a new file and add the texts to the language pack.
  * 
  * @param {string} language - One of the supported languages. See `languagePack` variable up here for reference.
+ * @param {string} environment - The environment that the text is being used on, is this the shared lib, the 
  * @param {string} key - The key of the text label.
  * 
  * @returns {string} - The text label to use in your component.
  */
-function strings(language, key) {
-    return languagePack[language][key]
+function strings(language, environment, key) {
+    if (languagePack[language] && languagePack[language][environment] && languagePack[language][environment][key]) {
+        return languagePack[language][environment][key]
+    } else {
+        return ''
+    }
 }
 
-export default strings
+module.exports = strings

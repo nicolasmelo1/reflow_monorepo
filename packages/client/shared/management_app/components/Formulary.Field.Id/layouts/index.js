@@ -1,7 +1,5 @@
+import { APP } from '../../../../conf'
 import Mobile from './mobile'
 import Web from './web'
 
-export default {
-    Mobile,
-    Web
-}
+export default APP === 'web' ? Web : Mobile

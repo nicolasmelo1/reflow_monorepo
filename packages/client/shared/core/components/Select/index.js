@@ -1,7 +1,8 @@
 import { useRef, useState, useEffect } from 'react'
 import { useClickedOrPressedOutside } from '../../hooks' 
 import { generateUUID } from '../../../../../shared/utils'
-import Layouts from "./layouts"
+import { APP } from '../../../conf'
+import Layout from "./layouts"
 
 /**
  * This is a select component, it is used for displaying a custom select component instead of the default <select> 
@@ -106,7 +107,7 @@ export default function Select(props) {
         isPropsSelectedOptionsDefined ? 
         props.options.filter(option => !props.selectedOptions.includes(option.value)) : 
         props.options : [])
-    useClickedOrPressedOutside({ ref: selectRef, callback: closeWhenUserPressesOutside })
+    useClickedOrPressedOutside({ ref: selectRef, callback: webCloseWhenUserPressesOutside })
 
     function setSelectedOptions(newSelectedOptions) {
         _setSelectedOptions(newSelectedOptions)
@@ -122,8 +123,8 @@ export default function Select(props) {
      * This is available only on web because on mobile we do not open a dropdown, instead we open a modal that consumes
      * the hole height and width of the screen.
      */
-    function closeWhenUserPressesOutside() {
-        if (process.env['APP'] === 'web') onToggleOpen(false)
+    function webCloseWhenUserPressesOutside() {
+        if (APP === 'web') onToggleOpen(false)
     }
 
     /**
@@ -157,8 +158,8 @@ export default function Select(props) {
      * to calculate it again. That's because when we select an option then the options container changes height, so we need to recalculate
      * it again. The same happens when we exclude an option.
      */
-    function adjustOptionsContainerOffset() {
-        if (process.env['APP'] === 'web') {
+    function webAdjustOptionsContainerOffset() {
+        if (APP === 'web') {
             if (selectRef.current && optionsContainerRef.current) {
                 const selectRect = selectRef.current.getBoundingClientRect()
                 const optionsContainerRect = optionsContainerRef.current.getBoundingClientRect()
@@ -176,7 +177,7 @@ export default function Select(props) {
      * To calculate this we get the bounding rect for both the `select` input and the `optionsContainer` and we compare the top of the and 
      * we use this to define if the select will surpass the bottom of the screen.
      */
-    function onAutomaticDefineWhereToRenderOptionsAndAdjustOffset() {
+    function webAutomaticDefineWhereToRenderOptionsAndAdjustOffset() {
         if (optionsContainerRef.current) {
             const selectRect = selectRef.current.getBoundingClientRect()
             const optionsContainerRect = optionsContainerRef.current.getBoundingClientRect()
@@ -185,7 +186,7 @@ export default function Select(props) {
             const isOptionsContainerBiggerThanWindow = bottomPositionOfOptionsContainer > maximumHeightOfPage
             if (isOptionsContainerBiggerThanWindow) {
                 setIsToLoadOptionsOnBottom(false)
-                adjustOptionsContainerOffset()
+                webAdjustOptionsContainerOffset()
             } else {
                 setIsToLoadOptionsOnBottom(true)
             }
@@ -212,14 +213,14 @@ export default function Select(props) {
 
         if (nextState === false) {
             setSearch('')
-            if (process.env['APP'] === 'web' && searchInputRef.current) searchInputRef.current.blur()
+            if (APP === 'web' && searchInputRef.current) searchInputRef.current.blur()
         } else {
             onSearch('')
-            if (process.env['APP'] === 'web') {
+            if (APP === 'web') {
                 if (searchInputRef.current) searchInputRef.current.focus()
                 // On the web this will rotate 
                 setTimeout(() => {
-                    onAutomaticDefineWhereToRenderOptionsAndAdjustOffset()
+                    webAutomaticDefineWhereToRenderOptionsAndAdjustOffset()
                 }, 1)
             }
         }
@@ -375,13 +376,13 @@ export default function Select(props) {
             setOriginalOptions(newOptions)
             onSearch('', newOptions, selectedOptions)
         }
-        if (process.env['APP'] === 'web' && searchInputRef.current) searchInputRef.current.focus()
+        if (APP === 'web' && searchInputRef.current) searchInputRef.current.focus()
     }
 
     useEffect(() => {
-        if (process.env['APP'] === 'web') window.addEventListener('resize', onAutomaticDefineWhereToRenderOptionsAndAdjustOffset)
+        if (APP === 'web') window.addEventListener('resize', webAutomaticDefineWhereToRenderOptionsAndAdjustOffset)
         return () => {
-            if (process.env['APP'] === 'web') window.removeEventListener('resize', onAutomaticDefineWhereToRenderOptionsAndAdjustOffset)
+            if (APP === 'web') window.removeEventListener('resize', webAutomaticDefineWhereToRenderOptionsAndAdjustOffset)
         }
     }, [])
     
@@ -420,7 +421,7 @@ export default function Select(props) {
     }, [props.selectedOptions])
     
     useEffect(() => {
-        adjustOptionsContainerOffset()
+        webAdjustOptionsContainerOffset()
     }, [selectedOptions, filteredOptions])
 
     useEffect(() => {
@@ -429,8 +430,8 @@ export default function Select(props) {
 
     const filteredSelectedOptions = originalOptions.filter(option => selectedOptions.includes(option.value))
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         optionsContainerRef={optionsContainerRef}
         preventCloseRef={preventCloseRef}
         selectRef={selectRef}
@@ -456,7 +457,5 @@ export default function Select(props) {
         onSelectOrRemoveOption={onSelectOrRemoveOption}
         onToggleOpen={onToggleOpen}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

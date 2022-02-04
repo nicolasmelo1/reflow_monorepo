@@ -3,7 +3,7 @@ import axios from 'axios'
 import { WorkspaceContext } from '../../../authentication/contexts'
 import { AppManagementTypesContext } from '../../contexts'
 import appManagementAgent from '../../agent'
-import Layouts from './layouts'
+import Layout from './layouts'
 
 export default function ManagementApp(props) {
     const sourceRef = useRef()
@@ -58,14 +58,12 @@ export default function ManagementApp(props) {
         }
     }, [selectedWorkspace, props.app])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         workspace={selectedWorkspace}
         app={props.app}
         isFormularyOpen={isFormularyOpen}
         onOpenFormulary={onOpenFormulary}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

@@ -1,7 +1,8 @@
 import { useRef, useContext, useState, useEffect } from 'react'
 import { AppManagementTypesContext } from '../../contexts'
 import { useClickedOrPressedOutside } from '../../../core/hooks'
-import Layouts from './layouts'
+import { APP } from '../../../conf'
+import Layout from './layouts'
 
 export default function FormularyField(props) {
     const fieldTypeNameCacheRef = useRef()
@@ -77,7 +78,7 @@ export default function FormularyField(props) {
      *         ])
      *      }, [])
      * 
-     *      return process.env['APP'] === 'web' ? (
+     *      return APP === 'web' ? (
      *          <Layouts.Web types={props.types} field={props.field} />
      *      ) : (
      *          <Layouts.Mobile/>
@@ -120,7 +121,7 @@ export default function FormularyField(props) {
      * 
      * @param {boolean} isUserHoveringField - Whether or not the user is hovering over the field.
      */
-    function onHoverFieldWeb(isUserHoveringField) {
+    function webOnHoverFieldWeb(isUserHoveringField) {
         if (isUserHoveringField === false) {
             setIsHovering(isUserHoveringField)
             onToggleEditFieldMenu(false)
@@ -181,7 +182,7 @@ export default function FormularyField(props) {
      * the element gets cut because of the overflow.)
      */
     function webLoadEditMenuTopOrDownAndDefineHeight() {
-        if (process.env['APP'] === 'web' && fieldEditMenuButtonRef.current && fieldEditDropdownMenuRef.current) {
+        if (APP === 'web' && fieldEditMenuButtonRef.current && fieldEditDropdownMenuRef.current) {
             const fieldEditMenuButtonRect = fieldEditMenuButtonRef.current.getBoundingClientRect()
             const fieldEditDropdownMenuRect = fieldEditDropdownMenuRef.current.getBoundingClientRect()
             const doesDatePickerPassBottom = fieldEditMenuButtonRect.bottom + fieldEditDropdownMenuRect.height > window.innerHeight
@@ -223,9 +224,9 @@ export default function FormularyField(props) {
      */
     function webDismissEditFieldButton(e) {
         if (fieldRef.current && fieldRef.current.contains(e.target) && isHoveringRef.current === false) {
-            onHoverFieldWeb(true)
+            webOnHoverFieldWeb(true)
         } else if (fieldRef.current && !fieldRef.current.contains(e.target) && isHoveringRef.current === true) {
-            onHoverFieldWeb(false)
+            webOnHoverFieldWeb(false)
         }
     }
 
@@ -379,20 +380,20 @@ export default function FormularyField(props) {
     }
 
     useEffect(() => {
-        if (process.env['APP'] === 'web') {
+        if (APP === 'web') {
             window.addEventListener('resize', webLoadEditMenuTopOrDownAndDefineHeight)
             document.addEventListener('mousemove', webDismissEditFieldButton)
         }
         return () => {
-            if (process.env['APP'] === 'web') {
+            if (APP === 'web') {
                 document.removeEventListener('mousemove', webDismissEditFieldButton)
                 window.removeEventListener('resize', webLoadEditMenuTopOrDownAndDefineHeight)
             }
         }
     }, [])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         fieldRef={fieldRef}
         fieldEditMenuButtonRef={fieldEditMenuButtonRef}
         fieldEditDropdownMenuRef={fieldEditDropdownMenuRef}
@@ -421,7 +422,5 @@ export default function FormularyField(props) {
         onRemoveField={props.onRemoveField}
         onDuplicateField={props.onDuplicateField}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

@@ -2,10 +2,11 @@ import { useState, useEffect, useRef, useContext } from 'react'
 import { HomeDefaultsContext, AreaContext, HomeContext } from '../../contexts'
 import { WorkspaceContext } from '../../../authentication/contexts'
 import { delay } from '../../../../../shared/utils'
-import Layouts from './layouts'
 import { useClickedOrPressedOutside, useRouterOrNavigationRedirect } from '../../../core/hooks'
 import homeAgent from '../../agent'
 import { paths } from '../../../core/utils/constants'
+import { APP } from '../../../conf'
+import Layout from './layouts'
 
 const defaultDelay = delay(1000)
 
@@ -24,7 +25,7 @@ export default function Home(props) {
         setState: setSelectedAreaAndApp,
         retrieveFromPersist
     } = useContext(HomeDefaultsContext)
-    useClickedOrPressedOutside({ ref: areaDropdownEditMenuRef, callback: clickOutsideToClose})
+    useClickedOrPressedOutside({ ref: areaDropdownEditMenuRef, callback: webClickOutsideToClose})
     const [isResizing, setIsResizing] = useState(false)
     const [isFloatingSidebar, setIsFloatingSidebar] = useState(false)
     const [isOpenSidebar, setIsOpenSidebar] = useState(true)
@@ -77,7 +78,7 @@ export default function Home(props) {
      * When the sidebar is set to floating we automatically close the sidebar, otherwise we automatically open it.
      */
     function onEnableOrDisableFloatingSidebar() {
-        if (process.env['APP'] === 'web') {
+        if (APP === 'web') {
             if (isFloatingSidebar) {
                 setIsFloatingSidebar(false)
                 setIsOpenSidebar(true)
@@ -99,7 +100,7 @@ export default function Home(props) {
      * but when he moves away than the sidebar is able to be collapsed.
      */
     function onPreventSidebarCollapse(preventSidebarCollapse) {
-        if (process.env['APP'] === 'web') {
+        if (APP === 'web') {
             if (isToPreventSidebarCollapse !== preventSidebarCollapse) {
                 setIsToPreventSidebarCollapse(preventSidebarCollapse)
             }
@@ -117,7 +118,7 @@ export default function Home(props) {
      * @param {import('react').MouseEvent} event - The 'onMouseMove' event that triggered this function.
      */
     function onMouseMoveOpenSidebar(event) {
-        if (process.env['APP'] === 'web') {
+        if (APP === 'web') {
             const MIN_WIDTH_TO_OPEN_SIDEBAR = 50
             if (isFloatingSidebar) {
                 const canOpenSidebar = event.pageX <= MIN_WIDTH_TO_OPEN_SIDEBAR && event.pageX >= 0 && isOpenSidebar === false
@@ -142,8 +143,8 @@ export default function Home(props) {
      * 
      * @param {boolean} isResizing - This is a boolean that will tell if the sidebar is being resized or not.
      */
-    function onResize(isResizing) {
-        if (process.env['APP'] === 'web') {
+    function webOnResize(isResizing) {
+        if (APP === 'web') {
             setIsResizing(isResizing)
         }
     }
@@ -156,12 +157,12 @@ export default function Home(props) {
      */
     let afterResize = null
     function onResizeWindow() {
-        if (process.env['APP'] === 'web') {
-            onResize(true)
+        if (APP === 'web') {
+            webOnResize(true)
             clearTimeout(afterResize)
             afterResize = setTimeout(() => {
                 if (isMountedRef.current === true) {
-                    onResize(false)
+                    webOnResize(false)
                 }
             }, 100)
         }
@@ -310,18 +311,20 @@ export default function Home(props) {
      * 
      * @param {React.SyntheticEvent} event - The event that triggered the function.
      */
-    function clickOutsideToClose(e) {
-        if(areaDropdownEditButtonRef.current !== null && !areaDropdownEditButtonRef.current.contains(e.target)) {
-            setIsEditingArea(false)
+    function webClickOutsideToClose(e) {
+        if (process.env?.APP === 'web') {
+            if(areaDropdownEditButtonRef.current !== null && !areaDropdownEditButtonRef.current.contains(e.target)) {
+                setIsEditingArea(false)
+            }
         }
     }
 
     useEffect(() => {
         isMountedRef.current = true
-        if (process.env['APP'] === 'web') window.addEventListener('resize', onResizeWindow)
+        if (APP === 'web') window.addEventListener('resize', onResizeWindow)
         return () => {
             isMountedRef.current = false
-            if (process.env['APP'] === 'web') window.removeEventListener('resize', onResizeWindow)
+            if (APP === 'web') window.removeEventListener('resize', onResizeWindow)
         }
     }, [])
     
@@ -371,11 +374,11 @@ export default function Home(props) {
         }
     }, [areas, props.workspaceUUID, props.appUUID])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         areaDropdownEditMenuRef={areaDropdownEditMenuRef}
         areaDropdownEditButtonRef={areaDropdownEditButtonRef}
-        onResize={onResize}
+        webOnResize={webOnResize}
         onChangeAreaNameOrColor={onChangeAreaNameOrColor}
         nonUniqueAreaUUIDs={nonUniqueAreaUUIDs}
         setIsEditingArea={setIsEditingArea}
@@ -393,7 +396,5 @@ export default function Home(props) {
         onPreventSidebarCollapse={onPreventSidebarCollapse}
         onMouseMoveOpenSidebar={onMouseMoveOpenSidebar}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

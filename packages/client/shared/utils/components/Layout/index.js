@@ -1,5 +1,4 @@
 import { useEffect, useContext } from 'react'
-import Layouts from './layouts'
 import { ThemeProvider } from 'styled-components'
 import themes from '../../../core/utils/themes'
 import { paths } from '../../../core/utils/constants'
@@ -7,6 +6,7 @@ import { exceptionObserver as agentExceptionObserver, getRefreshToken, setTokens
 import { useRouterOrNavigationRedirect } from '../../../core/hooks'
 import { AuthenticationContext } from '../../../authentication/contexts'
 import utilsAgent from '../../agent'
+import { default as RenderLayout } from './layouts'
 
 /**
  * This is the main component of the page, we use this custom layout component so pages can override from this.
@@ -16,7 +16,7 @@ import utilsAgent from '../../agent'
  * 
  * @returns {import('React').Component} - Returns a React component. Can be either a mobile component or a web component.
  */
-function Layout(props) {
+export default function Layout(props) {
     const { setIsAuthenticated } = useContext(AuthenticationContext) 
     const redirect = useRouterOrNavigationRedirect()
 
@@ -75,17 +75,9 @@ function Layout(props) {
 
     return (
         <ThemeProvider theme={themes.default}>
-            {process.env['APP'] === 'web' ? (
-                <Layouts.Web 
-                children={props.children}
-                />
-            ) : (
-                <Layouts.Mobile 
-                children={props.children}
-                />
-            )}
+            <RenderLayout
+            children={props.children}
+            />
         </ThemeProvider>
     )
 }
-
-module.exports = Layout

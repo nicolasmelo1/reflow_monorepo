@@ -1,11 +1,12 @@
 import { useRef, useState, useEffect, useContext } from 'react'
-import Layouts from './layouts'
 import homeAgent from '../../agent'
+import { APP } from '../../../conf'
 import { WorkspaceContext, UserContext } from '../../../authentication/contexts'
 import { AreaContext, HomeContext } from '../../contexts'
 import { generateUUID } from '../../../../../shared/utils'
 import { useRouterOrNavigationRedirect } from '../../../core/hooks'
 import { paths, strings } from '../../../core/utils/constants'
+import Layout from './layouts'
 
 /**
  * This component is the sidebar. It will hold all of the workspaces of the user as well the 
@@ -133,8 +134,8 @@ export default function Sidebar(props) {
      * for the sidebar and also we will not retrive the width from the localStorage. If this is not null we understand
      * that the user is resizing the sidebar as he wish.
      */
-    function defineWidthOfSidebar(sidebarWidth=null) {
-        if (window !== undefined && process.env['APP'] === 'web') {
+    function webDefineWidthOfSidebar(sidebarWidth=null) {
+        if (window !== undefined && APP === 'web') {
             const MAX_SIDEBAR_WIDTH = window.innerWidth - 100
             const MIN_SIDEBAR_WIDTH = 150
 
@@ -164,10 +165,10 @@ export default function Sidebar(props) {
      * start counting from the left of the screen, it's exactly where the sidebar is located so X is exactly 
      * the size of the sidebar)
      */
-    function onResizeSidebar(e) {
-        if (process.env['APP'] === 'web' && isResizingRef.current) {
+    function webOnResizeSidebar(e) {
+        if (APP === 'web' && isResizingRef.current) {
             const sidebarWidth = e.clientX
-            defineWidthOfSidebar(sidebarWidth)
+            webDefineWidthOfSidebar(sidebarWidth)
         }
     }
 
@@ -180,14 +181,16 @@ export default function Sidebar(props) {
      * 
      * This also notify the parent component that the sidebar has stopped resizing.
      */
-    function onStopResizingSidebar() {
-        if (isResizingRef.current === true) {
-            setIsResizing(false)
-            props.onResizeSidebar(false)
+    function webStopResizingSidebar() {
+        if (APP === 'web') {
+            if (isResizingRef.current === true) {
+                setIsResizing(false)
+                props.webOnResizeSidebar(false)
+            }
+            
+            document.removeEventListener('mousemove', webOnResizeSidebar)
+            document.removeEventListener('mouseup', webStopResizingSidebar)
         }
-        
-        document.removeEventListener('mousemove', onResizeSidebar)
-        document.removeEventListener('mouseup', onStopResizingSidebar)
     }
 
     /**
@@ -197,12 +200,14 @@ export default function Sidebar(props) {
      * we add two listeners to the document to see where the mouse is located. That's the hole idea. We do not attach this
      * when the component is loaded but when we are resizing so we prevent unwanted behaviours from happening.
      */
-    function onStartResizingSidebar() {
-        setIsResizing(true)
-        props.onResizeSidebar(true)
+    function webOnStartResizingSidebar() {
+        if (APP === 'web') {
+            setIsResizing(true)
+            props.webOnResizeSidebar(true)
 
-        document.addEventListener('mousemove', onResizeSidebar)
-        document.addEventListener('mouseup', onStopResizingSidebar)
+            document.addEventListener('mousemove', webOnResizeSidebar)
+            document.addEventListener('mouseup', webStopResizingSidebar)
+        }
     }
 
     /**
@@ -232,7 +237,7 @@ export default function Sidebar(props) {
     }
 
     useEffect(() => {
-        defineWidthOfSidebar()
+        webDefineWidthOfSidebar()
     }, [])
 
     /**
@@ -253,15 +258,15 @@ export default function Sidebar(props) {
         }
     }, [selectedWorkspace])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         user={user}
         addWorkspaceButtonRef={addWorkspaceButtonRef}
         workspaces={areas !== undefined ? areas : []}
         isResizing={isResizing}
         editingAreaOrAppUUID={editingAreaOrAppUUID}
         setEditingAreaOrAppUUID={setEditingAreaOrAppUUID}
-        onStartResizingSidebar={onStartResizingSidebar}
+        webOnStartResizingSidebar={webOnStartResizingSidebar}
         onChangeWorkspace={onChangeWorkspace}
         onCreateArea={onCreateArea}
         onOpenOrCloseWorkspaceDropdown={onOpenOrCloseWorkspaceDropdown}
@@ -271,7 +276,5 @@ export default function Sidebar(props) {
         isOpen={props.isOpen}
         onPreventSidebarCollapse={props.onPreventSidebarCollapse}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

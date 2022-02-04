@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
-import Layouts from './layouts'
+import { APP } from '../../../conf'
+import Layout from './layouts'
 
 export default function Tooltip(props) {
     const [isOpen, _setIsOpen] = useState(false)
@@ -18,7 +19,7 @@ export default function Tooltip(props) {
     }
 
     function webCalculateTooltipPosition() {
-        if (process.env['APP'] === 'web' && tooltipRef.current && containerRef.current) {
+        if (APP === 'web' && tooltipRef.current && containerRef.current) {
             const tooltipRect = tooltipRef.current.getBoundingClientRect()
             const containerRect = containerRef.current.getBoundingClientRect()
             const doesTooltipPassRight = containerRect.right + tooltipRect.width > window.innerWidth
@@ -85,23 +86,19 @@ export default function Tooltip(props) {
 
 
     useEffect(() => {
-        if(process.env['APP']) document.addEventListener('mousemove', webOnMouseMove)
+        if(APP) document.addEventListener('mousemove', webOnMouseMove)
         return () => {
-            if(process.env['APP']) document.removeEventListener('mousemove', webOnMouseMove) 
+            if(APP) document.removeEventListener('mousemove', webOnMouseMove) 
         }
     }, [])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         tooltipRef={tooltipRef}
         containerRef={containerRef}
         tooltipPosition={tooltipPosition}
         isOpen={isOpen}
         children={props.children}
         />
-    ) : (
-        <Layouts.Mobile
-        children={props.children}
-        />
-    ) 
+    )
 }

@@ -1,3 +1,4 @@
+import { APP } from '../../conf'
 import { BEARER } from '../../conf'
 import dynamicImport from '../utils/dynamicImport'
 
@@ -83,9 +84,9 @@ export function setTokenInHeader(token) {
  * @returns {string} - The refresh token.
  */
 export async function getRefreshToken() {
-    if (process.env['APP'] === 'web' && localStorage !== undefined) {
+    if (APP === 'web' && localStorage !== undefined) {
         return localStorage.getItem('refreshToken')
-    } else if (process.env['APP'] !== 'web') {
+    } else if (APP === 'mobile') {
         return await AsyncStorage.getItem('refreshToken')
     }
 }
@@ -96,9 +97,9 @@ export async function getRefreshToken() {
  * @returns {Promise<string>} - The token to use in the request.
  */
 export async function getToken() {
-    if (process.env['APP'] === 'web' && localStorage !== undefined) {
+    if (APP === 'web' && localStorage !== undefined) {
         return localStorage.getItem('token') 
-    } else if (process.env['APP'] !== 'web') {
+    } else if (APP === 'mobile') {
         return await AsyncStorage.getItem('token')
     }
 }
@@ -113,10 +114,10 @@ export async function getToken() {
  * on the asyncStorage.
  */
 export async function setTokens(accessToken, refreshToken) {
-    if (process.env['APP'] === 'web' && localStorage !== undefined) {
+    if (APP === 'web' && localStorage !== undefined) {
         localStorage.setItem('token', accessToken)
         localStorage.setItem('refreshToken', refreshToken)
-    } else if (process.env['APP'] !== 'web') {
+    } else if (APP !== 'web') {
         await AsyncStorage.setItem('token', accessToken)
         await AsyncStorage.setItem('refreshToken', refreshToken)
     }
@@ -126,10 +127,10 @@ export async function setTokens(accessToken, refreshToken) {
  * This will remove the tokens from the localstorage because the user is not logged in anymore.
  */
 export async function removeTokens() {
-    if (process.env['APP'] === 'web' && localStorage !== undefined) {
+    if (APP === 'web' && localStorage !== undefined) {
         localStorage.removeItem('token')
         localStorage.removeItem('refreshToken')
-    } else if (process.env['APP'] !== 'web') {
+    } else if (APP === 'mobile') {
         await AsyncStorage.removeItem('token')
         await AsyncStorage.removeItem('refreshToken')
     }

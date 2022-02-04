@@ -1,7 +1,8 @@
-import { TouchableOpacity } from 'react-native'
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
+import { TouchableOpacity } from 'react-native'
 
-export const Layout = process.env['APP'] === 'web' ?
+export const Layout = APP === 'web' ?
 styled.div`
     height: calc(100% - 90px);
     width: 100%;
@@ -9,7 +10,7 @@ styled.div`
 :
 styled(View)``
 
-export const FormularyButton = process.env['APP'] === 'web' ? 
+export const FormularyButton = APP === 'web' ? 
 styled.button`
     position: absolute;
     right: 10px;

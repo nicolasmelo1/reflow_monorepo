@@ -218,7 +218,7 @@ class FlowDatetime extends FlowObject {
      * 
      * @param {FlowDatetime} obj - The date to compare to this date.
      * 
-     * @returns {import('./boolean')} - True if the date is less than the given date, false otherwise.
+     * @returns {Promise<import('./boolean')>} - True if the date is less than the given date, false otherwise.
      */
     async _lessthan_(obj) {
         if (obj.type === DATETIME_TYPE) {
@@ -235,7 +235,7 @@ class FlowDatetime extends FlowObject {
      * 
      * @param {FlowDatetime} obj - The date to compare to this date.
      * 
-     * @returns {import('./boolean')} - True if the date is greater than the given date, false otherwise.
+     * @returns {Promise<import('./boolean')>} - True if the date is greater than the given date, false otherwise.
      */
     async _greaterthan_(obj) {
         if (obj.type === DATETIME_TYPE) {
@@ -250,7 +250,7 @@ class FlowDatetime extends FlowObject {
     /**
      * A date object by default always return a new FlowBoolean as true instead of the default false.
      * 
-     * @returns {import('./boolean')} - True.
+     * @returns {Promise<import('./boolean')>} - True.
      */
     async _boolean_() {
         return await this.newBoolean(true)
@@ -272,7 +272,7 @@ class FlowDatetime extends FlowObject {
     /**
      * Returns the date as an iso string.
      * 
-     * @returns {String} - The date as an iso string.
+     * @returns {Promise<String>} - The date as an iso string.
      */
     async _json_() {
         const representation = await this._representation_()

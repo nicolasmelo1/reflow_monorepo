@@ -1,10 +1,11 @@
-import React from 'react'
+import { APP } from '../../../../conf'
+import { forwardRef } from 'react'
 import styled from 'styled-components'
 import { View, TouchableOpacity, Text, TextInput } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import whiteOrBlackColor from '../../../../core/utils/whiteOrBlackColor'
 
-export const Container = process.env['APP'] === 'web' ? 
+export const Container = APP === 'web' ? 
 styled.div`
     display: flex;
     flex-direction: row;
@@ -15,7 +16,7 @@ styled.div`
 :
 styled(View)``
 
-export const ContentContainer = process.env['APP'] === 'web' ? 
+export const ContentContainer = APP === 'web' ? 
 styled.div`
     width: ${props => props.isFloating ? 'var(--app-width)' : 
             props.isOpen ? 'calc(var(--app-width) - var(--sidebar-width))' : 'var(--app-width)'};
@@ -25,7 +26,7 @@ styled.div`
 :
 styled(View)``
 
-export const TopContainer = process.env['APP'] === 'web' ? 
+export const TopContainer = APP === 'web' ? 
 styled.div`
     display: flex;
     flex-direction: column;
@@ -38,7 +39,7 @@ styled.div`
 :
 styled(View)``
 
-export const WorkspaceTitle = process.env['APP'] === 'web' ? 
+export const WorkspaceTitle = APP === 'web' ? 
 styled.h1`
     font-family: Roboto;
     user-select: none;
@@ -55,13 +56,13 @@ styled.h1`
 :
 styled(Text)``
 
-export const WorkspaceEditDropdownIcon = styled(React.forwardRef(({isNonUniqueAreaName, backgroundColor, ...rest}, ref) => (
+export const WorkspaceEditDropdownIcon = styled(forwardRef(({isNonUniqueAreaName, backgroundColor, ...rest}, ref) => (
     <FontAwesomeIcon {...rest} ref={ref}/>
 )))`
     color: ${props => props.isNonUniqueAreaName ? props.theme.red_REFLOW : whiteOrBlackColor(props.backgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.white};
 `
 
-export const WorkpsaceEditButton = process.env['APP'] === 'web' ?
+export const WorkpsaceEditButton = APP === 'web' ?
 styled.button`
     display: flex;
     flex-direction: row;
@@ -82,7 +83,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const WorkspaceEditDropdownWrapper = process.env['APP'] === 'web' ?
+export const WorkspaceEditDropdownWrapper = APP === 'web' ?
 styled.div`
     display: flex;
     position: relative;
@@ -93,7 +94,7 @@ styled.div`
 :
 styled(View)``
 
-export const WorkspaceEditDropdownContainer = process.env['APP'] === 'web' ?
+export const WorkspaceEditDropdownContainer = APP === 'web' ?
 styled.div`
     position: absolute;
     top: 0;
@@ -110,7 +111,7 @@ styled.div`
 :
 styled(View)``
 
-export const WorkspaceRemoveContainer = process.env['APP'] === 'web' ?
+export const WorkspaceRemoveContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -122,7 +123,7 @@ styled.div`
 :
 styled(View)``
 
-export const RemoveWorkspaceButton = process.env['APP'] === 'web' ?
+export const RemoveWorkspaceButton = APP === 'web' ?
 styled.button`
     display: flex;
     flex-direction: row;
@@ -140,14 +141,14 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const RemoveWorkspaceButtonIcon = styled(React.forwardRef(({...rest}, ref) => (
+export const RemoveWorkspaceButtonIcon = styled(forwardRef(({...rest}, ref) => (
     <FontAwesomeIcon {...rest} ref={ref}/>
 )))`
     margin-right: 10px;
     color: ${props => props.theme.red_REFLOW};
 `
 
-export const WorkspaceEditInput = process.env['APP'] === 'web' ?
+export const WorkspaceEditInput = APP === 'web' ?
 styled.input`
     border: 1px solid ${props => props.theme.clearGray};
     text-align: center;
@@ -170,7 +171,7 @@ styled.input`
 :
 styled(TextInput)``
 
-export const WorkspaceEditColorSelectionContainer = process.env['APP'] === 'web' ?
+export const WorkspaceEditColorSelectionContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -181,7 +182,7 @@ styled.div`
 :
 styled(View)``
 
-export const WorkspaceEditColorSelection = process.env['APP'] === 'web' ?
+export const WorkspaceEditColorSelection = APP === 'web' ?
 styled.div`
     padding: 5px;
     display: flex;
@@ -191,7 +192,7 @@ styled.div`
 :
 styled(View)``
 
-export const WorkspaceEditColorButton = process.env['APP'] === 'web' ?
+export const WorkspaceEditColorButton = APP === 'web' ?
 styled.button`
     border: 0;
     width: 20px;
@@ -209,7 +210,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const AppsContainer = process.env['APP'] === 'web' ? 
+export const AppsContainer = APP === 'web' ? 
 styled.div`
     display: flex;
     flex-direction: row;
@@ -218,7 +219,7 @@ styled.div`
 :
 styled(View)``
 
-export const SidebarButton = process.env['APP'] === 'web' ? 
+export const SidebarButton = APP === 'web' ? 
 styled.button`
     display: flex;
     flex-direction: row;
@@ -244,7 +245,7 @@ styled(TouchableOpacity)``
 
 export const SidebarButtonIcon = styled(FontAwesomeIcon)``
 
-export const AppsScroller = process.env['APP'] === 'web' ? 
+export const AppsScroller = APP === 'web' ? 
 styled.div`
     display: flex;
     flex-direction: row;
@@ -268,7 +269,7 @@ styled.div`
 :
 styled(View)``
 
-export const AppsButton = process.env['APP'] === 'web' ? 
+export const AppsButton = APP === 'web' ? 
 styled.div`
     display: flex;
     flex-direction: row;
@@ -289,7 +290,7 @@ styled.div`
 :
 styled(TouchableOpacity)``
 
-export const AddNewAppButton = process.env['APP'] === 'web' ? 
+export const AddNewAppButton = APP === 'web' ? 
 styled.button`
     display: flex;
     flex-direction: row;
@@ -317,7 +318,7 @@ export const AddNewAppButtonIcon = styled(FontAwesomeIcon)`
     margin-left: 10px;
 `
 
-export const AppsText = process.env['APP'] === 'web' ? 
+export const AppsText = APP === 'web' ? 
 styled.p`
     user-select: none;
     margin: 0;
@@ -328,7 +329,7 @@ styled.p`
 :
 styled(Text)`` 
 
-export const AppsRemoveButton = process.env['APP'] === 'web' ?
+export const AppsRemoveButton = APP === 'web' ?
 styled.button`
     border: 0;
     display: flex;

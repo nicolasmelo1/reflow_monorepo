@@ -1,5 +1,4 @@
 import { useState, useContext } from 'react'
-import Layouts from './layouts'
 import authenticationAgent from '../../agent'
 import { 
     AuthenticationContext, 
@@ -9,6 +8,7 @@ import {
 } from '../../contexts'
 import { isAdmin } from '../../utils'
 import { setTokens } from '../../../core/agent/utils'
+import Layout from './layouts'
 
 /**
  * This component is supposed to log the user inside of reflow. This component is not opinionated on what it does after the user
@@ -75,16 +75,14 @@ const Login = (props) => {
         })
     }
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         username={username}
         password={password}
         onChangeUsername={setUsername}
         onChangePassword={setPassword}
         onSubmit={onSubmit}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }
 

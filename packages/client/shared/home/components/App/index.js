@@ -2,7 +2,7 @@ import { useEffect, useContext } from 'react'
 import { WorkspaceContext } from '../../../authentication/contexts'
 import { AppContext, HomeDefaultsContext } from '../../contexts'
 import homeAgent from '../../agent'
-import Layouts from './layout'
+import Layout from './layout'
 
 export default function App(props) {
     const { state: { app }, setApp, retrieveFromPersist } = useContext(AppContext)
@@ -28,13 +28,11 @@ export default function App(props) {
         }
     }, [selectedArea.uuid, selectedApp.uuid])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         app={app}
         isSidebarFloating={props.isSidebarFloating}
         isSidebarOpen={props.isSidebarOpen}
         />
-    ) : (
-        <Layouts.Mobile/>
     )
 }

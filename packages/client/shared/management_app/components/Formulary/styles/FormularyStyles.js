@@ -1,8 +1,9 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 
-export const Container = process.env['APP'] === 'web' ? 
+export const Container = APP === 'web' ? 
 styled.div`
     display: flex;
     flex-direction: column;
@@ -12,7 +13,7 @@ styled.div`
 : 
 styled(View)``
 
-export const ToolbarContainer = process.env['APP'] === 'web' ?
+export const ToolbarContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -25,7 +26,7 @@ styled.div`
 :
 styled(View)``
 
-export const ToolbarButton = process.env['APP'] === 'web' ?
+export const ToolbarButton = APP === 'web' ?
 styled.button`
     display: flex;
     flex-direction: row;
@@ -45,7 +46,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const ToolbarButtonText = process.env['APP'] === 'web' ?
+export const ToolbarButtonText = APP === 'web' ?
 styled.p`
     color: ${props => props.theme.darkBlue};
     margin: 0;
@@ -58,7 +59,7 @@ export const ToolbarButtonIcon = styled(FontAwesomeIcon)`
     color: ${props => props.theme.darkBlue};
 `
 
-export const FormularyTitle = process.env['APP'] === 'web' ?
+export const FormularyTitle = APP === 'web' ?
 styled.h1 `
     margin: 0;
     font-family: Roboto;
@@ -70,7 +71,7 @@ styled.h1 `
 :
 styled(Text)``
 
-export const FormularyContainer = process.env['APP'] === 'web' ?
+export const FormularyContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;

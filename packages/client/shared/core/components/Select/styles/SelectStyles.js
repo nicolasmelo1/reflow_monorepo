@@ -1,8 +1,9 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, TextInput, TouchableOpacity, Text } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 
-export const Container = process.env['APP'] === 'web' ? 
+export const Container = APP === 'web' ? 
 styled.div`
     display: flex;
     flex-direction: column;
@@ -10,7 +11,7 @@ styled.div`
 :
 styled(View)``
 
-export const SelectedOption = process.env['APP'] === 'web' ?
+export const SelectedOption = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -22,7 +23,7 @@ styled.div`
 :
 styled(TouchableOpacity)``
 
-export const SelectedOptionLabel = process.env['APP'] === 'web' ?
+export const SelectedOptionLabel = APP === 'web' ?
 styled.p`
     cursor: pointer;
     user-select: none;
@@ -34,7 +35,7 @@ styled.p`
 :
 styled(Text)``
 
-export const SelectedOptionRemoveButton = process.env['APP'] === 'web' ? 
+export const SelectedOptionRemoveButton = APP === 'web' ? 
 styled.button`
     user-select: none;
     font-family: Roboto;
@@ -58,7 +59,7 @@ export const SelectedOptionRemoveButtonIcon = styled(FontAwesomeIcon)`
 `
 
 
-export const OptionsContainerWrapper = process.env['APP'] === 'web' ?
+export const OptionsContainerWrapper = APP === 'web' ?
 styled.div`
     position: relative;
     width: 100%;
@@ -66,7 +67,7 @@ styled.div`
 :
 styled(View)``
 
-export const OptionsContainer = process.env['APP'] === 'web' ?
+export const OptionsContainer = APP === 'web' ?
 styled.div`
     overflow: auto;
     position: absolute;
@@ -85,7 +86,7 @@ styled.div`
 :
 styled(View)``
 
-export const SearchAndSelectedOptionsContainer = process.env['APP'] === 'web' ? 
+export const SearchAndSelectedOptionsContainer = APP === 'web' ? 
 styled.div`
     display: flex;
     flex-direction: row;
@@ -98,7 +99,7 @@ styled.div`
 :
 styled(View)``
 
-export const SearchInput = process.env['APP'] === 'web' ? 
+export const SearchInput = APP === 'web' ? 
 styled.input`
     width: ${props => props.inputWidth > 1 ? props.inputWidth + 1 : props.inputWidth}ch;
     overflow: hidden;
@@ -122,7 +123,7 @@ styled.input`
 :
 styled(TextInput)``
 
-export const OptionContainer = process.env['APP'] === 'web' ?
+export const OptionContainer = APP === 'web' ?
 styled.div`
     width: calc(100% - 10px);
     padding: 5px;
@@ -130,7 +131,7 @@ styled.div`
 :
 styled(View)``
 
-export const HelperContainer = process.env['APP'] === 'web' ? 
+export const HelperContainer = APP === 'web' ? 
 styled.div`
     padding: 5px;
     width: calc(100% - 10px);
@@ -138,7 +139,7 @@ styled.div`
 :
 styled(View)``
 
-export const HelperLabel = process.env['APP'] === 'web' ? 
+export const HelperLabel = APP === 'web' ? 
 styled.p`
     margin: 0;
     font-size: 12px;
@@ -149,7 +150,7 @@ styled.p`
 :
 styled(Text)``
 
-export const OptionButton = process.env['APP'] === 'web' ?
+export const OptionButton = APP === 'web' ?
 styled.button`
     user-select: none;
     font-family: Roboto;
@@ -168,7 +169,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const CreateOptionButton = process.env['APP'] === 'web' ?
+export const CreateOptionButton = APP === 'web' ?
 styled.button`
     user-select: none;
     font-family: Roboto;
@@ -189,7 +190,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const CreateOptionElement = process.env['APP'] === 'web' ?
+export const CreateOptionElement = APP === 'web' ?
 styled.span`
     background-color: ${props => props.theme.clearGray};
     border-radius: 5px;

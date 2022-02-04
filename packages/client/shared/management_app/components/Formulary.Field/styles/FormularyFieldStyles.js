@@ -1,7 +1,8 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, Text, TouchableOpacity, TextInput } from 'react-native'
 
-export const Container = process.env['APP'] === 'web' ?
+export const Container = APP === 'web' ?
 styled.div`
     position: relative;
     background-color: ${props => props.theme.white};
@@ -12,7 +13,7 @@ styled.div`
 :
 styled(View)``
 
-export const FieldIsHiddenAndLabelIsHiddenMessage = process.env['APP'] === 'web' ?
+export const FieldIsHiddenAndLabelIsHiddenMessage = APP === 'web' ?
 styled.small`
     margin: 0;
     font-size: 12px;
@@ -22,7 +23,7 @@ styled.small`
 :
 styled(Text)``
 
-export const FieldTitleLabel = process.env['APP'] === 'web' ? 
+export const FieldTitleLabel = APP === 'web' ? 
 styled.p`
     font-size: 15px;
     padding: 5px;
@@ -34,7 +35,7 @@ styled.p`
 :
 styled(Text)``
 
-export const LabelNameInput = process.env['APP'] === 'web' ?
+export const LabelNameInput = APP === 'web' ?
 styled.input`
     font-size: 15px;
     font-family: Roboto;
@@ -64,7 +65,7 @@ styled.input`
 :
 styled(TextInput)``
 
-export const FieldEditMenu = process.env['APP'] === 'web' ?
+export const FieldEditMenu = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
@@ -78,7 +79,7 @@ styled.div`
 :
 styled(View)``
 
-export const FieldEditButtonMenu = process.env['APP'] === 'web' ?
+export const FieldEditButtonMenu = APP === 'web' ?
 styled.button`
     border-radius: 5px;
     border: 0;
@@ -92,7 +93,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const FieldEditMenuWrapper = process.env['APP'] === 'web' ?
+export const FieldEditMenuWrapper = APP === 'web' ?
 styled.div`
     position: fixed;
     top: 0;
@@ -106,7 +107,7 @@ styled.div`
 :
 styled(View)``
 
-export const FieldEditMenuDropdownContainer = process.env['APP'] === 'web' ?
+export const FieldEditMenuDropdownContainer = APP === 'web' ?
 styled.div`
     position: fixed;
     display: flex;
@@ -128,7 +129,7 @@ styled.div`
 :
 styled(View)``
 
-export const FieldEditMenuDropdownButton = process.env['APP'] === 'web' ?
+export const FieldEditMenuDropdownButton = APP === 'web' ?
 styled.button`
     background-color: transparent;
     border: 0;
@@ -147,7 +148,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const FieldEditMenuDropdownSeparator = process.env['APP'] === 'web' ?
+export const FieldEditMenuDropdownSeparator = APP === 'web' ?
 styled.hr`
     color: ${props => props.theme.clearGray};
     background-color: ${props => props.theme.clearGray};
@@ -157,7 +158,7 @@ styled.hr`
 :
 styled(View)``
 
-export const FieldEditMenuDropdownSwitchContainer = process.env['APP'] === 'web' ?
+export const FieldEditMenuDropdownSwitchContainer = APP === 'web' ?
 styled.div`
     user-select: none;
     padding: 10px;
@@ -174,7 +175,7 @@ styled.div`
 :
 styled(View)``
 
-export const FieldEditMenuDropdownSwitchLabel = process.env['APP'] === 'web' ?
+export const FieldEditMenuDropdownSwitchLabel = APP === 'web' ?
 styled.p`
     font-size: 13px;
     text-align: right;
@@ -186,7 +187,7 @@ styled.p`
 :
 styled(Text)``
 
-export const FieldEditMenuDropdownPlaceholderInput = process.env['APP'] === 'web' ?
+export const FieldEditMenuDropdownPlaceholderInput = APP === 'web' ?
 styled.input`
     font-size: 13px;
     font-family: Roboto;

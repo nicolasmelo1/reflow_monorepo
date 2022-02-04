@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { generateUUID } from '../../../../../shared/utils'
 import { useClickedOrPressedOutside } from '../../../core'
-import Layouts from './layouts'
+import Layout from './layouts'
 
 // ------------------------------------------------------------------------------------------
 /**
@@ -19,13 +19,11 @@ import Layouts from './layouts'
  * @return {import('react').ReactElement} - The component that will be rendered.
  */
 function CustomCreateOptionButton(props) {
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web.CustomCreateOptionButton
+    return (
+        <Layout.CustomCreateOptionButton
         value={props.search}
         onCreateOption={props.onCreateOption}
         />
-    ) : (
-        <Layouts.Mobile.CustomCreateOptionButton/>
     )
 }
 // ------------------------------------------------------------------------------------------
@@ -52,13 +50,11 @@ function CustomCreateOptionButton(props) {
  * @return {import('react').ReactElement} - The component that will be rendered.
  */
 function CustomSelectedOption(props) {
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web.CustomSelectedOption
+    return (
+        <Layout.CustomSelectedOption
         option={props.option}
         onSelectOrRemoveOption={props.onSelectOrRemoveOption}
         />
-    ) : (
-        <Layouts.Mobile.CustomSelectedOption/>
     )
 }
 // ------------------------------------------------------------------------------------------
@@ -223,8 +219,8 @@ function CustomOptionSelect(props) {
         }
     }, [props.option])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web.CustomOptionSelect
+    return (
+        <Layout.CustomOptionSelect
         renameOptionInputRef={renameOptionInputRef}
         editOptionButtonRef={editOptionButtonRef}
         editMenuContainerRef={editMenuContainerRef}
@@ -244,8 +240,6 @@ function CustomOptionSelect(props) {
         option={option}
         onSelectOrRemoveOption={props.onSelectOrRemoveOption}
         />
-    ) : (
-        <Layouts.Mobile.CustomOptionSelect/>
     )
 }
 // ------------------------------------------------------------------------------------------
@@ -405,8 +399,8 @@ export default function FormularyFieldOption(props) {
         }
     }, [props.field.options])
     
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web.Field
+    return (
+        <Layout.Field
         customOptionComponentProps={customOptionComponentProps}
         customOptionComponent={{ customOption: CustomOptionSelect }}
         customSelectedComponent={{ customSelectedOption: CustomSelectedOption }}
@@ -419,7 +413,5 @@ export default function FormularyFieldOption(props) {
         types={props.types}
         field={props.field}
         />
-    ) : (
-        <Layouts.Mobile.Field/>
     )
 }

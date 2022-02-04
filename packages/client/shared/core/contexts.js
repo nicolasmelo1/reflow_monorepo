@@ -1,3 +1,4 @@
+import { APP } from '../conf'
 import { createElement } from 'react'
 import dynamicImport from "./utils/dynamicImport"
 
@@ -132,7 +133,7 @@ function GlobalProviderInitializer() {
  */
 export async function getPersistState(contextName, initialState, setState = undefined) {
     let state = null
-    if (process.env['APP'] === 'web' && window.localStorage !== undefined && localStorage !== undefined) {
+    if (APP === 'web' && window.localStorage !== undefined && localStorage !== undefined) {
         const rawState = localStorage.getItem(contextName)
         if (rawState !== null) {
             state = JSON.parse(rawState)
@@ -141,7 +142,7 @@ export async function getPersistState(contextName, initialState, setState = unde
                 ...state
             }
         }
-    } else if (process.env['APP'] !== 'web') {
+    } else if (APP !== 'web') {
         try {
             const rawState = await AsyncStorage.getItem(contextName)
             if (rawState !== null) {
@@ -177,9 +178,9 @@ export async function getPersistState(contextName, initialState, setState = unde
  * @returns {Promise<void>} - Returns a promise that resolves when the state is persisted.
  */
 export async function setPersistState(contextName, state, setState=undefined) {
-    if (process.env['APP'] === 'web' && window.localStorage !== undefined && localStorage !== undefined) {
+    if (APP === 'web' && window.localStorage !== undefined && localStorage !== undefined) {
         localStorage.setItem(contextName, JSON.stringify(state))
-    } else if (process.env['APP'] !== 'web') {
+    } else if (APP !== 'web') {
         await AsyncStorage.setItem(contextName, JSON.stringify(state))
     }
     

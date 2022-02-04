@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { useDropdownMenuSelect } from '../../hooks'
 import { strings } from '../../../core'
 import { generateUUID } from '../../../../../shared/utils'
-import Layouts from './layouts'
+import Layout from './layouts'
 
 function NumberFormatOption(props) {
     const menuRef = useRef()
@@ -19,8 +19,8 @@ function NumberFormatOption(props) {
         onOpenMenu(false)
     }
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web.DropdownMenu
+    return (
+        <Layout.DropdownMenu
         menuRef={menuRef}
         menuButtonRef={menuButtonRef}
         menuPosition={menuPosition}
@@ -31,8 +31,6 @@ function NumberFormatOption(props) {
         getNumberFormatTypeStringByName={props.getNumberFormatTypeStringByName}
         numberFormatTypes={props.numberFormatTypes}
         />
-    ) : (
-        <Layouts.Mobile.DropdownMenu/>
     )
 }
 
@@ -137,12 +135,10 @@ export default function FormularyFieldNumber(props) {
         ])
     }, [])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web.Field
+    return (
+        <Layout.Field
         types={props.types}
         field={props.field}
         />
-    ) : (
-        <Layouts.Mobile.Field/>
     )
 }

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { APP } from '../../conf'
 
 let registeredCallbacks = {}
 
@@ -75,7 +76,7 @@ let registeredCallbacks = {}
  * For both use cases you need to pass the ref of the element.
  */
 export default function useClickedOrPressedOutside({ callback=null, ref=null }={}) {
-    if (process.env['APP'] === 'web') {
+    if (APP === 'web') {
         useEffect(() => {
             /**
              * Alert if clicked on outside of element

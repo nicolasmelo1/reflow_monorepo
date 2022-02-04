@@ -1,8 +1,9 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { TextInput, View, Text } from 'react-native'
 import { whiteOrBlackColor } from '../../../utils'
 
-export const Input = process.env['APP'] === 'web' ? 
+export const Input = APP === 'web' ? 
 styled.input`
     width: 100%;
     height: 100%;
@@ -15,7 +16,7 @@ styled.input`
 :
 styled(TextInput)``
 
-export const DatepickerWrapper = process.env['APP'] === 'web' ? 
+export const DatepickerWrapper = APP === 'web' ? 
 styled.div`
     opacity: ${props => props.positionAndMaxHeight.wasCalculated === true ? '1' : '0'};
     position: fixed;
@@ -30,7 +31,7 @@ styled.div`
 :
 styled(View)``
 
-export const DatepickerContainer = process.env['APP'] === 'web' ? 
+export const DatepickerContainer = APP === 'web' ? 
 styled.div`
     position: fixed;
     overflow: auto;
@@ -46,7 +47,7 @@ styled.div`
 :
 styled(View)``
 
-export const DatepickerHeader = process.env['APP'] === 'web' ?
+export const DatepickerHeader = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -55,7 +56,7 @@ styled.div`
 :
 styled(View)``
 
-export const DatepickerMonthTitle = process.env['APP'] === 'web' ? 
+export const DatepickerMonthTitle = APP === 'web' ? 
 styled.h2`
     font-size: 20px;
     margin: 0;
@@ -67,7 +68,7 @@ styled.h2`
 :
 styled(Text)``
 
-export const DatepickerChangeMonthButtonsContainer = process.env['APP'] === 'web' ?
+export const DatepickerChangeMonthButtonsContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -77,7 +78,7 @@ styled.div`
 :
 styled(View)``
 
-export const DatepickerChangeMonthButton = process.env['APP'] === 'web' ? 
+export const DatepickerChangeMonthButton = APP === 'web' ? 
 styled.button`
     display: flex;
     flex-direction: column;
@@ -98,7 +99,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const DayOfTheWeekAndDaysOfTheMonthContainer = process.env['APP'] === 'web' ?
+export const DayOfTheWeekAndDaysOfTheMonthContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
@@ -108,7 +109,7 @@ styled.div`
 :
 styled(View)``
 
-export const TableRowContainer = process.env['APP'] === 'web' ? 
+export const TableRowContainer = APP === 'web' ? 
 styled.div`
     display: flex;
     flex-direction: row;
@@ -119,7 +120,7 @@ styled.div`
 :
 styled(View)``
 
-export const DayOfTheWeekAndDaysOfTheMonthCell = process.env['APP'] === 'web' ?
+export const DayOfTheWeekAndDaysOfTheMonthCell = APP === 'web' ?
 styled.button`
     display: flex;
     flex-direction: column;
@@ -161,7 +162,7 @@ styled.button`
 :
 styled(TouchableOpacity)``
 
-export const DayOfTheWeekLabel = process.env['APP'] === 'web' ?
+export const DayOfTheWeekLabel = APP === 'web' ?
 styled.p`
     font-size: 12px;
     margin: 0;
@@ -175,7 +176,7 @@ styled.p`
 styled(Text)``
 
 
-export const DayLabel = process.env['APP'] === 'web' ?
+export const DayLabel = APP === 'web' ?
 styled.p`
     font-size: 12px;
     margin: 0;

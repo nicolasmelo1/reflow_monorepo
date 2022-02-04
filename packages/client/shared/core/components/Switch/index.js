@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import Layouts from './layouts'
+import Layout from './layouts'
 
 /**
  * This component is used to create a switch similar to iOS or Android. It is just a checkbox but it has a nicer look and feel to it.
@@ -46,15 +46,13 @@ export default function Switch(props) {
         }
     }, [props.isSelected])
 
-    return process.env['APP'] === 'web' ? (
-        <Layouts.Web
+    return (
+        <Layout
         nonSelectedBackgroundColor={props.nonSelectedBackgroundColor}
         dotSize={dotSize}
         dotColor={dotColor}
         onSelect={onSelect}
         isSelected={isSelected}
         />
-    ) : (
-        <Layouts.Mobile/>
-    ) 
+    )
 }
