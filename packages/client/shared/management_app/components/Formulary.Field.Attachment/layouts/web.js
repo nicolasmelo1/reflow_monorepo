@@ -12,33 +12,33 @@ export default function FormularyFieldAttachmentWebLayout(props) {
             {hasValuesDefined ? (
                 <Styled.ContainerWrapper>
                     {props.values.map(value => (
-                        <Styled.FileContainer
-                        key={value.uuid}
-                        >
-                            <Styled.ImageWrapper>
-                                <img
-                                style={{ width: '100%' }}
-                                src={props.drafts.retrieveUrl(value.value)}
-                                />
-                            </Styled.ImageWrapper>
-                        </Styled.FileContainer>
+                        <Tooltip>
+                            <Styled.FileContainer
+                            key={value.uuid}
+                            >
+                                <Styled.ImageWrapper>
+                                    <img
+                                    style={{ width: '100%' }}
+                                    src={props.drafts.retrieveUrl(value.value)}
+                                    />
+                                </Styled.ImageWrapper>
+                            </Styled.FileContainer>
+                        </Tooltip>
                     ))}
                 </Styled.ContainerWrapper>
             ) : (
-                <Tooltip>
-                    <Styled.Button>
-                        <Styled.ButtonIcon icon={faFileUpload}/>
-                        <Styled.ButtonPlaceholderText>
-                            {typeof props.field.placeholder === 'string' ? 
-                                props.field.placeholder : strings('pt-BR', 'formularyFieldAttachmentPlaceholder')}
-                        </Styled.ButtonPlaceholderText>
-                        <input 
-                        onChange={(e) => props.onUploadAttachment(e.target.files[0])}
-                        type={'file'} 
-                        style={{ display: 'none'}}
-                        />
-                    </Styled.Button>
-                </Tooltip>
+                <Styled.Button>
+                    <Styled.ButtonIcon icon={faFileUpload}/>
+                    <Styled.ButtonPlaceholderText>
+                        {typeof props.field.placeholder === 'string' ? 
+                            props.field.placeholder : strings('pt-BR', 'formularyFieldAttachmentPlaceholder')}
+                    </Styled.ButtonPlaceholderText>
+                    <input 
+                    onChange={(e) => props.onUploadAttachment(e.target.files[0])}
+                    type={'file'} 
+                    style={{ display: 'none'}}
+                    />
+                </Styled.Button>
             )}
         </Styled.Container>
     )

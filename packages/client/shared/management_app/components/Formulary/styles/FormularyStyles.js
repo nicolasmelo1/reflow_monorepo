@@ -77,6 +77,7 @@ styled.div`
     flex-direction: column;
     height: ${props => `calc(var(--app-height) - ${props.offset}px)`};
     overflow: auto;
+    scroll-behavior: smooth;
     width: calc(100% - 20px);
     padding: 0 10px;
 `

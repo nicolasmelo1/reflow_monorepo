@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 export const Container = APP === 'web' ? 
 styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     width: calc(100% - 20px);
@@ -62,7 +62,6 @@ styled.div`
 :
 styled(View)``
 
-
 export const FileContainer = APP === 'web' ?
 styled.div`
     display: flex;
@@ -73,7 +72,6 @@ styled.div`
 `
 :
 styled(View)``
-
 
 export const ImageWrapper = APP === 'web' ?
 styled.div`
