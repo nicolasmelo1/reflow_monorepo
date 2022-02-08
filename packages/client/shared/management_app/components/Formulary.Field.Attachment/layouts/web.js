@@ -1,6 +1,7 @@
 import { Tooltip, strings } from '../../../../core'
 import {
-    faFileUpload
+    faFileUpload,
+    faPlusSquare
 } from '@fortawesome/free-solid-svg-icons'
 import Styled from '../styles'
 
@@ -11,20 +12,40 @@ export default function FormularyFieldAttachmentWebLayout(props) {
         <Styled.Container>
             {hasValuesDefined ? (
                 <Styled.ContainerWrapper>
-                    {props.values.map(value => (
-                        <Tooltip>
-                            <Styled.FileContainer
+                    {props.values.map(value => {
+                        const draftInformation = props.drafts.retrieveInformation(value.value)
+                        return (
+                            <Tooltip
                             key={value.uuid}
+                            placement={['bottom', 'top']}
+                            text={draftInformation.fileName}
                             >
-                                <Styled.ImageWrapper>
-                                    <img
-                                    style={{ width: '100%' }}
-                                    src={props.drafts.retrieveUrl(value.value)}
-                                    />
-                                </Styled.ImageWrapper>
-                            </Styled.FileContainer>
-                        </Tooltip>
-                    ))}
+                                <Styled.FileContainer>
+                                    <Styled.ImageWrapper>
+                                        <img
+                                        style={{ width: '100%' }}
+                                        src={draftInformation.url}
+                                        />
+                                    </Styled.ImageWrapper>
+                                </Styled.FileContainer>
+                            </Tooltip>
+                        )
+                    })}
+                    <Tooltip
+                    placement={['bottom', 'top']}
+                    text={typeof(props.field.placeholder) === 'string' ? props.field.placeholder : strings('pt-BR', 'formularyFieldAttachmentPlaceholder')}
+                    >
+                        <Styled.AddNewFileButton>
+                            <Styled.AddNewFileButtonIcon 
+                            icon={faPlusSquare}
+                            />
+                            <input 
+                            onChange={(e) => props.onUploadAttachment(e.target.files[0])}
+                            type={'file'} 
+                            style={{ display: 'none'}}
+                            />
+                        </Styled.AddNewFileButton>
+                    </Tooltip>
                 </Styled.ContainerWrapper>
             ) : (
                 <Styled.Button>

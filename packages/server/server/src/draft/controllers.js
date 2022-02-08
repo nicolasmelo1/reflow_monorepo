@@ -145,7 +145,6 @@ class DraftSaveFileController extends controllers.Controller {
 
 class DraftFileUrlController extends controllers.Controller {
     async get(req, res) {
-        console.log('teste')
         const draftService = new DraftService(req.user.id, req.workspace.id)
         const urlToRedirect = await draftService.retrieveDraftFileUrl(req.params.draftStringId)
         if (typeof urlToRedirect === 'string') {

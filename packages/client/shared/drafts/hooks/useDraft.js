@@ -45,24 +45,33 @@ function useDraft() {
     }
 
     /**
-     * Retrieves the url of the draft file that was uploaded in the backend.
+     * Retrieves the information of the draft file that was uploaded in the backend, it will retrieve the fileName,
+     * the url and the file.
      * 
      * @param {string} draftStringId - The base64 encoded string that is used to identify the draft,
      * 
-     * @returns {string} - Returns the url of the draft file or an empty string if the draft is not found.
+     * @returns {{url: string, fileName: string, file: File}} - Return an object with the draft information.
      */
-    function retrieveUrl(draftStringId) {
+    function retrieveInformation(draftStringId) {
         if (isDraft(draftStringId)) {
             const draftInformation = draftInformationByDraftStringId[draftStringId]
-            return draftInformation !== undefined ? draftInformation.url : ''
-        } else {
-            return ''
+            if (draftInformation !== undefined) {
+                return draftInformation
+            }
+        } 
+        
+        return {
+            url: '',
+            fileName: '',
+            file: null
         }
     }
     
+
+
     return {
         uploadFile,
-        retrieveUrl
+        retrieveInformation
     }
 }
 

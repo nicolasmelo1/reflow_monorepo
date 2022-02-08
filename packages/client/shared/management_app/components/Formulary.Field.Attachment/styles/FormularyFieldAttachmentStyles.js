@@ -18,6 +18,24 @@ styled.div`
 :
 styled(View)``
 
+export const AddNewFileButton = APP === 'web' ?
+styled.label`
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+`
+:
+styled(TouchableOpacity)``
+
+export const AddNewFileButtonIcon = styled(FontAwesomeIcon)`
+    font-size: 20px;
+    color: ${props => props.theme.darkBlue};
+`
+
 export const Button = APP === 'web' ? 
 styled.label`
     display: flex;
@@ -64,10 +82,12 @@ styled(View)``
 
 export const FileContainer = APP === 'web' ?
 styled.div`
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     border: 1px solid ${props => props.theme.darkBlue}50;
     padding: 5px;
+    margin: 5px;
     border-radius: 5px;
 `
 :

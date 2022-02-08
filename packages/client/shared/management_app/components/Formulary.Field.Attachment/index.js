@@ -25,14 +25,16 @@ export default function FormularyFieldAttachment(props) {
     }
 
     function onUploadAttachment(file) {
-        drafts.uploadFile(props.workspace.uuid, file).then(draftStringId => {
-            if (draftStringId !== null) {
-                setValues([...values, {
-                    uuid: generateUUID(),
-                    value: draftStringId
-                }])
-            }
-        })
+        if (![null, undefined].includes(file)) {
+            drafts.uploadFile(props.workspace.uuid, file).then(draftStringId => {
+                if (draftStringId !== null) {
+                    setValues([...values, {
+                        uuid: generateUUID(),
+                        value: draftStringId
+                    }])
+                }
+            })
+        }
     }
     
     /**

@@ -19,8 +19,8 @@ import Layout from './layouts'
 
  * @param {object} props - The props that the tooltip component recieves.
  * @param {boolean} [props.isOpen=false] - If the tooltip is open or on closed state.
- * @param {Array<'left' | 'right' | 'top' | 'bottom'>} [props.placement=['left', 'right', 'top', 'bottom']] - The possible placements of the tooltip. If nothing
- * is defined then we can place the element in all four directions, otherwise you send an array of the possible directions we can place the tooltip.
+ * @param {Array<'left' | 'right' | 'top' | 'bottom'> | 'left' | 'right' | 'top' | 'bottom'} [props.placement=['left', 'right', 'top', 'bottom']] - The possible placements 
+ * of the tooltip. If nothing is defined then we can place the element in all four directions, otherwise you send an array of the possible directions we can place the tooltip.
  * @param {Array<'hover' | 'click'>} [props.trigger=['hover', 'click']] - The possible triggers of the tooltip. If nothing is defined then we can trigger the 
  * tooltip on the hover of the mouse on the element or when we click.
  * @param {string} [props.text=''] - The text that we want to display in the tooltip, this will display a simple text in the tooltip, by default we will not break the line.
@@ -50,9 +50,9 @@ export default function Tooltip(props) {
         position: { x: 0, y: 0 },
         maxHeight: APP === 'web' ? window.innerHeight : null, 
         maxWidth: APP === 'web' ? window.innerWidth : null,
-        wasCalculated: false
+        wasCalculated: true
     })
-    const isOpenRef = useRef(isOpen)
+    const isOpenRef = useRef(isTooltipOpen)
     const containerRef = useRef()
     const tooltipRef = useRef()
 
@@ -92,8 +92,8 @@ export default function Tooltip(props) {
             // So we load on the left even though there's no actual space for it.
             const isAbleToLoadOrEnforceTop = placement.includes('top')
             const isAbleToLoadOrEnforceLeft = (doesTooltipPassLeft === false || isAbleToLoadOrEnforceTop === false) && placement.includes('left')
-            const isAbleToLoadOrEnforceBottom = (doesTooltipPassBottom === false || isAbleToLoadOrEnforceLeft === false) && placement.includes('bottom')
-            const isAbleToLoadOrEnforceRight = (doesTooltipPassRight === false || isAbleToLoadOrEnforceBottom === false) && placement.includes('right')
+            const isAbleToLoadOrEnforceBottom = (doesTooltipPassBottom === false || (isAbleToLoadOrEnforceLeft === false && isAbleToLoadOrEnforceTop === false)) && placement.includes('bottom')
+            const isAbleToLoadOrEnforceRight = (doesTooltipPassRight === false ||  (isAbleToLoadOrEnforceLeft === false && isAbleToLoadOrEnforceTop === false && isAbleToLoadOrEnforceBottom === false)) && placement.includes('right')
 
             const horizontalMiddle = containerRect.width / 2 - tooltipRect.width / 2
             const verticalMiddle = containerRect.height / 2 - tooltipRect.height / 2
@@ -213,29 +213,20 @@ export default function Tooltip(props) {
      */
     useEffect(() => {
         if (APP) {
+            if (trigger.includes('hover')) document.addEventListener('mousemove', webOnMouseMoveOrClick)
+            if (trigger.includes('click')) document.addEventListener('mousedown', webOnMouseMoveOrClick)
             window.addEventListener('resize', webCalculateTooltipPosition)
             document.addEventListener('scroll', webOnScroll, true)
         }
         return () => {
             if (APP) {
+                if (trigger.includes('hover')) document.removeEventListener('mousemove', webOnMouseMoveOrClick)
+                if (trigger.includes('click')) document.removeEventListener('mousedown', webOnMouseMoveOrClick)
                 window.removeEventListener('resize', webCalculateTooltipPosition)
                 document.removeEventListener('scroll', webOnScroll, true)
             }
         }
     }, [])
-
-    useEffect(() => {
-        if (APP) {
-            if (trigger.includes('hover')) document.addEventListener('mousemove', webOnMouseMoveOrClick)
-            if (trigger.includes('click')) document.addEventListener('mousedown', webOnMouseMoveOrClick)
-        }
-        return () => {
-            if (APP) {
-                if (trigger.includes('hover')) document.removeEventListener('mousemove', webOnMouseMoveOrClick)
-                if (trigger.includes('click')) document.removeEventListener('mousedown', webOnMouseMoveOrClick)
-            }
-        }
-    }, [props.trigger])
 
     /**
      * This effect will run when we open or close the modal to the user. If we open the tooltip then we will calculate
@@ -264,8 +255,12 @@ export default function Tooltip(props) {
         }
     }, [isOpen])
 
+    /**
+     * This effect will run when the props change for when the tooltip is opened or closed. When we do this we update the state here internally
+     * for the tooltip.
+     */
     useEffect(() => {
-        if (props.isOpen !== isOpen) {
+        if (typeof props.isOpen === 'boolean' && props.isOpen !== isOpen) {
             onOpenOrClose(props.isOpen)
         }
     }, [props.isOpen])
