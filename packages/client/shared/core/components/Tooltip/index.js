@@ -15,8 +15,10 @@ import Layout from './layouts'
  * https://popper.js.org/
  * 
  * That's all it does. I don't understand yet how this would be implemented on the mobile side but this CAN be implemented on mobile.
- * 
+ * Idea for mobile devices: https://reactnativeelements.com/docs/tooltip
+
  * @param {object} props - The props that the tooltip component recieves.
+ * @param {boolean} [props.isOpen=false] - If the tooltip is open or on closed state.
  * @param {Array<'left' | 'right' | 'top' | 'bottom'>} [props.placement=['left', 'right', 'top', 'bottom']] - The possible placements of the tooltip. If nothing
  * is defined then we can place the element in all four directions, otherwise you send an array of the possible directions we can place the tooltip.
  * @param {Array<'hover' | 'click'>} [props.trigger=['hover', 'click']] - The possible triggers of the tooltip. If nothing is defined then we can trigger the 
@@ -34,6 +36,7 @@ import Layout from './layouts'
 export default function Tooltip(props) {
     const theme = useTheme()
 
+    const isTooltipOpen = typeof props.isOpen === 'boolean' ? props.isOpen : false
     const placement = Array.isArray(props.placement) ? props.placement : typeof props.placement === 'string' ? [props.placement] : ['left', 'right', 'top', 'bottom']
     const trigger = Array.isArray(props.trigger) ? props.trigger : ['hover', 'click']
     const text = typeof props.text === 'string' ? props.text : ''
@@ -41,7 +44,7 @@ export default function Tooltip(props) {
     const customContent = ![null, undefined].includes(props.customContent) ? props.customContent : null
     const isToShowArrows = typeof props.isToShowArrows === 'boolean' ? props.isToShowArrows : true
 
-    const [isOpen, _setIsOpen] = useState(false)
+    const [isOpen, _setIsOpen] = useState(isTooltipOpen)
     const [tooltipPosition, setTooltipPosition] = useState({
         placement: ['bottom', 'right'],
         position: { x: 0, y: 0 },
@@ -171,32 +174,12 @@ export default function Tooltip(props) {
     }
 
     /**
-     * Open or closes the tooltip. On the web when the tooltip is open, we will calculate the position where it should be rendered on the screen.
-     * We only show the tooltip after the position had been calculated.
-     * 
-     * When we close the tooltip we will reset the position of the tooltip to the original position so next time we will calculate everything again
-     * from the start. (We do this because since we change the max width and height of the tooltip, this might mess with the position of the tooltip 
-     * on the next calculation)
-     * 
+     * Open or closes the tooltip and changes the state if it is open or closed.
+     *
      * @param {boolean} isOpen - Is the tooltip open or closed? True if open, false if closed.
      */
     function onOpenOrClose(isOpen) {
         setIsOpen(isOpen)
-        if (APP === 'web') {
-            if (isOpen === true) {
-                setTimeout(() => {
-                    webCalculateTooltipPosition()
-                }, 1)
-            } else {
-                setTooltipPosition({
-                    wasCalculated: false,
-                    placement: ['bottom', 'right'],
-                    position: { x: 0, y: 0 },
-                    maxWidth: null,
-                    maxHeight: null
-                })
-            }
-        }
     }
 
     /**
@@ -253,6 +236,39 @@ export default function Tooltip(props) {
             }
         }
     }, [props.trigger])
+
+    /**
+     * This effect will run when we open or close the modal to the user. If we open the tooltip then we will calculate
+     * the tooltip position on the screen. Otherwise we will reset the position to the original state.
+     * 
+     * On the web when the tooltip is open, we will calculate the position where it should be rendered on the screen.
+     * We only show the tooltip after the position had been calculated.
+     * 
+     * When we close the tooltip we will reset the position of the tooltip to the original position so next time we will calculate everything again
+     * from the start. (We do this because since we change the max width and height of the tooltip, this might mess with the position of the tooltip 
+     * on the next calculation)
+     */
+    useEffect(() => {
+        if (APP === 'web') {
+            if (isOpen === true) {
+                webCalculateTooltipPosition()
+            } else {
+                setTooltipPosition({
+                    wasCalculated: false,
+                    placement: ['bottom', 'right'],
+                    position: { x: 0, y: 0 },
+                    maxWidth: null,
+                    maxHeight: null
+                })
+            }
+        }
+    }, [isOpen])
+
+    useEffect(() => {
+        if (props.isOpen !== isOpen) {
+            onOpenOrClose(props.isOpen)
+        }
+    }, [props.isOpen])
 
     return (
         <Layout
