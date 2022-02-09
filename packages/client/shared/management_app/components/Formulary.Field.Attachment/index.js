@@ -4,6 +4,7 @@ import { generateUUID, httpStatus } from '../../../../../shared/utils'
 import Layout from './layouts'
 
 export default function FormularyFieldAttachment(props) {
+    const [isDraggingOver, setIsDraggingOver] = useState(false)
     const [values, setValues] = useState([])
     const drafts = useDraft()
 
@@ -24,15 +25,37 @@ export default function FormularyFieldAttachment(props) {
         }
     }
 
-    function onUploadAttachment(file) {
-        if (![null, undefined].includes(file)) {
-            drafts.uploadFile(props.workspace.uuid, file).then(draftStringId => {
-                if (draftStringId !== null) {
-                    setValues([...values, {
-                        uuid: generateUUID(),
-                        value: draftStringId
-                    }])
+    function webOnToggleDraggingOver(isDraggingOver=!isDraggingOver) {
+        setIsDraggingOver(isDraggingOver)
+    }
+
+    /**
+     * Function used for uploading the file to the draft storage in the backend/database. If you want to understand
+     * how we upload data to the backend you can check the `uploadFile` function in the `useDraft` hook.
+     * There is no limit for the size of the file that can be uploaded.
+     * 
+     * @param {Array<File>} files - The file that will be uploaded to the draft storage.
+     */
+    function onUploadAttachment(files) {
+        if (files.length > 0) {
+            const promisesToResolve = []
+            for (let i=0; i < files.length; i++) {
+                const file = files[i]
+                promisesToResolve.push(drafts.uploadFile(props.workspace.uuid, file))
+            }
+
+            Promise.all(promisesToResolve).then(uploadedDraftStringIds => {
+                let newValues = []
+                for (const draftStringId of uploadedDraftStringIds) {
+                    console.log(draftStringId)
+                    if (draftStringId !== null) {
+                        newValues.push({
+                            uuid: generateUUID(),
+                            value: draftStringId
+                        })
+                    }
                 }
+                setValues(values.concat(...newValues))
             })
         }
     }
@@ -54,6 +77,8 @@ export default function FormularyFieldAttachment(props) {
 
     return (
         <Layout
+        isDraggingOver={isDraggingOver}
+        webOnToggleDraggingOver={webOnToggleDraggingOver}
         onUploadAttachment={onUploadAttachment}
         values={values}
         drafts={drafts}

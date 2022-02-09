@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { isDraft } from '../../../../shared/draft'
 import { isSuccess } from '../../../../shared/utils/httpStatus'
 import draftAgent from '../agent'
@@ -14,7 +14,8 @@ import draftAgent from '../agent'
  * }} - Return
  */
 function useDraft() {
-    const [draftInformationByDraftStringId, setDraftInformationByDraftStringId] = useState({})
+    const draftInformationByDraftStringIdRef = useRef({})
+
     /**
      * Function for uploading a file to the draft storage. The draft will leave for a certain time until it's deleted. After the file is uploaded we keep track
      * of the file so when it is deleted we can still keep the reference to it.
@@ -30,14 +31,14 @@ function useDraft() {
             const draftStringId = response.data.data.draftStringId
             const draftUrl = await draftAgent.retrieveDraftFileUrl(workspaceUUID, draftStringId) 
 
-            setDraftInformationByDraftStringId({
-                ...draftInformationByDraftStringId,
+            draftInformationByDraftStringIdRef.current = {
+                ...draftInformationByDraftStringIdRef.current,
                 [draftStringId]: {
                     url: draftUrl,
                     fileName: file.name,
                     file: file
                 }
-            })
+            }
 
             return draftStringId
         }
@@ -54,7 +55,7 @@ function useDraft() {
      */
     function retrieveInformation(draftStringId) {
         if (isDraft(draftStringId)) {
-            const draftInformation = draftInformationByDraftStringId[draftStringId]
+            const draftInformation = draftInformationByDraftStringIdRef.current[draftStringId]
             if (draftInformation !== undefined) {
                 return draftInformation
             }

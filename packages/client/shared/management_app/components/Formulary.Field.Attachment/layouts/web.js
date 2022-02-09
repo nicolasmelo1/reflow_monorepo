@@ -9,8 +9,40 @@ export default function FormularyFieldAttachmentWebLayout(props) {
     const hasValuesDefined = props.values.length !== 0
 
     return (
-        <Styled.Container>
-            {hasValuesDefined ? (
+        <Styled.Container
+        isDraggingOver={props.isDraggingOver}
+        onDragOver={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+        }}
+        onDragLeave={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            if (props.isDraggingOver === true) {
+                props.webOnToggleDraggingOver(false)
+            }
+        }}
+        onDragEnter={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            if (props.isDraggingOver === false && e?.dataTransfer?.items && e.dataTransfer.items.length > 0) {
+                props.webOnToggleDraggingOver(true)
+            }
+        }}
+        onDrop={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            props.webOnToggleDraggingOver(false)
+            if (e?.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+                props.onUploadAttachment(e.dataTransfer.files)
+            }
+        }}
+        >
+            {props.isDraggingOver === true ? (
+                <p>
+                    {'Solte os arquivos aqui'}
+                </p>
+            ) : hasValuesDefined === true ? (
                 <Styled.ContainerWrapper>
                     {props.values.map(value => {
                         const draftInformation = props.drafts.retrieveInformation(value.value)
@@ -23,7 +55,7 @@ export default function FormularyFieldAttachmentWebLayout(props) {
                                 <Styled.FileContainer>
                                     <Styled.ImageWrapper>
                                         <img
-                                        style={{ width: '100%' }}
+                                        style={{ maxWidth: '100%', maxHeight: '100%' }}
                                         src={draftInformation.url}
                                         />
                                     </Styled.ImageWrapper>
@@ -32,7 +64,6 @@ export default function FormularyFieldAttachmentWebLayout(props) {
                         )
                     })}
                     <Tooltip
-                    placement={['bottom', 'top']}
                     text={typeof(props.field.placeholder) === 'string' ? props.field.placeholder : strings('pt-BR', 'formularyFieldAttachmentPlaceholder')}
                     >
                         <Styled.AddNewFileButton>
@@ -40,7 +71,7 @@ export default function FormularyFieldAttachmentWebLayout(props) {
                             icon={faPlusSquare}
                             />
                             <input 
-                            onChange={(e) => props.onUploadAttachment(e.target.files[0])}
+                            onChange={(e) => props.onUploadAttachment(e.target.files)}
                             type={'file'} 
                             style={{ display: 'none'}}
                             />
@@ -55,7 +86,7 @@ export default function FormularyFieldAttachmentWebLayout(props) {
                             props.field.placeholder : strings('pt-BR', 'formularyFieldAttachmentPlaceholder')}
                     </Styled.ButtonPlaceholderText>
                     <input 
-                    onChange={(e) => props.onUploadAttachment(e.target.files[0])}
+                    onChange={(e) => props.onUploadAttachment(e.target.files)}
                     type={'file'} 
                     style={{ display: 'none'}}
                     />

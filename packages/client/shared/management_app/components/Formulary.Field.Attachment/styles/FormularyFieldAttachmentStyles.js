@@ -12,8 +12,11 @@ styled.div`
     width: calc(100% - 20px);
     border-radius: 5px;
     padding: 10px;
-    background-color: ${props => props.theme.moreClearGray};
+    background-color: ${props => props.isDraggingOver ? `${props.theme.green_REFLOW}50` : props.theme.moreClearGray};
+    cursor: ${props => props.isDraggingOver ? 'copy' : 'auto'};
     margin-bottom: 500px;
+    min-height: 90px;
+    overflow: auto;
 `
 :
 styled(View)``
@@ -25,7 +28,7 @@ styled.label`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 0;
+    margin: 0 5px 0 0;
     padding: 0;
 `
 :
