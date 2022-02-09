@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useDraft } from '../../../drafts'
-import { generateUUID, httpStatus } from '../../../../../shared/utils'
+import { generateUUID } from '../../../../../shared/utils'
 import Layout from './layouts'
 
 export default function FormularyFieldAttachment(props) {
@@ -47,7 +47,6 @@ export default function FormularyFieldAttachment(props) {
             Promise.all(promisesToResolve).then(uploadedDraftStringIds => {
                 let newValues = []
                 for (const draftStringId of uploadedDraftStringIds) {
-                    console.log(draftStringId)
                     if (draftStringId !== null) {
                         newValues.push({
                             uuid: generateUUID(),
