@@ -4,5 +4,10 @@
   "description": "This will hold shared logic between the server and the front so we can optimize our development speed in ways it was unimanigable",
   "main": "./index.js",
   "author": "Reflow Desenvolvimento de Software LTDA",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "esprima": "^4.0.1",
+    "form-data": "^4.0.0"
+  }
 }

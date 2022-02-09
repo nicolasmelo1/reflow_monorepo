@@ -34,7 +34,7 @@ export default function FormularyFieldAttachment(props) {
      * how we upload data to the backend you can check the `uploadFile` function in the `useDraft` hook.
      * There is no limit for the size of the file that can be uploaded.
      * 
-     * @param {Array<File>} files - The file that will be uploaded to the draft storage.
+     * @param {Array<File>} files - The files that will be uploaded to the draft storage.
      */
     function onUploadAttachment(files) {
         if (files.length > 0) {

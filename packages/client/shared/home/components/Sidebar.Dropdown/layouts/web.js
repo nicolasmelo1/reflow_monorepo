@@ -68,7 +68,7 @@ export default function SidebarDropdownWebLayout(props) {
                     color: 'red',
                 }}
                 >
-                    {strings('pt-BR', 'workspaceNotUniqueErrorMessage')}
+                    {strings('workspaceNotUniqueErrorMessage')}
                 </small>
             ) : ''}
             {props.isOpen ? (

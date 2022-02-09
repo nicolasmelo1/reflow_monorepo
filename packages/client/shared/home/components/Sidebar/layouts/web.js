@@ -32,7 +32,7 @@ function SidebarWebLayout(props) {
                             <Styled.UserNameContainer>
                                 <Styled.UserHelloAndNameText>
                                     <span>
-                                        {strings('pt-BR', 'sidebarHelloName')}
+                                        {strings('sidebarHelloName')}
                                     </span>
                                     <Styled.UserNameText>
                                         {`${props.user.firstName} ${props.user.lastName}`}
@@ -62,25 +62,25 @@ function SidebarWebLayout(props) {
                     <Styled.NavigationButton>
                         <Styled.NavigationButtonIcon icon={faSearch}/>
                         <Styled.NavigationButtonText>
-                            {strings('pt-BR', 'sidebarQuickSearchButtonLabel')}
+                            {strings('sidebarQuickSearchButtonLabel')}
                         </Styled.NavigationButtonText>
                     </Styled.NavigationButton>
                     <Styled.NavigationButton>
                         <Styled.NavigationButtonIcon icon={faHistory}/>
                         <Styled.NavigationButtonText>
-                            {strings('pt-BR', 'sidebarHistoryButtonLabel')}
+                            {strings('sidebarHistoryButtonLabel')}
                         </Styled.NavigationButtonText>
                     </Styled.NavigationButton>
                     <Styled.NavigationButton>
                         <Styled.NavigationButtonIcon icon={faCog}/>
                         <Styled.NavigationButtonText>
-                            {strings('pt-BR', 'sidebarSettingsButtonLabel')}
+                            {strings('sidebarSettingsButtonLabel')}
                         </Styled.NavigationButtonText>
                     </Styled.NavigationButton>
                 </Styled.TopItemsContainer>
                 <Styled.AppsContainer>
                     <Styled.WorkspacesHeadingTitle>
-                        {strings('pt-BR', 'sidebarWorkspacesTitle')}
+                        {strings('sidebarWorkspacesTitle')}
                     </Styled.WorkspacesHeadingTitle>
                     <Styled.AppsAndAreasList
                     isFloating={props.isFloating}

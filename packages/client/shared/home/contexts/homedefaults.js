@@ -7,7 +7,7 @@ const initialState = {
     state: {
         selectedApp: {
             uuid: null,
-            labelName: strings('pt-BR', 'workspaceNoAppSelected'),
+            labelName: strings('workspaceNoAppSelected'),
             description: '',
             name: '',
             order: 1
@@ -16,7 +16,7 @@ const initialState = {
             uuid: null,
             description: "",
             color: null,
-            labelName: strings('pt-BR', 'workspaceNoWorkspaceSelected'),
+            labelName: strings('workspaceNoWorkspaceSelected'),
             name: "",
             order: 1,
             subAreas: [],

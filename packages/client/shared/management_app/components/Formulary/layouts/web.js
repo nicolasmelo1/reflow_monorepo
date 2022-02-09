@@ -24,7 +24,7 @@ export default function FormularyWebLayout(props) {
                             icon={faShareAlt}
                             />
                             <Styled.ToolbarButtonText>
-                                {strings('pt-BR', 'formularyToolbarShareButtonLabel')}
+                                {strings('formularyToolbarShareButtonLabel')}
                             </Styled.ToolbarButtonText>
                         </Styled.ToolbarButton>
                     </Styled.ToolbarContainer>

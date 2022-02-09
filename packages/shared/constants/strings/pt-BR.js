@@ -33,6 +33,7 @@ module.exports = {
         formularyFieldOptionEditOptionMenuDeleteButtonLabel: 'Excluir',
         formularyFieldOptionEditOptionMenuColorLabel: 'Cores',
         formularyFieldAttachmentPlaceholder: 'Clique ou arraste os arquivos aqui',
+        formularyFieldAttachmentDragAndDropFileMessage: 'SOLTE OS ARQUIVOS AQUI',
         numberFormatTypeNumberLabel: 'Dinâmico',
         numberFormatTypeIntegerLabel: 'Inteiro',
         numberFormatTypeCurrencyLabel: 'Monetário',

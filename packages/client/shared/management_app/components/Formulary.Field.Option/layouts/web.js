@@ -9,7 +9,7 @@ export function CustomCreateOptionButtonWebLayout(props) {
             <Styled.SelectButton
             onClick={() => props.onCreateOption()}
             >
-                {strings('pt-BR', 'formularyFieldOptionCreateOptionLabel')}
+                {strings('formularyFieldOptionCreateOptionLabel')}
                 <Styled.CreateOptionLabel>
                     {props.value}
                 </Styled.CreateOptionLabel>
@@ -128,17 +128,17 @@ export function CustomOptionSelectWebLayout(props) {
                                 <Styled.EditOptionMenuButton
                                 onClick={() => props.onToggleRenaming(true)}
                                 >
-                                    {strings('pt-BR', 'formularyFieldOptionEditOptionMenuRenameButtonLabel')}
+                                    {strings('formularyFieldOptionEditOptionMenuRenameButtonLabel')}
                                 </Styled.EditOptionMenuButton>
                                 <Styled.EditOptionMenuButton
                                 isExclude={true}
                                 onClick={() => props.onRemoveOption(props.option.value)}
                                 >
-                                    {strings('pt-BR', 'formularyFieldOptionEditOptionMenuDeleteButtonLabel')}
+                                    {strings('formularyFieldOptionEditOptionMenuDeleteButtonLabel')}
                                 </Styled.EditOptionMenuButton>
                                 <Styled.ColorsSelectorWrapper>
                                     <Styled.ColorsSelectorTitle>
-                                        {strings('pt-BR', 'formularyFieldOptionEditOptionMenuColorLabel')}
+                                        {strings('formularyFieldOptionEditOptionMenuColorLabel')}
                                     </Styled.ColorsSelectorTitle>
                                     <Styled.ColorsSelectorContainer>
                                         {colors.map(color => (
@@ -168,8 +168,8 @@ export default function FormularyFieldOptionWebLayout(props) {
             creatable={props.isUserAnAdmin}
             customProps={props.customOptionComponentProps}
             customHelperLabel={props.isUserAnAdmin === true ? 
-                strings('pt-BR', 'formularyFieldOptionCustomHelperLabelIfIsAdmin') : 
-                strings('pt-BR', 'formularyFieldOptionCustomHelperLabelIfIsNotAdmin')}
+                strings('formularyFieldOptionCustomHelperLabelIfIsAdmin') : 
+                strings('formularyFieldOptionCustomHelperLabelIfIsNotAdmin')}
             customCreateOptionComponent={props.customCreateOptionComponent}
             selectedComponents={props.customSelectedComponent}
             optionComponents={props.customOptionComponent}

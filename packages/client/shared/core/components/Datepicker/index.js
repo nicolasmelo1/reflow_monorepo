@@ -71,34 +71,34 @@ export default function Datepicker(props) {
     const onOpenDatepicker = typeof props.onOpenDatepicker === 'function' ? props.onOpenDatepicker : null
     const canSelectDateBelowToday = typeof props.canSelectDateBelowToday === 'boolean' ? props.canSelectDateBelowToday : true
     const daysOfTheWeek = Array.isArray(props.daysOfTheWeek) && props.daysOfTheWeek.length === 7 ? props.daysOfTheWeek : [
-        strings('pt-BR', 'datePickerDayOfTheWeekSundayLabel'),
-        strings('pt-BR', 'datePickerDayOfTheWeekMondayLabel'),
-        strings('pt-BR', 'datePickerDayOfTheWeekTuesdayLabel'),
-        strings('pt-BR', 'datePickerDayOfTheWeekWednesdayLabel'),
-        strings('pt-BR', 'datePickerDayOfTheWeekThursdayLabel'),
-        strings('pt-BR', 'datePickerDayOfTheWeekFridayLabel'),
-        strings('pt-BR', 'datePickerDayOfTheWeekSaturdayLabel')
+        strings('datePickerDayOfTheWeekSundayLabel'),
+        strings('datePickerDayOfTheWeekMondayLabel'),
+        strings('datePickerDayOfTheWeekTuesdayLabel'),
+        strings('datePickerDayOfTheWeekWednesdayLabel'),
+        strings('datePickerDayOfTheWeekThursdayLabel'),
+        strings('datePickerDayOfTheWeekFridayLabel'),
+        strings('datePickerDayOfTheWeekSaturdayLabel')
     ]
     const monthsOfTheYear = Array.isArray(props.monthsOfTheYear) && props.monthsOfTheYear.length === 12 ? props.monthsOfTheYear : [
-        strings('pt-BR', 'datePickerMonthOfTheYearJanuaryLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearFebruaryLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearMarchLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearAprilLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearMayLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearJuneLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearJulyLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearAugustLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearSeptemberLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearOctoberLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearNovemberLabel'),
-        strings('pt-BR', 'datePickerMonthOfTheYearDecemberLabel')
+        strings('datePickerMonthOfTheYearJanuaryLabel'),
+        strings('datePickerMonthOfTheYearFebruaryLabel'),
+        strings('datePickerMonthOfTheYearMarchLabel'),
+        strings('datePickerMonthOfTheYearAprilLabel'),
+        strings('datePickerMonthOfTheYearMayLabel'),
+        strings('datePickerMonthOfTheYearJuneLabel'),
+        strings('datePickerMonthOfTheYearJulyLabel'),
+        strings('datePickerMonthOfTheYearAugustLabel'),
+        strings('datePickerMonthOfTheYearSeptemberLabel'),
+        strings('datePickerMonthOfTheYearOctoberLabel'),
+        strings('datePickerMonthOfTheYearNovemberLabel'),
+        strings('datePickerMonthOfTheYearDecemberLabel')
     ]
     const daysGridNumberOfRows = 6
     const daysGridNumberOfColumns = daysOfTheWeek.length
     const daysGridNumberOfDays = daysGridNumberOfRows * daysGridNumberOfColumns
     const dateSelected = (props.dateSelected instanceof Date) ? props.dateSelected : today
     const definedDateFormat = ![null, undefined].includes(props.dateFormat) ? props.dateFormat : 
-        strings('pt-BR', 'datePickerDefaultFormat')
+        strings('datePickerDefaultFormat')
     const datePartsFormats = {
         YYYY: {
             represents: 'year',

@@ -108,3 +108,12 @@ styled.div`
 :
 styled(View)``
 
+export const DragAndDropMessage = APP === 'web' ?
+styled.p`
+    text-align: center;
+    font-size: 12px;
+    color: ${props => props.theme.darkBlue};
+    font-weight: bold;
+`
+:
+styled(Text)``

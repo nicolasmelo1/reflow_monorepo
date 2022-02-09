@@ -45,10 +45,10 @@ export default function FormularyFieldNumber(props) {
      * @param {object} numberFieldData - The params for the number field type.
      * @param {boolean} [numberFieldData.allowNegative=true] - Can the number be negative or not?
      * @param {boolean} [numberFieldData.allowZero=true] - Can the number be 0? Or it needs to be a number?
-     * @param {string} [numberFieldData.decimalCharacter=strings('pt-BR', 'formularyFieldNumberDefaultDecimalCharacter')] - 
+     * @param {string} [numberFieldData.decimalCharacter=strings('formularyFieldNumberDefaultDecimalCharacter')] - 
      * The character for the decimal separator, some countries use '.', some countries use ',', we have full control of
      * it directly in the field definition.
-     * @param {string} [numberFieldData.thousandSeparatorCharacter=strings('pt-BR', 'formularyFieldNumberDefaultThousandSeparatorCharacter')] - 
+     * @param {string} [numberFieldData.thousandSeparatorCharacter=strings('formularyFieldNumberDefaultThousandSeparatorCharacter')] - 
      * Same as the `decimalCharacter`, if the `decimalCharacter` is '.' then we cannot use '.' for the thousandSeparator.
      * Just for your understanding, the thousand separator is this 
      * 1.000.000,10 -> '.' is the thousand separator in this example and ',' is the decimal separator.
@@ -67,8 +67,8 @@ export default function FormularyFieldNumber(props) {
     function createNumberFieldData({
         allowNegative=true, 
         allowZero=true, 
-        decimalCharacter=strings('pt-BR', 'formularyFieldNumberDefaultDecimalCharacter'),
-        thousandSeparatorCharacter=strings('pt-BR', 'formularyFieldNumberDefaultThousandSeparatorCharacter'),
+        decimalCharacter=strings('formularyFieldNumberDefaultDecimalCharacter'),
+        thousandSeparatorCharacter=strings('formularyFieldNumberDefaultThousandSeparatorCharacter'),
         numberFormatTypeId=null,
         prefix=null
     }) {
@@ -96,7 +96,7 @@ export default function FormularyFieldNumber(props) {
     function getNumberFormatTypeStringByName(numberFormatTypeName) {
         const capitalizedNumberFormatTypeName = numberFormatTypeName.charAt(0).toUpperCase() + 
             numberFormatTypeName.slice(1)
-        const name = strings('pt-BR', `numberFormatType${capitalizedNumberFormatTypeName}Label`)
+        const name = strings(`numberFormatType${capitalizedNumberFormatTypeName}Label`)
         return name !== undefined ? name : numberFormatTypeName
     }
 

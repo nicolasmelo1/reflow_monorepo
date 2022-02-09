@@ -116,7 +116,7 @@ export default function SelectWebLayout(props) {
                                 <Styled.CreateOptionButton
                                 onClick={() => props.onCreateOption()}
                                 >
-                                    {strings('pt-BR', 'selectCreateLabel')}
+                                    {strings('selectCreateLabel')}
                                     <Styled.CreateOptionElement>
                                         {props.search}
                                     </Styled.CreateOptionElement>

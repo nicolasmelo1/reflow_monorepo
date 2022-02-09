@@ -4,6 +4,8 @@ const deepCopy = require('./deepCopy')
 const emailValidation = require('./emailValidation')
 const base64 = require('./base64')
 const httpStatus = require('./httpStatus')
+const camelCaseToSnakeCase = require('./camelCaseToSnakeCase')
+const snakeCaseToCamelCase = require('./snakeCaseToCamelCase')
 
 module.exports = {
     httpStatus,
@@ -11,5 +13,7 @@ module.exports = {
     generateUUID,
     delay,
     deepCopy,
-    emailValidation
+    emailValidation,
+    camelCaseToSnakeCase,
+    snakeCaseToCamelCase
 }

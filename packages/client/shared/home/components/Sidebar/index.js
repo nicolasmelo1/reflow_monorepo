@@ -53,7 +53,7 @@ export default function Sidebar(props) {
         function setupFoundCallback(newAreaLabelName) {
             return (area) => area.labelName === newAreaLabelName
         }
-        const DEFAULT_NEW_AREA_NAME = strings('pt-BR', 'workspaceNewAreaName')
+        const DEFAULT_NEW_AREA_NAME = strings('workspaceNewAreaName')
         let newAreaLabelName = DEFAULT_NEW_AREA_NAME
         let foundArea = await recursiveTraverseAreas(setupFoundCallback(newAreaLabelName), areas)
         let count = 1

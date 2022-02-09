@@ -46,7 +46,7 @@ export default function FormularyFieldWebLayout(props) {
                 </Styled.FieldTitleLabel>
             ) : props.field.labelIsHidden === true && props.field.fieldIsHidden === true ? (
                 <Styled.FieldIsHiddenAndLabelIsHiddenMessage>
-                    {strings('pt-BR', 'formularyFieldEditLabelAndFieldIsHiddenMessage').replace('{}', props.field.labelName)}
+                    {strings('formularyFieldEditLabelAndFieldIsHiddenMessage').replace('{}', props.field.labelName)}
                 </Styled.FieldIsHiddenAndLabelIsHiddenMessage>
             ) : ''}
             {props.workspace.isAdmin === true ? (
@@ -80,7 +80,7 @@ export default function FormularyFieldWebLayout(props) {
                                     <Styled.FieldEditMenuDropdownSwitchLabel
                                     disabled={props.field.fieldIsHidden}
                                     >
-                                        {strings('pt-BR', 'formularyFieldEditIsRequiredLabel')}
+                                        {strings('formularyFieldEditIsRequiredLabel')}
                                     </Styled.FieldEditMenuDropdownSwitchLabel>
                                 </Styled.FieldEditMenuDropdownSwitchContainer>
                                 <Styled.FieldEditMenuDropdownSwitchContainer
@@ -91,7 +91,7 @@ export default function FormularyFieldWebLayout(props) {
                                     onSelect={() => props.onChangeLabelIsHidden(!props.field.labelIsHidden)}
                                     /> 
                                     <Styled.FieldEditMenuDropdownSwitchLabel>
-                                        {strings('pt-BR', 'formularyFieldEditLabelIsHiddenLabel')}
+                                        {strings('formularyFieldEditLabelIsHiddenLabel')}
                                     </Styled.FieldEditMenuDropdownSwitchLabel>
                                 </Styled.FieldEditMenuDropdownSwitchContainer>
                                 <Styled.FieldEditMenuDropdownSwitchContainer
@@ -102,7 +102,7 @@ export default function FormularyFieldWebLayout(props) {
                                     onSelect={() => props.onChangeFieldIsHidden(!props.field.fieldIsHidden)}
                                     /> 
                                     <Styled.FieldEditMenuDropdownSwitchLabel>
-                                        {strings('pt-BR', 'formularyFieldEditFieldIsHiddenLabel')}
+                                        {strings('formularyFieldEditFieldIsHiddenLabel')}
                                     </Styled.FieldEditMenuDropdownSwitchLabel>
                                 </Styled.FieldEditMenuDropdownSwitchContainer>
                                 <Styled.FieldEditMenuDropdownSwitchContainer
@@ -113,7 +113,7 @@ export default function FormularyFieldWebLayout(props) {
                                     onSelect={() => props.onChangeFieldIsUnique(!props.field.isUnique)}
                                     /> 
                                     <Styled.FieldEditMenuDropdownSwitchLabel>
-                                        {strings('pt-BR', 'formularyFieldEditFieldIsUniqueLabel')}
+                                        {strings('formularyFieldEditFieldIsUniqueLabel')}
                                     </Styled.FieldEditMenuDropdownSwitchLabel>
                                 </Styled.FieldEditMenuDropdownSwitchContainer>
                                 <Styled.FieldEditMenuDropdownSwitchContainer
@@ -149,21 +149,21 @@ export default function FormularyFieldWebLayout(props) {
                                     props.setIsRenaming(!props.isRenaming)
                                 }}
                                 >
-                                    {strings('pt-BR', 'formularyFieldEditRenameLabel')}
+                                    {strings('formularyFieldEditRenameLabel')}
                                 </Styled.FieldEditMenuDropdownButton>
                                 <Styled.FieldEditMenuDropdownButton>
-                                    {strings('pt-BR', 'formularyFieldEditEditLabel')}
+                                    {strings('formularyFieldEditEditLabel')}
                                 </Styled.FieldEditMenuDropdownButton>
                                 <Styled.FieldEditMenuDropdownButton
                                 onClick={() => props.onDuplicateField(props.field.uuid)}
                                 >
-                                    {strings('pt-BR', 'formularyFieldEditDuplicateLabel')}
+                                    {strings('formularyFieldEditDuplicateLabel')}
                                 </Styled.FieldEditMenuDropdownButton>
                                 <Styled.FieldEditMenuDropdownButton
                                 onClick={() => props.onRemoveField(props.field.uuid)}
                                 isExclude={true}
                                 >
-                                    {strings('pt-BR', 'formularyFieldEditDeleteLabel')}
+                                    {strings('formularyFieldEditDeleteLabel')}
                                 </Styled.FieldEditMenuDropdownButton>
                             </Styled.FieldEditMenuDropdownContainer>
                         </Styled.FieldEditMenuWrapper>

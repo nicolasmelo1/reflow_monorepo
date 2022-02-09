@@ -251,7 +251,7 @@ const FlowObject = require('./builtins/objects/object')
  * is the only language i know that can be translated fully to other languages like english, portuguese, spanish and others
  * in runtime.
  * 
- * @returns {import('./builtins/objects/object')} - The result of the expression will ALWAYS be a FlowObject.
+ * @returns {Promise<import('./builtins/objects/object')>} - The result of the expression will ALWAYS be a FlowObject.
  */
 const evaluate = async (expression, context=undefined) => {
     if (!context instanceof Context) {

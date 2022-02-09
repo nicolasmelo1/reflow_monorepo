@@ -71,11 +71,11 @@ export default function HomeWebLayout(props) {
                                         color: 'red'
                                     }}
                                     >
-                                        {strings('pt-BR', 'workspaceNotUniqueErrorMessage')}
+                                        {strings('workspaceNotUniqueErrorMessage')}
                                     </small>
                                 ): ''}
                                 <p>
-                                    {strings('pt-BR', 'workspaceEditColor')}
+                                    {strings('workspaceEditColor')}
                                 </p>
                                 <Styled.WorkspaceEditColorSelectionContainer>
                                     {colors.map(color => (
@@ -94,7 +94,7 @@ export default function HomeWebLayout(props) {
                                     onClick={(e) => props.onRemoveArea(props.selectedArea.uuid)}
                                     >
                                         <Styled.RemoveWorkspaceButtonIcon icon={faTrash}/>
-                                        {strings('pt-BR', 'workspaceRemoveButtonLabel')}
+                                        {strings('workspaceRemoveButtonLabel')}
                                     </Styled.RemoveWorkspaceButton>
                                 </Styled.WorkspaceRemoveContainer>
                             </Styled.WorkspaceEditDropdownContainer>
@@ -133,7 +133,7 @@ export default function HomeWebLayout(props) {
                                 </Styled.AppsButton>
                             ))}
                             <Styled.AddNewAppButton>
-                                {strings('pt-BR', 'workspaceAddNewAppButtonLabel')}
+                                {strings('workspaceAddNewAppButtonLabel')}
                                 <Styled.AddNewAppButtonIcon icon={faPlus}/>
                             </Styled.AddNewAppButton>
                         </Styled.AppsScroller>

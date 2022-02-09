@@ -37,7 +37,7 @@ export function DropdownMenuNumberFormatOptionWebLayout(props) {
                 <Styled.DropdownMenuOptionSelectButtonText>
                     {![null, undefined].includes(numberFormatTypeSelected) ? 
                     props.getNumberFormatTypeStringByName(numberFormatTypeSelected.name) : 
-                    strings('pt-BR', 'formularyFieldNumberDropdownMenuNumberFormatOptionLabel')}
+                    strings('formularyFieldNumberDropdownMenuNumberFormatOptionLabel')}
                 </Styled.DropdownMenuOptionSelectButtonText>
                 <FontAwesomeIcon icon={faChevronRight}/>
             </Styled.DropdownMenuOptionButton>

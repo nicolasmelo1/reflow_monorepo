@@ -1,12 +1,12 @@
-const makeRequestAgain = () => {
-    return new Promise((resolve, reject) => {
-        console.log('teste2')
-    })
-}
+const evaluate = require('./packages/shared/flow')
 
-const main = async () => {
-    await makeRequestAgain()
-    console.log('teste')
+async function main() {
+    const result = await evaluate(
+`
+List.join(String.split("Teste"), ',')
+`
+    )
+    console.log(await(await result._string_())._representation_())
 }
 
 main()

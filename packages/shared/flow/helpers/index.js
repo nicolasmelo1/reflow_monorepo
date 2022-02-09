@@ -1,5 +1,5 @@
 /** @module src/formula/utils/helpers */
-const { camelCaseToSnakeCase, snakeCaseToCamelCase } = require('../../../core/utils')
+const { camelCaseToSnakeCase, snakeCaseToCamelCase } = require('../../utils')
 const DatetimeHelper = require('./datetime')
 const DynamicArrayHelper = require('./dynamicArray')
 const HashMapHelper = require('./hashMap')

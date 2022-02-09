@@ -39,9 +39,9 @@ export default function FormularyFieldAttachmentWebLayout(props) {
         }}
         >
             {props.isDraggingOver === true ? (
-                <p>
-                    {'Solte os arquivos aqui'}
-                </p>
+                <Styled.DragAndDropMessage>
+                    {strings('formularyFieldAttachmentDragAndDropFileMessage')}
+                </Styled.DragAndDropMessage>
             ) : hasValuesDefined === true ? (
                 <Styled.ContainerWrapper>
                     {props.values.map(value => {
@@ -64,7 +64,7 @@ export default function FormularyFieldAttachmentWebLayout(props) {
                         )
                     })}
                     <Tooltip
-                    text={typeof(props.field.placeholder) === 'string' ? props.field.placeholder : strings('pt-BR', 'formularyFieldAttachmentPlaceholder')}
+                    text={typeof(props.field.placeholder) === 'string' ? props.field.placeholder : strings('formularyFieldAttachmentPlaceholder')}
                     >
                         <Styled.AddNewFileButton>
                             <Styled.AddNewFileButtonIcon 
@@ -83,7 +83,7 @@ export default function FormularyFieldAttachmentWebLayout(props) {
                     <Styled.ButtonIcon icon={faFileUpload}/>
                     <Styled.ButtonPlaceholderText>
                         {typeof props.field.placeholder === 'string' ? 
-                            props.field.placeholder : strings('pt-BR', 'formularyFieldAttachmentPlaceholder')}
+                            props.field.placeholder : strings('formularyFieldAttachmentPlaceholder')}
                     </Styled.ButtonPlaceholderText>
                     <input 
                     onChange={(e) => props.onUploadAttachment(e.target.files)}
