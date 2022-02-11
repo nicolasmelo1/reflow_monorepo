@@ -3,7 +3,7 @@ const { Router } = require('express')
 const { settings } = require('./conf')
 const logger = require('./logging')
 const { getEngineInstance } = require('./database')
-
+const status = require('./status')
 const { performance } = require('perf_hooks')
 
 
@@ -57,9 +57,9 @@ const optionsMiddleware = (options) => {
 const debugging = (res, error) => {
     if(res.headersSent === false) { 
         if (settings.DEBUG === true) {
-            res.status(500).send(error.stack)
+            res.status(status.HTTP_500_INTERNAL_SERVER_ERROR).send(error.stack)
         } else {
-            res.status(500).send()
+            res.status(status.HTTP_500_INTERNAL_SERVER_ERROR).send()
         }
     }
     throw(error)

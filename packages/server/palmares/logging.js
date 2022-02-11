@@ -1,5 +1,5 @@
 const defaultLog = () => {
-    return `\x1b[32m[reflow_server]\x1b[0m \x1b[33m${new Date().toISOString()}\x1b[0m`
+    return `\x1b[32m[palmares]\x1b[0m \x1b[33m${new Date().toISOString()}\x1b[0m`
 }
 
 const logger = {

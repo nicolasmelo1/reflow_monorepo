@@ -86,13 +86,12 @@ class DraftSaveFileController extends controllers.Controller {
      * 
      * @param {import('express').Request} req - Express's request object.
      * @param {import('express').Response} res - Express's response object.
-     * @param {import('express').NextFunction} next - Express's next function.
      * @param {object} transaction - The transaction object recived from the sequelize ORM to use in the controller lifecycle.
      */
-    async post(req, res, next, transaction) {
-        const serializer = new this.inputSerializer({ data: req.query })
-        if (await serializer.isValid()) {
-            const { uuid, name, size, currentChunkIndex, totalChunks } = serializer.internalData
+    async post(req, res, _, transaction) {
+        const inputSerializer = new this.inputSerializer({ data: req.query })
+        if (await inputSerializer.isValid()) {
+            const { uuid, name, size, currentChunkIndex, totalChunks } = inputSerializer.internalData
             const isLastChunk = parseInt(currentChunkIndex) === parseInt(totalChunks) - 1
             const isFirstChunk = parseInt(currentChunkIndex) === 0
 
@@ -108,7 +107,7 @@ class DraftSaveFileController extends controllers.Controller {
             }
             if (isLastChunk) {
                 const file = deepCopy(uploadingFiles[uuid])
-                const draftStringId = await serializer.toSave(req.user.id, req.workspace.id, file, transaction)
+                const draftStringId = await inputSerializer.toSave(req.user.id, req.workspace.id, file, transaction)
                 
                 removeUploadingFileCache(uuid)
                 const outputSerializer = new this.outputSerializer({ instance: { draftStringId: draftStringId }})
@@ -131,7 +130,7 @@ class DraftSaveFileController extends controllers.Controller {
                 })
             })
         }
-
+        const error = inputSerializer.error()
         return res.status(status.HTTP_400_BAD_REQUEST).json({
             status: 'error',
             error: reflowJSONError({
@@ -143,7 +142,19 @@ class DraftSaveFileController extends controllers.Controller {
     }
 }
 
+/**
+ * Responsible for working with a specific draft file. This will retrieve the url of the file so we can
+ * show a preview for it in the front-end.
+ */
 class DraftFileUrlController extends controllers.Controller {
+    /**
+     * This handler will retrive the original url file. By default as you might already know, we save the draft outside of
+     * the application in a proper storage system. Right now the storage system used is the s3 and the image is actually private.
+     * So what we do is that we generate a temporary url only to display the image on the front-end.
+     * 
+     * @param {import('express').Request} req - Express's request object.
+     * @param {import('express').Response} res - Express's response object.
+     */
     async get(req, res) {
         const draftService = new DraftService(req.user.id, req.workspace.id)
         const urlToRedirect = await draftService.retrieveDraftFileUrl(req.params.draftStringId)
@@ -155,7 +166,18 @@ class DraftFileUrlController extends controllers.Controller {
     }
 }
 
+class DraftRemoveController extends controllers.Controller {
+    async delete(req, res, _, transaction) {
+        const draftService = new DraftService(req.user.id, req.workspace.id)
+        await draftService.removeDraft(req.params.draftStringId, transaction)
+        return res.status(status.HTTP_200_OK).json({
+            status: 'ok'
+        })
+    }
+}
+
 module.exports = {
     DraftSaveFileController,
-    DraftFileUrlController
+    DraftFileUrlController,
+    DraftRemoveController
 }

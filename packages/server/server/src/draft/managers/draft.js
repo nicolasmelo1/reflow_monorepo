@@ -82,6 +82,27 @@ class DraftDraftManager extends models.Manager {
     }
 
     /**
+     * Removes a specific draft from the database by it's uuid, the workspaceId and the userId.
+     * 
+     * @param {string} uuid - The uuid of the draft to remove.
+     * @param {number} workspaceId - The workspaceId of the draft to remove.
+     * @param {number} userId - The userId of the draft to remove.
+     * @param {import('sequelize').Transaction} transaction - The transaction to be used when removing the value.
+     * 
+     * @returns {Promise<number>} - The number of removed draft instances, usually this will be 1.
+     */
+    async removeDraftByUUIDWorkspaceIdAndUserId(uuid, workspaceId, userId, transaction) {
+        return await this.getInstance().destroy({
+            where: {
+                userId: userId,
+                workspaceId: workspaceId,
+                uuid: uuid
+            },
+            transaction: transaction
+        })
+    }
+
+    /**
      * Retrieves the value stored in a draft by it's uuid.
      * 
      * @param {string} uuid - The uuid to check the value for

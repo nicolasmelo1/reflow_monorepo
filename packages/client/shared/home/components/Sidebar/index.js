@@ -237,7 +237,15 @@ export default function Sidebar(props) {
     }
 
     useEffect(() => {
-        webDefineWidthOfSidebar()
+        if (APP === 'web') {
+            webDefineWidthOfSidebar()
+            window.addEventListener('resize', webDefineWidthOfSidebar)
+        }
+        return () => {
+            if (APP === 'web') {
+                window.removeEventListener('resize', webDefineWidthOfSidebar)
+            }
+        }
     }, [])
 
     /**

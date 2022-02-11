@@ -175,7 +175,6 @@ class BaseConsumer extends websockets.Consumer {
                 throw new Error('`type` attribute is required in data')
             }
         } catch (e) {
-            console.log(e)
             super.send(JSON.stringify({
                 status: 'error',
                 error: {

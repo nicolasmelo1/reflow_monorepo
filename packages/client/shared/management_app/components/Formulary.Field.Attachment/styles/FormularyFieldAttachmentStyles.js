@@ -9,14 +9,10 @@ styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    width: calc(100% - 20px);
-    border-radius: 5px;
-    padding: 10px;
+    width: 100%;
     background-color: ${props => props.isDraggingOver ? `${props.theme.green_REFLOW}50` : props.theme.moreClearGray};
     cursor: ${props => props.isDraggingOver ? 'copy' : 'auto'};
-    margin-bottom: 500px;
-    min-height: 90px;
-    overflow: auto;
+    ${props => ![null, undefined, 0].includes(props.heightOfContainer) ? `height: ${props.heightOfContainer}px;` : ''}
 `
 :
 styled(View)``
@@ -75,10 +71,26 @@ styled(Text)`
 export const ContainerWrapper = APP === 'web' ?
 styled.div`
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: ${props => props.isDraggingOver ? `${props.theme.green_REFLOW}50` : 'transparent'};
+`
+:
+styled(View)``
+
+export const FilesScrollerContainer = APP === 'web' ?
+styled.div`
+    display: flex;
     flex-direction: row;
     align-items: center;
     width: 100%;
     height: 100%;
+    overflow: auto;
 `
 :
 styled(View)``
@@ -104,6 +116,7 @@ styled.div`
     justify-content: center;
     width: 100px;
     height: 100px;
+    cursor: pointer;
 `
 :
 styled(View)``

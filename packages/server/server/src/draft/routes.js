@@ -4,17 +4,17 @@ const { path } = require('../../../palmares/routers')
 
 const {
     DraftSaveFileController,
-    DraftFileUrlController
+    DraftFileUrlController,
+    DraftRemoveController
 } = require('./controllers')
 const { workspaceRequiredRecipe } = require('../authentication/middlewares')
 
 const routes = [
-    path('/:workspaceUUID', [
-        path('/file', ...workspaceRequiredRecipe, [
-            path('', bodyParser.raw({type:'application/octet-stream'}), DraftSaveFileController.asController()),
-            path('/url/:draftStringId', DraftFileUrlController.asController())
-        ])
-    ])
+    path('/file', ...workspaceRequiredRecipe, [
+        path('', bodyParser.raw({type:'application/octet-stream'}), DraftSaveFileController.asController()),
+        path('/url/:draftStringId', DraftFileUrlController.asController()),
+    ]),
+    path('/:draftStringId', ...workspaceRequiredRecipe, DraftRemoveController.asController())
 ]
 
 module.exports = routes

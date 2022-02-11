@@ -82,7 +82,25 @@ async function retrieveDraftFileUrl(workspaceUUID, draftStringId) {
     return getUrl(`/draft/${workspaceUUID}/file/url/${draftStringId}?token=${token}`)
 }
 
+/**
+ * Removes a draft from the database/backend. The draft is identified by the draftStringId, that's exactly this
+ * that we send to the database in order to identify the draft uuid. Besides that we need to identify the workspace
+ * where this draft belongs to (from what company).
+ * 
+ * @param {string} workspaceUUID - The uuid of the workspace where the draft was stored, in other words, 
+ * this is the company that stored the draft.
+ * @param {string} draftStringId - A base64 encoded string that represents the draft uuid. This is the
+ * draft that we will remove from the database.
+ * 
+ * @returns {Promise<import('axios').Response>} - Returns an axios response so you can get the data if the draft
+ * was removed safely.
+ */
+async function removeDraft(workspaceUUID, draftStringId) {
+    return await requests.delete(`/draft/${workspaceUUID}/${draftStringId}`)
+}
+
 export default {
     uploadDraftFile,
-    retrieveDraftFileUrl
+    retrieveDraftFileUrl,
+    removeDraft
 }
