@@ -69,7 +69,7 @@ export default function SelectWebLayout(props) {
                 {props.isOpen ? (
                     <Styled.OptionsContainer
                     ref={props.optionsContainerRef}
-                    offset={props.optionsContainerOffset}
+                    offset={props.searchInputRef.current.offsetHeight + 15}
                     isToLoadOptionsOnBottom={props.isToLoadOptionsOnBottom}
                     >
                         {![null, undefined].includes(props.customHelperLabel) ? (

@@ -8,7 +8,9 @@
         "palmares"
     ],
     "scripts": {
-        "startapp": "pm2 kill && pm2 start config/ecosystem.config.js --only palmares_development --no-daemon"
+        "startapp": "pm2 kill && pm2 start config/ecosystem.config.js --only palmares_development --no-daemon",
+        "makemigrations": "node commands/makemigrations.js",
+        "migrate": "node commands/migrate.js"
     },
     "author": "Reflow Desenvolvimento de Software LTDA",
     "license": "ISC",

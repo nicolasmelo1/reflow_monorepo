@@ -2,18 +2,16 @@ import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, TouchableOpacity, Text } from 'react-native'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import whiteOrBlackColor from '../../../../core/utils/whiteOrBlackColor'
 
 export const CreateOptionLabel = APP === 'web' ?
 styled.span`
     width: 100%;
-    background-color: ${props => ![null, undefined].includes(props.color) ? props.color : props.theme.clearGray};
+    background-color: transparent;
+    border: 1px solid ${props => ![undefined, null].includes(props.color) ? props.color : props.theme.gray_REFLOW};
     border-radius: 5px;
     margin-left: 5px;
     padding: 5px;
-    color: ${props => ![null, undefined].includes(props.color) ? 
-        whiteOrBlackColor(props.color) === 'black' ? props.theme.gray_REFLOW : props.theme.white : 
-        props.theme.gray_REFLOW};
+    color: ${props => props.theme.gray_REFLOW};
 `
 :
 styled(Text)``
@@ -52,17 +50,16 @@ styled.button`
     font-family: Roboto;
     padding: 10px 5px;
     width: 100%;
-    background-color: ${props => ![null, undefined].includes(props.color) ? props.color : 'transparent'};
-    color: ${props => ![null, undefined].includes(props.color) ? 
-                      whiteOrBlackColor(props.color) === 'black' ? props.theme.gray_REFLOW : props.theme.white : 
-                      props.theme.gray_REFLOW};
-    border: 0;
+    user-select: none;
+    border: 1px solid ${props => ![null, undefined, ''].includes(props.color) ? props.color : props.theme.gray_REFLOW};
+    background-color: ${props => props.theme.white};
+    color: ${props => props.theme.gray_REFLOW};
+    font-size: 12px;
     border-radius: 5px;
     text-align: left;
     transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 
     &:hover {
-        color: ${props => props.theme.gray_REFLOW};
         background-color: ${props => props.theme.green_REFLOW}50;
     }
 `
@@ -103,9 +100,7 @@ styled.button`
 styled(TouchableOpacity)``
 
 export const SelectHelperButtonIcon = styled(FontAwesomeIcon)`
-    color: ${props => props.color !== null ? 
-        whiteOrBlackColor(props.color) === 'black' ? props.theme.gray_REFLOW : props.theme.clearGray : 
-        props.theme.gray_REFLOW};
+    color: ${props => props.theme.gray_REFLOW};
 `
 
 export const EditOptionMenuOverlay = APP === 'web' ?
@@ -197,12 +192,12 @@ styled(View)``
 export const ColorButton = APP === 'web' ?
 styled.button`
     cursor: pointer;
-    border: 0px;
+    border: 1px solid ${props => ![null, undefined, ''].includes(props.color) ? props.color : props.theme.green_REFLOW};
     border-radius: 4px;
     margin: 1px;
     width: 20px;
     height: 20px;
-    background-color: ${props => props.color};
+    background-color: transparent;
     transition: width 0.2s ease-in-out, height 0.2s ease-in-out;
 
     &:hover {
@@ -219,10 +214,11 @@ styled.div`
     flex-direction: row;
     align-items: center;
     margin: 1px;
-    padding: 3px 5px;
+    padding: 1px 5px;
     border-radius: 5px;
     user-select: none;
-    background-color: ${props => ![null, undefined].includes(props.color) ? props.color : props.theme.white};
+    border: 1px solid ${props => ![null, undefined, ''].includes(props.color) ? props.color : props.theme.gray_REFLOW};
+    background-color: ${props => props.theme.white};
 `
 :
 styled(View)``
@@ -234,9 +230,7 @@ styled.p`
     font-family: Roboto;
     font-size: 12px;
     user-select: none;
-    color: ${props => ![null, undefined].includes(props.color) ? 
-        whiteOrBlackColor(props.color) === 'black' ? props.theme.gray_REFLOW : props.theme.white : 
-        props.theme.gray_REFLOW};
+    color: ${props => props.theme.gray_REFLOW};
 `
 :
 styled(Text)``
@@ -263,8 +257,6 @@ styled.button`
 styled(TouchableOpacity)``
 
 export const SelectedOptionRemoveButtonIcon = styled(FontAwesomeIcon)`
-    color: ${props => ![null, undefined].includes(props.color) ? 
-        whiteOrBlackColor(props.color) === 'black' ? props.theme.gray_REFLOW : props.theme.white : 
-        props.theme.gray_REFLOW};
+    color: ${props => props.theme.gray_REFLOW};
     font-size: 12px;
 `

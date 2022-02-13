@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
+import { WorkspaceContext } from '../../../authentication/contexts'
 import { generateUUID } from '../../../../../shared/utils'
-import { useClickedOrPressedOutside } from '../../../core'
+import { useClickedOrPressedOutside, colors } from '../../../core'
 import Layout from './layouts'
 
 // ------------------------------------------------------------------------------------------
@@ -19,8 +20,15 @@ import Layout from './layouts'
  * @return {import('react').ReactElement} - The component that will be rendered.
  */
 function CustomCreateOptionButton(props) {
+    const [color, setColor] = useState(null)
+    
+    useEffect(() => {
+        setColor(props.retrieveUniqueCustomColor())
+    }, [])
+
     return (
         <Layout.CustomCreateOptionButton
+        color={color}
         value={props.search}
         onCreateOption={props.onCreateOption}
         />
@@ -244,6 +252,8 @@ function CustomOptionSelect(props) {
 }
 // ------------------------------------------------------------------------------------------
 export default function FormularyFieldOption(props) {
+    const { state: { selectedWorkspace: { isAdmin: isUserAnAdmin } } } = useContext(WorkspaceContext)
+
     const [options, setOptions] = useState(getSelectOptions())
     const [isOpen, setIsOpen] = useState(false)
 
@@ -349,12 +359,14 @@ export default function FormularyFieldOption(props) {
      * After we do this we update the formulary with the newly added option.
      * 
      * @param {string} optionValue - The value of the option that we want to add.
+     * @param {string} color - The color of the option that we want to add. We generate it automatically.
+     * See `retrieveUniqueCustomColor` for reference.
      */
-    function onCreateOption(optionValue) {
+    function onCreateOption(optionValue, color) {
         props.field.options.push({
             uuid: generateUUID(),
             value: optionValue,
-            color: null
+            color: color
         })
         setOptions(getSelectOptions())
         props.onUpdateFormulary()
@@ -384,13 +396,54 @@ export default function FormularyFieldOption(props) {
         setIsOpen(selectIsOpen)
     }
 
+    /**
+     * Automatically retrieve a random color that the option that the user will create, will have.
+     * This means that by default we will always add a unique color to the options that are created.
+     * Besides that, we have a limited number of colors that we can use inside of the application that were
+     * defined by our designers. So what we do is that when we have reached the limit of colors, we will get 
+     * the colors that will be used less times (so this means suppose color red was used for two options but color
+     * green and blue was used for one option, this means that blue and green are available to be selected again)
+     * and then select a random color of the available colors we can select (on the example, green and blue).
+     * 
+     * @returns {string} - The color that we will use for the option that the user will create.
+     */
+     function retrieveUniqueCustomColor() {
+        const numberOfTimesColorsWereUsed = {}
+        for (const option of options) {
+            if (colors.includes(option.color)) {
+                const existingNumberOfTimeColorWasUsed = numberOfTimesColorsWereUsed[option.color]
+                numberOfTimesColorsWereUsed[option.color] = existingNumberOfTimeColorWasUsed !== undefined ? 
+                    existingNumberOfTimeColorWasUsed + 1 : 1
+            }
+        }
+
+        const uniqueUsedColors = [...new Set(Object.keys(numberOfTimesColorsWereUsed))]
+        
+        if (uniqueUsedColors.length < colors.length) {
+            const unusedColors = []
+            for (const color of colors) {
+                if (!uniqueUsedColors.includes(color)) {
+                    unusedColors.push(color)
+                }
+            }
+            return unusedColors[Math.floor(Math.random() * unusedColors.length)]
+        } else {
+            const valueThatWasUsedLeastAmountOfTimes = Math.min(...Object.values(numberOfTimesColorsWereUsed))
+            const colorsThatWasUsedLeastAmountOfTimes = Object.keys(numberOfTimesColorsWereUsed).filter(color => 
+                numberOfTimesColorsWereUsed[color] === valueThatWasUsedLeastAmountOfTimes
+            )
+            return colorsThatWasUsedLeastAmountOfTimes[Math.floor(Math.random() * colorsThatWasUsedLeastAmountOfTimes.length)]
+        }
+    }
+
     const customOptionComponentProps = {
         onMoveOptionUp,
         onMoveOptionDown,
         onRemoveOption,
         onRenameOption,
         onChangeOptionColor,
-        isUserAnAdmin: props.isUserAnAdmin,
+        isUserAnAdmin,
+        retrieveUniqueCustomColor
     }
 
     useEffect(() => {
@@ -409,7 +462,7 @@ export default function FormularyFieldOption(props) {
         isOpen={isOpen}
         onOpenSelect={onOpenSelect}
         options={options}
-        isUserAnAdmin={props.isUserAnAdmin}
+        isUserAnAdmin={isUserAnAdmin}
         types={props.types}
         field={props.field}
         />

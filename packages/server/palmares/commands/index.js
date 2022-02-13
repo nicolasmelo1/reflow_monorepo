@@ -17,24 +17,23 @@ const handleCommands = (settingsPath = null) => {
     const settings = require(settingsPath)
     defineSettings(settings)
     
+    const defaultSpawnOptions = { 
+        stdio: 'inherit',
+        cwd: path.join(__dirname, '..'),
+        env : {
+            ...process.env,
+            PALMARES_SETTINGS_MODULE: settingsPath
+        }
+    }
     switch (cliArguments[0]) {
         case 'migrate':
-            const migrate = require('../database/migrations/migrate')
-            Promise.resolve(migrate(settings))
+            spawn('npm', ['run', 'migrate'], defaultSpawnOptions)
             break
         case 'makemigrations':
-            const makemigrations = require('../database/migrations/makemigrations')
-            makemigrations(settings)
+            spawn('npm', ['run', 'makemigrations'], defaultSpawnOptions)
             break
         case 'runserver':
-            spawn('npm', ['run', 'startapp'], { 
-                stdio: 'inherit',
-                cwd: path.join(__dirname, '..'),
-                env : {
-                    ...process.env,
-                    PALMARES_SETTINGS_MODULE: settingsPath
-                }
-            })
+            spawn('npm', ['run', 'startapp'], defaultSpawnOptions)
             break
         default:
             console.log('Invalid command')

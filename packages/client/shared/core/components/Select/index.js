@@ -66,7 +66,7 @@ import Layout from "./layouts"
  * This way you can pass functions and any kind of stuff.
  * @param {boolean} [props.creatable=false] - If we search for an option and it does not exist, then we will show a button below
  * to create it. 
- * @param {(optionLabel: string) => void} [props.onCreate=undefined] - This is a callback that will be called when the user clicks on the
+ * @param {(optionLabel: string, ...any) => void} [props.onCreateOption=undefined] - This is a callback that will be called when the user clicks on the
  * button to create a new option. For this to be called `creatable` must be set to true.
  * @param {import('react').Component | (props) => import('react').ReactElement} [props.customCreateOptionComponent=undefined] - This is a ref that will be passed 
  * to the select options container
@@ -96,7 +96,6 @@ export default function Select(props) {
     const selectedOptionsRef = useRef(initialSelectedOptions)
     const [isToShowCreatable, setIsToShowCreatable] = useState(isPropsSearchDefinedAndAString && isCreatable && props.search !== '')
     const [searchInputWidth, setSearchInputWidth] = useState(isPropsPlaceholderDefined ? props.placeholder.length : 1)
-    const [optionsContainerOffset, setOptionsContainerOffset] = useState(0)
     const [isToLoadOptionsOnBottom, setIsToLoadOptionsOnBottom] = useState(true)
     const [isOpen, setIsOpen] = useState(isPropsOpenDefined ? props.open : false)
     const [search, setSearch] = useState(isPropsSearchDefinedAndAString ? props.search : '')
@@ -148,29 +147,6 @@ export default function Select(props) {
     /**
      * / * WEB ONLY * /
      * 
-     * When the option container is built above the selected options container, what we do is that on the css we do a 
-     * transform: translateY(-{props.offset}px) to move the option container up. This `props.offset` is what we need to calculate
-     * here.
-     * 
-     * We change this offset everytime the user open or closes the option container and also when he selects an option.
-     * 
-     * It's important to see that we add this in a setTimeout because we need to await the rerender of the options container
-     * to calculate it again. That's because when we select an option then the options container changes height, so we need to recalculate
-     * it again. The same happens when we exclude an option.
-     */
-    function webAdjustOptionsContainerOffset() {
-        if (APP === 'web') {
-            if (selectRef.current && optionsContainerRef.current) {
-                const selectRect = selectRef.current.getBoundingClientRect()
-                const optionsContainerRect = optionsContainerRef.current.getBoundingClientRect()
-                setOptionsContainerOffset(optionsContainerRect.height + selectRect.height)
-            }
-        }
-    }
-
-    /**
-     * / * WEB ONLY * /
-     * 
      * This will automatically define if the options container is going to be loaded on the top or on the bottom of the input. If it's on the bottom
      * we don't need to do anything, if it's on the top we need to adjust the offset so we can move the options container up.
      * 
@@ -186,7 +162,6 @@ export default function Select(props) {
             const isOptionsContainerBiggerThanWindow = bottomPositionOfOptionsContainer > maximumHeightOfPage
             if (isOptionsContainerBiggerThanWindow) {
                 setIsToLoadOptionsOnBottom(false)
-                webAdjustOptionsContainerOffset()
             } else {
                 setIsToLoadOptionsOnBottom(true)
             }
@@ -341,7 +316,7 @@ export default function Select(props) {
      * If we set `creatable` when the user searches for an option that does not exist, then we will show a button at the bottom 
      * for him to create the new option.
      * 
-     * When he clicks this button then we run this function, when running this function we will see if `props.onCreate` is defined,
+     * When he clicks this button then we run this function, when running this function we will see if `props.onCreateOption` is defined,
      * if it is then your parent must handle this option creation. Otherwise we handle it here. (remember that this component must be
      * responsible for his own state, it doesn't need to depend on any external dependencies). So if that's the case
      * we have 2 options:
@@ -351,12 +326,15 @@ export default function Select(props) {
      * 2. We create a new object with the value to a new uuid and the label to the search value.
      * 
      * After that we change the original options array and set the search value to an empty string.
+     * 
+     * @param {...any} args - The arguments that were passed to the function, these args will be passed to the 
+     * `props.onCreateOption` callback.
      */
-    function onCreateOption() {
+    function onCreateOption(...args) {
         const optionValue = search
         const isOnCreateOptionDefined = typeof props.onCreateOption === 'function'
         if (isOnCreateOptionDefined) {
-            props.onCreateOption(optionValue)
+            props.onCreateOption(optionValue, ...args)
             onSearch('')
         } else {
             const hasElementsInOptionsArray = originalOptions.length > 0
@@ -421,10 +399,6 @@ export default function Select(props) {
     }, [props.selectedOptions])
     
     useEffect(() => {
-        webAdjustOptionsContainerOffset()
-    }, [selectedOptions, filteredOptions])
-
-    useEffect(() => {
         adjustWidthOfSearchInput(search)
     }, [props.placeholder])
 
@@ -449,7 +423,6 @@ export default function Select(props) {
         isOpen={isOpen}
         placeholder={placeholder}
         isDisabled={isDisabled}
-        optionsContainerOffset={optionsContainerOffset}
         searchInputWidth={searchInputWidth}
         adjustWidthOfSearchInput={adjustWidthOfSearchInput}
         onCreateOption={onCreateOption}

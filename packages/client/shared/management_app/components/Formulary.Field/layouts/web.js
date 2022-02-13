@@ -1,6 +1,7 @@
 import { Fragment } from 'react'
 import Styled from '../styles'
 import FormularyFieldAttachment from '../../Formulary.Field.Attachment'
+import FormularyFieldCheckbox from '../../Formulary.Field.Checkbox'
 import FormularyFieldDate from '../../Formulary.Field.Date'
 import FormularyFieldNumber from '../../Formulary.Field.Number'
 import FormularyFieldText from '../../Formulary.Field.Text'
@@ -32,7 +33,7 @@ export default function FormularyFieldWebLayout(props) {
                 <Styled.LabelNameInput
                 fieldIsHidden={props.field.fieldIsHidden}
                 autoFocus={true}
-                autoComplete={'whathever'}
+                autoComplete={'off'}
                 onChange={(e) => props.onChangeFieldLabelName(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' ? props.setIsRenaming(false) : null}
                 value={props.field.labelName}
@@ -133,7 +134,7 @@ export default function FormularyFieldWebLayout(props) {
                                     value={typeof(props.field.placeholder) !== 'string' ? '' : props.field.placeholder}
                                     onChange={(e) => props.onChangePlaceholder(e.target.value)}
                                     autoFocus={true}
-                                    autoComplete={'whathever'}
+                                    autoComplete={'off'}
                                     />
                                 ) : ''}
                                 {hasCustomOptionComponents ? (
@@ -219,8 +220,11 @@ export default function FormularyFieldWebLayout(props) {
                 <FormularyFieldFormula
                 {...props}
                 />
-            ) : '' : 
-            ''}
+            ) : fieldTypeName === 'checkbox' ? (
+                <FormularyFieldCheckbox
+                
+                />
+            ) : '' : ''}
         </Styled.Container>
     )
 }

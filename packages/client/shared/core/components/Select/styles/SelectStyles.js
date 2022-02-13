@@ -7,6 +7,8 @@ export const Container = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
 `
 :
 styled(View)``
@@ -71,7 +73,7 @@ export const OptionsContainer = APP === 'web' ?
 styled.div`
     overflow: auto;
     position: absolute;
-    top: ${props => props.isToLoadOptionsOnBottom ? '0': `${-props.offset - 10}px`};
+    ${props => props.isToLoadOptionsOnBottom ? `top: 0;` : `bottom: ${props.offset}px;`}
     left: 0;
     width: 100%;
     max-height: 200px;
@@ -92,8 +94,7 @@ styled.div`
     flex-direction: row;
     align-items: center;
     flex-flow: wrap;
-    width: 100%;
-    height: 100%;
+    flex: 1;
     cursor: text;
 `
 :

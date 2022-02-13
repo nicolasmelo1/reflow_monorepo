@@ -18,6 +18,7 @@ export default function FormularyFieldAttachmentWebLayout(props) {
     return (
         <Styled.Container
         ref={props.containerRef}
+        isDraggingOver={isDraggingFileOver}
         heightOfContainer={heightOfContainerWhileDraggingFileOver}
         onDragOver={(e) => {
             e.preventDefault()
@@ -47,9 +48,7 @@ export default function FormularyFieldAttachmentWebLayout(props) {
             }
         }}
         >
-            <Styled.ContainerWrapper
-            isDraggingOver={isDraggingFileOver}
-            >
+            <Styled.ContainerWrapper>
                 {isDraggingFileOver === true ? (
                     <Styled.DragAndDropMessage>
                         {strings('formularyFieldAttachmentDragAndDropFileMessage')}

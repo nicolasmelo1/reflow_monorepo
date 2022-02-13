@@ -49,7 +49,7 @@ export default function FormularyFieldNumberWebLayout(props) {
     return (
         <Styled.Container>
             <Styled.Input 
-            autoComplete={'whathever'}
+            autoComplete={'off'}
             placeholder={props.field.placeholder}
             type={'text'}
             />

@@ -2,7 +2,7 @@ const { models } = require('../../../../palmares/database')
 
 const { 
     FieldTypeAppManagementFormularyManager, 
-    TimeFormatTypeAppManagementFormularyManager, 
+    TimeFormatTypeAppManagementFormularyManager,
     DateFormatTypeAppManagementFormularyManager, 
     NumberFormatTypeAppManagementFormularyManager,
     SectionTypeAppManagementFormularyManager,
@@ -12,6 +12,8 @@ const {
     FieldNumberAppManagementFormularyManager,
     FieldFormulaAppManagementFormularyManager,
     FieldUserAppManagementFormularyManager,
+    FieldOptionAppManagementFormularyManager,
+    FieldTagsAppManagementFormularyManager,
     OptionAppManagementFormularyManager,
     FieldAppManagementFormularyManager,
     SectionAppManagementFormularyManager,
@@ -444,6 +446,45 @@ class FieldAttachment extends models.Model {
 }
 
 /**
+ * Holds the configuration specific to the option field type. The only thing he can configure in the option field type is if
+ * the input showed is a dropdown or simple radio buttons.
+ */
+class FieldOption extends models.Model {
+    attributes = {
+        uuid: new models.fields.UUIDField({ autoGenerate: true }),
+        field: new models.fields.OneToOneField({
+            relatedTo: 'Field',
+            onDelete: models.fields.ON_DELETE.CASCADE
+        }),
+        isDropdown: new models.fields.BooleanField({ defaultValue: true }),
+    }
+
+    options = {
+        tableName: 'field_option'
+    }
+
+    static APP_MANAGEMENT_FORMULARY = new FieldOptionAppManagementFormularyManager()
+}
+
+class FieldTags extends models.Model {
+    attributes = {
+        uuid: new models.fields.UUIDField({ autoGenerate: true }),
+        field: new models.fields.OneToOneField({
+            relatedTo: 'Field',
+            onDelete: models.fields.ON_DELETE.CASCADE
+        }),
+        isDropdown: new models.fields.BooleanField({ defaultValue: true }),
+        maxNumberOfOptions: new models.fields.IntegerField({ defaultValue: null, allowNull: true }),
+    }
+
+    options = {
+        tableName: 'field_tags'
+    }
+
+    static APP_MANAGEMENT_FORMULARY = new FieldTagsAppManagementFormularyManager()
+}
+
+/**
  * This are the options for some fieldTypes that display options. Right now the fields that will have options are
  * both the `tags` and `option` field types. That's all this does. This is also used to display the columns of the
  * kanban visualization board.
@@ -489,5 +530,7 @@ module.exports = {
     FieldAttachment,
     Option,
     FieldUser,
-    FieldFormula
+    FieldFormula,
+    FieldOption,
+    FieldTags
 }

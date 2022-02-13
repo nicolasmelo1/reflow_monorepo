@@ -7,10 +7,12 @@ export function CustomCreateOptionButtonWebLayout(props) {
     return (
         <Styled.SelectContainer>
             <Styled.SelectButton
-            onClick={() => props.onCreateOption()}
+            onClick={() => props.onCreateOption(props.color)}
             >
                 {strings('formularyFieldOptionCreateOptionLabel')}
-                <Styled.CreateOptionLabel>
+                <Styled.CreateOptionLabel
+                color={props.color}
+                >
                     {props.value}
                 </Styled.CreateOptionLabel>
             </Styled.SelectButton>

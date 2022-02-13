@@ -5,7 +5,7 @@ export default function FormularyFieldTextWebLayout(props) {
         <Styled.Container>
             <Styled.Input 
             placeholder={props.field.placeholder}
-            autoComplete={'whathever'}
+            autoComplete={'off'}
             type={'text'}
             />
         </Styled.Container>

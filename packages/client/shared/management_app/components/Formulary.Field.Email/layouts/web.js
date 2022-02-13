@@ -6,8 +6,8 @@ export default function FormularyFieldEmailWebLayout(props) {
             <Styled.Input 
             onChange={(e) => props.onChangeValue(e.target.value)}
             placeholder={props.field.placeholder}
-            autoComplete={'whathever'}
-            type={'text'}
+            autoComplete={'off'}
+            type={'email'}
             />
         </Styled.Container>
     )

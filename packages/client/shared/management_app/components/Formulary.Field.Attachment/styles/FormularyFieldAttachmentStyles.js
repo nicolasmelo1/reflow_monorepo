@@ -10,7 +10,8 @@ styled.div`
     align-items: center;
     justify-content: center;
     width: 100%;
-    background-color: ${props => props.isDraggingOver ? `${props.theme.green_REFLOW}50` : props.theme.moreClearGray};
+    border-radius: 5px;
+    background-color: ${props => props.isDraggingOver ? `${props.theme.green_REFLOW}90` : props.theme.moreClearGray};
     cursor: ${props => props.isDraggingOver ? 'copy' : 'auto'};
     ${props => ![null, undefined, 0].includes(props.heightOfContainer) ? `height: ${props.heightOfContainer}px;` : ''}
 `
@@ -78,7 +79,7 @@ styled.div`
     height: 100%;
     padding: 10px;
     border-radius: 5px;
-    background-color: ${props => props.isDraggingOver ? `${props.theme.green_REFLOW}50` : 'transparent'};
+    background-color: transparent;
 `
 :
 styled(View)``

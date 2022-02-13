@@ -13,6 +13,8 @@ const {
     FieldNumber,
     FieldDate,
     FieldFormula,
+    FieldOption,
+    FieldTags,
     Option
 } = require('./models')
 
@@ -79,6 +81,30 @@ class SectionTypeRelation extends serializers.ModelSerializer {
 }
 
 // ------------------------------------------------------------------------------------------
+class FieldOptionRelation extends serializers.ModelSerializer {
+    async toRepresentation(fieldId) {
+        const fieldOption = await FieldOption.APP_MANAGEMENT_FORMULARY.fieldOptionByFieldId(fieldId)
+        return await super.toRepresentation(fieldOption)
+    }
+
+    options = {
+        model: FieldOption,
+        exclude: ['id', 'order']
+    }
+}
+
+class FieldTagsRelation extends serializers.ModelSerializer {
+    async toRepresentation(fieldId) {
+        const fieldTags = await FieldTags.APP_MANAGEMENT_FORMULARY.fieldTagsByFieldId(fieldId)
+        return await super.toRepresentation(fieldTags)
+    }
+
+    options = {
+        model: FieldTags,
+        exclude: ['id', 'order']
+    }
+}
+
 class FieldFormulaRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldFormula = await FieldFormula.APP_MANAGEMENT_FORMULARY.fieldFormulaByFieldId(fieldId)
@@ -194,6 +220,8 @@ class FieldRelation extends serializers.ModelSerializer {
         numberField: new FieldNumberRelation({ source: 'id' }),
         dateField: new FieldDateRelation({ source: 'id' }),
         formulaField: new FieldFormulaRelation({ source: 'id' }),
+        optionField: new FieldOptionRelation({ source: 'id' }),
+        tagsField: new FieldTagsRelation({ source: 'id' }),
         options: new OptionRelation({ source: 'id', many: true })
     }
 
