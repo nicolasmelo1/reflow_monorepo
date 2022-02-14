@@ -251,11 +251,52 @@ function CustomOptionSelect(props) {
     )
 }
 // ------------------------------------------------------------------------------------------
+function OptionFormatOption(props) {
+    const [isDropdown, setIsDropdown] = useState(props.isDropdown)
+
+    function onChangeIfIsDropdownMenu(isDropdownMenu=!isDropdown) {
+        setIsDropdown(isDropdownMenu)
+        props.onChangeIfIsDropdownMenu(isDropdownMenu)
+    }
+
+    return <Layout.DropdownMenu
+    isDropdown={isDropdown}
+    onChangeIfIsDropdownMenu={onChangeIfIsDropdownMenu}
+    />
+}
+// ------------------------------------------------------------------------------------------
 export default function FormularyFieldOption(props) {
     const { state: { selectedWorkspace: { isAdmin: isUserAnAdmin } } } = useContext(WorkspaceContext)
 
     const [options, setOptions] = useState(getSelectOptions())
     const [isOpen, setIsOpen] = useState(false)
+
+    /**
+     * This will create a new option field data, this is the data needed in order to configure the `option` field type.
+     * 
+     * @param {object} optionFieldData - The params for the option field type.
+     * @param {string} [optionFieldData.isDropdown=true] - Will we load the options as a dropdown or as a list with radio
+     * buttons?
+     */
+    function createOptionFieldData({
+        isDropdown=true
+    }={}) {
+        return {
+            uuid: generateUUID(),
+            isDropdown
+        }
+    }
+
+    /**
+     * If the field is not an option, or at least it has just been changed to an option, then we need to create the
+     * option field data. This data will be used to configure the `option` field type with custom data.
+     */
+    function onDefaultCreateOptionOptionsIfDoesNotExist() {
+        if (props.field.optionField === null) {
+            props.field.optionField = createOptionFieldData()
+            props.onUpdateFormulary()
+        }
+    }
 
     /**
      * This will get the options array to send to the `Select` component. By default we obligatorily need to set
@@ -396,6 +437,11 @@ export default function FormularyFieldOption(props) {
         setIsOpen(selectIsOpen)
     }
 
+    function onChangeIfIsDropdownMenu(isDropdown) {
+        props.field.optionField.isDropdown = isDropdown
+        props.onUpdateFormulary()
+    }
+
     /**
      * Automatically retrieve a random color that the option that the user will create, will have.
      * This means that by default we will always add a unique color to the options that are created.
@@ -445,6 +491,20 @@ export default function FormularyFieldOption(props) {
         isUserAnAdmin,
         retrieveUniqueCustomColor
     }
+
+    useEffect(() => {
+        onDefaultCreateOptionOptionsIfDoesNotExist()
+    }, [])
+
+    useEffect(() => {
+        props.addComponentsForFieldSpecificOptionsForDropdownMenu([
+            <OptionFormatOption
+            key={`optionFormatOption-${props.field.uuid}`}
+            isDropdown={typeof props.field?.optionField?.isDropdown === 'boolean' ? props.field.optionField.isDropdown : true}
+            onChangeIfIsDropdownMenu={onChangeIfIsDropdownMenu}
+            />
+        ], true)
+    }, [props.field?.optionField?.isDropdown])
 
     useEffect(() => {
         if (JSON.stringify(options) !== JSON.stringify(props.field.options)) {

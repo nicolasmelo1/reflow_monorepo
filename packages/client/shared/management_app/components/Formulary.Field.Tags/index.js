@@ -257,6 +257,38 @@ export default function FormularyFieldTags(props) {
     const [isOpen, setIsOpen] = useState(false)
 
     /**
+     * This will create a new tags field data, this is the data needed in order to configure the `tags` field type.
+     * 
+     * @param {object} tagsFieldData - The params for the option field type.
+     * @param {string} [tagsFieldData.isDropdown=true] - Will we load the options as a dropdown or as a list with radio
+     * buttons?
+     * @param {number | null} [tagsFieldData.maxNumberOfOptions=null] - Maximum number of options that the user can select.
+     * 
+     * @returns {{uuid: string, isDropdown: boolean, maxNumberOfOptions: number | null}} - The new tags field data.
+     */
+    function createTagsFieldData({
+        isDropdown=true,
+        maxNumberOfOptions=null
+    }={}) {
+        return {
+            uuid: generateUUID(),
+            isDropdown,
+            maxNumberOfOptions
+        }
+    }
+
+    /**
+     * If the field is not a tags, or at least it has just been changed to a tags, then we need to create the
+     * tags field data. This data will be used to configure the `tags` field type with custom data.
+     */
+    function onDefaultCreateTagsOptionsIfDoesNotExist() {
+        if (props.field.tagsField === null) {
+            props.field.tagsField = createTagsFieldData()
+            props.onUpdateFormulary()
+        }
+    }
+
+    /**
      * This will get the options array to send to the `Select` component. By default we obligatorily need to set
      * `label` and `value`. But we also send some other props like the color of the option, the index, if the item
      * is the last index and so on.
@@ -444,6 +476,10 @@ export default function FormularyFieldTags(props) {
         retrieveUniqueCustomColor,
         isUserAnAdmin,
     }
+
+    useEffect(() => {
+        onDefaultCreateTagsOptionsIfDoesNotExist()
+    }, [])
 
     useEffect(() => {
         if (JSON.stringify(options) !== JSON.stringify(props.field.options)) {

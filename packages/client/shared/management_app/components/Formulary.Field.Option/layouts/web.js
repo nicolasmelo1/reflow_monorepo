@@ -1,7 +1,21 @@
-import { Select, strings, colors } from '../../../../core'
+import { Select, strings, colors, Switch } from '../../../../core'
 import { faArrowUp, faArrowDown, faEllipsisH, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 import Styled from '../styles'
 
+// ------------------------------------------------------------------------------------------
+export function DropdownMenuOptionFormatOptionWebLayout(props) {
+    return (
+        <Styled.DropdownMenuInputContainer>
+            <Switch
+            isSelected={props.isDropdown}
+            onSelect={() => props.onChangeIfIsDropdownMenu(!props.isDropdown)}
+            /> 
+            <Styled.SwitchFieldLabel>
+                {'Menu de Seleção'}
+            </Styled.SwitchFieldLabel>
+        </Styled.DropdownMenuInputContainer>
+    )
+}
 // ------------------------------------------------------------------------------------------
 export function CustomCreateOptionButtonWebLayout(props) {
     return (
@@ -162,7 +176,10 @@ export function CustomOptionSelectWebLayout(props) {
 }
 // ------------------------------------------------------------------------------------------
 export default function FormularyFieldOptionWebLayout(props) {
-    return (
+    const isADropdownMenu = typeof props.field?.optionField?.isDropdown === 'boolean' ? props.field.optionField.isDropdown : true
+    console.log(props.options)
+    
+    return isADropdownMenu === true ? (
         <Styled.Container
         isOpen={props.isOpen}
         >
@@ -182,5 +199,18 @@ export default function FormularyFieldOptionWebLayout(props) {
             placeholder={props.field.placeholder}
             />
         </Styled.Container>
+    ) : (
+        <Styled.NotADropdownContainer>
+            {props.options.map(option => (
+                <Styled.NotADropdownButton 
+                key={option.value}
+                color={option.color}
+                isLast={option.isLast}
+                >
+                    <input type="radio" name={props.field.labelName}/>
+                    {option.label}
+                </Styled.NotADropdownButton>
+            ))}
+        </Styled.NotADropdownContainer>
     )
 }

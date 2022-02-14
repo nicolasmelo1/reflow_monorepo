@@ -1,5 +1,10 @@
 import { View } from 'react-native'
 
+// ------------------------------------------------------------------------------------------
+export function DropdownMenuOptionFormatOptionMobileLayout(props) {
+    return (<View/>)
+}
+
 export function CustomCreateOptionButtonMobileLayout(props) {
     return (<View/>)
 }

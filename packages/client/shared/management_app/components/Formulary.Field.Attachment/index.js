@@ -16,7 +16,7 @@ export default function FormularyFieldAttachment(props) {
 
     /**
      * This will create a new attachment field data, this is the data needed in order to configure the `attachment` field type.
-     * With this data we are able to work.
+     * With this data we are able to work with the `attachment` field type.
      * 
      * @param {object} attachmentFieldData - The params for the attachment field type.
      * @param {string} [attachmentFieldData.maxNumberOfAttachments=null] - The maximum number of attachment a user can add, if null,

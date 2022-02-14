@@ -17,6 +17,7 @@ export default function FormularyField(props) {
     const [isHovering, _setIsHovering] = useState(isHoveringRef.current)
     const [isEditMenuOpen, setIsEditMenuOpen] = useState(false)
     const [isRenaming, setIsRenaming] = useState(false)
+    const [rerenderTrigger, setRerenderTrigger] = useState(false)
     const [editMenuPosition, setEditMenuPosition] = useState({
         position: { x: 0, y: 0 }, 
         maxHeight: null, 
@@ -108,9 +109,10 @@ export default function FormularyField(props) {
      * @param {Array<import('react').ReactElement>} components - An array of react elements initialized. This is a component that has
      * been initialized
      */
-    function addComponentsForFieldSpecificOptionsForDropdownMenu(components) {
+    function addComponentsForFieldSpecificOptionsForDropdownMenu(components, forceRerender=false) {
         optionsForDropdownMenuRef.current = components
         setNumberOfCustomOptionComponents(components.length)
+        if (forceRerender === true) setRerenderTrigger(!rerenderTrigger)
     }
 
     /**
