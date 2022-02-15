@@ -1,6 +1,7 @@
 import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, TouchableOpacity } from 'react-native'
+import { whiteOrBlackColor } from '../../../../core/utils'
 
 export const Container = APP === 'web' ?
 styled.div`
@@ -35,11 +36,26 @@ styled.label`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 10px;
-    ${props => props.isLast ? '' : `margin-bottom: 2px;`}
-    background-color: ${props => ![null, undefined].includes(props.color) ? props.color : 'transparent'};
+    justify-content: flex-start;
+    padding: 2px 10px;
     border-radius: 5px;
-    font-size: 12px;
+    ${props => props.isLast ? '' : `margin-bottom: 2px;`}
+    border: 1px solid ${props => props.isSelected ? props.theme.gray_REFLOW : 'transparent'};
+    transition: border 0.3s ease-in-out;
 `
 :
 styled(TouchableOpacity)``
+
+export const NotADropdownButtonLabel = APP === 'web' ?
+styled.span`
+    font-size: 12px;
+    margin-left: 10px;
+    padding: 10px;
+    color: ${props => ![null, undefined].includes(props.color) ? 
+        whiteOrBlackColor(props.color) === 'black' ? props.theme.gray_REFLOW : props.theme.white : 
+        props.theme.gray_REFLOW};
+    background-color: ${props => ![null, undefined].includes(props.color) ? props.color : 'transparent'};
+    border-radius: 5px;
+`
+:
+styled(Text)``

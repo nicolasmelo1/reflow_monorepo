@@ -103,6 +103,9 @@ function CustomSelectedOption(props) {
  * @return {import('react').ReactElement} - The component that will be rendered.
  */
 function CustomOptionSelect(props) {
+    const isADropdownMenu = typeof props.isADropdownMenu === 'boolean' ? props.isADropdownMenu : true
+    const isSelected = typeof props.isSelected === 'boolean' ? props.isSelected : false
+
     const renameOptionInputRef = useRef()
     const editOptionButtonRef = useRef()
     const editMenuContainerRef = useRef()
@@ -232,6 +235,8 @@ function CustomOptionSelect(props) {
         renameOptionInputRef={renameOptionInputRef}
         editOptionButtonRef={editOptionButtonRef}
         editMenuContainerRef={editMenuContainerRef}
+        isADropdownMenu={isADropdownMenu}
+        isSelected={isSelected}
         isHovering={isHovering}
         onHoverOption={onHoverOption}
         isEditing={isEditing}
@@ -246,14 +251,27 @@ function CustomOptionSelect(props) {
         onMoveOptionUp={props.onMoveOptionUp}
         onMoveOptionDown={props.onMoveOptionDown}
         option={option}
+        field={props.field}
         onSelectOrRemoveOption={props.onSelectOrRemoveOption}
         />
     )
 }
 // ------------------------------------------------------------------------------------------
+/**
+ * This component is the option component of the dropdown menu of the field. This will add custom configurations for
+ * the `option` field type. With this the user can set if he wants the option to be a select component or a simple
+ * radio button.
+ * 
+ * @param {object} props - The props of the component.
+ * @param {boolean} props.isDropdown - If the option field is a dropdown or not.
+ * @param {(isDropdown: boolean) => void} props.onChangeIfIsDropdownMenu - Callback function used to change if the option is
+ * a dropdown or not.
+ * 
+ * @return {import('react').ReactElement}
+ */
 function OptionFormatOption(props) {
     const [isDropdown, setIsDropdown] = useState(props.isDropdown)
-
+    
     function onChangeIfIsDropdownMenu(isDropdownMenu=!isDropdown) {
         setIsDropdown(isDropdownMenu)
         props.onChangeIfIsDropdownMenu(isDropdownMenu)
@@ -437,9 +455,21 @@ export default function FormularyFieldOption(props) {
         setIsOpen(selectIsOpen)
     }
 
+    /**
+     * This will change if the option field type will be a dropdown or not. By default every option field type 
+     * is a dropdown, in other words, it hides the options inside of inputs. But we can change this behavior and 
+     * load all of the options that the user can select. So we will display simple radio buttons instead of the dropdown/select
+     * input.
+     * 
+     * @param {boolean} isDropdown - If the option field type will be a dropdown then it's true, otherwise it's false.
+     */
     function onChangeIfIsDropdownMenu(isDropdown) {
         props.field.optionField.isDropdown = isDropdown
         props.onUpdateFormulary()
+    }
+
+    function onChangeOption(newOption) {
+        console.log(newOption)
     }
 
     /**
@@ -453,7 +483,7 @@ export default function FormularyFieldOption(props) {
      * 
      * @returns {string} - The color that we will use for the option that the user will create.
      */
-     function retrieveUniqueCustomColor() {
+    function retrieveUniqueCustomColor() {
         const numberOfTimesColorsWereUsed = {}
         for (const option of options) {
             if (colors.includes(option.color)) {
@@ -489,7 +519,8 @@ export default function FormularyFieldOption(props) {
         onRenameOption,
         onChangeOptionColor,
         isUserAnAdmin,
-        retrieveUniqueCustomColor
+        retrieveUniqueCustomColor,
+        field: props.field
     }
 
     useEffect(() => {
@@ -519,6 +550,7 @@ export default function FormularyFieldOption(props) {
         customSelectedComponent={{ customSelectedOption: CustomSelectedOption }}
         customCreateOptionComponent={CustomCreateOptionButton}
         onCreateOption={onCreateOption}
+        onChangeOption={onChangeOption}
         isOpen={isOpen}
         onOpenSelect={onOpenSelect}
         options={options}

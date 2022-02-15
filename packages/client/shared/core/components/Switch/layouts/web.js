@@ -9,6 +9,7 @@ export default function SwitchWebLayout(props) {
             props.onSelect()
         }}
         isSelected={props.isSelected}
+        selectedBackgroundColor={props.selectedBackgroundColor}
         nonSelectedBackgroundColor={props.nonSelectedBackgroundColor}
         >
             <Styled.Dot

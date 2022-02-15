@@ -11,7 +11,7 @@ export function DropdownMenuOptionFormatOptionWebLayout(props) {
             onSelect={() => props.onChangeIfIsDropdownMenu(!props.isDropdown)}
             /> 
             <Styled.SwitchFieldLabel>
-                {'Menu de Seleção'}
+                {strings('formularyFieldOptionDropdownMenuIsDropdownLabel')}
             </Styled.SwitchFieldLabel>
         </Styled.DropdownMenuInputContainer>
     )
@@ -60,11 +60,26 @@ export function CustomSelectedOptionWebLayout(props) {
 }
 // ------------------------------------------------------------------------------------------
 export function CustomOptionSelectWebLayout(props) {
+    const SelectContainer = props.isADropdownMenu === true ? 
+        Styled.SelectContainerOnDropdown : 
+        Styled.SelectContainerWithoutDropdown
+
+    console.log(props.isADropdownMenu)
     return (
-        <Styled.SelectContainer
+        <SelectContainer
+        isSelected={props.isSelected}
+        isLast={props.option.isLast}
+        color={props.option.color}
         onMouseOver={() => props.onHoverOption(true)}
         onMouseLeave={() => props.onHoverOption(false)}
         >   
+            {props.isADropdownMenu === false ? (
+                <Styled.RadioInput 
+                type={'radio'}
+                onChange={() => props.onSelectOrRemoveOption(props.option)}
+                name={props.field.labelName}
+                />
+            ) : ''}
             {props.isRenaming ? (
                 <Styled.RenameInput
                 ref={props.renameOptionInputRef}
@@ -77,6 +92,8 @@ export function CustomOptionSelectWebLayout(props) {
                 />
             ) : (
                 <Styled.SelectButton
+                isSelected={props.isSelected}
+                isADropdownMenu={props.isADropdownMenu}
                 color={props.option.color}
                 onClick={() => props.onSelectOrRemoveOption(props.option)}
                 >
@@ -86,6 +103,7 @@ export function CustomOptionSelectWebLayout(props) {
             {props.isUserAnAdmin === true ? props.isRenaming ? (
                 <Styled.SelectHelperButtonsContainer
                 isHovering={props.isHovering}
+                isADropdownMenu={props.isADropdownMenu}
                 >
                     <Styled.SelectHelperButtons
                     onClick={() => props.onToggleRenaming(false)}
@@ -99,6 +117,7 @@ export function CustomOptionSelectWebLayout(props) {
             ) : (
                 <Styled.SelectHelperButtonsContainer
                 isHovering={props.isHovering}
+                isADropdownMenu={props.isADropdownMenu}
                 >
                     {props.option.index !== 0 ? (
                         <Styled.SelectHelperButtons
@@ -171,14 +190,14 @@ export function CustomOptionSelectWebLayout(props) {
                     ) : ''}
                 </Styled.SelectHelperButtonsContainer>
             ) : ''}
-        </Styled.SelectContainer>
+        </SelectContainer>
     )
 }
 // ------------------------------------------------------------------------------------------
 export default function FormularyFieldOptionWebLayout(props) {
     const isADropdownMenu = typeof props.field?.optionField?.isDropdown === 'boolean' ? props.field.optionField.isDropdown : true
-    console.log(props.options)
-    
+    const OptionComponent = props.customOptionComponent.customOption
+
     return isADropdownMenu === true ? (
         <Styled.Container
         isOpen={props.isOpen}
@@ -202,14 +221,14 @@ export default function FormularyFieldOptionWebLayout(props) {
     ) : (
         <Styled.NotADropdownContainer>
             {props.options.map(option => (
-                <Styled.NotADropdownButton 
+                <OptionComponent
                 key={option.value}
-                color={option.color}
-                isLast={option.isLast}
-                >
-                    <input type="radio" name={props.field.labelName}/>
-                    {option.label}
-                </Styled.NotADropdownButton>
+                isSelected={option.label === 'Perdido'}
+                isADropdownMenu={isADropdownMenu}
+                option={option}
+                onSelectOrRemoveOption={props.onChangeOption}
+                {...props.customOptionComponentProps}
+                />
             ))}
         </Styled.NotADropdownContainer>
     )

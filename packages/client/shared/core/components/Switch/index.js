@@ -15,6 +15,7 @@ import Layout from './layouts'
  * @param {number} [props.dotSize=20] - The size of the dot that is shown on the switch. By default it is 20px.
  * @param {string} [props.dotColor='#fff'] - The color of the dot that is shown on the switch. By default it is white.
  * @param {string} [props.nonSelectedBackgroundColor=undefined] - The color of the background of the switch when it is not selected.
+ * @param {string} [props.selectedBackgroundColor=undefined] - The color of the background of the switch when it is selected.
  * 
  * @returns {import('react').Component} - Returns a react component.
  */
@@ -48,6 +49,7 @@ export default function Switch(props) {
 
     return (
         <Layout
+        selectedBackgroundColor={props.selectedBackgroundColor}
         nonSelectedBackgroundColor={props.nonSelectedBackgroundColor}
         dotSize={dotSize}
         dotColor={dotColor}

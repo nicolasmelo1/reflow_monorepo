@@ -4,7 +4,8 @@ import { TouchableOpacity } from 'react-native'
 
 export const Button = APP === 'web' ? 
 styled.button`
-    background-color: ${props => props.isSelected ? props.theme.green_REFLOW : 
+    background-color: ${props => props.isSelected ? 
+        ![undefined, null].includes(props.selectedBackgroundColor) ? props.selectedBackgroundColor : props.theme.green_REFLOW :
         ![undefined, null].includes(props.nonSelectedBackgroundColor) ? props.nonSelectedBackgroundColor : props.theme.clearGray};
     border: 0;
     border-radius: ${props => props.dotSize}px;

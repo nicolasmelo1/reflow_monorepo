@@ -32,6 +32,7 @@ module.exports = {
         formularyFieldOptionEditOptionMenuRenameButtonLabel: 'Renomear',
         formularyFieldOptionEditOptionMenuDeleteButtonLabel: 'Excluir',
         formularyFieldOptionEditOptionMenuColorLabel: 'Cores',
+        formularyFieldOptionDropdownMenuIsDropdownLabel: 'Menu de seleção',
         formularyFieldAttachmentPlaceholder: 'Clique ou arraste os arquivos aqui',
         formularyFieldAttachmentDragAndDropFileMessage: 'SOLTE OS ARQUIVOS AQUI',
         formularyFieldAttachmentDetailCloseButtonDescriptionLabel: 'Fechar',

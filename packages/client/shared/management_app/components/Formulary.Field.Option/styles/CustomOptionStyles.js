@@ -18,7 +18,7 @@ styled.span`
 :
 styled(Text)``
 
-export const SelectContainer = APP === 'web' ?
+export const SelectContainerOnDropdown = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -27,6 +27,29 @@ styled.div`
     width: calc(100% - 10px);
     padding: 5px;
     border-radius: 5px;
+    position: relative;
+`
+:
+styled(View)``
+
+export const SelectContainerWithoutDropdown = APP === 'web' ?
+styled.label`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: calc(100% - 10px);
+    ${props => props.isLast !== true ? `margin-bottom: 3px;` : ''}
+    padding: 1px 5px;
+    border-radius: 5px;
+    background-color: ${props => ![null, undefined].includes(props.color) ? props.color : 'transparent'};
+    border: 2px solid ${props => props.isSelected ? props.theme.gray_REFLOW : 'transparent'};
+    transition: border 0.2s ease-in-out;
+    position: relative;
+
+    &:hover {
+        border: 2px solid ${props => props.theme.gray_REFLOW};
+    }
 `
 :
 styled(View)``
@@ -52,7 +75,7 @@ styled.button`
     font-family: Roboto;
     padding: 10px 5px;
     width: 100%;
-    background-color: ${props => ![null, undefined].includes(props.color) ? props.color : 'transparent'};
+    background-color: ${props => ![null, undefined].includes(props.color) && props.isADropdownMenu === true ? props.color : 'transparent'};
     color: ${props => ![null, undefined].includes(props.color) ? 
                       whiteOrBlackColor(props.color) === 'black' ? props.theme.gray_REFLOW : props.theme.white : 
                       props.theme.gray_REFLOW};
@@ -60,14 +83,29 @@ styled.button`
     border-radius: 5px;
     text-align: left;
     transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-
-    &:hover {
-        color: ${props => props.theme.gray_REFLOW};
-        background-color: ${props => props.theme.green_REFLOW}50;
+    
+    ${props => props.isADropdownMenu === true ? `
+        &:hover {
+            color: ${props.theme.gray_REFLOW};
+            background-color: ${props.theme.green_REFLOW}50;
+        ` : ''}
     }
 `
 :
 styled(TouchableOpacity)``
+
+export const RadioInput = APP === 'web' ?
+styled.input`
+    width: 20px;
+    margin: 0;
+    height: 20px;
+
+    &:checked {
+        background: ${props => props.theme.green_REFLOW};
+    }
+`
+:
+styled(View)``
 
 export const SelectHelperButtonsContainer = APP === 'web' ?
 styled.div`
@@ -75,7 +113,7 @@ styled.div`
     flex-direction: row;
     align-items: center;
     position: absolute;
-    right: 5px;
+    right: ${props => props.isADropdownMenu === true ? '5px' : '0'};
     padding: 5px;
     opacity: ${props => props.isHovering ? '1': '0'};
     transition: opacity 0.2s ease-in-out;
