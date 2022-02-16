@@ -39,6 +39,7 @@ module.exports = {
         formularyFieldAttachmentDetailRemoveButtonDescriptionLabel: 'Excluir',
         formularyFieldAttachmentDetailDownloadButtonDescriptionLabel: 'Download',
         formularyFieldIdDescriptionLabel: 'Esse valor é gerado dinâmicamente',
+        formularyFieldFormulaDescriptionLabel: 'Esse valor é calculado dinamicamente',
         numberFormatTypeNumberLabel: 'Dinâmico',
         numberFormatTypeIntegerLabel: 'Inteiro',
         numberFormatTypeCurrencyLabel: 'Monetário',
