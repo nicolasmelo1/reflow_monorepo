@@ -9,15 +9,14 @@ export default function FormularyField(props) {
     const fieldRef = useRef()
     const fieldEditMenuButtonRef = useRef()
     const fieldEditDropdownMenuRef = useRef()
-    const optionsForDropdownMenuRef = useRef([])
+    const optionForDropdownMenuRef = useRef()
     const isHoveringRef = useRef(false)
     const { state: { types } } = useContext(AppManagementTypesContext)
-    const [numberOfCustomOptionComponents, setNumberOfCustomOptionComponents] = useState(0)
     const [isPlaceholderOpen, setIsPlaceholderOpen] = useState(!['', null, undefined].includes(props.field.placeholder))
     const [isHovering, _setIsHovering] = useState(isHoveringRef.current)
     const [isEditMenuOpen, setIsEditMenuOpen] = useState(false)
     const [isRenaming, setIsRenaming] = useState(false)
-    const [rerenderTrigger, setRerenderTrigger] = useState(false)
+    const [customOptionForDropdownMenuProps, setCustomOptionForDropdownMenuProps] = useState({})
     const [editMenuPosition, setEditMenuPosition] = useState({
         position: { x: 0, y: 0 }, 
         maxHeight: null, 
@@ -70,14 +69,14 @@ export default function FormularyField(props) {
      *      }
      *      
      *      useEffect(() => {
-     *          props.addComponentsForFieldSpecificOptionsForDropdownMenu([
-     *              <DefaultValueInput
-     *              key={`custominput-${props.field.uuid}`}
-     *              value={defaultValue}
-     *              onChange={onChangeDefaultValueInCustomOption}
-     *              />
-     *         ])
-     *      }, [])
+     *          props.addComponentForFieldSpecificOptionsForDropdownMenu(
+     *              DefaultValueInput,
+     *              {
+     *                  value: defaultValue,
+     *                  onChange: onChangeDefaultValueInCustomOption
+     *              }
+     *         )
+     *      }, [props.field.defaultValue])
      * 
      *      return APP === 'web' ? (
      *          <Layouts.Web types={props.types} field={props.field} />
@@ -88,31 +87,18 @@ export default function FormularyField(props) {
      * ```
      * 
      * So in this example let's look for some things: 
-     * FormularyFieldText has a useEffect function without any dependencies, this means that it will be called only once when
-     * this component mounts, this is obligatory, you don't want to rerender the option every time `FormularyFieldText` is
-     * rerendered.
+     * FormularyFieldText has a useEffect function with `props.field.defaultValue` as dependency, this means that it will be called everytime the `props.field.defaultValue` 
+     * changes to a new value. So we will be able rerender the `DefaultValueInput` component even though the logic is kept completely in the `FormularyFieldNumber` component.
+     *
+     * Important thing to note is that we DO NOT keep track of when the `onChangeDefaultValueInCustomOption` function changes in the `useEffect` hook, that's because it's a function
+     * and the only purpose of functions is to serve as a callback we do not need to rerender the component everytime the function changes.
      * 
-     * Also be aware that this function adds the components to a ref, this means it will NOT rerender the component again when
-     * we call `props.addComponentsForFieldSpecificOptionsForDropdownMenu` again. All of the changes that you make when you call
-     * this function again will be added on the next time we reopen the dropdown menu.
-     * 
-     * Last but not least, because of this ^, we need to make sure our component holds all of the state it needs. 
-     * This line
-     * `const [defaultValue, setDefaultValue] = useState(props.value)`
-     * 
-     * is defined in the `DefaultValueInput` component AND NOT on the `FormularyFieldText` component. This means that `DefaultValueInput`
-     * holds the state it needs, and updates through a callback the state on the `FormularyFieldText` component. 
-     * 
-     * What this means is that the `DefaultValueInput` is the single source of truth for the state, and we keep it in sync with
-     * the `FormularyFieldText` through callbacks.
-     * 
-     * @param {Array<import('react').ReactElement>} components - An array of react elements initialized. This is a component that has
-     * been initialized
+     * @param {import('react').ReactElement} component - The component that holds all of the custom options for the field type.
+     * @param {object} props - The props that the component will receive.
      */
-    function addComponentsForFieldSpecificOptionsForDropdownMenu(components, forceRerender=false) {
-        optionsForDropdownMenuRef.current = components
-        setNumberOfCustomOptionComponents(components.length)
-        if (forceRerender === true) setRerenderTrigger(!rerenderTrigger)
+    function addComponentForFieldSpecificOptionsForDropdownMenu(component, componentProps={}) {
+        optionForDropdownMenuRef.current = component
+        setCustomOptionForDropdownMenuProps(componentProps)
     }
 
     /**
@@ -239,11 +225,7 @@ export default function FormularyField(props) {
      */
     function onToggleEditFieldMenu(isOpen=!isEditMenuOpen) {
         setIsEditMenuOpen(isOpen)
-        if (isOpen === true) {
-            setTimeout(() => {
-                webLoadEditMenuTopOrDownAndDefineHeight()
-            })
-        } else {
+        if (isOpen === false) {
             setEditMenuPosition({
                 wasCalculated: false,
                 position: {
@@ -393,14 +375,16 @@ export default function FormularyField(props) {
             }
         }
     }, [])
-
+    
+    useEffect(() => {
+        webLoadEditMenuTopOrDownAndDefineHeight()
+    })
     return (
         <Layout
         fieldRef={fieldRef}
         fieldEditMenuButtonRef={fieldEditMenuButtonRef}
         fieldEditDropdownMenuRef={fieldEditDropdownMenuRef}
-        optionsForDropdownMenuRef={optionsForDropdownMenuRef}
-        numberOfCustomOptionComponents={numberOfCustomOptionComponents}
+        optionForDropdownMenuRef={optionForDropdownMenuRef}
         workspace={props.workspace}
         types={types}
         field={props.field}
@@ -412,7 +396,8 @@ export default function FormularyField(props) {
         setIsRenaming={setIsRenaming}
         isRenaming={isRenaming}
         isPlaceholderOpen={isPlaceholderOpen}
-        addComponentsForFieldSpecificOptionsForDropdownMenu={addComponentsForFieldSpecificOptionsForDropdownMenu}
+        addComponentForFieldSpecificOptionsForDropdownMenu={addComponentForFieldSpecificOptionsForDropdownMenu}
+        customOptionForDropdownMenuProps={customOptionForDropdownMenuProps}
         onChangeFieldLabelName={onChangeFieldLabelName}
         onChangeFieldIsRequired={onChangeFieldIsRequired}
         onChangeLabelIsHidden={onChangeLabelIsHidden}

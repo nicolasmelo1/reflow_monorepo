@@ -21,9 +21,9 @@ import {
 
 export default function FormularyFieldWebLayout(props) {
     const fieldTypeName = props.retrieveFieldTypeName()
-    const customComponentsFieldOptions = Array.isArray(props.optionsForDropdownMenuRef.current) ? 
-        props.optionsForDropdownMenuRef.current : []
-    const hasCustomOptionComponents = props.numberOfCustomOptionComponents > 0
+    const CustomComponentFieldOptions = ![null, undefined].includes(props.optionForDropdownMenuRef.current) ? 
+        props.optionForDropdownMenuRef.current : null
+    const hasCustomOptionComponents = ![null, undefined].includes(props.optionForDropdownMenuRef.current)
 
     return (
         <Styled.Container
@@ -140,7 +140,11 @@ export default function FormularyFieldWebLayout(props) {
                                 {hasCustomOptionComponents ? (
                                     <Styled.FieldEditMenuDropdownSeparator/>
                                 ) : ''}
-                                {customComponentsFieldOptions.map(OptionComponent => OptionComponent)}
+                                {hasCustomOptionComponents ? (
+                                    <CustomComponentFieldOptions
+                                    {...props.customOptionForDropdownMenuProps}
+                                    />
+                                ) : ''}
                                 {hasCustomOptionComponents ? (
                                     <Styled.FieldEditMenuDropdownSeparator/>
                                 ) : ''}
@@ -222,7 +226,7 @@ export default function FormularyFieldWebLayout(props) {
                 />
             ) : fieldTypeName === 'checkbox' ? (
                 <FormularyFieldCheckbox
-                
+                {...props}
                 />
             ) : '' : ''}
         </Styled.Container>

@@ -16,7 +16,7 @@ styled.span`
 :
 styled(Text)``
 
-export const SelectContainer = APP === 'web' ?
+export const SelectContainerOnDropdown = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
@@ -25,6 +25,30 @@ styled.div`
     width: calc(100% - 10px);
     padding: 5px;
     border-radius: 5px;
+    position: relative;
+`
+:
+styled(View)``
+
+export const SelectContainerWithoutDropdown = APP === 'web' ?
+styled.label`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: calc(100% - 10px);
+    ${props => props.isLast !== true ? `margin-bottom: 3px;` : ''}
+    padding: 1px 5px;
+    border-radius: 5px;
+    background-color: ${props=> props.isSelected === true ? props.theme.clearGray : 'transparent'};
+    transition: border 0.2s ease-in-out;
+    position: relative;
+    border: 2px solid ${props => ![null, undefined, ''].includes(props.color) ? props.color : props.theme.gray_REFLOW};
+    transition: background-color 0.2s ease-in-out;
+
+    &:hover {
+        background-color: ${props => props.theme.green_REFLOW}50;
+    }
 `
 :
 styled(View)``
@@ -51,20 +75,36 @@ styled.button`
     padding: 10px 5px;
     width: 100%;
     user-select: none;
-    border: 1px solid ${props => ![null, undefined, ''].includes(props.color) ? props.color : props.theme.gray_REFLOW};
-    background-color: ${props => props.theme.white};
+    border: ${props => props.isADropdownMenu === true ? `1px solid ${![null, undefined, ''].includes(props.color) ? props.color : props.theme.gray_REFLOW}` : '0'};
+    background-color: ${props => props.isADropdownMenu === true ? props.theme.white : 'transparent'};
     color: ${props => props.theme.gray_REFLOW};
     font-size: 12px;
     border-radius: 5px;
     text-align: left;
     transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 
-    &:hover {
-        background-color: ${props => props.theme.green_REFLOW}50;
-    }
+    ${props => props.isADropdownMenu === true ? `
+        &:hover {
+            background-color: ${props.theme.green_REFLOW}50;
+        }
+    `: ''}
 `
 :
 styled(TouchableOpacity)``
+
+export const CheckboxInput = APP === 'web' ?
+styled.input`
+    width: 20px;
+    margin: 0;
+    height: 20px;
+    cursor: pointer;
+
+    &:checked {
+        background: ${props => props.theme.green_REFLOW};
+    }
+`
+:
+styled(View)``
 
 export const SelectHelperButtonsContainer = APP === 'web' ?
 styled.div`

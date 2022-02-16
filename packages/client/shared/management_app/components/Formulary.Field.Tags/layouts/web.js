@@ -1,7 +1,21 @@
-import { Select, strings, colors } from '../../../../core'
+import { Switch, Select, strings, colors } from '../../../../core'
 import { faArrowUp, faArrowDown, faEllipsisH, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 import Styled from '../styles'
 
+// ------------------------------------------------------------------------------------------
+export function DropdownMenuTagsFormatOptionWebLayout(props) {
+    return (
+        <Styled.DropdownMenuInputContainer>
+            <Switch
+            isSelected={props.isDropdown}
+            onSelect={() => props.onChangeIfIsDropdownMenu(!props.isDropdown)}
+            /> 
+            <Styled.SwitchFieldLabel>
+                {strings('formularyFieldOptionDropdownMenuIsDropdownLabel')}
+            </Styled.SwitchFieldLabel>
+        </Styled.DropdownMenuInputContainer>
+    )
+}
 // ------------------------------------------------------------------------------------------
 export function CustomCreateOptionButtonWebLayout(props) {
     return (
@@ -46,11 +60,25 @@ export function CustomSelectedOptionWebLayout(props) {
 }
 // ------------------------------------------------------------------------------------------
 export function CustomOptionSelectWebLayout(props) {
+    const SelectContainer = props.isADropdownMenu === true ? 
+        Styled.SelectContainerOnDropdown : 
+        Styled.SelectContainerWithoutDropdown
+
     return (
-        <Styled.SelectContainer
+        <SelectContainer
+        isSelected={props.isSelected}
+        isLast={props.option.isLast}
+        color={props.option.color}
         onMouseOver={() => props.onHoverOption(true)}
         onMouseLeave={() => props.onHoverOption(false)}
         >   
+            {props.isADropdownMenu === false ? (
+                <Styled.CheckboxInput 
+                type={'checkbox'}
+                onChange={() => props.onSelectOrRemoveOption(props.option)}
+                name={props.field.labelName}
+                />
+            ) : ''}
             {props.isRenaming ? (
                 <Styled.RenameInput
                 ref={props.renameOptionInputRef}
@@ -63,6 +91,7 @@ export function CustomOptionSelectWebLayout(props) {
                 />
             ) : (
                 <Styled.SelectButton
+                isADropdownMenu={props.isADropdownMenu}
                 color={props.option.color}
                 onClick={() => props.onSelectOrRemoveOption(props.option)}
                 >
@@ -157,12 +186,15 @@ export function CustomOptionSelectWebLayout(props) {
                     ) : ''}
                 </Styled.SelectHelperButtonsContainer>
             ) : ''}
-        </Styled.SelectContainer>
+        </SelectContainer>
     )
 }
 // ------------------------------------------------------------------------------------------
 export default function FormularyFieldTagsWebLayout(props) {
-    return (
+    const isADropdownMenu = typeof props.field?.tagsField?.isDropdown === 'boolean' ? props.field.tagsField.isDropdown : true
+    const TagOptionComponent = props.customOptionComponent.customOption
+    
+    return isADropdownMenu === true ? (
         <Styled.Container
         isOpen={props.isOpen}
         >
@@ -183,5 +215,18 @@ export default function FormularyFieldTagsWebLayout(props) {
             placeholder={props.field.placeholder}
             />
         </Styled.Container>
+    ) : (
+        <Styled.NotADropdownContainer>
+            {props.options.map(option => (
+                <TagOptionComponent
+                key={option.value}
+                isSelected={false}
+                isADropdownMenu={isADropdownMenu}
+                option={option}
+                onSelectOrRemoveOption={props.onSelectOption}
+                {...props.customOptionComponentProps}
+                />
+            ))}
+        </Styled.NotADropdownContainer>
     )
 }

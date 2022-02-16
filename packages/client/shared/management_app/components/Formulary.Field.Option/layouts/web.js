@@ -64,7 +64,6 @@ export function CustomOptionSelectWebLayout(props) {
         Styled.SelectContainerOnDropdown : 
         Styled.SelectContainerWithoutDropdown
 
-    console.log(props.isADropdownMenu)
     return (
         <SelectContainer
         isSelected={props.isSelected}
@@ -223,10 +222,10 @@ export default function FormularyFieldOptionWebLayout(props) {
             {props.options.map(option => (
                 <OptionComponent
                 key={option.value}
-                isSelected={option.label === 'Perdido'}
+                isSelected={false}
                 isADropdownMenu={isADropdownMenu}
                 option={option}
-                onSelectOrRemoveOption={props.onChangeOption}
+                onSelectOrRemoveOption={props.onSelectOption}
                 {...props.customOptionComponentProps}
                 />
             ))}

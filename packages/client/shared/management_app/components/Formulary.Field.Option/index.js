@@ -99,6 +99,12 @@ function CustomSelectedOption(props) {
  * is renaming the option.
  * @param {(optionIndex: number, color: string) => void} props.onChangeOptionColor - Function called when the user
  * changes the color of the option.
+ * @param {boolean} [props.isADropdownMenu=true] - If this is true, the option will be rendered inside of the `Select`
+ * component. Otherwise it will NOT be rendered inside of the `Select` component, we will display all of the options directly
+ * in the field, so because of that there will be some changes needed to be done to this component. In other words, when this is false
+ * each component will be a simple radio input of a formulary field.
+ * @param {boolean} [props.isSelected=false] - Only needed when `props.isADropdownMenu=false`. THis will define if the option was
+ * selected or not.
  * 
  * @return {import('react').ReactElement} - The component that will be rendered.
  */
@@ -373,7 +379,6 @@ export default function FormularyFieldOption(props) {
         }
     } 
 
-
     /**
      * Function used on each option in the selection when we want to move it up. This means that the option will
      * subtract one index from the array.
@@ -468,7 +473,7 @@ export default function FormularyFieldOption(props) {
         props.onUpdateFormulary()
     }
 
-    function onChangeOption(newOption) {
+    function onSelectOption(newOption) {
         console.log(newOption)
     }
 
@@ -527,14 +532,15 @@ export default function FormularyFieldOption(props) {
         onDefaultCreateOptionOptionsIfDoesNotExist()
     }, [])
 
+    /**
+     * This will change the state of the custom options in the field menu. This way we can update the state in this component when we change something here.
+     * For example the `isDropdown` state will be changed when the user toggles between the switch in the field menu.
+     */
     useEffect(() => {
-        props.addComponentsForFieldSpecificOptionsForDropdownMenu([
-            <OptionFormatOption
-            key={`optionFormatOption-${props.field.uuid}`}
-            isDropdown={typeof props.field?.optionField?.isDropdown === 'boolean' ? props.field.optionField.isDropdown : true}
-            onChangeIfIsDropdownMenu={onChangeIfIsDropdownMenu}
-            />
-        ], true)
+        props.addComponentForFieldSpecificOptionsForDropdownMenu(OptionFormatOption, {
+            isDropdown: typeof props.field?.optionField?.isDropdown === 'boolean' ? props.field.optionField.isDropdown : true,
+            onChangeIfIsDropdownMenu
+        })
     }, [props.field?.optionField?.isDropdown])
 
     useEffect(() => {
@@ -550,7 +556,7 @@ export default function FormularyFieldOption(props) {
         customSelectedComponent={{ customSelectedOption: CustomSelectedOption }}
         customCreateOptionComponent={CustomCreateOptionButton}
         onCreateOption={onCreateOption}
-        onChangeOption={onChangeOption}
+        onSelectOption={onSelectOption}
         isOpen={isOpen}
         onOpenSelect={onOpenSelect}
         options={options}

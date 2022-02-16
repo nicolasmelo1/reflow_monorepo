@@ -124,16 +124,17 @@ export default function FormularyFieldNumber(props) {
     useEffect(() => {
         const selectedNumberFormatTypeId = typeof(props.field.numberField) === 'object' ? 
             props.field.numberField.numberFormatTypeId : null
-        props.addComponentsForFieldSpecificOptionsForDropdownMenu([
-            <NumberFormatOption
-            key={`numberFormatOption-${props.field.uuid}`}
-            selectedId={selectedNumberFormatTypeId}
-            numberFormatTypes={props.types.numberFormatType}
-            getNumberFormatTypeStringByName={getNumberFormatTypeStringByName}
-            onSelect={onChangeFormatType}
-            />
-        ])
-    }, [])
+
+        props.addComponentForFieldSpecificOptionsForDropdownMenu(
+            NumberFormatOption, 
+            {
+                selectedId: selectedNumberFormatTypeId,
+                numberFormatTypes: props.types.numberFormatType,
+                getNumberFormatTypeStringByName,
+                onSelect: onChangeFormatType
+            }
+        )
+    }, [props.field?.numberField?.numberFormatTypeId, props.types.numberFormatType])
 
     return (
         <Layout.Field

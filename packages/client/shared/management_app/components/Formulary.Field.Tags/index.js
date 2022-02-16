@@ -99,10 +99,19 @@ function CustomSelectedOption(props) {
  * is renaming the option.
  * @param {(optionIndex: number, color: string) => void} props.onChangeOptionColor - Function called when the user
  * changes the color of the option.
+ * @param {boolean} [props.isADropdownMenu=true] - If this is true, the option will be rendered inside of the `Select`
+ * component. Otherwise it will NOT be rendered inside of the `Select` component, we will display all of the options directly
+ * in the field, so because of that there will be some changes needed to be done to this component. In other words, when this is false
+ * each component will be a simple radio input of a formulary field.
+ * @param {boolean} [props.isSelected=false] - Only needed when `props.isADropdownMenu=false`. THis will define if the option was
+ * selected or not.
  * 
  * @return {import('react').ReactElement} - The component that will be rendered.
  */
 function CustomOptionSelect(props) {
+    const isADropdownMenu = typeof props.isADropdownMenu === 'boolean' ? props.isADropdownMenu : true
+    const isSelected = typeof props.isSelected === 'boolean' ? props.isSelected : false
+
     const renameOptionInputRef = useRef()
     const editOptionButtonRef = useRef()
     const editMenuContainerRef = useRef()
@@ -232,6 +241,8 @@ function CustomOptionSelect(props) {
         renameOptionInputRef={renameOptionInputRef}
         editOptionButtonRef={editOptionButtonRef}
         editMenuContainerRef={editMenuContainerRef}
+        isADropdownMenu={isADropdownMenu}
+        isSelected={isSelected}
         isHovering={isHovering}
         onHoverOption={onHoverOption}
         isEditing={isEditing}
@@ -246,9 +257,32 @@ function CustomOptionSelect(props) {
         onMoveOptionUp={props.onMoveOptionUp}
         onMoveOptionDown={props.onMoveOptionDown}
         option={option}
+        field={props.field}
         onSelectOrRemoveOption={props.onSelectOrRemoveOption}
         />
     )
+}
+// ------------------------------------------------------------------------------------------
+/**
+ * @param {object} props - The props of the component.
+ * @param {boolean} props.isDropdown - If the option field is a dropdown or not.
+ * @param {(isDropdown: boolean) => void} props.onChangeIfIsDropdownMenu - Callback function used to change if the option is
+ * a dropdown or not.
+ * 
+ * @return {import('react').ReactElement}
+ */
+ function TagsFormatOption(props) {
+    const [isDropdown, setIsDropdown] = useState(props.isDropdown)
+    
+    function onChangeIfIsDropdownMenu(isDropdownMenu=!isDropdown) {
+        setIsDropdown(isDropdownMenu)
+        props.onChangeIfIsDropdownMenu(isDropdownMenu)
+    }
+
+    return <Layout.DropdownMenu
+    isDropdown={isDropdown}
+    onChangeIfIsDropdownMenu={onChangeIfIsDropdownMenu}
+    />
 }
 // ---------------------------------------------------------------------------------------------------------------------
 export default function FormularyFieldTags(props) {
@@ -427,6 +461,24 @@ export default function FormularyFieldTags(props) {
         setIsOpen(selectIsOpen)
     }
 
+
+    /**
+     * This will change if the option field type will be a dropdown or not. By default every option field type 
+     * is a dropdown, in other words, it hides the options inside of inputs. But we can change this behavior and 
+     * load all of the options that the user can select. So we will display simple checkbox buttons instead of the dropdown/select
+     * input.
+     * 
+     * @param {boolean} isDropdown - If the option field type will be a dropdown then it's true, otherwise it's false.
+     */
+     function onChangeIfIsDropdownMenu(isDropdown) {
+        props.field.tagsField.isDropdown = isDropdown
+        props.onUpdateFormulary()
+    }
+
+    function onSelectOption(newOption) {
+        console.log(newOption)
+    }
+
     /**
      * Automatically retrieve a random color that the option that the user will create, will have.
      * This means that by default we will always add a unique color to the options that are created.
@@ -475,11 +527,19 @@ export default function FormularyFieldTags(props) {
         onChangeOptionColor,
         retrieveUniqueCustomColor,
         isUserAnAdmin,
+        field: props.field
     }
 
     useEffect(() => {
         onDefaultCreateTagsOptionsIfDoesNotExist()
     }, [])
+    
+    useEffect(() => {
+        props.addComponentForFieldSpecificOptionsForDropdownMenu(TagsFormatOption, {
+            isDropdown: typeof props.field?.tagsField?.isDropdown === 'boolean' ? props.field.tagsField.isDropdown : true,
+            onChangeIfIsDropdownMenu
+        })
+    }, [props.field?.tagsField?.isDropdown])
 
     useEffect(() => {
         if (JSON.stringify(options) !== JSON.stringify(props.field.options)) {
@@ -496,6 +556,7 @@ export default function FormularyFieldTags(props) {
         onCreateOption={onCreateOption}
         isOpen={isOpen}
         onOpenSelect={onOpenSelect}
+        onSelectOption={onSelectOption}
         options={options}
         isUserAnAdmin={isUserAnAdmin}
         types={props.types}

@@ -17,7 +17,6 @@ styled.div`
 :
 styled(View)``
 
-
 export const NotADropdownContainer = APP === 'web' ?
 styled.div`
     display: flex;
@@ -29,7 +28,6 @@ styled.div`
 `
 :
 styled(View)``
-
 
 export const NotADropdownButton = APP === 'web' ?
 styled.label`
