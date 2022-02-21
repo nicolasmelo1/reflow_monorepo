@@ -72,7 +72,7 @@ class Error_ extends LibraryModule {
         }
     }
 
-    async documentation() {
+    static async documentation() {
         
     }
 }

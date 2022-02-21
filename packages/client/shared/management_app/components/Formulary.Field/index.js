@@ -165,9 +165,7 @@ export default function FormularyField(props) {
      * 
      * If we have more space at the top then we will build the dropdown menu at the top, otherwise we will build it a the bottom. 
      * 
-     * Last but not least we give it a little bit of extra space so it's nicely formated and looks nice on the screen, that's why we sum
-     * to 60px if we position at the bottom and subtract 40px if we position at the top (actually at the top it's more then just format niely, but
-     * the element gets cut because of the overflow.)
+     * Important: We only change the state if the values actually change, otherwise we calculate but we don't change the state.
      */
     function webLoadEditMenuTopOrDownAndDefineHeight() {
         if (APP === 'web' && fieldEditMenuButtonRef.current && fieldEditDropdownMenuRef.current) {
@@ -190,14 +188,21 @@ export default function FormularyField(props) {
                 if (xPosition < 0) xPosition = 0
             }
 
-            setEditMenuPosition({
-                wasCalculated: true,
-                position: { 
-                    x: xPosition, 
-                    y: yPosition 
-                }, 
-                maxHeight: maxHeight
-            })
+            const hasPositionChanged = editMenuPosition.wasCalculated !== true ||
+                editMenuPosition.position.x !== xPosition ||
+                editMenuPosition.position.y !== yPosition ||
+                editMenuPosition.maxHeight !== maxHeight
+
+            if (hasPositionChanged === true) {
+                setEditMenuPosition({
+                    wasCalculated: true,
+                    position: { 
+                        x: xPosition, 
+                        y: yPosition 
+                    }, 
+                    maxHeight: maxHeight
+                })
+            }
         }
     }
 
@@ -377,7 +382,7 @@ export default function FormularyField(props) {
     }, [])
     
     useEffect(() => {
-        webLoadEditMenuTopOrDownAndDefineHeight()
+        if (APP === 'web') webLoadEditMenuTopOrDownAndDefineHeight()
     })
     return (
         <Layout

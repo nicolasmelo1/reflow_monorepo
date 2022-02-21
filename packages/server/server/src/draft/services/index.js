@@ -111,7 +111,13 @@ class DraftService {
         }, transaction)
 
         if (isDraftFileDefined) {
-            const file = fs.readFileSync(draftFile.path)
+            // We promisify the readFile function so we can read the file in chunks and make better use of the event loop.
+            const file = await (new Promise((resolve, reject) => 
+                fs.readFile(draftFile.path, (error, buffer) => {
+                    if (error) reject(error)
+                    else resolve(buffer)
+                })
+            )) 
             const bucketKeyToUpload = await this.#retrieveDraftBucketKey(draftInstance.uuid, draftValue)
 
             const url = await this.bucket.upload(file, bucketKeyToUpload)

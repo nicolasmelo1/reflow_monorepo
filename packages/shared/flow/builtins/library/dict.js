@@ -118,7 +118,7 @@ class Dict extends LibraryModule {
         }
     }
 
-    async documentation() {
+    static async documentation() {
         
     }
 }

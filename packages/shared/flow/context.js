@@ -111,9 +111,12 @@ class BuiltinLibraryMethodContext {
 class BultinLibraryModuleContext {
     /**
      * @param {string} moduleName - The translated name of the module, not the original one.
+     * @param {string} description - The description of the module.
      */
-    constructor(moduleName) {
+    constructor(moduleName, description) {
         this.moduleName = moduleName
+        this.description = description
+        this.description = 
         this.structParameters = {}
         this.methods = {}
         this.structs = {}
@@ -124,11 +127,13 @@ class BultinLibraryModuleContext {
      * 
      * @param {string} originalMethodName - The original name of the method.
      * @param {string} methodNameTranslation - The translated name of the method.
+     * @param {string} [description=''] - The description of the method.
+     * @param {string} [examples=''] - Examples of the method being used.
      * 
      * @returns {BuiltinLibraryMethodContext} - Returns a new BuiltinLibraryMethodContext instance so you can use
      * it to add the parameters of the method.
      */
-    addMethod(originalMethodName, methodNameTranslation) {
+    addMethod(originalMethodName, methodNameTranslation, description) {
         const newLibraryMethod = new BuiltinLibraryMethodContext(methodNameTranslation)
         this.methods[originalMethodName] = newLibraryMethod
         return newLibraryMethod
@@ -270,7 +275,8 @@ class KeywordsContext {
      * @param {string} keywordOptions.includesKeyword - The keyword that represents the `in` statement.
      * @param {string} keywordOptions.inversionKeyword - The keyword that represents the `not` or `!` statement.
      * @param {string} keywordOptions.disjunctionKeyword - The keyword that represents the `or` or `||` statement.
-     * @param {string} keywordOptions.disjunctionKeyword - The keyword that represents the `and` or `&& statement.
+     * @param {string} keywordOptions.conjunctionKeyword - The keyword that represents the `and` or `&& statement.
+     * @param {string} keywordOptions.equalityKeyword - The keyword that represents the `is` or `==` statement.
      * @param {string} keywordOptions.functionKeyword - The keyword that represents the `function` or `def` statement.
      * @param {string} keywordOptions.returnKeyword - The keyword that represents the `return` statement. It's presented as `return` in both
      * python and javascript.
@@ -284,13 +290,14 @@ class KeywordsContext {
      * @param {IfContext} keywordOptions.ifContext - The If context instance with the if and else keywords.
      * @param {ErrorContext} keywordOptions.errorContext - The Error context instance with the try, catch and raise keywords.
      `*/
-    constructor({ includesKeyword, inversionKeyword, disjunctionKeyword, conjunctionKeyword, 
+    constructor({ includesKeyword, inversionKeyword, disjunctionKeyword, conjunctionKeyword, equalityKeyword,
                   functionKeyword, returnKeyword, moduleKeyword, documentationKeyword, nullKeyword, 
                   blockContext, booleanContext, ifContext, errorContext } = {}) {
         this.includesKeyword = includesKeyword
         this.inversionKeyword = inversionKeyword
         this.disjunctionKeyword = disjunctionKeyword
         this.conjunctionKeyword = conjunctionKeyword
+        this.equalityKeyword = equalityKeyword
         this.functionKeyword = functionKeyword
         this.returnKeyword = returnKeyword
         this.moduleKeyword = moduleKeyword
@@ -395,6 +402,9 @@ class Context {
      * or "or" in python. Defaults to 'or'.
      * @param {string} [contextKeywordsAndSymbols.inversion='not'] - The inversion, also known as '!' in other languages like JS 
      * or "not" in python. Defaults to 'not'.
+     * @param {string} [contextKeywordsAndSymbols.equality='is'] - The equality, also known as "==" in other languages like JS.
+     * Besides the `==` operator we will also be able to use `is` to check if the value is equal to another value, making the code more
+     * readable. Defaults to 'is'.
      * @param {string} [contextKeywordsAndSymbols.blockDo='do'] - The start of the block, on some languages like JS this is considered 
      * as '{' and in ruby or elixir 'do'. Defaults to 'do'.
      * @param {string} [contextKeywordsAndSymbols.blockEnd='end'] - The end of the block, on some languages like JS this is considered 
@@ -439,17 +449,17 @@ class Context {
      * @param {string} [contextKeywordsAndSymbols.hourFormat='hh:mm:ss.SSS'] -  The format of the date, similar to the above, we want to try 
      * to support all of the formats of moment.js but at the time we only support HH:mm:ss and SSS. HH is for 24 hour date format, hh for 12-hour 
      * date format, mm for minutes, ss for seconds and SSS for microsecond, AA is also supported for AM or PM. Defaults to 'hh:mm:ss.SSS'
-     * @param {string} [contextKeywordsAndSymbols.flowContext='formula'] - The context where the flow is running, is it running on the automation?
-     * on the formula? This way we can enable or disable functianalities of the language and the context.
+     * @param {string} [contextKeywordsAndSymbols.languageContext='pt-BR'] - The language context of flow. This means everything will need to be translated
+     * to this specific language. The language here refers to SPOKEN languages and NOT PROGRAMMING language. So, portuguese, english, spanish and so on.
      * @param {string} [contextKeywordsAndSymbols.tailCallOptimizedMessage='tail call optimized'] - The message that will show to the user when printing 
      * the function stringfied that the function is tail call optimized. Defaults to 'tail call optimized'.
      */
-    constructor({includes='in', conjunction='and', disjunction='or', inversion='not', 
-                blockDo='do', blockEnd='end', nullValue='None', booleanTrue='True',
-                booleanFalse='False', ifIf='if', ifElse='else', functionKeyword='function', returnKeyword='return',
-                raiseKeyword='raise', tryKeyword='try', catchKeyword='otherwise', moduleKeyword='module', 
-                decimalPointSeparator='.', positionalArgumentSeparator=',', timezone='UTC', dateCharacter='D', 
-                dateFormat='YYYY-MM-DD', hourFormat='hh:mm:ss.SSS', documentationKeyword='@doc', flowContext='formula', 
+    constructor({includes='in', conjunction='and', disjunction='or', inversion='not', equality='is', blockDo='do', 
+                blockEnd='end', nullValue='None', booleanTrue='True', booleanFalse='False', ifIf='if', 
+                ifElse='else', functionKeyword='function', returnKeyword='return', raiseKeyword='raise', 
+                tryKeyword='try', catchKeyword='otherwise', moduleKeyword='module', decimalPointSeparator='.', 
+                positionalArgumentSeparator=',', timezone='UTC', dateCharacter='D', dateFormat='YYYY-MM-DD', 
+                hourFormat='hh:mm:ss.SSS', documentationKeyword='@doc', languageContext='pt-BR',
                 tailCallOptimizedMessage='tail call optimized'} = {}) {
         const blockContext = new BlockContext({ doKeyword: blockDo, endKeyword: blockEnd })
         const booleanContext = new BooleanContext({ trueKeyword: booleanTrue, falseKeyword: booleanFalse })
@@ -460,14 +470,14 @@ class Context {
             catchKeyword: catchKeyword 
         })
         
-        this.flowContext = !['formula', 'automation'].includes(flowContext) ? 'formula' : flowContext
         this.tailCallOptimizedMessage = tailCallOptimizedMessage
-
+        this.languageContext = languageContext
         this.keyword = new KeywordsContext({
             includesKeyword: includes,
             inversionKeyword: inversion,
             disjunctionKeyword: disjunction,
             conjunctionKeyword: conjunction,
+            equalityKeyword: equality,
             functionKeyword: functionKeyword,
             returnKeyword: returnKeyword,
             moduleKeyword: moduleKeyword,
@@ -490,7 +500,8 @@ class Context {
         this.library = {}
         this.reflow = new ReflowContext()
         this.specialModuleMethods = new SpecialModuleMethodsContext()
-        this.modulesToRuntime = [{
+        this.modulesToRuntime = [
+            {
                 moduleClass: require('./builtins/library/http'),
                 moduleName: 'HTTP'
             },
@@ -559,12 +570,13 @@ class Context {
      * this is the name that we effectively recognize for a module.
      * @param {string} moduleNameTranslation - The translation for the module name. Math will be Matemática. Datetime will
      * be Dataehora. String will be Texto and so on.
+     * @param {string} [description=''] - The description of the module. What does is do.
      * 
      * @returns {BultinLibraryModuleContext} - A new instance of BultinLibraryModuleContext. You will use this to add
      * structs, attributes, parameters, methods and so on translate everything from the library module.
      */
-    addLibraryModule(originalModuleName, moduleNameTranslation) {
-        const newLibraryModule = new BultinLibraryModuleContext(moduleNameTranslation)
+    addLibraryModule(originalModuleName, moduleNameTranslation, description='') {
+        const newLibraryModule = new BultinLibraryModuleContext(moduleNameTranslation, description)
         this.library[originalModuleName] = newLibraryModule
         return newLibraryModule
     }
@@ -633,6 +645,19 @@ class Context {
             _in_, _equals_, _difference_, _lessthan_, _lessthanequal_, _greaterthan_, _greaterthanequal_, _boolean_, _not_, _and_, _or_,
             _unaryplus_, _unaryminus_, _string_, _json_, _hash_, _length_, _call_
         })            
+    }
+
+    /**
+     * Adds a new module to the standard library of the language inside the following runtime.
+     * 
+     * @param {import('./builtins/library').LibraryModule} module - The module to add to the standard library.
+     * @param {string} moduleName - The name of the module to add to the standard library.
+     */
+    addModuleToRuntime(moduleClass, moduleName) {
+        this.modulesToRuntime.push({
+            moduleClass: moduleClass,
+            moduleName: moduleName
+        })
     }
 }
 

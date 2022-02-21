@@ -37,7 +37,7 @@ class Documentation extends LibraryModule {
         }
     }
 
-    async documentation() {
+    static async documentation() {
         
     }
 }

@@ -220,7 +220,7 @@ export default function FormularyFieldTagsWebLayout(props) {
             {props.options.map(option => (
                 <TagOptionComponent
                 key={option.value}
-                isSelected={false}
+                isSelected={option.label === 'Python' || option.label === 'Javascript'}
                 isADropdownMenu={isADropdownMenu}
                 option={option}
                 onSelectOrRemoveOption={props.onSelectOption}

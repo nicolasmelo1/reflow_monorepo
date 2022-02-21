@@ -1,13 +1,15 @@
-import { useEffect, useRef, useContext } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
 import axios from 'axios'
 import managementAppAgent from '../../agent'
 import { FormularyContext } from '../../contexts'
 import Layout from './layouts'
+import { APP } from '../../../conf'
 
 export default function Formulary(props) {
     const sourceRef = useRef()
     const formularyContainerRef = useRef()
     const { state: { formulary }, setFormulary, retrieveFromPersist } = useContext(FormularyContext)
+    const [formularyContainerOffset, setFormularyContainerOffset] = useState(0)
 
     /**
      * Probably by now you already know what is passing a value by reference and pass by value. Objects, and arrays
@@ -24,6 +26,14 @@ export default function Formulary(props) {
 
     useEffect(() => {
         sourceRef.current = axios.CancelToken.source()
+        if (APP === 'web') {
+            const isFormularyContainerRefDefined = ![null, undefined].includes(formularyContainerRef.current)
+            if (isFormularyContainerRefDefined) {
+                const yPositionOfFormularyContainer = formularyContainerRef.current.getBoundingClientRect().y
+                if (yPositionOfFormularyContainer !== formularyContainerOffset) setFormularyContainerOffset(yPositionOfFormularyContainer)
+            }
+        }
+
         return () => {
             if (sourceRef.current) {
                 sourceRef.current.cancel()
@@ -53,6 +63,7 @@ export default function Formulary(props) {
     return (
         <Layout
         formularyContainerRef={formularyContainerRef}
+        formularyContainerOffset={formularyContainerOffset}
         workspace={props.workspace}
         app={props.app}
         formulary={formulary}

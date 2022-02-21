@@ -25,7 +25,7 @@ export default function FormularyFieldFormulaWebLayout(props) {
                     {hasPlaceholder === true ? (
                         <Styled.TooltipWrapper>
                             <Tooltip
-                            text={strings('formularyFieldFormulaDescriptionLabel')}
+                            text={strings('formularyFieldFormulaEmptyValueDescriptionLabel')}
                             >
                                 <Styled.Description>
                                     {props.field.placeholder}
@@ -33,9 +33,7 @@ export default function FormularyFieldFormulaWebLayout(props) {
                             </Tooltip>
                         </Styled.TooltipWrapper>
                     ) : (
-                        <Styled.Description>
-                            {strings('formularyFieldFormulaDescriptionLabel')}
-                        </Styled.Description>
+                        <div ref={props.editorRef}/>
                     )}
                 </Fragment>
             )}

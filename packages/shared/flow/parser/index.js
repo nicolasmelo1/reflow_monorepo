@@ -176,12 +176,21 @@ class Parser {
         if (tokenType === this.currentToken.tokenType) {
             this.currentToken = await this.lexer.getNextToken()
         } else {
-            await FlowError.new(
-                this.settings, 
-                SYNTAX, 
-                `Expected token: ${tokenType}, current token: ${this.currentToken.tokenType}\n`+
-                `${getErrorCodeContext(this.currentToken.position, this.lexer.rawExpression)}`
-            )
+            if (this.currentToken.tokenType === TokenType.END_OF_FILE) {
+                await FlowError.new(
+                    this.settings, 
+                    SYNTAX, 
+                    `Unexpected end of file, probably the character '${this.lexer.rawExpression[this.currentToken.position+1]}' at position '${this.currentToken.position}' is invalid\n` + 
+                    `${getErrorCodeContext(this.currentToken.position, this.lexer.rawExpression)}`
+                )
+            } else {
+                await FlowError.new(
+                    this.settings, 
+                    SYNTAX, 
+                    `Expected ${this.settings.retrieveExpectedCharacterFromToken(tokenType)} but got ${this.settings.retrieveExpectedCharacterFromToken(this.currentToken.tokenType, this.currentToken.value)}\n` +
+                    `${getErrorCodeContext(this.currentToken.position, this.lexer.rawExpression)}`
+                )
+            }
         }
     }
 
@@ -586,7 +595,6 @@ class Parser {
      */
     async parameters(parametersArray=[]) {
         await this.#ignoreNewline()
-
         if (TokenType.IDENTITY === this.currentToken.tokenType) {
             const node = await this.assignment()
             if (NodeType.ASSIGN === node.nodeType || NodeType.VARIABLE === node.nodeType) {
@@ -907,7 +915,7 @@ class Parser {
                 await this.getNextToken(TokenType.LEFT_PARENTHESIS)
                 let functionArguments = []
 
-                while (TokenType.RIGHT_PARENTHESIS !== this.currentToken.tokenType) {
+                while (![TokenType.END_OF_FILE, TokenType.RIGHT_PARENTHESIS].includes(this.currentToken.tokenType)) {
                     let argument = null
                     await this.#ignoreNewline()
 

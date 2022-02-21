@@ -114,7 +114,7 @@ class Float extends LibraryModule {
         }
     }
 
-    async documentation() {
+    static async documentation() {
 
     }
 }

@@ -228,7 +228,7 @@ class Lexer {
                 return token
             }
         }
-        return new Token(TokenType.END_OF_FILE, null)
+        return new Token(TokenType.END_OF_FILE, null, this.currentPosition)
     }
     
     /**
@@ -403,57 +403,120 @@ class Lexer {
      * 
      * Numbers can't be first arguments in flow indentities. This means that 1variable = 1 is not valid and should be rewritten as variable1 = 1
      * 
+     * Although variables cannot have space, we can define keywords with spaces, so when this happens we validate the hole keyword. For example:
+     * `não é` or `caso contrário` are both examples of a single keyword although they have spaces.
+     * 
      * @returns {Promise<Token>} - Returns a new token with the keyword or identity value to send to the parser.
      */
     async #handleKeyword() {
-        let counter = 0
-        const keyword = []
+        const getKeywordAndCounter = async (counterOffset=0) => {
+            let counter = counterOffset
+            const keyword = []
 
-        while (this.settings.validateCharacterForIdentityOrKeywords(this.peekNextCharacter(counter))) {
-            keyword.push(this.expression[this.currentPosition + counter])
-            counter++
+            while (this.settings.validateCharacterForIdentityOrKeywords(this.peekNextCharacter(counter))) {
+                keyword.push(this.expression[this.currentPosition + counter])
+                counter++
+            }
+
+            return {
+                keyword: keyword.join(''),
+                counter: counter
+            }
         }
-            
-        await this.advanceNextPosition(counter)
-        const keywordAsString = keyword.join('')
+        
+        let { keyword, counter } = await getKeywordAndCounter()
 
-        switch (keywordAsString) {
-            case this.settings.blockKeywords['do']:
-                return new Token(TokenType.DO, keywordAsString, this.currentPosition)
-            case this.settings.blockKeywords['end']:
-                return new Token(TokenType.END, keywordAsString, this.currentPosition)
-            case this.settings.ifKeywords['if']:
-                return new Token(TokenType.IF, keywordAsString, this.currentPosition)
-            case this.settings.ifKeywords['else']:
-                return new Token(TokenType.ELSE, keywordAsString, this.currentPosition)
-            case this.settings.errorKeywords['try']:
-                return new Token(TokenType.TRY, keywordAsString, this.currentPosition)
-            case this.settings.errorKeywords['catch']:
-                return new Token(TokenType.CATCH, keywordAsString, this.currentPosition)
-            case this.settings.errorKeywords['raise']:
-                return new Token(TokenType.RAISE, keywordAsString, this.currentPosition)
-            case this.settings.returnKeyword:
-                return new Token(TokenType.RETURN, keywordAsString, this.currentPosition)
-            case this.settings.booleanKeywords['true']:
-                return new Token(TokenType.BOOLEAN, keywordAsString, this.currentPosition)
-            case this.settings.booleanKeywords['false']:
-                return new Token(TokenType.BOOLEAN, keywordAsString, this.currentPosition)
-            case this.settings.nullKeyword:
-                return new Token(TokenType.NULL, keywordAsString, this.currentPosition)
-            case this.settings.moduleKeyword: 
-                return new Token(TokenType.MODULE, keywordAsString, this.currentPosition)
-            case this.settings.functionKeyword:
-                return new Token(TokenType.FUNCTION, keywordAsString, this.currentPosition)
-            case this.settings.conjunctionKeyword:
-                return new Token(TokenType.AND, keywordAsString, this.currentPosition)
-            case this.settings.disjunctionKeyword:
-                return new Token(TokenType.OR, keywordAsString, this.currentPosition)
-            case this.settings.inversionKeyword:
-                return new Token(TokenType.NOT, keywordAsString, this.currentPosition)
-            case this.settings.includesKeyword:
-                return new Token(TokenType.IN, keywordAsString, this.currentPosition)
-            default:
-                return new Token(TokenType.IDENTITY, keywordAsString, this.currentPosition)
+        /**
+         * Validates if the generated keyword is a keyword or not. Here we are also able to validate keywords with spaces, we validate this
+         * by looping through the expected keyword and checking if it matches the keyword we got. You might ask why we don't loop character
+         * by character when validating this. For example: 
+         * Suppose that the keyword is `não é`
+         * 1 - We first get the keyword `não`, then we will see if the next character is ' ', if it is then we move to the next character.
+         * 2 - We get the word `é` and we will see if it matches with the complete keyword `não é`. It actually matches, but the phrase is
+         * `não égua` and not `não é`. Although it appear as valid, `não égua` IS NOT the expected `não é`.
+         * 
+         * So to solve this we bypass the spaces in the expected keyword and we validate the keyword keyword per keyword. So in the example above.
+         * comparing `não égua` to `não é` will fail.
+         * 
+         * @param {string} keyword - The keyword to validate if it is or not.
+         * @param {number} [peekOffset=0] - The offset to the next character to check. We have already moved the currentPosition offset, but we might
+         * need to validate more characters.
+         * 
+         * @returns {Promise<boolean>} - Returns true if the keyword is a keyword, false if it is not.
+         */
+        const isKeyword = async (expectedKeyword, peekOffset=0) => {
+            const restOfExpectedKeywordLength = expectedKeyword.length - keyword.length
+            const isProbablyAKeyword = expectedKeyword.startsWith(keyword) 
+            if (isProbablyAKeyword && restOfExpectedKeywordLength >= 0) {
+                if (restOfExpectedKeywordLength === 0) {
+                    await this.advanceNextPosition(peekOffset)
+                    return true
+                } else {
+                    // This is supposed to get keywords that have space in it like `NÃO É 'teste'` for example, or `CASO CONTRÁRIO faça 2 + 2 = 4`
+                    let keywordToValidate = keyword
+                    for (let i = 0; i < restOfExpectedKeywordLength; i++) {
+                        const isNotTheKeywordExpected = expectedKeyword.startsWith(keywordToValidate) === false
+                        if (isNotTheKeywordExpected) return false
+
+                        const nextCharacterInExpectedKeyword = expectedKeyword[keywordToValidate.length]
+                        if (nextCharacterInExpectedKeyword !== ' ') {
+                            const { keyword: newKeyword, counter } = await getKeywordAndCounter(peekOffset)
+                            peekOffset = counter
+                            keywordToValidate = `${keywordToValidate}${newKeyword}`
+                        } else {
+                            peekOffset = peekOffset + 1
+                            keywordToValidate = `${keywordToValidate}${nextCharacterInExpectedKeyword}`
+                        }
+                    }
+                    if (keywordToValidate === expectedKeyword) {
+                        keyword = keywordToValidate
+                        await this.advanceNextPosition(peekOffset)
+                        return true
+                    } else return false
+                }
+            }
+            return false
+        }
+
+        if (await isKeyword(this.settings.blockKeywords['do'], counter)) {
+            return new Token(TokenType.DO, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.blockKeywords['end'], counter)) {
+            return new Token(TokenType.END, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.ifKeywords['if'], counter)) {
+            return new Token(TokenType.IF, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.ifKeywords['else'], counter)) {  
+            return new Token(TokenType.ELSE, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.errorKeywords['try'], counter)) {
+            return new Token(TokenType.TRY, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.errorKeywords['catch'], counter)) {
+            return new Token(TokenType.CATCH, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.errorKeywords['raise'], counter)) {
+            return new Token(TokenType.RAISE, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.returnKeyword, counter)) {
+            return new Token(TokenType.RETURN, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.booleanKeywords['true'], counter)) {
+            return new Token(TokenType.BOOLEAN, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.booleanKeywords['false'], counter)) {
+            return new Token(TokenType.BOOLEAN, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.nullKeyword, counter)) {
+            return new Token(TokenType.NULL, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.moduleKeyword, counter)) {
+            return new Token(TokenType.MODULE, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.functionKeyword, counter)) {
+            return new Token(TokenType.FUNCTION, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.conjunctionKeyword, counter)) {
+            return new Token(TokenType.AND, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.disjunctionKeyword, counter)) {
+            return new Token(TokenType.OR, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.inversionKeyword, counter)) {
+            return new Token(TokenType.NOT, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.includesKeyword, counter)) {
+            return new Token(TokenType.IN, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.equalityKeyword, counter)) {
+            return new Token(TokenType.EQUAL, keyword, this.currentPosition)
+        } else {
+            await this.advanceNextPosition(counter)
+            return new Token(TokenType.IDENTITY, keyword, this.currentPosition)
         }
     }
 
@@ -472,7 +535,10 @@ class Lexer {
         // be aware, the ordering of the conditions here are extremely important.
         // first we get the conditions that match most characters, than the ones with least number of characters
         // if we had '===' we would add this condition at the top of all the other conditions.
-        if (CURRENT_CHARACTER === '=' && this.peekAndValidate('=')) {
+        if (CURRENT_CHARACTER === '<' && this.peekAndValidate('-')) {
+            await this.advanceNextPosition(2)
+            return new Token(TokenType.ASSIGN, '<-', this.currentPosition)
+        } else if (CURRENT_CHARACTER === '=' && this.peekAndValidate('=')) {
             await this.advanceNextPosition(2)
             return new Token(TokenType.EQUAL, '==', this.currentPosition)
         } else if (CURRENT_CHARACTER === '!' && this.peekAndValidate('=')) {

@@ -394,7 +394,7 @@ class Datetime extends LibraryModule {
         }
     }
 
-    async documentation() {
+    static async documentation() {
 
     }
 }

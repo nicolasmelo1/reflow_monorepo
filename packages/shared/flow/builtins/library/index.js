@@ -111,7 +111,7 @@ class LibraryFunction extends FlowFunction {
  *           }
  *       }
  *
- *      async documentation() {
+ *      static async documentation() {
  *          return {
  *              name: 'HTTP',
  *              description: 'HTTP library'
@@ -159,6 +159,11 @@ class LibraryModule extends FlowModule {
     parametersContextForFunctions = {}
     methods = {}
 
+    /**
+     * @param {import('../../settings').Settings} settings - Generally speaking we need to pass the settings on the runtime.
+     * @param {string} moduleName - The original name of the module.
+     * @param {import('../../memory/record')} - The scope of the program that is running, so we can access the variables.
+     */
     constructor(settings, moduleName, scope) {
         super(settings)
         this.isModuleInitialized = false
@@ -261,11 +266,9 @@ class LibraryModule extends FlowModule {
         this.isModuleInitialized = true
         this.conversorHelper = new libraryHelpers.Conversor(this.settings)
         const moduleContext = this.settings.library[moduleName] 
-        
         moduleName = moduleContext === undefined ? moduleName : moduleContext.moduleName
         const structParameters = await this.#translateStructParameters(moduleContext)
         await super._initialize_(moduleName, structParameters)
-
         await this.#translateMethods(moduleContext, scope)
 
         return this
@@ -294,8 +297,16 @@ class LibraryModule extends FlowModule {
      */
     async _documentation_() {
         await this.#lazyInitializeTheModule('_documentation_')
-        return await this.conversorHelper.javascriptValueToFlowObject(await this.documentation())
+        const documentation = await this.constructor.documentation(this.settings.language)
+        const isDocumentationDefined = typeof documentation === 'object' && ![null, undefined].includes(documentation) 
+        if (isDocumentationDefined === true) {
+            return await this.conversorHelper.javascriptValueToFlowObject(documentation)
+        } else {
+            return await this.newString('')
+        }
     }
+
+    static async documentation(language) {}
 }
 
 /**
@@ -433,7 +444,7 @@ class LibraryStruct extends FlowModule {
      * 
      * I think that there are better ways to do this but this is what we got at the meantime.
      * 
-     * @returns {FlowStruct} - Returna new FlowStruct with the attributes passed and translated.
+     * @returns {Promise<FlowStruct>} - Return a new FlowStruct with the attributes passed and translated.
      */
     static async new(settings, structName, ...args) {
         return await (new this(settings, structName))._initialize_(...args)
@@ -450,7 +461,7 @@ class LibraryStruct extends FlowModule {
      * 
      * After initializing the module we will return the struct created from the module directly.
      * 
-     * @returns {FlowStruct} - Returns a new FlowStruct with the __attributes defined and translated.
+     * @returns {Promise<FlowStruct>} - Returns a new FlowStruct with the __attributes defined and translated.
      */
     async _initialize_() {
         const conversorHelper = new libraryHelpers.Conversor(this.settings)

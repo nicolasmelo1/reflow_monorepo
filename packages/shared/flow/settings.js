@@ -91,8 +91,6 @@ class NodeType {
 }
 
 /**
- * @property {string} includeKeyword  
- * 
  * This is the settings class, this is used on the interpreter, parser and lexer.
  * The idea is that with the settings we are able to translate the formula or in other words, the programming language,
  * how we actually want. 
@@ -138,8 +136,8 @@ class Settings {
         this.validBraces = ['{', '}', '(', ')', '[', ']']
         this.timezone = context.datetime.timezone
         this.datetimeHelper = new DatetimeHelper()
+        this.language = context.languageContext
 
-        this.flowContext = context.flowContext
         this.reflowAutomationActionData = context.reflow.automation.actionData
         this.reflowAutomationTriggerData = context.reflow.automation.triggerData
         this.reflowAutomationDebugTrigger = context.reflow.automation.debugTrigger
@@ -158,6 +156,7 @@ class Settings {
         this.decimalPointCharacter = context.decimalPointSeparator
         this.inversionKeyword = context.keyword.inversionKeyword
         this.includesKeyword = context.keyword.includesKeyword
+        this.equalityKeyword = context.keyword.equalityKeyword
         this.disjunctionKeyword = context.keyword.disjunctionKeyword
         this.conjunctionKeyword = context.keyword.conjunctionKeyword
         this.functionKeyword = context.keyword.functionKeyword
@@ -275,7 +274,9 @@ class Settings {
     async initializeBuiltinLibrary(scope) {
         for (const {moduleClass, moduleName} of this.modulesToRuntime) {
             const builtinModule = new moduleClass(this, moduleName, scope)
-            await scope.assign(builtinModule.moduleName, builtinModule)
+            const moduleContext = this.library[moduleName] 
+            const realModuleName = moduleContext === undefined ? builtinModule.moduleName : moduleContext.moduleName
+            await scope.assign(realModuleName, builtinModule)
         }
     }
     
@@ -293,6 +294,95 @@ class Settings {
      */
     validateCharacterForIdentityOrKeywords(character) {
         return (typeof character === 'string' || character instanceof String) ?  /[A-Za-zÀ-ÖØ-öø-ÿ0-9_]/.test(character) : false
+    }
+
+    retrieveExpectedCharacterFromToken(token, value) {
+        switch(token) {
+            case TokenType.ASSIGN:
+                return `'=' or '<-'`
+            case TokenType.INTEGER:
+                return 'a number without decimals'
+            case TokenType.FLOAT:
+                return 'a number with decimals'
+            case TokenType.STRING:
+                return 'a string, for example: "This is a string"'
+            case TokenType.BOOLEAN:
+                return `${this.booleanKeywords['true']} or ${this.booleanKeywords['false']}`
+            case TokenType.DATETIME:
+                return `a date or datetime`
+            case TokenType.POSITIONAL_ARGUMENT_SEPARATOR:
+                return `'${this.positionalArgumentSeparator}'`
+            case TokenType.FUNCTION:
+                return `'${this.functionKeyword}'`
+            case TokenType.MODULE:
+                return `'${this.moduleKeyword}'`
+            case TokenType.LEFT_PARENTHESIS:
+                return `'('`
+            case TokenType.RIGHT_PARENTHESIS:
+                return `')'`
+            case TokenType.LEFT_BRACKETS:
+                return `'['`
+            case TokenType.RIGHT_BRACKETS:
+                return `']'`
+            case TokenType.LEFT_BRACES:
+                return `'{'`
+            case TokenType.RIGHT_BRACES:
+                return `'}'`
+            case TokenType.NULL:
+                return `'${this.nullKeyword}'`
+            case TokenType.END:
+                return `'${this.blockKeywords['end']}'`
+            case TokenType.DO:
+                return `'${this.blockKeywords['do']}'`
+            case TokenType.GREATER_THAN_EQUAL:
+                return `'>='`
+            case TokenType.LESS_THAN_EQUAL:
+                return `'<='`
+            case TokenType.NULL:
+                return `'${this.nullKeyword}'`
+            case TokenType.DIFFERENT:
+                return `!=`
+            case TokenType.LESS_THAN:
+                return `'<'`
+            case TokenType.GREATER_THAN:
+                return `'>'`
+            default:
+                return `'${value}'`
+        }   
+         /*
+        static GREATER_THAN_EQUAL = 'GREATER_THAN_EQUAL'
+        static LESS_THAN_EQUAL = 'LESS_THAN_EQUAL'
+        static NULL = 'NULL'
+        static COMMENT = 'COMMENT'
+        static DIFFERENT = 'DIFFERENT'
+        static LESS_THAN = 'LESS_THAN'
+        static GREATER_THAN = 'GREATER_THAN'
+        static DIVISION = 'DIVISION'
+        static REMAINDER = 'REMAINDER'
+        static SUBTRACTION = 'SUBTRACTION'
+        static SUM = 'SUM'
+        static MULTIPLICATION = 'MULTIPLICATION'
+        static POWER = 'POWER'
+        static COLON = 'COLON'
+        static DOT = 'DOT'
+        static EQUAL = 'EQUAL'
+        static NOT = 'NOT'
+        static OR = 'OR'
+        static AND = 'AND'
+        static END_OF_FILE = 'END_OF_FILE'
+        static NEWLINE = 'NEWLINE'
+        static IDENTITY = 'IDENTITY'
+        static IN = 'IN'
+        static IF = 'IF'
+        static ELSE = 'ELSE'
+        static TRY = 'TRY'
+        static CATCH = 'CATCH'
+        static RAISE = 'RAISE'
+        static RETURN = 'RETURN'
+        static ATTRIBUTE = 'ATTRIBUTE'
+        static DOCUMENTATION = 'DOCUMENTATION'
+        }
+        */
     }
 }
 

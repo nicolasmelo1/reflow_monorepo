@@ -80,7 +80,7 @@ class Struct extends LibraryModule {
         },
     }
 
-    async documentation() {
+    static async documentation() {
         
     }
 }

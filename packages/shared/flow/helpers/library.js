@@ -178,11 +178,11 @@ class Conversor {
      * @param {string | number | boolean | null | undefined | Array | Object | Date} javascriptValue - The 
      * value to convert to a FlowObject.
      * 
-     * @returns {import('../builtins/objects/dict') | import('../builtins/objects/list') |
+     * @returns {Promise<import('../builtins/objects/dict') | import('../builtins/objects/list') |
      *  import('../builtins/objects/float') | import('../builtins/objects/integer') |
      *  import('../builtins/objects/string') | import('../builtins/objects/null') | 
      *  import('../builtins/objects/object') | import('../builtins/objects/datetime') | 
-     * import('../builtins/objects/boolean')} - Returns the converted value to the respective flow object representation.
+     * import('../builtins/objects/boolean')>} - Returns the converted value to the respective flow object representation.
      */
     async javascriptValueToFlowObject(javascriptValue) {
         if (typeof javascriptValue === 'string') {
@@ -213,7 +213,7 @@ class Conversor {
      * 
      * @param {string} string - The string to convert.
      * 
-     * @returns {import('../builtins/objects/string')} - Returns the converted string to a flow string.
+     * @returns {Promise<import('../builtins/objects/string')>} - Returns the converted string to a flow string.
      */
     async #stringToFlowString(value) {
         const FlowString = require('../builtins/objects/string')
@@ -225,7 +225,7 @@ class Conversor {
      * 
      * @param {number} value - The number to convert.
      * 
-     * @returns {import('../builtins/objects/integer')} - Returns the converted number to a flow integer.
+     * @returns {Promise<import('../builtins/objects/integer')>} - Returns the converted number to a flow integer.
      */
     async #numberToFlowInteger(value) {
         const FlowInteger = require('../builtins/objects/integer')
@@ -237,7 +237,7 @@ class Conversor {
      * 
      * @param {number} value - The number to convert.
      * 
-     * @returns {import('../builtins/objects/float')} - Returns the converted number to a flow float.
+     * @returns {Promise<import('../builtins/objects/float')>} - Returns the converted number to a flow float.
      */
     async #numberToFlowFloat(value) {
         const FlowFloat = require('../builtins/objects/float')
@@ -249,7 +249,7 @@ class Conversor {
      * 
      * @param {boolean} value - The boolean to convert.
      * 
-     * @returns {import('../builtins/objects/boolean')} - Returns the converted boolean to a flow boolean.
+     * @returns {Promise<import('../builtins/objects/boolean')>} - Returns the converted boolean to a flow boolean.
      */
     async #booleanToFlowBoolean(value) {
         const FlowBoolean = require('../builtins/objects/boolean')
@@ -263,7 +263,7 @@ class Conversor {
      * 
      * @param {Array} array - The array to convert.
      * 
-     * @returns {import('../builtins/objects/list')} - Returns the converted array to a flow list.
+     * @returns {Promise<import('../builtins/objects/list')>} - Returns the converted array to a flow list.
      */
     async #arrayToFlowList(values) {
         const FlowList = require('../builtins/objects/list')
@@ -282,7 +282,7 @@ class Conversor {
      * 
      * @param {object} value - The object to convert.
      * 
-     * @returns {import('../builtins/objects/dict')} - Returns the converted object to a flow dict.
+     * @returns {Promise<import('../builtins/objects/dict')>} - Returns the converted object to a flow dict.
      */
     async #objectToFlowDict(value) {
         const FlowDict = require('../builtins/objects/dict')
@@ -302,7 +302,7 @@ class Conversor {
      * 
      * @param {Date} value - The date to convert.
      * 
-     * @returns {import('../builtins/objects/datetime')} - Returns the converted date to a flow datetime.
+     * @returns {Promise<import('../builtins/objects/datetime')>} - Returns the converted date to a flow datetime.
      */
     async #dateToFlowDatetime(value) {
         const FlowDatetime = require('../builtins/objects/datetime')
@@ -312,7 +312,7 @@ class Conversor {
     /**
      * Creates a new FlowNull object to represent null in Flow.
      * 
-     * @returns {import('../builtins/objects/null')} - Returns a new FlowNull object.
+     * @returns {Promise<import('../builtins/objects/null')>} - Returns a new FlowNull object.
      */
     async #nullToFlowNull() {
         const FlowNull = require('../builtins/objects/null')
@@ -323,7 +323,7 @@ class Conversor {
      * Creates a new FlowObject object to represent undefined in Flow. FlowObject is not exactly undefined, but instead
      * it's used as a placeholder for undefined values, specially in Flow parameters.
      * 
-     * @returns {import('../builtins/objects/object')} - Returns a new FlowObject object.
+     * @returns {Promise<import('../builtins/objects/object')>} - Returns a new FlowObject object.
      */
     async #undefinedToFlowObject() {
         const FlowObject = require('../builtins/objects/object')

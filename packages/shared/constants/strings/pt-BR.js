@@ -40,6 +40,7 @@ module.exports = {
         formularyFieldAttachmentDetailDownloadButtonDescriptionLabel: 'Download',
         formularyFieldIdDescriptionLabel: 'Esse valor é gerado dinâmicamente',
         formularyFieldFormulaDescriptionLabel: 'Esse valor é calculado dinamicamente',
+        formularyFieldFormulaEmptyValueDescriptionLabel: 'Clique aqui para editar uma fórmula',
         numberFormatTypeNumberLabel: 'Dinâmico',
         numberFormatTypeIntegerLabel: 'Inteiro',
         numberFormatTypeCurrencyLabel: 'Monetário',
@@ -73,5 +74,48 @@ module.exports = {
         refreshTokenIsNotARefreshTokenOrDoesNotExistError: 'Refresh token não é um refresh token ou não existe',
         refreshTokenIsNotValid: 'Refresh token não é válido',
         draftFileNotUploadedError: 'Por alguma razão o arquivo não foi carregado ou os dados recebidos não são válidos (o workspace não foi encontrado), então tente fazer o upload novamente'
+    },
+    shared: {
+        flowIncludesKeyword: 'em',
+        flowConjunctionKeyword: 'e',
+        flowDijunctionKeyword: 'ou',
+        flowInversionKeyword: 'não é',
+        flowEqualityKeyword: 'é',
+        flowDoKeyword: 'faça',
+        flowEndKeyword: 'fim',
+        flowNullKeyword: 'Vazio',
+        flowTrueKeyword: 'Verdadeiro',
+        flowFalseKeyword: 'Falso',
+        flowIfKeyword: 'se',
+        flowElseKeyword: 'senão',
+        flowFunctionKeyword: 'função',
+        flowReturnKeyword: 'retornar',
+        flowRaiseKeyword: 'lançar',
+        flowTryKeyword: 'tente',
+        flowCatchKeyword: 'caso contrário',
+        flowModuleKeyword: 'módulo',
+        flowDecimalPointSeparator: ',',
+        flowPositionalArgumentSeparator: ';',
+        flowTimezone: 'UTC',
+        flowDateCharacter: 'D',
+        flowDateFormat: 'DD/MM/YYYY',
+        flowHourFormat: 'hh:mm:ss.SSS',
+        flowDocumentationKeyword: '@doc',
+        flowTailCallOptimizedMessage: 'Chamada recursiva otimizada',
+        flowHTTPModuleName: 'HTTP',
+        flowHTTPModuleDescription: 'Para fazer chamadas de API e ser capaz de conectar com outros serviços e sistemas legados',
+        flowHTTPGetMethodName: 'get',
+        flowHTTPGetMethodDescription: 'Isso irá pegar os dados de uma URL, geralmente uma api, e irá retorná-los em formato JSON',
+        flowHTTPGetMethodExample: "resposta = HTTP.get('https://pokeapi.co/api/v2/pokemon/pikachu')\ndados_do_pikachu = resposta.json\ndados_do_pikachu['types'][0]['type']['name']" + 
+                                  " # Com isso nós puxamos o dado do pokemon pikachu, recebemos a resposta em formato json e navegamos pela estrutura dos dados até " + 
+                                  "pegarmos o que desejamos, que é o tipo do pokemon.\n" +
+                                  "# O processo é o mesmo para conectar aplicações entre si.",
+        flowHTTPUrlParameterName: 'endereço',
+        flowHTTPUrlDescription: 'O endereço para puxar/enviar/deletar ou atualizar um recurso de um serviço terceiro. Será sempre uma URL.',
+        flowHTTPHeadersParameterName: 'cabeçalhos',
+        flowHTTPHeadersParameterDescription: 'Um dicionário, com ele você poderá definir os `Cabeçalhos` em suas requisições. Essa é uma feature avançada.\nReferência: https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Headers',
+        flowHTTPBasicAuthParameterName: 'autenticação_básica',
+        flowHTTPBasicAuthParameterDescription: 'Em alguns momentos você irá precisar se autenticar ao realizar uma chamada de API. Um dos jeitos mais comuns de se autenticar em '+
+                                               'uma API é com autenticação básica. Um exemplo é a API do Twilio que usa esse modelo de autenticação: https://www.twilio.com/docs/usage/api#authenticate-with-http'
     }
 }

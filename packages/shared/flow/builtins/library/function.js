@@ -154,7 +154,7 @@ class Function_ extends LibraryModule {
         }
     }
 
-    async documentation() {
+    static async documentation() {
 
     }
 }

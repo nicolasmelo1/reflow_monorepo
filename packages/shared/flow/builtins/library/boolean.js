@@ -17,8 +17,8 @@ class _Boolean extends LibraryModule {
         }
     }
 
-    async documentation() {
-
+    static async documentation() {
+        
     }
 }
 

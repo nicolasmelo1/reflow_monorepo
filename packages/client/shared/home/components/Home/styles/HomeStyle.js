@@ -18,6 +18,7 @@ styled(View)``
 
 export const ContentContainer = APP === 'web' ? 
 styled.div`
+    height: var(--app-height);
     width: ${props => props.isFloating ? 'var(--app-width)' : 
             props.isOpen ? 'calc(var(--app-width) - var(--sidebar-width))' : 'var(--app-width)'};
     background-color: ${props => props.theme.background};

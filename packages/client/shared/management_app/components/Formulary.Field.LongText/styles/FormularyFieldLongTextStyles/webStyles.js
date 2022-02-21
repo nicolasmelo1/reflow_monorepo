@@ -1,16 +1,10 @@
-import { APP } from '../../../../conf'
 import styled from 'styled-components'
-import { View } from 'react-native'
 
-export const Container = APP === 'web' ?
-styled.div`
+export const Container = styled.div`
     width: calc(100% - 20px);
 `
-:
-styled(View)``
 
-export const TextArea = APP === 'web' ?
-styled.textarea`
+export const TextArea = styled.textarea`
     width: 100%;
     font-family: Roboto;
     border-radius: 4px;
@@ -28,5 +22,3 @@ styled.textarea`
         background: ${props => props.theme.green_REFLOW}50;
     }
 `
-:
-styled(TextInput)``

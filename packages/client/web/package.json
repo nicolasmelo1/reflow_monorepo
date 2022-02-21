@@ -11,8 +11,11 @@
   "dependencies": {
     "@codemirror/autocomplete": "^0.19.12",
     "@codemirror/basic-setup": "^0.19.1",
+    "@codemirror/commands": "^0.19.8",
     "@codemirror/highlight": "^0.19.7",
+    "@codemirror/lang-javascript": "^0.19.7",
     "@codemirror/language": "^0.19.7",
+    "@codemirror/view": "^0.19.44",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",

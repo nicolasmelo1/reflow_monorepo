@@ -32,7 +32,7 @@ export default function FormularyWebLayout(props) {
             ) : ''}
             <Styled.FormularyContainer
             ref={props.formularyContainerRef}
-            offset={props.formularyContainerRef.current ? props.formularyContainerRef.current.getBoundingClientRect().y : 0}
+            offset={props.formularyContainerOffset}
             >
                 {props.formulary?.sections.map(section => (
                     <FormularySection 

@@ -14,13 +14,13 @@ const languagePack = {
  * And then you will define what `loginOnboardingButtonLabel` means inside the `pt-BR` file. If you want
  * to support another language, just create a new file and add the texts to the language pack.
  * 
- * @param {string} language - One of the supported languages. See `languagePack` variable up here for reference.
- * @param {string} environment - The environment that the text is being used on, is this the shared lib, the 
  * @param {string} key - The key of the text label.
+ * @param {string} [language='pt-BR'] - One of the supported languages. See `languagePack` variable up here for reference.
+ * @param {string} [environment='shared'] - The environment that the text is being used on, is this the shared lib, the 
  * 
  * @returns {string} - The text label to use in your component.
  */
-function strings(language, environment, key) {
+function strings(key, language='pt-BR', environment='shared') {
     if (languagePack[language] && languagePack[language][environment] && languagePack[language][environment][key]) {
         return languagePack[language][environment][key]
     } else {

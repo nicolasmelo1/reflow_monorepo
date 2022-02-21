@@ -66,7 +66,6 @@ class List extends LibraryModule {
             start = await retrieveRepresentation(start)
             end = await retrieveRepresentation(end)
             steps = await retrieveRepresentation(steps)
-
             if (typeof start === 'number' && typeof end === 'number' && typeof steps === 'number' && steps !== 0) {
                 const list = await this.newList()
                 if (steps > 0) {
@@ -226,7 +225,7 @@ class List extends LibraryModule {
         }
     }
 
-    async documentation() {
+    static async documentation() {
 
     }
 }

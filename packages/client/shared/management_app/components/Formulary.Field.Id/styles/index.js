@@ -1,4 +1,4 @@
-import * as FormularyFieldIdStyles from './FormularyFieldIdStyles'
+import FormularyFieldIdStyles from './FormularyFieldIdStyles'
 
 export default {
     ...FormularyFieldIdStyles

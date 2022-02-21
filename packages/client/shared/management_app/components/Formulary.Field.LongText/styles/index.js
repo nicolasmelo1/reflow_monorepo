@@ -1,4 +1,4 @@
-import * as FormularyFieldLongTextStyles from './FormularyFieldLongTextStyles'
+import FormularyFieldLongTextStyles from './FormularyFieldLongTextStyles'
 
 export default {
     ...FormularyFieldLongTextStyles,

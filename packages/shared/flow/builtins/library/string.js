@@ -145,7 +145,7 @@ class String extends LibraryModule {
         }
     }
 
-    async documentation() {
+    static async documentation() {
 
     }
 }

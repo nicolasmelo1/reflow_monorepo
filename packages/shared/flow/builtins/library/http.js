@@ -1,5 +1,6 @@
 const axios = require('axios')
 const FormData = require('form-data')
+const { strings } = require('../../../constants')
 
 const { retrieveRepresentation } = require('../../helpers/library')
 const { FlowObject } = require('../objects')
@@ -181,21 +182,51 @@ class HTTP extends LibraryModule {
         }
     }
 
-    async documentation() {
+    static async documentation(language) {
+        const urlDefaultParameter = {
+            url: {
+                name: strings('flowHTTPUrlParameterName', language),
+                description: strings('flowHTTPUrlParameterDescription', language),
+                type: 'string',
+                required: true
+            }
+        }
+
+        const basicAuthAndHeadersDefaultParameters = {
+            headers: {
+                name: strings('flowHTTPHeadersParameterName', language),
+                description: strings('flowHTTPHeadersParameterDescription', language),
+                type: 'dict',
+                required: false
+            },
+            basicAuth: {
+                name: strings('flowHTTPBasicAuthParameterName', language),
+                description: strings('flowHTTPBasicAuthParameterDescription', language),
+                type: 'dict',
+                required: false
+            }
+        }
+
+        const deleteOrGetParameters = {
+            parameters: {
+                name: strings('flowHTTPParametersParameterName', language),
+                description: strings('flowHTTPParametersParameterDescription', language)
+            }
+        }
+
         return {
-            name: 'HTTP',
-            description: 'HTTP library',
+            name: strings('flowHTTPModuleName', language),
+            description: strings('flowHTTPModuleDescription', language),
             methods: {
                 get: {
-                    name: 'get',
-                    description: 'Get',
-                    parameters: [
-                        {
-                            name: 'url',
-                            type: 'String',
-                            description: 'URL'
-                        }
-                    ]
+                    name: strings('flowHTTPGetMethodName', language),
+                    description: strings('flowHTTPGetMethodDescription', language),
+                    examples: strings('flowHTTPGetMethodExample', language),
+                    parameters: {
+                        ...urlDefaultParameter,
+                        ...deleteOrGetParameters,
+                        ...basicAuthAndHeadersDefaultParameters
+                    }
                 }
             }
         }
