@@ -212,7 +212,7 @@ class FlowFunction extends FlowObject {
     }
     
     /**
-     * The string representation of the function are not like the others. The string representation of the function is like:
+     * The string representation of the function are not like other programming languages. The string representation of the function is like:
      * ```
      * "<function fibonacci ( n, teste=<function teste ( a=2, b=[
      *  1,
@@ -241,15 +241,19 @@ class FlowFunction extends FlowObject {
      * We also print to the user, after he runs the function if the function is tail call optimized or not. If it's not then we print as we said before.
      * If it is we add the <tail call optimized> to the string representation to show the function is tail call optimized.
      * 
-     * @returns {import('./string')} - The string representation of the function.
+     * @param {object} options - The options object that contains the indentation number and other data for the print function.
+     * @param {number} [options.ident=4] - The indentation number. By default it is 4 spaces.
+     * @param {boolean} [options.ignoreDocumentation=false] - If we should show the documentation or not.
+     * 
+     * @returns {Promise<import('./string')>} - The string representation of the function.
      */
-    async _string_({ident=4}={}) {
+    async _string_({ident=4, ignoreDocumentation=false}={}) {
         let stringfiedRepresentationOfParameters = ``
         for (let i=0; i < this.parameters.hashTable.keys.numberOfElements; i++) {
             if (this.parameters.hashTable.keys.array[i] !== undefined) {
                 const rawKey = await this.parameters.hashTable.rawKeys.getItem(i)
                 const rawValue = await this.parameters._getitem_(rawKey)
-                const stringfiedValue = await rawValue._string_({ident})
+                const stringfiedValue = await rawValue._string_({ident, ignoreDocumentation: true})
                 const value = await stringfiedValue._representation_()
                 
                 const isLastItemInDict = await (await this.parameters._length_())._representation_() - 1 === i
@@ -262,8 +266,14 @@ class FlowFunction extends FlowObject {
                 }
             }
         } 
-        return await this.newString(`<${this.settings.functionKeyword} ${this.functionName} (${stringfiedRepresentationOfParameters})`+
-        `${this.isTailCallOptimized ? ` <${this.settings.tailCallOptimizedMessage}>` : ''}>`)
+        
+        const stringRepresentation = `<${this.settings.functionKeyword} ${this.functionName} (${stringfiedRepresentationOfParameters})`+
+        `${this.isTailCallOptimized ? ` <${this.settings.tailCallOptimizedMessage}>` : ''}>`
+        if (ignoreDocumentation === true) {
+            return await this.newString(stringRepresentation)
+        } else {
+            return await this.appendDocumentationOnStringRepresentation(stringRepresentation)
+        }
     }
 
     /**

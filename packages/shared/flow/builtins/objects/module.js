@@ -186,20 +186,21 @@ class FlowModule extends FlowObject {
      *   hello: <function hello>
      * }>
      * 
-     * @param {object} options - The options object that contains the indentation number.
+     * @param {object} options - The options object that contains the indentation number and other data for the print function.
      * @param {number} [options.ident=4] - The indentation number. By default it is 4 spaces.
+     * @param {bool} [options.ignoreDocumentation=false] - If we should show the documentation or not.
      * 
      * @returns {Promise<import('./string')>} - Returns the string representation of the module.
      */
-    async _string_({ident=4} = {}) {
+    async _string_({ident=4, ignoreDocumentation=false} = {}) {
         const getStructParametersRepresentation = async () => {
             if (this.doesModuleCanCreateStructs === true) {
                 let stringfiedRepresentationOfStructParameters = ``
-                for (let i=0; i < this.parameters.hashTable.keys.numberOfElements; i++) {
+                for (let i=0; i < this.structParameters.hashTable.keys.numberOfElements; i++) {
                     if (this.structParameters.hashTable.keys.array[i] !== undefined) {
                         const rawKey = await this.structParameters.hashTable.rawKeys.getItem(i)
                         const rawValue = await this.structParameters._getitem_(rawKey)
-                        const stringfiedValue = await rawValue._string_()
+                        const stringfiedValue = await rawValue._string_({ignoreDocumentation: true})
                         const value = await stringfiedValue._representation_()
                         
                         const isLastItemInDict = await (await this.structParameters._length_())._representation_() - 1 === i
@@ -218,10 +219,19 @@ class FlowModule extends FlowObject {
         const attributesLength = await this.attributes._length_()
         const doesHaveAttributes = await attributesLength._representation_() > 0
 
+        let stringRepresentation = ''
         if (this.doesModuleCanCreateStructs === true) {
-            return await this.newString(`<${this.settings.moduleKeyword} ${this.moduleName} (${await getStructParametersRepresentation()})${doesHaveAttributes ? ` attributes=${await (await this.attributes._string_({ident}))._representation_()}` : ''}>`)
+            stringRepresentation = `<${this.settings.moduleKeyword} ${this.moduleName} (` +
+            `${await getStructParametersRepresentation()})${doesHaveAttributes ? ` ${this.settings.attributesLabel}=${await (await this.attributes._string_({ident}))._representation_()}` : ''}>`
         } else {
-            return await this.newString(`<${this.settings.moduleKeyword} ${this.moduleName}${doesHaveAttributes ? ` attributes=${await (await this.attributes._string_({ident}))._representation_()}` : ''}>`)
+            stringRepresentation = `<${this.settings.moduleKeyword} ${this.moduleName}` + 
+            `${doesHaveAttributes ? ` ${this.settings.attributesLabel}=${await (await this.attributes._string_({ident, ignoreDocumentation: true}))._representation_()}` : ''}>`
+        }
+        
+        if (ignoreDocumentation === true) {
+            return await this.newString(stringRepresentation)
+        } else {
+            return await this.appendDocumentationOnStringRepresentation(stringRepresentation)
         }
     }
 

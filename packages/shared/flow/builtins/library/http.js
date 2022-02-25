@@ -1,8 +1,8 @@
 const axios = require('axios')
-const FormData = require('form-data')
 const { strings } = require('../../../constants')
 
 const { retrieveRepresentation } = require('../../helpers/library')
+const errorTypes = require('../errorTypes')
 const { FlowObject } = require('../objects')
 
 const { 
@@ -72,7 +72,11 @@ class HTTP extends LibraryModule {
         // our default configuration.
         if (isJsonAndDataObjects && (Object.keys(data).length > 0 || Object.keys(jsonData).length > 0)) {
             if (Object.keys(data).length > 0) {
-                const formData = new FormData()
+                // Reference: https://stackoverflow.com/questions/63576988/how-to-use-formdata-in-node-js-without-browser
+                let formData = null
+                if (FormData !== undefined) formData = new FormData()
+                else formData = new URLSearchParams()
+                
                 for (const key in data) {
                     formData.append(key, data[key])
                 }
@@ -165,6 +169,11 @@ class HTTP extends LibraryModule {
             headers = await retrieveRepresentation(headers)
             basicAuth = await retrieveRepresentation(basicAuth)
             
+            if (typeof method !== 'string' && !['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'].includes(method.toUpperCase())) {
+                await this.newError(errorTypes.TYPE, `The method ${method} is not a valid method.`)
+            }
+            if (typeof url !== 'string') await this.newError(errorTypes.TYPE, `The url ${url} is not a valid url and it must be a string.`)
+
             let requestPayload = {
                 method: method.toLowerCase(),
                 url: url
@@ -210,7 +219,24 @@ class HTTP extends LibraryModule {
         const deleteOrGetParameters = {
             parameters: {
                 name: strings('flowHTTPParametersParameterName', language),
-                description: strings('flowHTTPParametersParameterDescription', language)
+                description: strings('flowHTTPParametersParameterDescription', language),
+                type: 'dict',
+                required: false
+            }
+        }
+
+        const postOrPutParameters = {
+            data: {
+                name: strings('flowHTTPDataParameterName', language),
+                description: strings('flowHTTPDataParameterDescription', language),
+                type: 'dict',
+                required: false
+            },
+            jsonData: {
+                name: strings('flowHTTPJsonDataParameterName', language),
+                description: strings('flowHTTPJsonDataParameterDescription', language),
+                type: 'dict',
+                required: false
             }
         }
 
@@ -225,6 +251,53 @@ class HTTP extends LibraryModule {
                     parameters: {
                         ...urlDefaultParameter,
                         ...deleteOrGetParameters,
+                        ...basicAuthAndHeadersDefaultParameters
+                    }
+                },
+                post: {
+                    name: strings('flowHTTPPostMethodName', language),
+                    description: strings('flowHTTPPostMethodDescription', language),
+                    examples: strings('flowHTTPPostMethodExample', language),
+                    parameters: {
+                        ...urlDefaultParameter,
+                        ...postOrPutParameters,
+                        ...basicAuthAndHeadersDefaultParameters
+                    }
+                },
+                put: {
+                    name: strings('flowHTTPPutMethodName', language),
+                    description: strings('flowHTTPPutMethodDescription', language),
+                    examples: strings('flowHTTPPutMethodExample', language),
+                    parameters: {
+                        ...urlDefaultParameter,
+                        ...postOrPutParameters,
+                        ...basicAuthAndHeadersDefaultParameters
+                    }
+                },
+                delete: {
+                    name: strings('flowHTTPDeleteMethodName', language),
+                    description: strings('flowHTTPDeleteMethodDescription', language),
+                    examples: strings('flowHTTPDeleteMethodExample', language),
+                    parameters: {
+                        ...urlDefaultParameter,
+                        ...deleteOrGetParameters,
+                        ...basicAuthAndHeadersDefaultParameters
+                    }
+                },
+                request: {
+                    name: strings('flowHTTPRequestMethodName', language),
+                    description: strings('flowHTTPRequestMethodDescription', language),
+                    examples: strings('flowHTTPRequestMethodExample', language),
+                    parameters: {
+                        method: {
+                            name: strings('flowHTTPMethodParameterName', language),
+                            description: strings('flowHTTPMethodParameterDescription', language),
+                            type: 'string',
+                            required: true
+                        },
+                        ...urlDefaultParameter,
+                        ...deleteOrGetParameters,
+                        ...postOrPutParameters,
                         ...basicAuthAndHeadersDefaultParameters
                     }
                 }

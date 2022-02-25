@@ -62,6 +62,29 @@ class FlowObject {
     }
 
     /**
+     * This is responsible for appending the documentation to the string representation of the object. With this we are able to 
+     * easily display the documentation while also explaining what the object 'do' and 'is'. This makes programming with flow
+     * fairly easy.
+     * 
+     * To use this, every _string_ representation should call this function when retuning the value
+     * 
+     * @param {string} stringRepresentation - The string representation of the object to append the documentation to.
+     * 
+     * @returns {Promise<import('./string')>} - The string representation of the object with the documentation appended.
+     */
+    async appendDocumentationOnStringRepresentation(stringRepresentation='') {
+        let documentationRepresentation = await (await (await this._documentation_())._string_())._representation_()
+        if (documentationRepresentation.startsWith('"') && documentationRepresentation.endsWith('"')) {
+            documentationRepresentation = documentationRepresentation.substring(1, documentationRepresentation.length - 1)
+        }
+        if (documentationRepresentation !== '') {
+            return await this.newString(stringRepresentation + '\n\n------------\n' + documentationRepresentation)
+        } else {
+            return await this.newString(stringRepresentation)
+        }
+    }
+
+    /**
      * Resets the cached values of the dict so we need to evaluate again the representation.
      * 
      * This also calls the parent resetCached function if it exists. This means that if a children changes,
@@ -605,7 +628,7 @@ class FlowObject {
 
     async _documentation_() {
         if (this.documentation) {
-            return await this.documentation
+            return this.documentation
         } else {
             return await this.newString('')
         }

@@ -7,6 +7,9 @@ const FlowObject = require('./builtins/objects/object')
 
 
 /**
+ * IMPORTANT: FLOW IS KINDA COMPLETLY UNTIED FROM REFLOW, AND KINDA LIVES IN IT'S OWN SEPARATED WORLD. YOU SHOULD USE
+ * `services.js` IN ORDER TO INTERACT WITH THE FLOW LANGUAGE, MOST OF THE TIMES YOU CANNOT INTERACT OR EVALUATE STUFF DIRECTLY.
+ * 
  * This is the entrypoint to run Flow Programs. Everything you need to know you will be able to find here.
  * 
  * Flow is entirely asynchronous so it doesn't conflict with the main thread and just runs and evaluates when it can.
@@ -250,10 +253,11 @@ const FlowObject = require('./builtins/objects/object')
  * @param {import('./context')} context - The context to be used in the language. Read more in the context object. but anyway, this
  * is the only language i know that can be translated fully to other languages like english, portuguese, spanish and others
  * in runtime.
+ * @param {boolean} ignoreAllErrors - If true, all errors will be ignored.
  * 
  * @returns {Promise<import('./builtins/objects/object')>} - The result of the expression will ALWAYS be a FlowObject.
  */
-const evaluate = async (expression, context=undefined) => {
+async function evaluate(expression, context=undefined, ignoreAllErrors=false) {
     if (!context instanceof Context) {
         context = new Context()
     }
@@ -273,7 +277,7 @@ const evaluate = async (expression, context=undefined) => {
             // It's probably a FlowError object
             return e
         } else {
-            throw(e)
+            if (ignoreAllErrors === false) throw(e)
         }
     }
 }

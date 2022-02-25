@@ -167,6 +167,7 @@ class HashMapHelper {
      * the constructor directly. This is needed because we need to run async code in the constructor but the constructor
      * itself does not provide support for running async code in it. This happens because an async function 
      * always return a promise, but the constructor always return the class instance.
+     * 
      * The rawKey is the key object that we use as key, not the actual key value but the key object, the key value is used 
      * to retrieve values from the hash table. But rawKeys can be for example a FlowObject, so we can know exactly what FlowObject 
      * was used as key and retrieve the actual representation of the key.
@@ -273,7 +274,7 @@ class HashMapHelper {
     async remove(hash, key) {
         const hashIndex = hash % this.capacity
         let hashNodeToBeRemoved = this.table[hashIndex]
-        
+        console.log(key)
         if (this.keys.array.includes(key) && hashNodeToBeRemoved !== undefined) {
             // The hashNodeToBeRemoved is the first node in the linked list but is not the element we are looking for
             if (hashNodeToBeRemoved.key !== key) {
@@ -288,9 +289,11 @@ class HashMapHelper {
                     throw new Error(`Key '${key}' not found`)
                 }
                 // We kept track of the last node in the linked list so we can update the reference and delete it.
-                previousNodeToUpdateLinkedList.next = undefined
+                // the hashNodeToBeRemoved will lose reference
+                previousNodeToUpdateLinkedList = hashNodeToBeRemoved.next
             } else {
-                this.table[hashIndex] = undefined
+                // Update the next index with the next value of the hashNodeToBeRemoved
+                this.table[hashIndex] = hashNodeToBeRemoved.next
             }
 
             for (let i=0; i<this.keys.array.length; i++) {
@@ -302,7 +305,6 @@ class HashMapHelper {
                     break
                 }
             } 
-
             // We subtract the number of elements in the hashTable in a factor of 1.
             this.numberOfElements--
         } else {
@@ -311,8 +313,9 @@ class HashMapHelper {
     }
 
     /**
-     * Appends a new value to the HashTable, we send a hash, the key and the value, the key is the actual value
-     * you want to store in the table, we can have collision in hashes but we cannot have collisions in keys. 
+     * Appends a new value to the HashTable, we send a hash, the key and the value. The key is the actual value
+     * you want to store in the table.
+     * Collisions in hashes are acceptable but we cannot have collisions in keys (2 keys using the same value). 
      * The value is the value you are storing in this key, and the hasher is the key hashed.
      * 
      * @param {any} rawKey - If your key is an object, for example a FlowObject, you can't search from this key, but
@@ -332,8 +335,8 @@ class HashMapHelper {
         if (this.keys.array.includes(key)) {
             await this.remove(hash, key)
         }
-        // we should resize before retrieving the hashIndex, i was running trough an error and it was hard to debug
-        // that's because we got the index before resizing. This means the hashIndex would be wrong because after we resize
+        // we should resize before retrieving the hashIndex, i was running trough an error and it was hard to debug.
+        // The bug happened because we got the index after resizing. This means the hashIndex would be wrong because after we resize
         // we change the capacity of the array generating a new hashIndex that should be used in the insertion.
         if (this.numberOfElements + 1 > this.capacity) await this.#resize(2 * this.capacity)
 
@@ -374,9 +377,9 @@ class HashMapHelper {
         const newTable = await this.makeTable(newCapacity)
 
         for (const hash of this.hashes.array) {
-            const hashIndex = hash % this.capacity
-         
             if (hash !== undefined) {
+                const hashIndex = hash % this.capacity
+                
                 let node = this.table[hashIndex]
                 let previous = node
                 while (node !== undefined) {
@@ -399,7 +402,7 @@ class HashMapHelper {
      * 
      * @param {number} newCapacity - The new capacity of the hashMap.
      * 
-     * @returns {Array<undefined>} - A new empty array with the new capacity.
+     * @returns {Promise<Array<undefined>>} - A new empty array with the new capacity.
      */
     async makeTable(newCapacity) {
         return Array.apply(undefined, Array(newCapacity))

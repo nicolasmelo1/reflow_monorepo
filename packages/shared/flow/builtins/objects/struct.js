@@ -237,7 +237,6 @@ class FlowStruct extends FlowObject {
      * @returns {Promise<FlowObject>} - Returns the object that was inserted in the struct or the response from the overriden _setattribute_ method.
      */
     async _getattribute_(variable) {
-
         const customFunction = await this.#checkIfModuleHasAttributeAndGetValueIfYes(this.settings.specialModuleMethods._getattribute_)
         if (customFunction !== undefined) {
             return await customFunction._call_(await this.#getSpecialMethodParameters(customFunction, [this, variable, element]))
@@ -721,12 +720,12 @@ class FlowStruct extends FlowObject {
             const getStructParametersRepresentation = async () => {
                 let stringfiedRepresentationOfStructParameters = `{`
                 for (let i=0; i < this.parameters.hashTable.keys.numberOfElements; i++) {
+                    console.log(this.parameters.hashTable.keys.array[i])
                     if (this.parameters.hashTable.keys.array[i] !== undefined) {
                         const rawKey = await this.parameters.hashTable.rawKeys.getItem(i)
                         const rawValue = await this.parameters._getitem_(rawKey)
                         const stringfiedValue = await rawValue._string_()
                         const value = await stringfiedValue._representation_()
-                        
                         const isLastItemInDict = await (await this.parameters._length_())._representation_() - 1 === i
                         if (rawValue.type !== OBJECT_TYPE) {
                             stringfiedRepresentationOfStructParameters = stringfiedRepresentationOfStructParameters + ` ${await rawKey._representation_()}=${value}`+

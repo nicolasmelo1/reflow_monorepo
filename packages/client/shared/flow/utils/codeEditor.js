@@ -1,7 +1,7 @@
-import { basicSetup, EditorState } from '@codemirror/basic-setup'
+import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup'
 import { HighlightStyle, tags as t } from '@codemirror/highlight'
 import { indentWithTab } from '@codemirror/commands'
-import { EditorView, keymap } from '@codemirror/view'
+import { keymap } from '@codemirror/view'
 
 
 const getDefaultTheming = ({removeLineCounter=false} = {}) => {
@@ -155,9 +155,12 @@ const initializeCodeEditor = ({parent, code, languagePack, editable=true, dispat
     let extensions = [
         languagePack, 
         basicSetup,
-        keymap.of([indentWithTab]),
-        [getDefaultTheming({removeLineCounter: removeLineCounter}), syntaxHighlightTheme]
+        keymap.of([
+            indentWithTab
+        ]),
+        //[getDefaultTheming({removeLineCounter: removeLineCounter}), syntaxHighlightTheme]
     ]
+    
 
     if (editable === false) {
         extensions = [...extensions, EditorView.editable.of(false)]
@@ -177,8 +180,8 @@ const initializeCodeEditor = ({parent, code, languagePack, editable=true, dispat
         viewOptions.dispatch = dispatchCallback()
     }
 
-
     const editor = new EditorView(viewOptions)
+
     return editor
 }
 

@@ -49,7 +49,7 @@ const { getErrorCodeContext } = require('../helpers/index')
  * named_statements: FUNCTION function_statement
  *                | MODULE module_statement
  * 
- * function_statement: FUNCTION (IDENTITY)? LEFT_PARENTHESIS (parameters)?* RIGHT_PARENTHESIS ((DO block END) | (COLON expression)
+ * function_statement: FUNCTION (IDENTITY)? LEFT_PARENTHESIS (parameters)?* RIGHT_PARENTHESIS ((DO block END) | (COLON assignment)
  * 
  * module_statement: MODULE IDENTITY (LEFT_PARENTHESIS (arguments)? RIGHT_PARENTHESIS)? (DO module_block_statements_list END)?
  * 
@@ -77,8 +77,7 @@ const { getErrorCodeContext } = require('../helpers/index')
  *          | assignment
  * 
  * assignment: expression ASSIGN expression
- *           | function_statement
- *           | module_statement
+ *           | compound_statements
  *           | expression
  * 
  * expression: IF if_statement 
@@ -92,9 +91,12 @@ const { getErrorCodeContext } = require('../helpers/index')
  *            | inversion
  * 
  * inversion: NOT inversion
- *          | comparison
+ *          | equal_comparison
  * 
- * comparison: comparison (( GREATER_THAN | GREATER_THAN_EQUAL | LESS_THAN | LESS_THAN_EQUAL | EQUAL | DIFFERENT | IN) comparison)* 
+ * equal_comparison: equal_comparison (( GREATER_THAN_EQUAL | LESS_THAN_EQUAL | EQUAL | DIFFERENT) equal_comparison)* 
+ *                 | comparison
+ * 
+ * comparison: comparison (( GREATER_THAN | LESS_THAN | IN) comparison)* 
  *           | add
  * 
  * add: add ((PLUS | MINUS) add)*
@@ -333,7 +335,7 @@ class Parser {
 
     /**
      * assignment: expression ASSIGN expression
-     *           | named_statement
+     *           | compound_statements
      *           | expression
      */
     async assignment() {
@@ -454,7 +456,7 @@ class Parser {
     }
 
     /**
-     * function_statement: FUNCTION (IDENTITY)? LEFT_PARENTHESIS (parameters)?* RIGHT_PARENTHESIS ((DO block END) | expression)
+     * function_statement: FUNCTION (IDENTITY)? LEFT_PARENTHESIS (parameters)?* RIGHT_PARENTHESIS ((DO block END) | assignment)
      */
     async functionStatement() {
         if (TokenType.FUNCTION === this.currentToken.tokenType) {
@@ -482,7 +484,7 @@ class Parser {
                 await this.getNextToken(TokenType.END)
             } else {
                 await this.getNextToken(TokenType.COLON)
-                functionBlock = await this.expression()
+                functionBlock = await this.assignment()
             }
 
             return new nodes.FunctionDefinition(functionVariable, parameters, functionBlock)
@@ -725,10 +727,10 @@ class Parser {
 
     /**
      * inversion: NOT inversion
-     *          | comparison
+     *          | equal_comparison
      */
     async inversion() {
-        const node = await this.comparison()
+        const node = await this.equalComparion()
 
         if (TokenType.NOT === this.currentToken.tokenType) {
             const operation = this.currentToken
@@ -752,7 +754,36 @@ class Parser {
     }
 
     /**
-     * comparison: comparison (( GREATER_THAN | GREATER_THAN_EQUAL | LESS_THAN | LESS_THAN_EQUAL | EQUAL | DIFFERENT | IN) comparison)* 
+     * equal_comparison: equal_comparison (( GREATER_THAN_EQUAL | LESS_THAN_EQUAL | EQUAL | DIFFERENT) equal_comparison)* 
+     *                 | comparison
+     */
+    async equalComparion() {
+        const node = await this.comparison()
+
+        if ([
+            TokenType.GREATER_THAN_EQUAL,
+            TokenType.DIFFERENT,
+            TokenType.LESS_THAN_EQUAL,
+            TokenType.EQUAL
+        ].includes(this.currentToken.tokenType)) {
+            const operation = this.currentToken
+            const left = node
+            
+            await this.getNextToken(this.currentToken.tokenType)
+            
+            const right = await this.equalComparion()
+
+            if ((left === null || left === undefined) || (right === null || right === undefined)) {
+                await FlowError.new(this.settings, SYNTAX, "In your comparison, one of the values is wrong")
+            }
+
+            return new nodes.BinaryConditional(left, right, operation)
+        } else {
+            return node
+        }
+    }
+    /**
+     * comparison: comparison (( GREATER_THAN | LESS_THAN | IN) comparison)* 
      *           | add
      */
     async comparison() {
@@ -760,11 +791,7 @@ class Parser {
 
         if ([
             TokenType.GREATER_THAN, 
-            TokenType.GREATER_THAN_EQUAL,
-            TokenType.DIFFERENT,
             TokenType.LESS_THAN,
-            TokenType.LESS_THAN_EQUAL,
-            TokenType.EQUAL,
             TokenType.IN
         ].includes(this.currentToken.tokenType)) {
             const operation = this.currentToken
@@ -877,6 +904,7 @@ class Parser {
     /**
      * primary: simple_statements
      *        | atom
+     *        | struct
      *        | (slice)*
      *        | (attribute)*
      *        | (function_call)*
@@ -885,7 +913,9 @@ class Parser {
      * 
      * slice: primary LEFT_BRACKET (atom (POSITIONAL_ARGUMENT_SEPARATOR atom)*)? RIGHT_BRACKET
      * 
-     * function_call: primary LEFT_PARENTHESIS (expression (POSITIONAL_ARGUMENT_SEPARATOR expression)*)? RIGHT_PARENTHESIS
+     * struct: LEFT_BRACES (statement (COMMA statement)*)? RIGHT_BRACES
+     * 
+     * function_call: primary LEFT_PARENTHESIS (statement (POSITIONAL_ARGUMENT_SEPARATOR statement)*)? RIGHT_PARENTHESIS
      */
     async primary() {
         let node = await this.simpleStatements()
@@ -916,19 +946,15 @@ class Parser {
                 let functionArguments = []
 
                 while (![TokenType.END_OF_FILE, TokenType.RIGHT_PARENTHESIS].includes(this.currentToken.tokenType)) {
-                    let argument = null
                     await this.#ignoreNewline()
-
-                    if (TokenType.FUNCTION === this.currentToken.tokenType) {
-                        argument = await this.functionStatement()
-                    } else {
-                        argument = await this.statement()
-                    }
+                    const argument = await this.statement()                    
                     await this.#ignoreNewline()
 
                     functionArguments.push(argument)
                     if (TokenType.POSITIONAL_ARGUMENT_SEPARATOR === this.currentToken.tokenType) {
                         await this.getNextToken(TokenType.POSITIONAL_ARGUMENT_SEPARATOR)
+                    } else if (![TokenType.END_OF_FILE, TokenType.RIGHT_PARENTHESIS].includes(this.currentToken.tokenType)) {
+                        await this.getNextToken(this.currentToken.tokenType)
                     }
                 }
 
@@ -943,21 +969,17 @@ class Parser {
                 let structArguments = []
 
                 while (TokenType.RIGHT_BRACES !== this.currentToken.tokenType) {
-                    let argument = null
                     await this.#ignoreNewline()
-
-                    if (TokenType.FUNCTION === this.currentToken.tokenType) {
-                        argument = await this.functionStatement()
-                    } else {
-                        argument = await this.statement()
-                    }
+                    const argument = await this.statement()
+                    await this.#ignoreNewline()
 
                     structArguments.push(argument)
 
                     if (TokenType.POSITIONAL_ARGUMENT_SEPARATOR === this.currentToken.tokenType) {
                         await this.getNextToken(TokenType.POSITIONAL_ARGUMENT_SEPARATOR)
+                    } else if (TokenType.RIGHT_BRACES !== this.currentToken.tokenType) {
+                        await this.getNextToken(TokenType.POSITIONAL_ARGUMENT_SEPARATOR)
                     }
-
                     await this.#ignoreNewline()
                 }
 
@@ -1050,7 +1072,7 @@ class Parser {
     }
 
     /**
-     * array: LEFT_BRACKET (expression | function_statement) (POSITIONAL_ARGUMENT_SEPARATOR (expression | function_definition))* RIGHT_BRACKET
+     * array: LEFT_BRACKET (expression | function_statement) (POSITIONAL_ARGUMENT_SEPARATOR (expression | named_statements))* RIGHT_BRACKET
      */
     async array() {
         let members = []
@@ -1058,18 +1080,18 @@ class Parser {
             await this.getNextToken(TokenType.LEFT_BRACKETS)
             
             while (TokenType.RIGHT_BRACKETS !== this.currentToken.tokenType) {
-                let node = null
+                let node = await this.namedStatements()
                 await this.#ignoreNewline()
 
+                if (node === undefined) {
+                    node = await this.expression()
+                }
+
+                await this.#ignoreNewline()
                 if (TokenType.POSITIONAL_ARGUMENT_SEPARATOR === this.currentToken.tokenType) {
                     await this.getNextToken(TokenType.POSITIONAL_ARGUMENT_SEPARATOR)
-                }
-                await this.#ignoreNewline()
-
-                if (TokenType.FUNCTION === this.currentToken.tokenType) {
-                    node = this.function_statement()
-                } else {
-                    node = await this.expression()
+                } else if (TokenType.RIGHT_BRACKETS !== this.currentToken.tokenType) {
+                    await this.getNextToken(TokenType.RIGHT_BRACKETS)
                 }
                 await this.#ignoreNewline()
                 
@@ -1084,7 +1106,7 @@ class Parser {
     }
 
     /**
-     * dict: LEFT_BRACES atom COLON (expression | function_statement) (POSITIONAL_ARGUMENT_SEPARATOR atom COLON (expression | function_statement))* RIGHT_BRACES
+     * dict: LEFT_BRACES atom COLON (expression | function_statement) (POSITIONAL_ARGUMENT_SEPARATOR atom COLON (expression | named_statements))* RIGHT_BRACES
      */
     async dicts() {
         let members = []
@@ -1103,9 +1125,8 @@ class Parser {
                 await this.#ignoreNewline()
 
                 
-                if (TokenType.FUNCTION === this.currentToken.tokenType) {
-                    value = await this.functionStatement()
-                } else {
+                value = await this.namedStatements()
+                if (value === undefined) {
                     value = await this.expression()
                 }
 
@@ -1117,7 +1138,10 @@ class Parser {
 
                 if (TokenType.POSITIONAL_ARGUMENT_SEPARATOR === this.currentToken.tokenType) {
                     await this.getNextToken(TokenType.POSITIONAL_ARGUMENT_SEPARATOR)
+                } else if (TokenType.RIGHT_BRACES !== this.currentToken.tokenType) {
+                    await this.getNextToken(TokenType.RIGHT_BRACES)
                 }
+
                 await this.#ignoreNewline()
             }
 

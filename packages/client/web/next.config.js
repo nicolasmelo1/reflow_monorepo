@@ -1,5 +1,5 @@
 const path = require('path')
-
+require('../../shared')
 module.exports = {
     reactStrictMode: true,
     env: {
@@ -28,13 +28,16 @@ module.exports = {
             // To solve this issue what we need to do is ignore the root node_modules folder and just consider this project's node_modules folder.
             modules: [
                 path.resolve(__dirname, 'node_modules'),
+                path.resolve(__dirname, '..', '..', 'shared', 'node_modules'),
             ],
             symlinks: false,
         }
 
         config.module.rules.push({
             use: defaultLoaders.babel,
-            include: [path.resolve(__dirname, '..', 'shared')]
+            include: [
+                path.resolve(__dirname, '..', 'shared')
+            ],
         })
         
         return config

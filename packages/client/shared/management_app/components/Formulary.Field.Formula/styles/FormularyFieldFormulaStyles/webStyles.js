@@ -6,7 +6,7 @@ export const Container = styled.div`
     padding: 0 10px 0 10px;
     width: calc(100% - 20px);
     border-radius: 5px;
-    cursor: pointer;
+    margin-bottom: 500px;
 `
 
 export const TooltipWrapper = styled.div`

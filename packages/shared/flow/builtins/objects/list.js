@@ -311,10 +311,14 @@ class FlowList extends FlowObject {
      * Returns the representation of the list as a string, this string representation will be used in a repl so the user can
      * see what is inside of the list and so on. This is similar to what happens if the user uses console.log() on javascript
      * or print() on python.
+     *
+     * @param {object} options - The options object that contains the indentation number.
+     * @param {number} [options.ident=4] - The indentation number. By default it is 4 spaces.
+     * @param {boolean} [options.ignoreDocumentation=false] - If we should show the documentation or not.
      * 
      * @returns {Promise<import('./string')>} - Returns the representation of the list as a string.
      */
-    async _string_({ident=4}={}) {
+    async _string_({ident=4, ignoreDocumentation=false}={}) {
         if (this._cached.string === null) {
             const length = await this.array.length()
             if (length === 0) {
@@ -324,7 +328,7 @@ class FlowList extends FlowObject {
                 for (let i=0; i < length; i++) {
                     const valueAtIndex = await this.array.getItem(i)
                     await this.appendParentResetCached(valueAtIndex)
-                    const stringifiedValue = await valueAtIndex._string_({ident: ident + 4})
+                    const stringifiedValue = await valueAtIndex._string_({ident: ident + 4, ignoreDocumentation: true})
                     const valueRepresentation = await stringifiedValue._representation_()
 
                     stringfiedRepresentation = stringfiedRepresentation + ` `.repeat(ident) + `${valueRepresentation}`+
@@ -334,7 +338,11 @@ class FlowList extends FlowObject {
                 this._cached.string = stringfiedRepresentation
             }
         }
-        return await this.newString(this._cached.string)
+        if (ignoreDocumentation === true) {
+            return await this.newString(this._cached.string)
+        } else {
+            return await this.appendDocumentationOnStringRepresentation(this._cached.string)
+        }
     }
 
     /**

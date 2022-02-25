@@ -137,7 +137,8 @@ class Settings {
         this.timezone = context.datetime.timezone
         this.datetimeHelper = new DatetimeHelper()
         this.language = context.languageContext
-
+        this.attributesLabel = context.attributesLabel
+        
         this.reflowAutomationActionData = context.reflow.automation.actionData
         this.reflowAutomationTriggerData = context.reflow.automation.triggerData
         this.reflowAutomationDebugTrigger = context.reflow.automation.debugTrigger
@@ -157,6 +158,7 @@ class Settings {
         this.inversionKeyword = context.keyword.inversionKeyword
         this.includesKeyword = context.keyword.includesKeyword
         this.equalityKeyword = context.keyword.equalityKeyword
+        this.inequalityKeyword = context.keyword.inequalityKeyword
         this.disjunctionKeyword = context.keyword.disjunctionKeyword
         this.conjunctionKeyword = context.keyword.conjunctionKeyword
         this.functionKeyword = context.keyword.functionKeyword

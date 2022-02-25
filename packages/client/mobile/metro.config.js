@@ -1,10 +1,12 @@
 const path = require('path')
+const fs = require('fs')
 
 module.exports = {
     resolver: {
         extraNodeModules: new Proxy({}, {
             get: (target, name) => {
-                return path.join(process.cwd(), `node_modules/${name}`)
+                const defaultPath = path.join(process.cwd(), 'node_modules', name)
+                return fs.existsSync(defaultPath) ? defaultPath : path.join(process.cwd(), '..', '..', 'shared', 'node_modules', name)
             },
         })
     },

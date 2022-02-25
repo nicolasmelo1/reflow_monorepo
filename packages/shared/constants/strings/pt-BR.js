@@ -78,9 +78,10 @@ module.exports = {
     shared: {
         flowIncludesKeyword: 'em',
         flowConjunctionKeyword: 'e',
-        flowDijunctionKeyword: 'ou',
-        flowInversionKeyword: 'não é',
+        flowDisjunctionKeyword: 'ou',
+        flowInversionKeyword: 'não',
         flowEqualityKeyword: 'é',
+        flowInequalityKeyword: 'não é',
         flowDoKeyword: 'faça',
         flowEndKeyword: 'fim',
         flowNullKeyword: 'Vazio',
@@ -102,20 +103,39 @@ module.exports = {
         flowHourFormat: 'hh:mm:ss.SSS',
         flowDocumentationKeyword: '@doc',
         flowTailCallOptimizedMessage: 'Chamada recursiva otimizada',
+        flowAttributesLabel: 'atributos',
+        flowDocumentationDocumentationHeaderLabel: 'DOCUMENTAÇÃO',
+        flowDocumentationExamplesHeaderLabel: 'EXEMPLOS',
         flowHTTPModuleName: 'HTTP',
         flowHTTPModuleDescription: 'Para fazer chamadas de API e ser capaz de conectar com outros serviços e sistemas legados',
         flowHTTPGetMethodName: 'get',
         flowHTTPGetMethodDescription: 'Isso irá pegar os dados de uma URL, geralmente uma api, e irá retorná-los em formato JSON',
         flowHTTPGetMethodExample: "resposta = HTTP.get('https://pokeapi.co/api/v2/pokemon/pikachu')\ndados_do_pikachu = resposta.json\ndados_do_pikachu['types'][0]['type']['name']" + 
-                                  " # Com isso nós puxamos o dado do pokemon pikachu, recebemos a resposta em formato json e navegamos pela estrutura dos dados até " + 
+                                  "\n\nCom isso nós puxamos o dado do pokemon pikachu, recebemos a resposta em formato json e navegamos pela estrutura dos dados até " + 
                                   "pegarmos o que desejamos, que é o tipo do pokemon.\n" +
-                                  "# O processo é o mesmo para conectar aplicações entre si.",
+                                  "O processo é o mesmo para conectar aplicações entre si.",
         flowHTTPUrlParameterName: 'endereço',
         flowHTTPUrlDescription: 'O endereço para puxar/enviar/deletar ou atualizar um recurso de um serviço terceiro. Será sempre uma URL.',
         flowHTTPHeadersParameterName: 'cabeçalhos',
         flowHTTPHeadersParameterDescription: 'Um dicionário, com ele você poderá definir os `Cabeçalhos` em suas requisições. Essa é uma feature avançada.\nReferência: https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Headers',
         flowHTTPBasicAuthParameterName: 'autenticação_básica',
         flowHTTPBasicAuthParameterDescription: 'Em alguns momentos você irá precisar se autenticar ao realizar uma chamada de API. Um dos jeitos mais comuns de se autenticar em '+
-                                               'uma API é com autenticação básica. Um exemplo é a API do Twilio que usa esse modelo de autenticação: https://www.twilio.com/docs/usage/api#authenticate-with-http'
+                                               'uma API é com autenticação básica. Um exemplo é a API do Twilio que usa esse modelo de autenticação: https://www.twilio.com/docs/usage/api#authenticate-with-http',
+        flowHTTPParametersParameterName: 'parâmetros',
+        flowHTTPParametersParameterDescription: 'Os parâmetros da requisição. Geralmente são variáveis que você coloca no endereço da requisição. Por exemplo:\n' + 
+                                                'https://www.google.com/search?q=pokemon&sxsrf=APq-WBuaJxe-i1gtqIZBFJ7Y2GV0Hv7OAw%3A1645462624540&ei=YMQTYvTSIIHC5OUPvsm1kAI&ved=0ahUKEwj0guj5oZH2AhUBIbkGHb5kDSIQ4dUDCA4&uact=5&oq=pokemon&gs_lcp=Cgdnd3Mtd2l6EAMyCwguEIAEELEDENQCMggILhCABBCxAzILCAAQgAQQsQMQgwEyBQguEIAEMggILhCABBCxAzIICC4QgAQQsQMyBQgAEIAEMggILhCABBCxAzIICAAQgAQQsQMyBQguEIAEOgcIIxCwAxAnOgcIABBHELADOgQIIxAnOgsILhCABBCxAxCDAToLCC4QsQMQgwEQ1AI6CAgAELEDEIMBOgQIABBDOg4ILhCABBCxAxDHARCjAjoOCC4QgAQQsQMQgwEQ1AJKBAhBGABKBAhGGABQogxYmxhgwhpoA3ABeACAAXyIAZsGkgEDMC43mAEAoAEByAEJwAEB&sclient=gws-wiz \n\n' +
+                                                'Essa url pesquisa pelo termo pokemon no google. https://www.google.com/search é a url base. A partir do caractere `?` o restante são parâmetros separados por `&`. `q=` é um parametro, `pokemon` é o valor. ' +
+                                                '`sxsrf=` é outro parâmetro e `APq-WBuaJxe-i1gtqIZBFJ7Y2GV0Hv7OAw%3A1645462624540` é o valor. Você consegue encontrar os outros parâmetros nessa url? Dica, são `ei=`, `ved=`, `uact=`, `oq=`, `gs_lcp=` e `sclient=`.',
+        flowHTTPDataParameterName: 'dados',
+        flowHTTPDataParameterDescription: 'Os dados que você quer enviar para o serviço terceiro. Esses dados serão form-encoded. Geralmente, você vai querer usar o parâmetro dados_json ao invés desse.',
+        flowHTTPJsonDataParameterName: 'dados_json',
+        flowHTTPJsonDataParameterDescription: 'Os dados que você quer enviar para o serviço terceiro. Diferentemente de `dados`, esses dados são enviados em formato json. O formato json atualmente é amplamente aceito e utilizado ' +
+                                              'pela maioria dos serviços e APIs',
+        flowHTTPPostMethodName: 'post',
+        flowHTTPPostMethodDescription: 'Isso irá enviar dados para uma URL, geralmente uma api, e irá retorná-los em formato JSON caso a API retorne algum dado',
+        flowHTTPPutMethodName: 'put',
+        flowHTTPPutMethodDescription: '',
+        flowHTTPPutMethodName: 'delete',
+        flowHTTPPutMethodDescription: '',
     }
 }

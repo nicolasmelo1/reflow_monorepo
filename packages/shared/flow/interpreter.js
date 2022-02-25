@@ -184,74 +184,77 @@ class Interpreter {
      * @returns {Promise<FlowObject>} - Every `.handle` function here will transform the code in a new FlowObject.
      */
     async evaluate(node, evaluateFunctionCall=true) {
-        switch (node.nodeType) {
-            case NodeType.PROGRAM:
-                return await this.#handleProgram(node)
-            case NodeType.BLOCK:
-                return await this.#handleBlock(node)
-            case NodeType.DOCUMENTATION:
-                return await this.#handleDocumentation(node)
-            case NodeType.FUNCTION_DEFINITION:
-                return await this.#handleFunctionDefinition(node)
-            case NodeType.RETURN:
-                return await this.#handleReturn(node)
-            case NodeType.FUNCTION_CALL:
-                // This is this big because it handles tail call optimization so we can have large recursions.
-                let functionCallResult = await this.#handleFunctionCall(node)
-                if (evaluateFunctionCall && typeof functionCallResult === 'function') {
-                    return await functionCallResult()
-                } else {
-                    return functionCallResult
-                }
-            case NodeType.MODULE_DEFINITION:
-                return await this.#handleModuleDefinition(node)
-            case NodeType.STRUCT:
-                return await this.#handleStruct(node)
-            case NodeType.IF_STATEMENT:
-                return await this.#handleIfStatement(node)
-            case NodeType.TRY_STATEMENT:
-                return await this.#handleTryStatement(node)
-            case NodeType.RAISE:
-                return await this.#handleRaise(node)
-            case NodeType.PARAMETERS:
-                return await this.#handleParameters(node)
-            case NodeType.ASSIGN:
-                return await this.#handleAssign(node)
-            case NodeType.SLICE:
-                return await this.#handleSlice(node)    
-            case NodeType.ATTRIBUTE:
-                return await this.#handleAttribute(node)                
-            case NodeType.BINARY_OPERATION:
-                return await this.#handleBinaryOperation(node)                    
-            case NodeType.BINARY_CONDITIONAL:
-                return await this.#handleBinaryConditional(node)                    
-            case NodeType.BOOLEAN_OPERATION:
-                return await this.#handleBooleanOperation(node)                    
-            case NodeType.UNARY_OPERATION:
-                return await this.#handleUnaryOperation(node)                    
-            case NodeType.UNARY_CONDITIONAL:
-                return await this.#handleUnaryConditional(node)                    
-            case NodeType.VARIABLE:
-                return await this.#handleVariable(node)                    
-            case NodeType.NULL:
-                return await this.#handleNull(node)                    
-            case NodeType.BOOLEAN:
-                return await this.#handleBoolean(node)                    
-            case NodeType.INTEGER:
-                return await this.#handleInteger(node)                    
-            case NodeType.FLOAT:
-                return await this.#handleFloat(node)
-            case NodeType.STRING:
-                return await this.#handleString(node)
-            case NodeType.DATETIME:
-                return await this.#handleDatetime(node)
-            case NodeType.LIST:
-                return await this.#handleList(node)
-            case NodeType.DICT:
-                return await this.#handleDict(node)
-            default:
-                return await FlowNull.new(this.settings)
-        }
+        if (![null, undefined].includes(node)) {
+            switch (node.nodeType) {
+                case NodeType.PROGRAM:
+                    return await this.#handleProgram(node)
+                case NodeType.BLOCK:
+                    return await this.#handleBlock(node)
+                case NodeType.DOCUMENTATION:
+                    return await this.#handleDocumentation(node)
+                case NodeType.FUNCTION_DEFINITION:
+                    return await this.#handleFunctionDefinition(node)
+                case NodeType.RETURN:
+                    return await this.#handleReturn(node)
+                case NodeType.FUNCTION_CALL:
+                    // This is this big because it handles tail call optimization so we can have large recursions.
+                    let functionCallResult = await this.#handleFunctionCall(node)
+                    if (evaluateFunctionCall && typeof functionCallResult === 'function') {
+                        return await functionCallResult()
+                    } else {
+                        return functionCallResult
+                    }
+                case NodeType.MODULE_DEFINITION:
+                    return await this.#handleModuleDefinition(node)
+                case NodeType.STRUCT:
+                    return await this.#handleStruct(node)
+                case NodeType.IF_STATEMENT:
+                    return await this.#handleIfStatement(node)
+                case NodeType.TRY_STATEMENT:
+                    return await this.#handleTryStatement(node)
+                case NodeType.RAISE:
+                    return await this.#handleRaise(node)
+                case NodeType.PARAMETERS:
+                    return await this.#handleParameters(node)
+                case NodeType.ASSIGN:
+                    return await this.#handleAssign(node)
+                case NodeType.SLICE:
+                    return await this.#handleSlice(node)    
+                case NodeType.ATTRIBUTE:
+                    return await this.#handleAttribute(node)                
+                case NodeType.BINARY_OPERATION:
+                    return await this.#handleBinaryOperation(node)                    
+                case NodeType.BINARY_CONDITIONAL:
+                    return await this.#handleBinaryConditional(node)                    
+                case NodeType.BOOLEAN_OPERATION:
+                    return await this.#handleBooleanOperation(node)                    
+                case NodeType.UNARY_OPERATION:
+                    return await this.#handleUnaryOperation(node)                    
+                case NodeType.UNARY_CONDITIONAL:
+                    return await this.#handleUnaryConditional(node)                    
+                case NodeType.VARIABLE:
+                    return await this.#handleVariable(node)                    
+                case NodeType.NULL:
+                    return await this.#handleNull(node)                    
+                case NodeType.BOOLEAN:
+                    return await this.#handleBoolean(node)                    
+                case NodeType.INTEGER:
+                    return await this.#handleInteger(node)                    
+                case NodeType.FLOAT:
+                    return await this.#handleFloat(node)
+                case NodeType.STRING:
+                    return await this.#handleString(node)
+                case NodeType.DATETIME:
+                    return await this.#handleDatetime(node)
+                case NodeType.LIST:
+                    return await this.#handleList(node)
+                case NodeType.DICT:
+                    return await this.#handleDict(node)
+                default:
+                    return await FlowNull.new(this.settings)
+            }
+        } 
+        return await FlowNull.new(this.settings)
     }
 
     /**

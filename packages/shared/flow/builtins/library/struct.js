@@ -66,11 +66,11 @@ class Struct extends LibraryModule {
                 // The below code was copied from the FlowDict class `_subtract_` method
                 const objectString = await name._string_()
                 const key = await objectString._representation_()
-                if (struct.structParameters.hashTable.keys.array.includes(key)) {
+                if (struct.parameters.hashTable.keys.array.includes(key)) {
                     const hashInteger = await name._hash_()
                     const hash = await hashInteger._representation_()
-                    await struct.structParameters.hashTable.remove(hash, key)
-                    await struct.structParameters.resetCached()
+                    await struct.parameters.hashTable.remove(hash, key)
+                    //await struct.parameters.resetCached()
                 }
                 return struct
             } else {

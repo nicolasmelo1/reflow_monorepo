@@ -477,7 +477,7 @@ class Lexer {
             }
             return false
         }
-
+        
         if (await isKeyword(this.settings.blockKeywords['do'], counter)) {
             return new Token(TokenType.DO, keyword, this.currentPosition)
         } else if (await isKeyword(this.settings.blockKeywords['end'], counter)) {
@@ -486,6 +486,10 @@ class Lexer {
             return new Token(TokenType.IF, keyword, this.currentPosition)
         } else if (await isKeyword(this.settings.ifKeywords['else'], counter)) {  
             return new Token(TokenType.ELSE, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.equalityKeyword, counter)) {
+            return new Token(TokenType.EQUAL, keyword, this.currentPosition)
+        } else if (await isKeyword(this.settings.inequalityKeyword, counter)) {
+            return new Token(TokenType.DIFFERENT, keyword, this.currentPosition)
         } else if (await isKeyword(this.settings.errorKeywords['try'], counter)) {
             return new Token(TokenType.TRY, keyword, this.currentPosition)
         } else if (await isKeyword(this.settings.errorKeywords['catch'], counter)) {
@@ -512,8 +516,6 @@ class Lexer {
             return new Token(TokenType.NOT, keyword, this.currentPosition)
         } else if (await isKeyword(this.settings.includesKeyword, counter)) {
             return new Token(TokenType.IN, keyword, this.currentPosition)
-        } else if (await isKeyword(this.settings.equalityKeyword, counter)) {
-            return new Token(TokenType.EQUAL, keyword, this.currentPosition)
         } else {
             await this.advanceNextPosition(counter)
             return new Token(TokenType.IDENTITY, keyword, this.currentPosition)

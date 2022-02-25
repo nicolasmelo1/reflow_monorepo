@@ -18,7 +18,7 @@ class List extends LibraryModule {
      * @param {FlowFunction} fn - The FlowFunction to append the parameters to.
      * @param {Array<import('../objects/object')>} parameters - An array of FlowObjects to pass to the function call.
      * 
-     * @returns {import('../objects/dict')} - Returns a new FlowDict with the parameters appended.
+     * @returns {Promise<import('../objects/dict')>} - Returns a new FlowDict with the parameters appended.
      */
     async getParametersToFunction(fn, parameters=[]) {
         const newParameters = await this.newDict()

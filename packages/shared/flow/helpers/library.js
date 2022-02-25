@@ -134,7 +134,7 @@ const parseFunctionArguments = (func) => {
     return defaultParameters
 }
 
-const translateFunctionArgumentsAndMethodName = (functionArguments, functionName, contextModule= undefined) => {
+const translateFunctionArgumentsAndMethodName = (functionArguments, functionName, contextModule=undefined) => {
     if (contextModule !== undefined && contextModule?.methods?.[functionName] !== undefined) {
         const parametersTranslations = contextModule.methods[functionName].parameters
         functionName = contextModule.methods[functionName].methodName

@@ -11,7 +11,7 @@ export default function DatepickerWebLayout(props) {
             ref={props.dateInputRef}
             placeholder={props.placeholder}
             value={props.dateValue}
-            onBlur={(e) => props.isInputFocused === true ? props.dateInputRef.current.focus() : null}
+            onBlur={(e) => props.isInputFocused === true ?  props.dateInputRef.current.focus() : null}
             onChange={(e) => props.onChangeText(e.target.value)}
             onFocus={(e) => props.onToggleInputFocus(true)}
             readOnly={props.canUserWriteDate === false}

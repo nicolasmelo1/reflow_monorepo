@@ -8,6 +8,7 @@ export default function FormularyFieldFormulaWebLayout(props) {
     
     return (
         <Styled.Container 
+        ref={props.editorContainerRef}
         hasTooltip={hasValueDefined === true || (hasValueDefined === false && hasPlaceholder === true)}
         >
             {hasValueDefined === true ? (
@@ -33,7 +34,39 @@ export default function FormularyFieldFormulaWebLayout(props) {
                             </Tooltip>
                         </Styled.TooltipWrapper>
                     ) : (
-                        <div ref={props.editorRef}/>
+                        <div>
+                            <div ref={props.editorRef}/>
+                            {props.autocompleteOptions.length > 0 ? (
+                                <div
+                                style={{width: '100%'}}
+                                >
+                                    {props.autocompleteOptions.map((option, index) => (
+                                        <div
+                                        key={index}
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                            props.onClickAutocomplete(option.label)}
+                                        }
+                                        style={{
+                                            userSelect: 'none',
+                                            display:'flex',
+                                            flexDirection: 'row',
+                                            backgroundColor: 'blue',
+                                            cursor: 'pointer'
+                                        }}
+                                        >
+                                            <p style={{fontWeight: 'bold'}}>
+                                                {option.label}
+                                            </p>
+                                            <p>
+                                                {option.description}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : ''}
+                        </div>
                     )}
                 </Fragment>
             )}

@@ -74,11 +74,10 @@ class FlowDict extends FlowObject {
      */
     async _getitem_(item) {
         const keyToFind = await (await item._string_())._representation_()
-
         if (this.hashTable.keys.array.includes(keyToFind)) {
             const hashInteger = await item._hash_()
             const keyString = await item._string_()
-
+            
             const hashNode = await this.hashTable.search(
                 await keyString._representation_(), 
                 await hashInteger._representation_()
@@ -180,7 +179,7 @@ class FlowDict extends FlowObject {
      * 
      * @param {FlowObject} item - The key to be checked if exists.
      * 
-     * @returns {import('./boolean')} - Returns a new FlowBoolean object representing either true or false.
+     * @returns {Promise<import('./boolean')>} - Returns a new FlowBoolean object representing either true or false.
      */
     async _in_(obj) {
         const keyString = await obj._string_()
@@ -193,7 +192,7 @@ class FlowDict extends FlowObject {
      * JSON.stringify representation of both dicts are equal and last but not least check if the actual Flow
      * string representation is equal on both dicts. This is really similar to ```FlowList._equals_()``` function.
      * 
-     * @returns {import('./boolean')} - Returns a new FlowBoolean object representing either true or false.
+     * @returns {Promise<import('./boolean')>} - Returns a new FlowBoolean object representing either true or false.
      */
     async _equals_(obj) {
         if (obj.type === DICT_TYPE) {
@@ -224,7 +223,7 @@ class FlowDict extends FlowObject {
      * 
      * @param {FlowObject} obj - The value to compare the length of the dict with.
      * 
-     * @param {import('./boolean')} - Returns true if the length of the dict is less then the length of the value, 
+     * @param {Promise<import('./boolean')>} - Returns true if the length of the dict is less then the length of the value, 
      * otherwise returns false.
      */
      async _lessthan_(obj) {
@@ -340,10 +339,11 @@ class FlowDict extends FlowObject {
      * 
      * @param {object} options - The options object that contains the indentation number.
      * @param {number} [options.ident=4] - The indentation number. By default it is 4 spaces.
+     * @param {boolean} [options.ignoreDocumentation=false] - If we should show the documentation or not.
      * 
-     * @returns {import('./string')} - Returns the representation of the dict inside of flow as a FlowString.
+     * @returns {Promise<import('./string')>} - Returns the representation of the dict inside of flow as a FlowString.
      */
-    async _string_({ident=4}={}) {
+    async _string_({ident=4, ignoreDocumentation=false}={}) {
         if (this._cached.string === null) {
             const rawKeysLength = await this.hashTable.rawKeys.length()
             if (rawKeysLength === 0) { 
@@ -358,7 +358,7 @@ class FlowDict extends FlowObject {
                         const key = await stringfiedRaw._representation_()
                         const hashNode = await this.hashTable.search(key, hash)
                         await this.appendParentResetCached(hashNode.value)
-                        const stringfiedValue = await hashNode.value._string_({ident: ident+4})
+                        const stringfiedValue = await hashNode.value._string_({ident: ident+4, ignoreDocumentation: true})
                         const value = await stringfiedValue._representation_()
 
                         stringfiedRepresentation = stringfiedRepresentation + ` `.repeat(ident) + `${key}: ${value}`+
@@ -369,7 +369,12 @@ class FlowDict extends FlowObject {
                 this._cached.string = stringfiedRepresentation
             }
         }
-        return await this.newString(this._cached.string)
+        
+        if (ignoreDocumentation === true) {
+            return await this.newString(this._cached.string)
+        } else {
+            return await this.appendDocumentationOnStringRepresentation(this._cached.string)
+        }
     }
 
     /**

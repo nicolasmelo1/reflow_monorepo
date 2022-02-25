@@ -161,7 +161,7 @@ class LibraryModule extends FlowModule {
 
     /**
      * @param {import('../../settings').Settings} settings - Generally speaking we need to pass the settings on the runtime.
-     * @param {string} moduleName - The original name of the module.
+     * @param {string} moduleName - The translated module name.
      * @param {import('../../memory/record')} - The scope of the program that is running, so we can access the variables.
      */
     constructor(settings, moduleName, scope) {
@@ -192,17 +192,15 @@ class LibraryModule extends FlowModule {
      * that will be used to create structs. In other words, if the `libraryStructParameters` is defined than
      * the module can create structs.
      * 
-     * @param {import('../../context').BultinLibraryModuleContext} moduleContext - The module context of the library so we can use to
-     * translate the struct parameters of the module.
-     * 
      * @returns {Promise<FlowDict | FlowNull>} - We return either a valid FlowDict so we can create modules or FlowNull so we cannot create
      * structs from the module.
      */
-    async #translateStructParameters(moduleContext) {
+    async #translateStructParameters() {
         if (this.libraryStructPatameters) {
             const originalStructParameters = Object.entries(this.libraryStructPatameters)
             let translatedStructParameters = {}
-            const structParametersContext = moduleContext !== undefined && moduleContext?.structParameters ? moduleContext?.structParameters : {}
+            const hasStructParametersDefinedInContext = this.moduleContext !== undefined && this.moduleContext?.structParameter !== undefined
+            const structParametersContext = hasStructParametersDefinedInContext ? this.moduleContext?.structParameters : {}
 
             for (const [key, value] of originalStructParameters) {
                 if (structParametersContext[key] === undefined) {
@@ -226,21 +224,23 @@ class LibraryModule extends FlowModule {
      * 
      * This is supposed to be called AFTER we called the super._initialize_ method.
      * 
-     * @param {import('../../context').BultinLibraryModuleContext} moduleContext - The module context of the library so we can use to
-     * translate the struct parameters of the module.
+     * @param {import('../../memory/record')} scope - The scope of the program that is running, so we can access the variables in this present scope.
      */
-    async #translateMethods(moduleContext, scope) {
+    async #translateMethods(scope) {
         const methods = Object.entries(this.methods)
-
+        
         for (const [name, method] of methods) {
             const methodParameters = libraryHelpers.parseFunctionArguments(method)
-            let { translatedFunctionName, translatedFunctionArguments } = libraryHelpers.translateFunctionArgumentsAndMethodName(methodParameters, name, moduleContext)
+            let { translatedFunctionName, translatedFunctionArguments } = libraryHelpers.translateFunctionArgumentsAndMethodName(
+                methodParameters, name, this.moduleContext
+            )
             translatedFunctionName = camelCaseToSnakeCase(translatedFunctionName)
             let newFunctionArguments = {}
             for (const [key, value] of Object.entries(translatedFunctionArguments)) {
                 newFunctionArguments[camelCaseToSnakeCase(key)] = value
             }
-            const parametersContext = moduleContext !== undefined && moduleContext?.methods?.[name]?.parameters ? moduleContext.methods[name].parameters : {}
+            const areParametersContextDefined = this.moduleContext !== undefined && this.moduleContext?.methods?.[name]?.parameters !== undefined
+            const parametersContext = areParametersContextDefined ? this.moduleContext.methods[name].parameters : {}
             this.parametersContextForFunctions[name] = Object.keys(newFunctionArguments)
             const moduleMethod = new LibraryFunction(this.settings, method, parametersContext)
             moduleMethod.callback = moduleMethod.callback.bind(moduleMethod)
@@ -249,6 +249,10 @@ class LibraryModule extends FlowModule {
                 scope, 
                 await this.conversorHelper.javascriptValueToFlowObject(newFunctionArguments)
             )
+            
+            const hasDocumentationForMethod = this.moduleContext?.methods?.[name]?.description !== undefined
+            const moduleMethodDocumentation = hasDocumentationForMethod ? this.moduleContext.methods[name].description : '' 
+            await moduleMethod.appendDocumentation(await this.newString(moduleMethodDocumentation))
             await this._setattribute_(await this.newString(translatedFunctionName), moduleMethod)
         }
     }
@@ -265,12 +269,13 @@ class LibraryModule extends FlowModule {
     async _initialize_(moduleName, scope) {
         this.isModuleInitialized = true
         this.conversorHelper = new libraryHelpers.Conversor(this.settings)
-        const moduleContext = this.settings.library[moduleName] 
-        moduleName = moduleContext === undefined ? moduleName : moduleContext.moduleName
-        const structParameters = await this.#translateStructParameters(moduleContext)
+        
+        this.moduleContext = this.settings.library[moduleName] 
+        const isModuleContextDefined = this.moduleContext !== undefined
+        moduleName = isModuleContextDefined ? this.moduleContext.moduleName : moduleName
+        const structParameters = await this.#translateStructParameters()
         await super._initialize_(moduleName, structParameters)
-        await this.#translateMethods(moduleContext, scope)
-
+        await this.#translateMethods(scope)
         return this
     }
     
@@ -297,15 +302,28 @@ class LibraryModule extends FlowModule {
      */
     async _documentation_() {
         await this.#lazyInitializeTheModule('_documentation_')
-        const documentation = await this.constructor.documentation(this.settings.language)
-        const isDocumentationDefined = typeof documentation === 'object' && ![null, undefined].includes(documentation) 
-        if (isDocumentationDefined === true) {
-            return await this.conversorHelper.javascriptValueToFlowObject(documentation)
+        const isModuleContextDefined = typeof this.moduleContext === 'object' && this.moduleContext?.description !== undefined && 
+            typeof this.moduleContext.description === 'string'
+        if (isModuleContextDefined === true) {
+            return await this.conversorHelper.javascriptValueToFlowObject(this.moduleContext.description)
         } else {
-            return await this.newString('')
+            return await super._documentation_()
         }
     }
 
+    /**
+     * By default, flow is kinda "untied" to reflow itself. This means that everything you do is going to interact with the service itself.
+     * But on the service we might need some stuff, for example, the documentation of the module so users can see and understand what the module
+     * does. What are the functions and so on.
+     * 
+     * So we access this function from the service in order to get the proper documentation of the module. Since we don't want to rely on a REALLY LONG
+     * LIST of objects, we just keep it inside of the builtin modules. In other words, this means that every module should implement it's own documentation
+     * function.
+     * 
+     * @param {string} language - The language that you are translating to.
+     * 
+     * @returns {Promise<object>} The documentation of the module as an object.
+     */
     static async documentation(language) {}
 }
 
