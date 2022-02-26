@@ -2,7 +2,44 @@ import { useCallback, useRef } from 'react'
 import initializeCodeEditor from '../utils/codeEditor'
 
 /**
- * Hook created to be able to interact with codemirror. Codemirror 6 is an 
+ * Hook created to be able to interact with codemirror. Codemirror 6 is an editor from Marijn.
+ * Here you can find the docs for codemirror 6: 
+ * https://codemirror.net/6/
+ * 
+ * At the current time, codemirror 5 is still active, notice that the format of the docs change 
+ * on this version: https://codemirror.net/ If you see this monkey on the side, then it's the wrong
+ * documentation.
+ * 
+ * It can get kinda troublesome to search stuff on google because of this confusion, so try to always 
+ * certify that it's being refered as 'codemirror 6' or 'codemirror next'
+ *
+ * A great place where you can find reference and information is their discussions blog: 
+ * https://discuss.codemirror.net/ when it's something from the new codemirror, it is marked as /next
+ * on it. You can also find lot's of resources for lezer marked with '/lezer'
+ * Last but not least, for specific APIs you might want to read the source code of the projects where this
+ * api come from. The source code is really well documented and it's a good place to find reference to what 
+ * you are using.
+ * 
+ * @param {object} codemirrorOptions - The options for codemirror hook so you can set up and override most
+ * of the needed stuff.
+ * @param {function | import('@codemirror/language').LanguageSupport} codemirrorOptions.mode - The mode for the editor, 
+ * this is the language you want to use. You can pass either a function or a language support object from codemirror.
+ * The function also can be async, so there is no problem when loading the language.
+ * @param {string} [codemirrorOptions.defaultCode=''] - This is the code that will be loaded in the editor when the
+ * editor is created and rendered. Be careful with this, you need to keep the state always updated. If we for some
+ * reason destruct and recreate the editor, the code in it will be lost, so be sure to save it in a react state.
+ * @param {(text) => void} [codemirrorOptions.dispatchCallback=undefined] - This is the callback that will be called when
+ * the code in the editor changes. Whenever the text changes in the editor we will call this function.
+ * @param {(FocusEvent) => void} [codemirrorOptions.onBlurCallback=undefined] - This is the callback that will be called 
+ * when the editor loses focus.
+ * @param {(FocusEvent) => void} [codemirrorOptions.onFocusCallback=undefined] - This is the callback that will be called
+ * when the editor gains focus.
+ * 
+ * @returns {{
+ *      editorRef: {current: any},
+ *      editorView: @import('@codemirror/view').EditorView,
+ *      dispatchChange: (newText, { from=undefined, to=undefined, replaceText=false }={}) => void
+ * }} 
  */
 export default function useCodemirror({
     languagePack, defaultCode='',
@@ -115,11 +152,11 @@ export default function useCodemirror({
     }
 
     function addAndRemoveEventListeners() {
-        const onBlur = (e) => {
+        function onBlur(e){
             if (onBlurCallback !== undefined && typeof onBlurCallback === 'function') onBlurCallback(e)
         }
 
-        const onFocus = (e) => {
+        function onFocus(e) {
             if (onFocusCallback !== undefined && typeof onFocusCallback === 'function') onFocusCallback(e)
             autocomplete(editorView.current.state)
         }
@@ -140,7 +177,7 @@ export default function useCodemirror({
 
         const codeEditorOptions = {
             parent: editorNode,
-            code: defaultCode,
+            code: codeRef.current,
             languagePack: null,
             dispatchCallback: onDispatchTransaction
         }

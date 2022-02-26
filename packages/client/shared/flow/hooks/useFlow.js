@@ -47,6 +47,7 @@ export default function useFlow({
         }
         
         function getCurrentParameterIndexAndParameterName(openBracket, closeBracket, node) {
+            console.log(node)
             let currentParameterName = ''
             let currentParameterIndex = -1
             const openBracketNode = node.getChild(openBracket)

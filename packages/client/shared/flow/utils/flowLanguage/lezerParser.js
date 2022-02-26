@@ -274,5 +274,4 @@ List { "[" Expression ((PositionalArgumentSeparator Expression)+)? "]" }
 	return lezerParser
 }
 
-
 export default getLezerParser
