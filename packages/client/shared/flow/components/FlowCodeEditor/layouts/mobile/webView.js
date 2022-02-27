@@ -1,8 +1,8 @@
-import React from 'react'
-//import useFlowCodemirror from '../../../../hooks/useFlowCodemirror'
-//import { generateUUID } from '../../../../../../../shared/utils'
-//import { dynamicImport } from '../../../../../core/utils'
-
+import React, { useEffect, useState, useRef } from 'react'
+import useFlowCodemirror from '../../../../hooks/useFlowCodemirror'
+import { generateUUID } from '../../../../../../../shared/utils'
+// This needs to be solved by webpack or metro alias configuration, we can't use dynamicImport for that usecase 
+// because it will load specific libraries for the web and not for react-native.
 import {
     webViewRender,
     emit,
@@ -23,9 +23,10 @@ const emit = dynamicImport('react-native-react-bridge/lib/web', 'emit')*/
  * and append the resolve of this promise to a global variable. Whenever we recieve a new message with the
  * result of this pending promise, we resolve the pending promise by calling the `resolve` function that
  * we attached to the global variable.
+ * 
+ * It might take some time to load the component.
  */
 function RootCodeEditor() {
-    /*
     const pendingFunctionEvaluationsRef = useRef({})
     const [isLoaded, setIsLoaded] = useState(false)
     const [props, setProps] = useState({})
@@ -34,9 +35,14 @@ function RootCodeEditor() {
     function funcHandler(key) {
         return (...args) => new Promise((resolve, reject) => {
             const functionCallId = generateUUID()
+            pendingFunctionEvaluationsRef.current[functionCallId] = {
+                toResolve: undefined,
+                toReject: undefined
+            }
             pendingFunctionEvaluationsRef.current[functionCallId].toResolve = resolve
             pendingFunctionEvaluationsRef.current[functionCallId].toReject = reject
-            eventEmitter.emit({ 
+
+            emit({ 
                 type: key, 
                 data: {
                     functionCallId: functionCallId,
@@ -68,33 +74,32 @@ function RootCodeEditor() {
         if (props[message.type] !== undefined) {
             recievedResultFromFunction(message.data)
         } if (message.type === 'loadprops') {
-            let props = {}
-            Object.entries(message.data).forEach(key => {
+            let newProps = {}
+            Object.entries(message.data).forEach(([key, value]) => {
                 if (key.startsWith('function_')) {
                     key = key.replace('function_', '')
-                    props[key] = funcHandler(key)
+                    newProps[key] = funcHandler(key)
                 } else {
-                    props[key] = message.data[key]
+                    newProps[key] = value
                 }
             })
-            setProps(props)
+            setProps(newProps)
             setIsLoaded(true)
         } 
     })
 
     useEffect(() => {
-        emit({ type: 'loadprops' })
+        emit({ type: 'loadprops', data: {} })
     }, [])
 
 
-    useEffect(() => {
+    /*useEffect(() => {
         functionsRef.current = {
             dispatchChange,
             forceFocus,
             forceBlur
         }
-    }, [dispatchChange, forceFocus, forceBlur])
-    */
+    }, [dispatchChange, forceFocus, forceBlur])*/
     return isLoaded === true ? <div ref={editorRef}/> : null
 }
 

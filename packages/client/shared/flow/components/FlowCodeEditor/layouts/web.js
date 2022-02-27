@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-
 import { useFlowCodemirror } from "../../../hooks"
 
 export default function FlowWebCodeEditor({functionsRef, ...props}) {
