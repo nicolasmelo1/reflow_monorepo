@@ -1,8 +1,13 @@
 const path = require('path')
 const fs = require('fs')
+const { getDefaultConfig } = require("expo/metro-config")
+
+const config = getDefaultConfig(__dirname)
 
 module.exports = {
+    ...config,
     resolver: {
+        sourceExts: ['js', 'json', 'ts', 'tsx', 'cjs'],
         extraNodeModules: new Proxy({}, {
             get: (target, name) => {
                 const defaultPath = path.join(process.cwd(), 'node_modules', name)
@@ -21,6 +26,9 @@ module.exports = {
                 experimentalImportSupport: false,
                 inlineRequires: false
             }
-        })
+        }),
+        babelTransformerPath: require.resolve(
+            "react-native-react-bridge/lib/plugin"
+        ),
     }
 }

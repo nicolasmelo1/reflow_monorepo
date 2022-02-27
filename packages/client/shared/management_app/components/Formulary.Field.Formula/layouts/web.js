@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import { strings, Tooltip } from '../../../../core'
+import FlowCodeEditor from '../../../../flow/components/FlowCodeEditor'
 import Styled from '../styles'
 
 export default function FormularyFieldFormulaWebLayout(props) {
@@ -35,7 +36,15 @@ export default function FormularyFieldFormulaWebLayout(props) {
                         </Styled.TooltipWrapper>
                     ) : (
                         <div>
-                            <div ref={props.editorRef}/>
+                            <FlowCodeEditor
+                            onAutoComplete={props.onAutoComplete}
+                            onAutocompleteFunctionOrModule={props.onAutocompleteFunctionOrModule}
+                            getFlowContext={props.getFlowContext}
+                            onBlur={props.onBlur}
+                            onFocus={props.onFocus}
+                            onChange={props.onChangeFormula}
+                            functionsRef={props.codeEditorFunctionsRef}
+                            />
                             {props.autocompleteOptions.length > 0 ? (
                                 <div
                                 style={{width: '100%'}}
@@ -52,7 +61,7 @@ export default function FormularyFieldFormulaWebLayout(props) {
                                             userSelect: 'none',
                                             display:'flex',
                                             flexDirection: 'row',
-                                            backgroundColor: 'blue',
+                                            backgroundColor: 'gray',
                                             cursor: 'pointer'
                                         }}
                                         >

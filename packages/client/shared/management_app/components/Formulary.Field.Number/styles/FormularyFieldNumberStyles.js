@@ -1,6 +1,8 @@
 import { APP } from '../../../../conf'
 import styled from 'styled-components'
-import { TextInput } from 'react-native'
+import { 
+    View, TextInput, TouchableOpacity, Text
+} from 'react-native'
 
 export const Container = APP === 'web' ?
 styled.div`

@@ -1,6 +1,6 @@
 import { APP } from '../../../../conf'
 import styled from 'styled-components'
-import { View, TouchableOpacity } from 'react-native'
+import { View, TouchableOpacity, Text } from 'react-native'
 import { whiteOrBlackColor } from '../../../../core/utils'
 
 export const Container = APP === 'web' ?

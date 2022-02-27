@@ -1,6 +1,9 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
+import { View, Text, TouchableOpacity } from 'react-native'
 
-export const Container = styled.div`
+export const Container = APP === 'web' ? 
+styled.div`
     display: flex;
     flex-direction: column;
     padding: 0 10px 0 10px;
@@ -8,21 +11,30 @@ export const Container = styled.div`
     border-radius: 5px;
     margin-bottom: 500px;
 `
+:
+styled(View)``
 
-export const TooltipWrapper = styled.div`
+export const TooltipWrapper = APP === 'web' ? 
+styled.div`
     display: flex;
     width: 100%;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start
 `
+:
+styled(View)``
 
-export const Value = styled.p`
+export const Value = APP === 'web' ? 
+styled.p`
     margin: 0;
     color: ${props => props.theme.gray_REFLOW};
 `
+:
+styled(Text)``
 
-export const EditFormulaButton = styled.button`
+export const EditFormulaButton = APP === 'web' ? 
+ styled.button`
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -37,16 +49,25 @@ export const EditFormulaButton = styled.button`
         background-color: ${props => props.theme.clearGray}90;
     }
 `
+:
+styled(TouchableOpacity)``
 
-export const EditFormulaButtonLabel = styled.p`
+export const EditFormulaButtonLabel = APP === 'web' ? 
+styled.p`
     text-align: left;
     margin: 0;
     user-select: none;
     color: ${props => props.theme.green_REFLOW};
 ` 
+:
+styled(Text)``
 
-export const Description = styled.small`
+
+export const Description = APP === 'web' ? 
+styled.small`
     text-align: left;
     user-select: none;
     color: ${props => props.theme.green_REFLOW};
 `
+:
+styled(Text)``

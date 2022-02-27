@@ -53,7 +53,9 @@ const dynamicImport = (module, alias='default') => {
             // update here to add new packages for mobile
             const packages = {
                 'expo-linking': require('expo-linking'),
-                '@react-native-async-storage/async-storage': require('@react-native-async-storage/async-storage')
+                '@react-native-async-storage/async-storage': require('@react-native-async-storage/async-storage'),
+                'react-native-react-bridge': require('react-native-react-bridge'),
+                'react-native-webview': require('react-native-webview')
             }
             if (alias !== '') {
                 return packages[module][alias]

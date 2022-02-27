@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useFlow } from '../../../flow'
 import { delay } from '../../../../../shared/utils'
 import Layout from './layouts'
@@ -9,19 +9,18 @@ const defaultDelay = delay(1000)
 export default function FormularyFieldFormula(props) {
     const editorContainerRef = useRef()
     const isInputFocusedRef = useRef(false)
+    const codeEditorFunctionsRef = useRef()
     const [autocompleteOptions, setAutocompleteOptions] = useState([])
     const { 
-        flowServiceRef, editorView, editorRef, performTest, runtimeModulesDocumentationRef, dispatchChange
-    } = useFlow({ 
-        dispatchCallback: onChange, 
-        onAutocompleteFunctionOrModule: onAutocompleteFunctionOrModule,
-        onAutoComplete: onAutoComplete,
-        onBlur: () => onBlur(),
-        onFocus: () => onToggleInputFocus(true)
-    })
+        flowServiceRef,
+        runtimeModulesDocumentationRef,
+        getFlowContext,
+        performTest
+    } = useFlow()
     useClickedOrPressedOutside({ ref: editorContainerRef, callback: () => onToggleInputFocus(false) })
     
-    function onChange(text) {
+    function onChangeFormula(text) {
+        console.log(text)
         /*defaultDelay(() => {
             performTest(text).then(async result => {
                 if (result !== undefined && result._representation_ !== undefined) {
@@ -33,12 +32,16 @@ export default function FormularyFieldFormula(props) {
     }
 
     function onClickAutocomplete(label) {
-        dispatchChange(label)
+        console.log(codeEditorFunctionsRef.current)
+        codeEditorFunctionsRef.current.dispatchChange(label)
     }
 
     function onBlur() {
-        if (isInputFocusedRef.current === true) editorView.current.contentDOM.focus()
-        //setAutocompleteOptions([])
+        if (isInputFocusedRef.current === true) codeEditorFunctionsRef.current.forceFocus()
+    }
+
+    function onFocus() {
+        onToggleInputFocus(true)
     }
 
     function onToggleInputFocus(isFocused=!isInputFocused) {
@@ -46,7 +49,7 @@ export default function FormularyFieldFormula(props) {
 
         if (isFocused === false) {
             setAutocompleteOptions([])
-            editorView.current.contentDOM.blur()
+            codeEditorFunctionsRef.current.forceBlur()
         }
     }
 
@@ -93,9 +96,15 @@ export default function FormularyFieldFormula(props) {
     return (
         <Layout
         editorContainerRef={editorContainerRef}
-        editorRef={editorRef}
+        codeEditorFunctionsRef={codeEditorFunctionsRef}
         onClickAutocomplete={onClickAutocomplete}
         autocompleteOptions={autocompleteOptions}
+        onAutoComplete={onAutoComplete}
+        onChangeFormula={onChangeFormula}
+        onAutocompleteFunctionOrModule={onAutocompleteFunctionOrModule}
+        getFlowContext={getFlowContext}
+        onBlur={onBlur}
+        onFocus={onFocus}
         types={props.types}
         field={props.field}
         />

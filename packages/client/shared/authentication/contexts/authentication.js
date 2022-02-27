@@ -34,7 +34,7 @@ function AuthenticationProvider(props) {
     }
 
     useEffect(() => {
-        getPersistState('authenticationContext', state, setState)
+        //getPersistState('authenticationContext', state, setState)
     }, [])
 
     return (

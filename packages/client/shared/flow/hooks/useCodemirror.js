@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useEffect } from 'react'
 import initializeCodeEditor from '../utils/codeEditor'
 
 /**
@@ -28,7 +28,7 @@ import initializeCodeEditor from '../utils/codeEditor'
  * @param {string} [codemirrorOptions.defaultCode=''] - This is the code that will be loaded in the editor when the
  * editor is created and rendered. Be careful with this, you need to keep the state always updated. If we for some
  * reason destruct and recreate the editor, the code in it will be lost, so be sure to save it in a react state.
- * @param {(text) => void} [codemirrorOptions.dispatchCallback=undefined] - This is the callback that will be called when
+ * @param {(text) => void} [codemirrorOptions.onChange=undefined] - This is the callback that will be called when
  * the code in the editor changes. Whenever the text changes in the editor we will call this function.
  * @param {(FocusEvent) => void} [codemirrorOptions.onBlurCallback=undefined] - This is the callback that will be called 
  * when the editor loses focus.
@@ -37,21 +37,28 @@ import initializeCodeEditor from '../utils/codeEditor'
  * 
  * @returns {{
  *      editorRef: {current: any},
- *      editorView: @import('@codemirror/view').EditorView,
- *      dispatchChange: (newText, { from=undefined, to=undefined, replaceText=false }={}) => void
+ *      editorViewRef: @import('@codemirror/view').EditorView,
+ *      dispatchChange: (newText, { from=undefined, to=undefined, replaceText=false }={}) => void,
+ *      forceBlur: () => void,
+ *      forceFocus: () => void
  * }} 
  */
 export default function useCodemirror({
     languagePack, defaultCode='',
-    dispatchCallback=undefined,
+    onChange=undefined,
     autocompleteCallback=undefined,
     onBlurCallback=undefined,
     onFocusCallback=undefined
 }) {
+    const onBlurCallbackRef = useRef(onBlurCallback)
+    const onFocusCallbackRef = useRef(onFocusCallback)
+    const autocompleteCallbackRef = useRef(autocompleteCallback)
+    const onChangeRef = useRef(onChange)
+    
     const editorSelectionFromRef = useRef(null)
     const eventListenersRef = useRef(() => {})
     const codeRef = useRef(defaultCode)
-    const editorView = useRef(null)
+    const editorViewRef = useRef(null)
     // Reference: https://stackoverflow.com/a/60066291
     const editorRef = useCallback(editorNode => {
         function initializeEditor() {
@@ -61,49 +68,51 @@ export default function useCodemirror({
                 destroyExistingEditor()
             }
         }
-
-        initializeEditor()
+        if (editorNode !== null) {
+            initializeEditor()
+        }
     }, [])
 
     function dispatchChange(newText, { from=undefined, to=undefined, replaceText=false }={}) {
-        const isEditorDefined = ![null, undefined].includes(editorView.current)
+        const isEditorDefined = ![null, undefined].includes(editorViewRef.current)
 
         if (isEditorDefined) {
             const isFromDefined = from !== undefined && typeof from === 'number'
             const isToDefined = to !== undefined && typeof to === 'number'
 
             if (isFromDefined && isToDefined) {
-                editorView.current.dispatch({
+                editorViewRef.current.dispatch({
                     changes: {from: from, to: to, insert: newText}
                 })
             } else if (isFromDefined && !isToDefined) {
-                editorView.current.dispatch({
+                editorViewRef.current.dispatch({
                     changes: {from: from, insert: newText}
                 })
             } else if (!isFromDefined && !isToDefined) {
-                const fromPosition = editorView.current.state.selection.ranges.length > 0 ? editorView.current.state.selection.ranges[0].from : 0
+                const fromPosition = editorViewRef.current.state.selection.ranges.length > 0 ? editorViewRef.current.state.selection.ranges[0].from : 0
 
-                editorView.current.dispatch(editorView.current.state.replaceSelection(newText))
+                editorViewRef.current.dispatch(editorViewRef.current.state.replaceSelection(newText))
             }
         }
     }
 
     function autocomplete(state) {
-        const isAutocompleteCallbackDefined = ![null, undefined].includes(autocompleteCallback) && typeof autocompleteCallback === 'function'
-        if (isAutocompleteCallbackDefined) autocompleteCallback(state)
+        const isAutocompleteCallbackDefined = ![null, undefined].includes(autocompleteCallbackRef.current) && 
+            typeof autocompleteCallbackRef.current === 'function'
+        if (isAutocompleteCallbackDefined) autocompleteCallbackRef.current(state)
     }
 
     /**
-     * This function will dispatch the changes to a defined `dispatchCallback` function. So every time the user writes something in the editor, we will call this 
+     * This function will dispatch the changes to a defined `onChangeRef` function. So every time the user writes something in the editor, we will call this 
      * callback function.
      * 
      * It was done mostly by trial and error. But you can read in the examples here: https://codemirror.net/6/examples/ or the documentation.
      * 
-     * @returns {(transaction) => void} - Returns a function that will dispatch the changes to the `dispatchCallback` function and also update the state of the editor.
+     * @returns {(transaction) => void} - Returns a function that will dispatch the changes to the `onChangeRef` function and also update the state of the editor.
      */
     function onDispatchTransaction() {
         return (transaction) => {
-            const isEditorDefined = ![null, undefined].includes(editorView.current)
+            const isEditorDefined = ![null, undefined].includes(editorViewRef.current)
             const isDocDefined = ![null, undefined].includes(transaction?.state?.doc)
 
             if (isDocDefined && isEditorDefined) {
@@ -127,15 +136,15 @@ export default function useCodemirror({
 
                 if (codeRef.current !== text) {
                     codeRef.current = text
-                    if (dispatchCallback !== undefined) {
-                        dispatchCallback(text)
+                    if (onChangeRef.current !== undefined) {
+                        onChangeRef.current(text)
                     }
                 }
 
                 const hasAnyRangeSelected = transaction?.state?.selection?.ranges !== undefined && transaction?.state?.selection?.ranges.length > 0
                 if (hasAnyRangeSelected) editorSelectionFromRef.current = transaction.state.selection.ranges[0].from
     
-                editorView.current.update([transaction])
+                editorViewRef.current.update([transaction])
             }
         }
     }
@@ -145,27 +154,41 @@ export default function useCodemirror({
      */
     function destroyExistingEditor() {
         eventListenersRef.current()
-        const doesEditorExist = ![null, undefined].includes(editorView.current)
+        const doesEditorExist = ![null, undefined].includes(editorViewRef.current)
         if (doesEditorExist) {
-            editorView.current.destroy()
+            editorViewRef.current.destroy()
         }
+    }
+
+    function forceFocus() { 
+        if (editorViewRef.current) editorViewRef.current.contentDOM.focus() 
+    }
+
+    function forceBlur() { 
+        if (editorViewRef.current) editorViewRef.current.contentDOM.blur()
     }
 
     function addAndRemoveEventListeners() {
         function onBlur(e){
-            if (onBlurCallback !== undefined && typeof onBlurCallback === 'function') onBlurCallback(e)
+            const isOnBlurCallbackDefined = onBlurCallbackRef.current !== undefined && 
+                typeof onBlurCallbackRef.current === 'function'
+            if (isOnBlurCallbackDefined) onBlurCallbackRef.current()
         }
 
         function onFocus(e) {
-            if (onFocusCallback !== undefined && typeof onFocusCallback === 'function') onFocusCallback(e)
-            autocomplete(editorView.current.state)
+            const isOnFocusCallbackDefined = onFocusCallbackRef.current !== undefined && 
+                typeof onFocusCallbackRef.current === 'function'
+            if (isOnFocusCallbackDefined) {
+                onFocusCallbackRef.current()
+                autocomplete(editorViewRef.current.state)
+            }
         }
 
-        editorView.current.contentDOM.addEventListener('blur', onBlur)
-        editorView.current.contentDOM.addEventListener('focus', onFocus)
+        editorViewRef.current.contentDOM.addEventListener('blur', onBlur)
+        editorViewRef.current.contentDOM.addEventListener('focus', onFocus)
         return () => {
-            editorView.current.contentDOM.removeEventListener('blur', onBlur)
-            editorView.current.contentDOM.removeEventListener('focus', onFocus)
+            editorViewRef.current.contentDOM.removeEventListener('blur', onBlur)
+            editorViewRef.current.contentDOM.removeEventListener('focus', onFocus)
         }
     }
 
@@ -187,13 +210,20 @@ export default function useCodemirror({
         if (isLanguagePackAFunction) editorLanguagePack = await Promise.resolve(languagePack())
 
         codeEditorOptions.languagePack = editorLanguagePack
-        editorView.current = initializeCodeEditor(codeEditorOptions)
+        editorViewRef.current = initializeCodeEditor(codeEditorOptions)
         eventListenersRef.current = addAndRemoveEventListeners()
     }
 
+    useEffect(() => { onBlurCallbackRef.current = onBlurCallback }, [onBlurCallback])
+    useEffect(() => { onFocusCallbackRef.current = onFocusCallback }, [onFocusCallback])
+    useEffect(() => { onChangeRef.current = onChange }, [onChange])
+    useEffect(() => { autocompleteCallbackRef.current = autocompleteCallback }, [autocompleteCallback])
+
     return {
         editorRef,
-        editorView,
-        dispatchChange
+        editorViewRef,
+        dispatchChange,
+        forceFocus,
+        forceBlur
     }
 }

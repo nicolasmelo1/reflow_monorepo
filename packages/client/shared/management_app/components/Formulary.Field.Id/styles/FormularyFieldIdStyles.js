@@ -1,6 +1,9 @@
+import { APP } from '../../../../conf'
 import styled from 'styled-components'
+import { View, Text } from 'react-native'
 
-export const Container = styled.div`
+export const Container = APP === 'web' ?
+styled.div`
     display: flex;
     flex-direction: column;
     padding: 0 10px 0 10px;
@@ -8,21 +11,32 @@ export const Container = styled.div`
     border-radius: 5px;
     cursor: ${props => props.hasTooltip ? 'help' : 'not-allowed'};
 `
+:
+styled(View)``
 
-export const TooltipWrapper = styled.div`
+export const TooltipWrapper = APP === 'web' ?
+styled.div`
     display: flex;
     width: 100%;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start
 `
+:
+styled(View)``
 
-export const Value = styled.p`
+export const Value = APP === 'web' ?
+styled.p`
     margin: 0;
     color: ${props => props.theme.gray_REFLOW};
 `
+:
+styled(Text)``
 
-export const Description = styled.small`
+export const Description = APP === 'web' ?
+styled.small`
     user-select: none;
     color: ${props => props.theme.green_REFLOW};
 `
+:
+styled(Text)``

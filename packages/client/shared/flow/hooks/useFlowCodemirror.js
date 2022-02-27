@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 import flowLanguageParser from '../utils/flowLanguage'
 import useCodemirror from './useCodemirror'
 import {
@@ -7,6 +7,7 @@ import {
     foldNodeProp, foldInside, syntaxTree
 } from "@codemirror/language"
 import { styleTags, tags as t } from "@codemirror/highlight"
+
 
 /**
  * Hook created to be tightly coupled with the codemirror editor on one side, and Flow on the other.
@@ -18,18 +19,28 @@ import { styleTags, tags as t } from "@codemirror/highlight"
  * In simple terms: it takes the data recieved from the codemirror editor, understand, and transform it to
  * a way it's useful for flow. But it does NOT interact with flow itself.
  */
-export default function useFlowCodemirror() {
-    const { editorRef, editorView, dispatchChange } = useCodemirror({
-        languagePack: getLanguagePack === undefined ? onInitializeLanguagePack : getLanguagePack, 
+export default function useFlowCodemirror({ 
+    code='', onAutoComplete=undefined, onChange=undefined,
+    onAutocompleteFunctionOrModule=undefined, getFlowContext=undefined,
+    onBlur=undefined, onFocus=undefined
+} = {}) {
+    const onAutocompleteFunctionOrModuleRef = useRef(onAutocompleteFunctionOrModule)
+    const onAutoCompleteRef = useRef(onAutoComplete)
+    const getFlowContextRef = useRef(getFlowContext)
+    const { 
+        editorRef, dispatchChange, forceFocus,
+        forceBlur
+    } = useCodemirror({
+        languagePack: flowLanguagePack, 
         defaultCode: code,
-        dispatchCallback,
+        onChange,
         autocompleteCallback: autocomplete,
         onBlurCallback: onBlur,
         onFocusCallback: onFocus
     })
 
     /**
-     * Function responsible for traversing the LAZER (codemirror) AST of the Flow language. You can see and inspect
+     * Function responsible for traversing the LEZER (codemirror) AST of the Flow language. You can see and inspect
      * the tree structure using a tool like https://github.com/ColinTimBarndt/lezer-tree-visualizer so you can see it.
      * 
      * @param {import('@lezer/common').BufferNode | import('@lezer/common').Tree | null} node - You can check here
@@ -96,14 +107,17 @@ export default function useFlowCodemirror() {
      * @returns {{currentParameterName: string, currentParameterIndex: number}} - Returns an object 
      * with the name of of the parameter and the index of the parameter that is being edited.
      */
-    function autocompleteGetCurrentParameterIndexAndParameterName(openBracket, closeBracket, node) {
+    function autocompleteGetCurrentParameterIndexAndParameterName(openBracket, closeBracket, node, fromPosition) {
         let currentParameterName = ''
         let currentParameterIndex = -1
         const openBracketNode = node.getChild(openBracket)
         const closeBracketNode = node.getChild(closeBracket)
-        const doesOpenBracketExistAndIsCursorInside = ![null,undefined].includes(openBracketNode) && fromPosition >= openBracketNode.to
+        const doesOpenBracketExistAndIsCursorInside = ![null,undefined].includes(openBracketNode) &&
+            fromPosition >= openBracketNode.to
         const isCloseBracketNotDefined = [null,undefined].includes(closeBracketNode)
-        const doesCloseBracketExistAndIsCursorInside = ![null,undefined].includes(closeBracketNode) && fromPosition <= closeBracketNode.from
+        const doesCloseBracketExistAndIsCursorInside = ![null,undefined].includes(closeBracketNode) &&
+            fromPosition <= closeBracketNode.from
+            
         if (doesOpenBracketExistAndIsCursorInside && (isCloseBracketNotDefined || doesCloseBracketExistAndIsCursorInside)) {
             currentParameterIndex = 0
             const positionalArgumentSeparators = node.getChildren('PositionalArgumentSeparator')
@@ -149,17 +163,16 @@ export default function useFlowCodemirror() {
      */
     function autocomplete(state) {
         const fromPosition = state.selection.ranges[0].from
-        //
         const currentNode = syntaxTree(state).resolveInner(fromPosition, -1)
 
-        if (onAutocompleteFunctionOrModule !== undefined) {
+        if (onAutocompleteFunctionOrModuleRef.current !== undefined) {
             const { name: nodeName, node: functionOrModuleNode } = traverseNodesFromBottomToTopOfTheTree(
                 currentNode, ['FunctionCall', 'Struct']
             )
 
             if (nodeName === 'FunctionCall') {
                 const currentParameterIndexAndName = autocompleteGetCurrentParameterIndexAndParameterName(
-                    '(', ')', functionOrModuleNode
+                    '(', ')', functionOrModuleNode, fromPosition
                 )
                 const firstChild = functionOrModuleNode.firstChild
                 
@@ -172,25 +185,25 @@ export default function useFlowCodemirror() {
                 }
                 const functionName = state.sliceDoc(firstChild.from, firstChild.to)
 
-                onAutocompleteFunctionOrModule({
+                onAutocompleteFunctionOrModuleRef.current({
                     moduleName: moduleName,
                     name: functionName,
                     ...currentParameterIndexAndName,
                 })
             } else if (nodeName === 'Struct') {
                 const currentParameterIndexAndName = autocompleteGetCurrentParameterIndexAndParameterName(
-                    '{', '}', functionOrModuleNode
+                    '{', '}', functionOrModuleNode, fromPosition
                 )
                 const firstChild = functionOrModuleNode.firstChild
                 
                 const moduleName = state.sliceDoc(firstChild.from, firstChild.to)
-                onAutocompleteFunctionOrModule({
+                onAutocompleteFunctionOrModuleRef.current({
                     moduleName: '',
                     name: moduleName,
                     ...currentParameterIndexAndName
                 })
             } else {
-                onAutocompleteFunctionOrModule({
+                onAutocompleteFunctionOrModuleRef.current({
                     moduleName: '',
                     name: '',
                     currentParameterIndex: -1,
@@ -199,26 +212,26 @@ export default function useFlowCodemirror() {
             }
         }
 
-        if (onAutoComplete !== undefined) {
+        if (onAutoCompleteRef.current !== undefined) {
             const { node: attributeNode } = traverseNodesFromBottomToTopOfTheTree(
                 currentNode, ['Attribute']
             )
             const attributeName = attributeNode !== undefined ? 
                 state.sliceDoc(attributeNode.firstChild.from, attributeNode.firstChild.to) : ''
             if (currentNode.name === 'Script') {
-                onAutoComplete({
+                onAutoCompleteRef.current({
                     name: '',
                     attributeName
                 })
             } else if (currentNode.name === 'Variable') {
                 const searching = state.sliceDoc(currentNode.from, currentNode.to)
                 //const { name: nodeName, node: functionOrModuleNode } = traverseAndCheckIfNodeInNodeTypes(currentNode, ['FunctionCall', 'Struct'])
-                onAutoComplete({
+                onAutoCompleteRef.current({
                     name: searching,
                     attributeName
                 })
             } else {
-                onAutoComplete({
+                onAutoCompleteRef.current({
                     name: '',
                     attributeName
                 })
@@ -235,7 +248,7 @@ export default function useFlowCodemirror() {
      * @returns {LanguageSupport} - The language support for the flow language.
      */
     async function flowLanguagePack() {
-        const flowContext = await Promise.resolve(getFlowContext())
+        const flowContext = await Promise.resolve(getFlowContextRef.current())
         const context = {
             includes: flowContext.keyword.includesKeyword, 
             conjunction: flowContext.keyword.conjunctionKeyword, 
@@ -294,13 +307,13 @@ export default function useFlowCodemirror() {
             parser: parser.configure({
                 props: [
                     indentNodeProp.add({
-                        IfExpression: continuedIndent({except: new RegExp(`^\\s*(${context.blockEnd}|${context.ifElse}\b)`)}),
-                        ElseExpression: continuedIndent({except: new RegExp(`^\\s*(${context.blockEnd}|${context.ifElse}\b)`)}),
-                        TryExpression: continuedIndent({except: new RegExp(`^\\s*(${context.blockEnd}|${context.catchKeyword}\b)`)}),
-                        CatchExpression: continuedIndent({except: new RegExp(`^\\s*(${context.blockEnd}\b)`)}),
+                        IfExpression: continuedIndent({except: new RegExp(`^\\s*(${context.blockEnd}|${context.ifElse}\\b)`)}),
+                        ElseExpression: continuedIndent({except: new RegExp(`^\\s*(${context.blockEnd}|${context.ifElse}\\b)`)}),
+                        TryExpression: continuedIndent({except: new RegExp(`^\\s*(${context.blockEnd}|${context.catchKeyword}\\b)`)}),
+                        CatchExpression: continuedIndent({except: new RegExp(`^\\s*(${context.blockEnd}\\b)`)}),
                         List: continuedIndent({except: /^\s*(\]\b)/}),
                         Dict: continuedIndent({except: /^\s*(\}\b)/}),
-                        FunctionDefinitionExpression: continuedIndent({ except: new RegExp(`^\\s*(${context.blockEnd}\b)`)})
+                        FunctionDefinitionExpression: continuedIndent({ except: new RegExp(`^\\s*(${context.blockEnd}\\b)`)})
                     }),
                     foldNodeProp.add({
                         "ElseExpression IfExpression FunctionDefinitionExpression": foldInside,
@@ -316,5 +329,18 @@ export default function useFlowCodemirror() {
         })
 
         return new LanguageSupport(flowLanguage, [])
+    }
+
+    useEffect(() => { getFlowContextRef.current = getFlowContext }, [getFlowContext])
+    useEffect(() => { onAutoCompleteRef.current = onAutoComplete }, [onAutoComplete])
+    useEffect(() => { 
+        onAutocompleteFunctionOrModuleRef.current = onAutocompleteFunctionOrModule
+    }, [onAutocompleteFunctionOrModule])
+
+    return {
+        editorRef,
+        dispatchChange, 
+        forceFocus,
+        forceBlur
     }
 }

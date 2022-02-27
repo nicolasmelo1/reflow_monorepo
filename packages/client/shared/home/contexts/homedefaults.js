@@ -102,7 +102,7 @@ function HomeDefaultsProvider(props) {
     }
 
     useEffect(() => {
-        getPersistState(persistContext, state, _setState)
+        //getPersistState(persistContext, state, _setState)
     }, [])
 
     return (

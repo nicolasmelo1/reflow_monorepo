@@ -1,6 +1,6 @@
 import { APP } from '../../../../conf'
 import styled from 'styled-components'
-import { TextInput, View, Text } from 'react-native'
+import { TextInput, View, Text, TouchableOpacity } from 'react-native'
 import { whiteOrBlackColor } from '../../../utils'
 
 export const Input = APP === 'web' ? 

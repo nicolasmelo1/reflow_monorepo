@@ -3,6 +3,9 @@ module.exports = function(api) {
     // Reference: https://docs.expo.dev/guides/environment-variables/#using-babel-to-replace-variables
     return {
     	presets: ['babel-preset-expo'],
-        plugins: ['transform-inline-environment-variables'],
+        plugins: [
+            '@babel/plugin-transform-flow-strip-types', 
+            ['@babel/plugin-proposal-private-methods', {loose:true}]
+        ]
   	}
 }

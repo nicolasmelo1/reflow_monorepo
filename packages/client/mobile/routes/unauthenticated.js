@@ -6,7 +6,7 @@ const UnauthenticatedRoutes = (props) => {
     const Stack = createNativeStackNavigator()
 
     return (
-        <Stack.Navigator initialRouteName='teste'>
+        <Stack.Navigator initialRouteName='Login'>
             <Stack.Screen name={'Teste'} component={TestePage} options={{title: 'Teste'}}/>
             <Stack.Screen name={'Login'} component={LoginPage} options={{title: 'Login'}}/>
         </Stack.Navigator>
