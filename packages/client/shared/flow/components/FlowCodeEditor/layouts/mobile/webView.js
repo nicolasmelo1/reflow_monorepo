@@ -24,7 +24,7 @@ const emit = dynamicImport('react-native-react-bridge/lib/web', 'emit')*/
  * result of this pending promise, we resolve the pending promise by calling the `resolve` function that
  * we attached to the global variable.
  * 
- * It might take some time to load the component.
+ * It might take some time to load the editor.
  */
 function RootCodeEditor() {
     const pendingFunctionEvaluationsRef = useRef({})
