@@ -1,5 +1,3 @@
-import { APP } from '../../../../conf'
-import Mobile from './mobile'
-import Web from './web'
+import Layout from './mobile'
 
-export default APP === 'web' ? Web : Mobile
+export default Layout

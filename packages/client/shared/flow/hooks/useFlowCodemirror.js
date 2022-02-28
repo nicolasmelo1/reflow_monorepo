@@ -18,6 +18,21 @@ import { styleTags, tags as t } from "@codemirror/highlight"
  * 
  * In simple terms: it takes the data recieved from the codemirror editor, understand, and transform it to
  * a way it's useful for flow. But it does NOT interact with flow itself.
+ * 
+ * @param {object} useFlowCodemirrorParams - The params of this custom hook.
+ * @param {string} [useFlowCodemirrorParams.code=''] - This is the code that this function will load
+ * by default.
+ * @param {({name: string, attributeName: string}) => void | undefined} [useFlowCodemirrorParams.onAutoComplete=undefined] - 
+ * The callback function that will be called when the autocomplete finds some match.
+ * @param {(
+ *      {
+ *          moduleName: string,
+ *          name: string,
+ *          currentParameterIndex: number,
+ *          currentParameterName: string
+ *      }
+ * ) => void | undefined} [useFlowCodemirrorParams.onAutocompleteFunctionOrModule] - Function that will be called
+ * when the user is writing something while calling a function or creating a struct
  */
 export default function useFlowCodemirror({ 
     code='', onAutoComplete=undefined, onChange=undefined,
@@ -244,6 +259,8 @@ export default function useFlowCodemirror({
      * from here directly.
      * 
      * This gives us a simple and smooth debug and development experience when managing flow in the front-end.
+     * 
+     * The context of flow is retrieved by calling `getFlowContext` function.
      * 
      * @returns {LanguageSupport} - The language support for the flow language.
      */

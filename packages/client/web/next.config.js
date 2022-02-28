@@ -1,5 +1,5 @@
 const path = require('path')
-require('../../shared')
+
 module.exports = {
     reactStrictMode: true,
     env: {
@@ -16,6 +16,7 @@ module.exports = {
                 '@fortawesome/react-native-fontawesome': '@fortawesome/react-fontawesome',
                 './dynamicImport.mobile': './dynamicImport.web',
                 "react-native": path.join(__dirname, 'node_modules', 'react-native-web'),
+                './mobile': './web'
             },
             // So what we were doing before was:
             // modules: [...config.resolve.modules, path.resolve(__dirname, 'node_modules')],

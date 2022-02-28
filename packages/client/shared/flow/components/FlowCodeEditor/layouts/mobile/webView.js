@@ -92,7 +92,6 @@ function RootCodeEditor() {
         emit({ type: 'loadprops', data: {} })
     }, [])
 
-
     /*useEffect(() => {
         functionsRef.current = {
             dispatchChange,
