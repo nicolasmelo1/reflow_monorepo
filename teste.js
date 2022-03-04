@@ -1,4 +1,4 @@
-const FlowService = require('./packages/shared/flow/service')
+/*const FlowService = require('./packages/shared/flow/service')
 
 async function main() {
     const flowService = await FlowService.initialize()
@@ -9,4 +9,9 @@ HTTP.get
     console.log(await(await result._string_())._representation_())
 }
 
-main()
+main()*/
+
+//async function main() {
+//    const q = await question('Digite a expressão: ')
+//}
+//main()

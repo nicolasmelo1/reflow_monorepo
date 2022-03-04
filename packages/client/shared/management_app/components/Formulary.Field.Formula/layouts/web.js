@@ -35,47 +35,10 @@ export default function FormularyFieldFormulaWebLayout(props) {
                             </Tooltip>
                         </Styled.TooltipWrapper>
                     ) : (
-                        <div>
-                            <FlowCodeEditor
-                            onAutoComplete={props.onAutoComplete}
-                            onAutocompleteFunctionOrModule={props.onAutocompleteFunctionOrModule}
-                            getFlowContext={props.getFlowContext}
-                            onBlur={props.onBlur}
-                            onFocus={props.onFocus}
-                            onChange={props.onChangeFormula}
-                            functionsRef={props.codeEditorFunctionsRef}
-                            />
-                            {props.autocompleteOptions.length > 0 ? (
-                                <div
-                                style={{width: '100%'}}
-                                >
-                                    {props.autocompleteOptions.map((option, index) => (
-                                        <div
-                                        key={index}
-                                        onClick={(e) => {
-                                            e.preventDefault()
-                                            e.stopPropagation()
-                                            props.onClickAutocomplete(option.label)}
-                                        }
-                                        style={{
-                                            userSelect: 'none',
-                                            display:'flex',
-                                            flexDirection: 'row',
-                                            backgroundColor: 'gray',
-                                            cursor: 'pointer'
-                                        }}
-                                        >
-                                            <p style={{fontWeight: 'bold'}}>
-                                                {option.label}
-                                            </p>
-                                            <p>
-                                                {option.description}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : ''}
-                        </div>
+                        <FlowCodeEditor
+                        onChange={props.onChangeFormula}
+                        codeEditorFunctionsRef={props.codeEditorFunctionsRef}
+                        />
                     )}
                 </Fragment>
             )}

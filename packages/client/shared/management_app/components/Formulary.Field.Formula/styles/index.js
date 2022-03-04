@@ -1,4 +1,4 @@
-import FormularyFieldFormulaStyles from './FormularyFieldFormulaStyles'
+import * as FormularyFieldFormulaStyles from './FormularyFieldFormulaStyles'
 
 export default {
     ...FormularyFieldFormulaStyles

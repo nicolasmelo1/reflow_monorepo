@@ -70,9 +70,11 @@ class AreaService {
      * the changes.
      */
     async createOrUpdate({ uuid, labelName, description, color, order, subAreaOfUUID=null } = {}, transaction) {
-        const doesAreaExists = await Area.AREA.existsByUUID(uuid)
-        const subAreaId = subAreaOfUUID !== null ? await Area.AREA.idByUUID(subAreaOfUUID) : null
-        const areaName = await this.createAreaNameFromLabelName(labelName, uuid)
+        const [doesAreaExists, subAreaId, areaName] = await Promise.all([
+            Area.AREA.existsByUUID(uuid), 
+            subAreaOfUUID !== null ? Area.AREA.idByUUID(subAreaOfUUID) : null, 
+            this.createAreaNameFromLabelName(labelName, uuid)
+        ])
         
         if (doesAreaExists) {
             await Area.AREA.updateArea({

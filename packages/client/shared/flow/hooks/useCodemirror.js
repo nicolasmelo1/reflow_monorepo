@@ -1,5 +1,7 @@
 import { useCallback, useRef, useEffect } from 'react'
 import initializeCodeEditor from '../utils/codeEditor'
+import { EditorSelection } from '@codemirror/state'
+import { snippet } from '@codemirror/autocomplete'
 
 /**
  * Hook created to be able to interact with codemirror. Codemirror 6 is an editor from Marijn.
@@ -28,11 +30,13 @@ import initializeCodeEditor from '../utils/codeEditor'
  * @param {string} [codemirrorOptions.defaultCode=''] - This is the code that will be loaded in the editor when the
  * editor is created and rendered. Be careful with this, you need to keep the state always updated. If we for some
  * reason destruct and recreate the editor, the code in it will be lost, so be sure to save it in a react state.
- * @param {(text) => void} [codemirrorOptions.onChange=undefined] - This is the callback that will be called when
+ * @param {(position: {from: number, to: number}) => void} [codeEditorOptions.onSelect=undefined] - The callback that will be called
+ * whenever the selection changes in the editor.
+ * @param {(text: string) => void} [codemirrorOptions.onChange=undefined] - This is the callback that will be called when
  * the code in the editor changes. Whenever the text changes in the editor we will call this function.
- * @param {(FocusEvent) => void} [codemirrorOptions.onBlurCallback=undefined] - This is the callback that will be called 
+ * @param {(event: FocusEvent) => void} [codemirrorOptions.onBlurCallback=undefined] - This is the callback that will be called 
  * when the editor loses focus.
- * @param {(FocusEvent) => void} [codemirrorOptions.onFocusCallback=undefined] - This is the callback that will be called
+ * @param {(event: FocusEvent) => void} [codemirrorOptions.onFocusCallback=undefined] - This is the callback that will be called
  * when the editor gains focus.
  * 
  * @returns {{
@@ -46,6 +50,7 @@ import initializeCodeEditor from '../utils/codeEditor'
 export default function useCodemirror({
     languagePack, defaultCode='',
     onChange=undefined,
+    onSelect=undefined,
     autocompleteCallback=undefined,
     onBlurCallback=undefined,
     onFocusCallback=undefined
@@ -54,9 +59,11 @@ export default function useCodemirror({
     const onFocusCallbackRef = useRef(onFocusCallback)
     const autocompleteCallbackRef = useRef(autocompleteCallback)
     const onChangeRef = useRef(onChange)
+    const onSelectRef = useRef(onSelect)
     
     const editorSelectionFromRef = useRef(null)
     const eventListenersRef = useRef(() => {})
+    const selectionRangeRef = useRef({from: 0, to: 0})
     const codeRef = useRef(defaultCode)
     const editorViewRef = useRef(null)
     // Reference: https://stackoverflow.com/a/60066291
@@ -73,29 +80,86 @@ export default function useCodemirror({
         }
     }, [])
 
-    function dispatchChange(newText, { from=undefined, to=undefined, replaceText=false }={}) {
+    /**
+     * Callback that is supposed to be called to change the text of the editor. Whenever the text changes in the state or whatever
+     * this should be called with the new text.
+     * 
+     * @param {string} newText - the new text of the codemirror text editor.
+     * @param {object} changeParams - The new text and params of the codemirror editor.
+     * @param {number | undefined} [changeParams.from=undefined] - From what position you want to change the text.
+     * @param {number | undefined} [changeParams.to=undefined] - To what position you want to change the text.
+     * @param {boolean} [changeParams.replaceText=false] - Replace the hole text or nor?
+     * @param {number | undefined} [changeParams.withCursorAt=undefined] - The position of the cursor after the change.
+     */
+    function dispatchChange(newText, { from=undefined, to=undefined, replaceText=false, withCursorAt=undefined, withSnippet='' }={}) {
         const isEditorDefined = ![null, undefined].includes(editorViewRef.current)
 
         if (isEditorDefined) {
             const isFromDefined = from !== undefined && typeof from === 'number'
             const isToDefined = to !== undefined && typeof to === 'number'
+            const isWithCursorAtDefined = withCursorAt !== undefined && typeof withCursorAt === 'number'
+            const isWithSnippet = withSnippet !== '' && typeof withSnippet === 'string'
 
-            if (isFromDefined && isToDefined) {
+            if (isWithSnippet) {
+                const fromPosition = editorViewRef.current.state.selection.ranges.length > 0 ? editorViewRef.current.state.selection.ranges[0].from : 0
+                const toPosition = editorViewRef.current.state.selection.ranges.length > 0 ? editorViewRef.current.state.selection.ranges[0].to : 0
+
+                snippet(withSnippet)(editorViewRef.current, {}, fromPosition, toPosition)
+            } else if (isWithCursorAtDefined) {
+                const state = editorViewRef.current.state
+                const text = state.toText(newText)
+                console.log(withCursorAt)
+                editorViewRef.current.dispatch(
+                    state.changeByRange(range => ({
+                        changes: {
+                            from: from !== undefined ? from : range.from, 
+                            to: to !== undefined ? to : range.to, 
+                            insert: text
+                        },
+                        range: EditorSelection.cursor(withCursorAt)
+                    }))
+                )
+            } else if (replaceText === true) {
+                const state = editorViewRef.current.state
                 editorViewRef.current.dispatch({
-                    changes: {from: from, to: to, insert: newText}
+                    changes: {
+                        from: 0, 
+                        to: state.doc.length, 
+                        insert: newText
+                    }
+                })
+            } else if (isFromDefined && isToDefined) {
+                editorViewRef.current.dispatch({
+                    changes: {
+                        from: from, 
+                        to: to, 
+                        insert: newText
+                    }
                 })
             } else if (isFromDefined && !isToDefined) {
                 editorViewRef.current.dispatch({
-                    changes: {from: from, insert: newText}
+                    changes: {
+                        from: from, 
+                        insert: newText
+                    }
                 })
             } else if (!isFromDefined && !isToDefined) {
-                const fromPosition = editorViewRef.current.state.selection.ranges.length > 0 ? editorViewRef.current.state.selection.ranges[0].from : 0
-
+                console.log(editorViewRef.current.state.replaceSelection(newText))
                 editorViewRef.current.dispatch(editorViewRef.current.state.replaceSelection(newText))
             }
         }
     }
 
+    /**
+     * Function that is called when the text changes, to trigger our custom autocomplete behaviour in the text
+     * editor.
+     * 
+     * By default codemirror offers an autocomplete: https://codemirror.net/6/examples/autocompletion/
+     * But sometimes we want something that is more nicely formated and less "developerly" for users to use.
+     * 
+     * @param {import('codemirror/state').EditorState} state - Retrieves the editor state of the codemirror editor
+     * and that we use in our autocomplete callback.
+     */
     function autocomplete(state) {
         const isAutocompleteCallbackDefined = ![null, undefined].includes(autocompleteCallbackRef.current) && 
             typeof autocompleteCallbackRef.current === 'function'
@@ -130,6 +194,17 @@ export default function useCodemirror({
                 // Each children will be a line, so it's safe to join them by a new line.
                 const text = textArray.join('\n')
                 
+                const doesExistSelectionRange = Array.isArray(transaction?.state?.selection?.ranges) && transaction.state.selection.ranges.length > 0
+                const isOnSelectDefined = typeof onSelectRef.current === 'function'
+                if (doesExistSelectionRange && isOnSelectDefined) {
+                    const positionFrom = transaction.state.selection.ranges[0].from
+                    const positionTo = transaction.state.selection.ranges[0].to
+                    
+                    if (positionFrom !== selectionRangeRef.current.from || positionTo !== selectionRangeRef.current.to) {
+                        onSelectRef.current({ from: positionFrom, to: positionTo })
+                    }
+                }
+
                 if (editorSelectionFromRef.current !== null && editorSelectionFromRef.current !== transaction.state.selection.ranges[0].from) {
                     autocomplete(transaction.state)
                 }
@@ -168,6 +243,11 @@ export default function useCodemirror({
         if (editorViewRef.current) editorViewRef.current.contentDOM.blur()
     }
 
+    /**
+     * Adds or removes listeners from the DOM. The API is simple: 
+     * 1- When we first call the functions we add the listeners to the DOM and return a function
+     * 2 - When we call the returned function we remove the listeners from the DOM.
+     */
     function addAndRemoveEventListeners() {
         function onBlur(e){
             const isOnBlurCallbackDefined = onBlurCallbackRef.current !== undefined && 
@@ -217,6 +297,7 @@ export default function useCodemirror({
     useEffect(() => { onBlurCallbackRef.current = onBlurCallback }, [onBlurCallback])
     useEffect(() => { onFocusCallbackRef.current = onFocusCallback }, [onFocusCallback])
     useEffect(() => { onChangeRef.current = onChange }, [onChange])
+    useEffect(() => { onSelectRef.current = onSelect }, [onSelect])
     useEffect(() => { autocompleteCallbackRef.current = autocompleteCallback }, [autocompleteCallback])
 
     return {

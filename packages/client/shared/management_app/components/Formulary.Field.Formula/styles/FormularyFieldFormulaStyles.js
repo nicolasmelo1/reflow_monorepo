@@ -62,7 +62,6 @@ styled.p`
 :
 styled(Text)``
 
-
 export const Description = APP === 'web' ? 
 styled.small`
     text-align: left;

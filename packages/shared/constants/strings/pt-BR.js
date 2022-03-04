@@ -115,7 +115,7 @@ module.exports = {
                                   "pegarmos o que desejamos, que é o tipo do pokemon.\n" +
                                   "O processo é o mesmo para conectar aplicações entre si.",
         flowHTTPUrlParameterName: 'endereço',
-        flowHTTPUrlDescription: 'O endereço para puxar/enviar/deletar ou atualizar um recurso de um serviço terceiro. Será sempre uma URL.',
+        flowHTTPUrlParameterDescription: 'O endereço para puxar/enviar/deletar ou atualizar um recurso de um serviço terceiro. Será sempre uma URL.',
         flowHTTPHeadersParameterName: 'cabeçalhos',
         flowHTTPHeadersParameterDescription: 'Um dicionário, com ele você poderá definir os `Cabeçalhos` em suas requisições. Essa é uma feature avançada.\nReferência: https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Headers',
         flowHTTPBasicAuthParameterName: 'autenticação_básica',
@@ -135,7 +135,9 @@ module.exports = {
         flowHTTPPostMethodDescription: 'Isso irá enviar dados para uma URL, geralmente uma api, e irá retorná-los em formato JSON caso a API retorne algum dado',
         flowHTTPPutMethodName: 'put',
         flowHTTPPutMethodDescription: '',
-        flowHTTPPutMethodName: 'delete',
-        flowHTTPPutMethodDescription: '',
+        flowHTTPDeleteMethodName: 'delete',
+        flowHTTPDeleteMethodDescription: '',
+        flowHTTPRequestMethodName: 'request',
+        flowHTTPRequestMethodDescription: '',
     }
 }

@@ -20,5 +20,5 @@ function configureConf({ apiHost, bearer='Client', language='pt-BR' } = {}) {
     LANGUAGE = language
 }
 
-export { APP, API_HOST, BEARER }
+export { APP, API_HOST, BEARER, LANGUAGE }
 export { configureConf }

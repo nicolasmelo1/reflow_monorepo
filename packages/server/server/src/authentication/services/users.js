@@ -51,9 +51,11 @@ class UserService {
      * 
      * @returns {object} - The object with the new access token and the new refresh token.
      */
-     static async updateRefreshTokenAndUserLastLogin(userId, transaction) {
-        await User.AUTHENTICATION.updateUserLastLogin(userId, transaction)
-        const user = await User.AUTHENTICATION.userById(userId)
+    static async updateRefreshTokenAndUserLastLogin(userId, transaction) {
+        const [_, user] = await Promise.all([
+            User.AUTHENTICATION.updateUserLastLogin(userId, transaction),
+            User.AUTHENTICATION.userById(userId)
+        ]) 
 
         /*events.emit('userRefreshToken', {
             userId: userId

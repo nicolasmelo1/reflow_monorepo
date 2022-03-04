@@ -2,6 +2,7 @@ import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, TextInput } from 'react-native'
  
+console.log(APP)
 export const Container = APP === 'web' ?
 styled.div`
     width: calc(100% - 20px);

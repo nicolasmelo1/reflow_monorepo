@@ -1,13 +1,13 @@
-import { useRef, useCallback, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import flowLanguageParser from '../utils/flowLanguage'
 import useCodemirror from './useCodemirror'
 import {
     LRLanguage, LanguageSupport,
     continuedIndent, indentNodeProp,
     foldNodeProp, foldInside, syntaxTree
-} from "@codemirror/language"
-import { styleTags, tags as t } from "@codemirror/highlight"
-
+} from '@codemirror/language'
+import { styleTags, tags as t } from '@codemirror/highlight'
+//import { visualize, Color, defaultTheme } from '@colin_t/lezer-tree-visualizer'
 
 /**
  * Hook created to be tightly coupled with the codemirror editor on one side, and Flow on the other.
@@ -22,8 +22,13 @@ import { styleTags, tags as t } from "@codemirror/highlight"
  * @param {object} useFlowCodemirrorParams - The params of this custom hook.
  * @param {string} [useFlowCodemirrorParams.code=''] - This is the code that this function will load
  * by default.
- * @param {({name: string, attributeName: string}) => void | undefined} [useFlowCodemirrorParams.onAutoComplete=undefined] - 
- * The callback function that will be called when the autocomplete finds some match.
+ * @param {(
+ *      {
+ *          name: string, 
+ *          attributeName: string
+ *      }
+ * ) => void | undefined} [useFlowCodemirrorParams.onAutoComplete=undefined] - The callback function that will 
+ * be called when the autocomplete finds some match.
  * @param {(
  *      {
  *          moduleName: string,
@@ -31,11 +36,31 @@ import { styleTags, tags as t } from "@codemirror/highlight"
  *          currentParameterIndex: number,
  *          currentParameterName: string
  *      }
- * ) => void | undefined} [useFlowCodemirrorParams.onAutocompleteFunctionOrModule] - Function that will be called
+ * ) => void | undefined} [useFlowCodemirrorParams.onAutocompleteFunctionOrModule=undefined] - Function that will be called
  * when the user is writing something while calling a function or creating a struct
+ * @param {(
+ *      text: string, 
+ *      position: {
+ *          from: number,
+ *          to: number
+ *      }
+ * ) => void | undefined} [onChange=undefined] - Callack called when the text changes in the codemirror editor.
+ * @param {() => import('../../../../shared/flow/context') | undefined} [getFlowContext=undefined] - Retrieves the 
+ * context for flow code evaluation. Is it portuguese? English? Spanish? This context is the translation.
+ * @param {() => void | undefined} [onBlur=undefined] - The callback that will be called when `onBlur` is called.
+ * in the codemirror input.
+ * @param {() => void | undefined} [onFocus=undefined] - Callback that is supposed to be called when `onfocus` event
+ * is fired in the codemirror component.
+ * 
+ * @returns {{
+ *      editorRef: { current: HTMLElement },
+ *      dispatchChange: (newText, { from=undefined, to=undefined, replaceText=false }={}) => void, 
+ *      forceFocus: () => void,
+ *      forceBlur: () => void
+ * }}
  */
 export default function useFlowCodemirror({ 
-    code='', onAutoComplete=undefined, onChange=undefined,
+    code='', onAutoComplete=undefined, onChange=undefined, onSelect=undefined,
     onAutocompleteFunctionOrModule=undefined, getFlowContext=undefined,
     onBlur=undefined, onFocus=undefined
 } = {}) {
@@ -49,6 +74,7 @@ export default function useFlowCodemirror({
         languagePack: flowLanguagePack, 
         defaultCode: code,
         onChange,
+        onSelect,
         autocompleteCallback: autocomplete,
         onBlurCallback: onBlur,
         onFocusCallback: onFocus
@@ -111,6 +137,7 @@ export default function useFlowCodemirror({
      * This means that, although the variable `y` exists in position 1 in our function, it is actually
      * being inserted in position 0.
      * 
+     * @param {import('@codemirror/state').EditorState} state - The current codemirror editor state.
      * @param {string} openBracket - The bracket that is used to open the parameter or module.
      * For flow it can be either `(` for function calls or `{` for module creation.
      * @param {string} closeBracket - The bracket that is used to close the parameter or module.
@@ -118,11 +145,12 @@ export default function useFlowCodemirror({
      * @param {import('@lezer/common').BufferNode} node - The FunctionCall or Struct nodes to check the parameter
      * position for. You can check here for reference of this class
      * https://github.com/lezer-parser/common/blob/main/src/tree.ts 
+     * @param {number} fromPosition - The current starting position of the cursor in the codemirror editor.
      * 
      * @returns {{currentParameterName: string, currentParameterIndex: number}} - Returns an object 
      * with the name of of the parameter and the index of the parameter that is being edited.
      */
-    function autocompleteGetCurrentParameterIndexAndParameterName(openBracket, closeBracket, node, fromPosition) {
+    function autocompleteGetCurrentParameterIndexAndParameterName(state, openBracket, closeBracket, node, fromPosition) {
         let currentParameterName = ''
         let currentParameterIndex = -1
         const openBracketNode = node.getChild(openBracket)
@@ -180,6 +208,14 @@ export default function useFlowCodemirror({
         const fromPosition = state.selection.ranges[0].from
         const currentNode = syntaxTree(state).resolveInner(fromPosition, -1)
 
+        /*visualize(syntaxTree(state).cursor(), state.doc.toString(), { 
+            theme: {
+                ...defaultTheme,
+                name: Color.DarkGreen,
+                source: Color.DarkRed,
+            }    
+        })*/
+
         if (onAutocompleteFunctionOrModuleRef.current !== undefined) {
             const { name: nodeName, node: functionOrModuleNode } = traverseNodesFromBottomToTopOfTheTree(
                 currentNode, ['FunctionCall', 'Struct']
@@ -187,7 +223,7 @@ export default function useFlowCodemirror({
 
             if (nodeName === 'FunctionCall') {
                 const currentParameterIndexAndName = autocompleteGetCurrentParameterIndexAndParameterName(
-                    '(', ')', functionOrModuleNode, fromPosition
+                    state, '(', ')', functionOrModuleNode, fromPosition
                 )
                 const firstChild = functionOrModuleNode.firstChild
                 
@@ -207,7 +243,7 @@ export default function useFlowCodemirror({
                 })
             } else if (nodeName === 'Struct') {
                 const currentParameterIndexAndName = autocompleteGetCurrentParameterIndexAndParameterName(
-                    '{', '}', functionOrModuleNode, fromPosition
+                    state, '{', '}', functionOrModuleNode, fromPosition
                 )
                 const firstChild = functionOrModuleNode.firstChild
                 
@@ -228,11 +264,15 @@ export default function useFlowCodemirror({
         }
 
         if (onAutoCompleteRef.current !== undefined) {
-            const { node: attributeNode } = traverseNodesFromBottomToTopOfTheTree(
-                currentNode, ['Attribute']
+            const { 
+                node: attributeOrFunctionCallNode, 
+                name: attributeOrFunctionCallNodeName
+            } = traverseNodesFromBottomToTopOfTheTree(
+                currentNode, ['Attribute', 'FunctionCall']
             )
-            const attributeName = attributeNode !== undefined ? 
-                state.sliceDoc(attributeNode.firstChild.from, attributeNode.firstChild.to) : ''
+            const attributeName = attributeOrFunctionCallNode !== undefined && attributeOrFunctionCallNodeName === 'Attribute' ? 
+                state.sliceDoc(attributeOrFunctionCallNode.firstChild.from, attributeOrFunctionCallNode.firstChild.to) : ''
+            
             if (currentNode.name === 'Script') {
                 onAutoCompleteRef.current({
                     name: '',
@@ -240,14 +280,13 @@ export default function useFlowCodemirror({
                 })
             } else if (currentNode.name === 'Variable') {
                 const searching = state.sliceDoc(currentNode.from, currentNode.to)
-                //const { name: nodeName, node: functionOrModuleNode } = traverseAndCheckIfNodeInNodeTypes(currentNode, ['FunctionCall', 'Struct'])
                 onAutoCompleteRef.current({
                     name: searching,
                     attributeName
                 })
             } else {
                 onAutoCompleteRef.current({
-                    name: '',
+                    name: typeof currentNode.name === 'string' && currentNode.name !== '.' ? currentNode.name : '',
                     attributeName
                 })
             }
@@ -262,7 +301,7 @@ export default function useFlowCodemirror({
      * 
      * The context of flow is retrieved by calling `getFlowContext` function.
      * 
-     * @returns {LanguageSupport} - The language support for the flow language.
+     * @returns {import('@codemirror/language').LanguageSupport} - The language support for the flow language.
      */
     async function flowLanguagePack() {
         const flowContext = await Promise.resolve(getFlowContextRef.current())

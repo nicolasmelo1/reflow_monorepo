@@ -3,7 +3,6 @@ import { HighlightStyle, tags as t } from '@codemirror/highlight'
 import { indentWithTab } from '@codemirror/commands'
 import { keymap } from '@codemirror/view'
 
-
 const getDefaultTheming = ({removeLineCounter=false} = {}) => {
     const editorDefaultTheme = {
         "&": {
