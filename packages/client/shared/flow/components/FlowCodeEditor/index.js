@@ -23,7 +23,8 @@ export default function FlowCodeEditor(props) {
         flowServiceRef,
         runtimeModulesDocumentationRef,
         getFlowContext,
-        performTest
+        performTest,
+        languageOptions
     } = useFlow()
     useClickedOrPressedOutside({ ref: editorContainerRef, callback: () => onToggleInputFocus(false) })
     
@@ -39,17 +40,33 @@ export default function FlowCodeEditor(props) {
         })*/
     }
 
+    /**
+     * Maps the movement of the cursor in the text editor. Thiw way we can know the current position of the cursor
+     * and this enables us to add text in the middle of the text. This is a callback for the `onSelect` function inside of
+     * `useCodemirror` hook.
+     * 
+     * @param {object} cursorPosition - The position of the cursor inside of the text editor.
+     * @param {number} [cursorPosition.from=0] - The index of the starting position of the cursor inside of the editor.
+     * @param {number} [cursorPosition.to=0] - The index of the end position of the cursor inside of the editor.
+     */
     function onCursorMove({ from=0, to=0 }={}) {
         cursorPositionRef.current = { from, to }
     }
 
     /**
-     * Function called when on the onClick event handler, when the user select a module or a function from the formula autocomplete.
+     * Function called when clicking a option inside of the autocomplete menu.
      * 
+     * @param {string} [label=''] - By default the label is always defined, this is the text that will be inserted in the editor.
+     * @param {object} customAutocompleteParams - Custom autocomplete parameters used for extending and giving extra functionality to the autocomplete.
+     * @param {number | undefined} [customAutocompleteParams.cursorAt=undefined] - After inserting the text you might want to set the cursor at a specific
+     * position in the text editor, this is exactly what this is for.
+     * @param {boolean} [customAutocompleteParams.isSnippet=false] - This will add the text as a snippet, being a snippet means that there will be placeholders
+     * that the user needs to move to in order to write what he wants. For example, defining an `if` expression can be a lot easier with a snippet
+     * where we add the condition as placeholder and the body also as a placeholder.
      */
-    function onClickAutocomplete({ label='', cursorAt=undefined, snippet=null }={}) {
-        if (snippet !== null) {
-            codeEditorFunctionsRef.current.dispatchChange('', { withSnippet: snippet })
+    function onClickAutocomplete(label='', { cursorAt=undefined, isSnippet=false }={}) {
+        if (isSnippet === true) {
+            codeEditorFunctionsRef.current.dispatchChange(label, { isSnippet })
         } else if (cursorAt !== undefined) {
             codeEditorFunctionsRef.current.dispatchChange(label, { 
                 withCursorAt: label.length + cursorPositionRef.current.from + cursorAt,
@@ -59,10 +76,22 @@ export default function FlowCodeEditor(props) {
         }
     }
 
+    /**
+     * Callback that will be called whenever the input blurs. We see that when this happens, if the editor is focused, we will force to focus again on the
+     * input.
+     * 
+     * The problem is: The autocomplete behaviour was created by us, it's not something provided by default from codemirror. So whenever we click outside of the
+     * codemirror editor the editor blurs. This means that when we click one of the autocomplete options, the editor will blur, so if we type something in the keyboard
+     * after clicking the autocomplete option, nothing will appear, that's because the codemirror editor will not be focused.
+     */
     function onBlur() {
         if (isInputFocusedRef.current === true) codeEditorFunctionsRef.current.forceFocus()
     }
 
+    /**
+     * Callback used for when we focus on the input, whenever we focus on the codemirror input this function is called. This will call the `onToggleInputFocus`
+     * function that will hold most of the functionality for when the input is focused or when it is blurred.
+     */
     function onFocus() {
         onToggleInputFocus(true)
     }
@@ -91,67 +120,11 @@ export default function FlowCodeEditor(props) {
     function onAutoComplete(autocomplete) {
         let options = []
 
-        const languageOptions = [
-            {
-                label: `${strings('flowIfKeyword', { environment: 'shared' })}`,
-                snippet: (`${strings('flowIfKeyword', { environment: 'shared' })}` +
-                                  ` #{condição} ${strings('flowDoKeyword', { environment: 'shared' })}\n` + 
-                                  `  #{quando verdadeiro}\n${strings('flowEndKeyword', { environment: 'shared' })}`).substring(autocomplete.name.length),
-                type: 'language'
-            },
-            {
-                label: `${strings('flowIfKeyword', { environment: 'shared' })} - ${strings('flowElseKeyword', { environment: 'shared' })}`,
-                snippet: (`${strings('flowIfKeyword', { environment: 'shared' })}` +
-                                  ` #{condição} ${strings('flowDoKeyword', { environment: 'shared' })}\n` + 
-                                  `  #{quando verdadeiro}\n${strings('flowElseKeyword', { environment: 'shared' })}` +
-                                  ` ${strings('flowDoKeyword', { environment: 'shared' })}\n  #{quando falso}\n` + 
-                                  `${strings('flowEndKeyword', { environment: 'shared' })}`).substring(autocomplete.name.length),
-                type: 'language'
-            },
-            {
-                label: `${strings('flowIfKeyword', { environment: 'shared' })} - ${strings('flowElseKeyword', { environment: 'shared' })} - ${strings('flowIfKeyword', { environment: 'shared' })}`,
-                snippet: (`${strings('flowIfKeyword', { environment: 'shared' })}` +
-                                  ` #{1º condição} ${strings('flowDoKeyword', { environment: 'shared' })}\n` + 
-                                  `  #{quando 1º condição}\n${strings('flowElseKeyword', { environment: 'shared' })} ${strings('flowIfKeyword', { environment: 'shared' })}` +
-                                  ` #{2º condição} ${strings('flowDoKeyword', { environment: 'shared' })}\n  #{quando 2º condição}\n` + 
-                                  `${strings('flowElseKeyword', { environment: 'shared' })} ${strings('flowDoKeyword', { environment: 'shared' })}\n` +
-                                  `  #{quando nenhuma condição}\n${strings('flowEndKeyword', { environment: 'shared' })}`).substring(autocomplete.name.length),
-                type: 'language'
-            },
-            {
-                label: `${strings('flowFunctionKeyword', { environment: 'shared' })}`,
-                snippet: (`${strings('flowFunctionKeyword', { environment: 'shared' })}` +
-                                  ` #{nome}(#{parâmetros}) ${strings('flowDoKeyword', { environment: 'shared' })}\n` + 
-                                  `  #{fazer}\n${strings('flowEndKeyword', { environment: 'shared' })}`).substring(autocomplete.name.length),
-                type: 'language'
-            },
-            {
-                label: `${strings('flowFunctionKeyword', { environment: 'shared' })} anônima`,
-                snippet: (`${strings('flowFunctionKeyword', { environment: 'shared' })}` +
-                                  ` (#{parâmetros}) ${strings('flowDoKeyword', { environment: 'shared' })}\n` + 
-                                  `  #{fazer}\n${strings('flowEndKeyword', { environment: 'shared' })}`).substring(autocomplete.name.length),
-                type: 'language'
-            },
-            {
-                label: `${strings('flowFunctionKeyword', { environment: 'shared' })} lambda`,
-                snippet: (`${strings('flowFunctionKeyword', { environment: 'shared' })}` +
-                                  ` #{nome}(#{parâmetros}): #{fazer}`).substring(autocomplete.name.length),
-                type: 'language'
-            },
-            {
-                label: `${strings('flowFunctionKeyword', { environment: 'shared' })} lambda anônima`,
-                snippet: (`${strings('flowFunctionKeyword', { environment: 'shared' })}` +
-                                  ` (#{parâmetros}): #{fazer}`).substring(autocomplete.name.length),
-                type: 'language'
-            }
-        ]
-
-        console.log(autocomplete)
         if (autocomplete.attributeName === '') {
             const allModules = runtimeModulesDocumentationRef.current
             const modulesOptions = allModules.map(module => ({
                 label: `${module.name}`,
-                autocompleteText: `${module.name.substring(autocomplete.name.length)}.`,
+                autocompleteText: `${module.name}.`,
                 description: module?.description,
                 type: 'module'
             }))
@@ -170,7 +143,7 @@ export default function FlowCodeEditor(props) {
                     const hasRequiredParameters = (hasParameters === true ? Object.values(method.parameters).filter(parameter=> parameter.required === true) : []).length > 0
                     return {
                         type: 'function',
-                        autocompleteText: `${method.name.substring(autocomplete.name.length)}()`,
+                        autocompleteText: `${method.name}()`,
                         cursorOffset: hasRequiredParameters ? -1 : 0,
                         label: method.name,
                         info: method.description,
@@ -178,6 +151,11 @@ export default function FlowCodeEditor(props) {
                 })
             } 
         } 
+
+        options = options.map(option => {
+            option.autocompleteText = option.autocompleteText.substring(autocomplete.name.length)
+            return option
+        })
         setAutocompleteOptions(options)
     }
     

@@ -90,25 +90,26 @@ export default function useCodemirror({
      * @param {number | undefined} [changeParams.to=undefined] - To what position you want to change the text.
      * @param {boolean} [changeParams.replaceText=false] - Replace the hole text or nor?
      * @param {number | undefined} [changeParams.withCursorAt=undefined] - The position of the cursor after the change.
+     * @param {boolean} [changeParams.isSnippet=false] - If this is defined and set to true, then we will not a add a new text as a snippet.
+     * Snippets are part of codemirror https://github.com/codemirror/autocomplete/blob/main/src/snippet.ts#L155, with this we are able to
+     * create "placeholders" where the user can define the attributes and move between them using `TAB` or `SHIFT+TAB`.
      */
-    function dispatchChange(newText, { from=undefined, to=undefined, replaceText=false, withCursorAt=undefined, withSnippet='' }={}) {
+    function dispatchChange(newText, { from=undefined, to=undefined, replaceText=false, withCursorAt=undefined, isSnippet=false }={}) {
         const isEditorDefined = ![null, undefined].includes(editorViewRef.current)
 
         if (isEditorDefined) {
             const isFromDefined = from !== undefined && typeof from === 'number'
             const isToDefined = to !== undefined && typeof to === 'number'
             const isWithCursorAtDefined = withCursorAt !== undefined && typeof withCursorAt === 'number'
-            const isWithSnippet = withSnippet !== '' && typeof withSnippet === 'string'
 
-            if (isWithSnippet) {
+            if (isSnippet) {
                 const fromPosition = editorViewRef.current.state.selection.ranges.length > 0 ? editorViewRef.current.state.selection.ranges[0].from : 0
                 const toPosition = editorViewRef.current.state.selection.ranges.length > 0 ? editorViewRef.current.state.selection.ranges[0].to : 0
 
-                snippet(withSnippet)(editorViewRef.current, {}, fromPosition, toPosition)
+                snippet(newText)(editorViewRef.current, {}, fromPosition, toPosition)
             } else if (isWithCursorAtDefined) {
                 const state = editorViewRef.current.state
                 const text = state.toText(newText)
-                console.log(withCursorAt)
                 editorViewRef.current.dispatch(
                     state.changeByRange(range => ({
                         changes: {

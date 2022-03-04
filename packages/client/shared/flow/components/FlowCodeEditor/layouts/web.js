@@ -100,11 +100,11 @@ export default function FlowWebCodeEditor(props) {
                                 isLast={index === props.autocompleteOptions.length - 1}
                                 onClick={(e) => {
                                     if (option.cursorOffset) {
-                                        props.onClickAutocomplete({ label: option.autocompleteText, cursorAt: option.cursorOffset}) 
-                                    } else if (option.snippet) {
-                                        props.onClickAutocomplete({ snippet: option.snippet})
+                                        props.onClickAutocomplete(option.autocompleteText, { cursorAt: option.cursorOffset}) 
+                                    } else if (option.isSnippet === true) {
+                                        props.onClickAutocomplete(option.autocompleteText, { isSnippet: true })
                                     } else {
-                                        props.onClickAutocomplete({ label: option.autocompleteText})
+                                        props.onClickAutocomplete(option.autocompleteText)
                                     }
                                 }}
                                 >
