@@ -2,11 +2,22 @@ import { APP } from '../../../../conf'
 import styled from 'styled-components'
 import { View, Text } from 'react-native'
 
+//top: ${props => props.autocompleteMenuPosition.position.y}px;
+//left: ${props => props.autocompleteMenuPosition.position.x}px;
+//max-height: ${props => props.autocompleteMenuPosition.maxHeight !== null ? `${props.autocompleteMenuPosition.maxHeight}px` : 'var(--app-height)'};
+//opacity: ${props => props.editMenuPosition.wasCalculated ? '1' : '0'};
 export const AutocompleteAndFunctionOrModuleDescriptionContainer = APP === 'web' ?
 styled.div`
+    position: absolute;
+    left: 0;
+    right: 0;
+    ${props => props.isToLoadOptionsOnBottom ? `top: ${props.editorHeight}px;` : `bottom: ${props.editorHeight}px;`}
+    transition: opacity 0.2s ease-in-out;
     border-radius: 5px;
-    border: 1px solid ${props => props.theme.clearGray};
-    box-shadow: rgb(56 66 95 / 8%) 4px 4px 12px;
+    ${props => props.isShown ? `
+        border: 1px solid ${props.theme.clearGray};
+        box-shadow: rgb(56 66 95 / 8%) 4px 4px 12px;
+    ` : ''}
     background-color: ${props => props.theme.white};
 `
 :

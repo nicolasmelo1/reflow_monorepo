@@ -36,8 +36,8 @@ export default function FormularyFieldFormulaWebLayout(props) {
                         </Styled.TooltipWrapper>
                     ) : (
                         <FlowCodeEditor
-                        onChange={props.onChangeFormula}
-                        performTestRef={props.performTestRef}
+                        //onChange={props.onChangeFormula}
+                        evaluateRef={props.evaluateRef}
                         />
                     )}
                 </Fragment>

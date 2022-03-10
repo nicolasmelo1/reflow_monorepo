@@ -1,48 +1,113 @@
 import { useRef, useState, useEffect } from 'react'
 import { useFlow } from '../../hooks'
-import { useClickedOrPressedOutside, strings } from '../../../core'
-import Layouts from './layouts'
 import { APP } from '../../../conf'
+import { useClickedOrPressedOutside, strings } from '../../../core'
 import { delay } from '../../../../../shared/utils'
+import Layouts from './layouts'
 
-const defaultDelay = delay(1000)
+
+const defaultDelay = delay(2000)
 
 /**
  * This is different from the other components, most of the logic is on the layout itself and not here.
  * That's because there are lot of particularities between react native and react that we need to address.
  * 
  * @param {object} props - The props for this component
- * @param {}
+ * @param {undefined | {
+ *      current: null | {
+ *          dispatchChange:  (newText, { from=undefined, to=undefined, replaceText=false }={}) => void, 
+ *          forceFocus: () => void, 
+ *          forceBlur: () => void
+ *     }
+ * }} [props.codeEditorFunctionsRef=undefined] - This is the react useRef object that will hold the functions that we can
+ * call on the code editor. For example, changing the text on a given variable, and so on.
+ * @param {undefined | {
+ *     current: null | (code) => Promise<import('../../../../../shared/flow/builtins/objects').FlowObject>
+ * }} [props.evaluateRef=undefined] - This is a useRef object, that will hold the function to evaluate a flow code, whenever
+ * you want to evaluate the flow code you will need to call `props.evaluateRef.current(code)`. Remember that
+ * this will give you the result as a FlowObject, so you need to convert it to a javascript value in order
+ * to use it.
+ * @param {
+ *      undefined | 
+ *      (code) => Promise<import('../../../../../shared/flow/builtins/objects').FlowObject>
+ * } [props.onChange=undefined] - Callback that is called whenever the code in the editor
+ * changes.
+ * @param {string} [props.code=''] - The code that will be shown/written inside of the editor.
+ * 
+ * 
+ * @return {import('react').ReactElement} - The component that will be rendered.
  */
 export default function FlowCodeEditor(props) {
+    const initialCode = typeof props.code === 'string' ? code : ''
     const codeEditorFunctionsRef = props.codeEditorFunctionsRef !== undefined ? props.codeEditorFunctionsRef : useRef({})
-    
+    const forWebEditorRef = useRef()
+    const forWebAutocompleteContainerRef = useRef()
     const editorContainerRef = useRef()
     const isInputFocusedRef = useRef(false)
     const cursorPositionRef = useRef({ from: 0, to: 0})
+    
+    const [flowCode, setFlowCode] = useState(initialCode)
+    const [evaluationResult, setEvaluationResult] = useState(undefined)
+    const [editorHeight, setEditorHeight] = useState(0)
+    const [isToLoadAutocompleteOptionsOnBottom, setIsToLoadAutocompleteOptionsOnBottom] = useState(true)
     const [autocompleteOptions, setAutocompleteOptions] = useState([])
     const [hoveringAutocompleteOption, setHoveringAutocompleteOption] = useState(null)
     const [autocompleteModulesOrFunctions, setAutocompleteModulesOrFunctions] = useState(null)
     const { 
         runtimeModulesDocumentationRef,
         getFlowContext,
-        performTest,
+        evaluate,
         languageOptions,
         createAutocompleteOptions
     } = useFlow()
     useClickedOrPressedOutside({ ref: editorContainerRef, callback: () => onToggleInputFocus(false) })
     
+    function webAutomaticDefineWhereToRenderOptions() {
+        const isAutocompleteOptionsDefined = autocompleteOptions.length > 0
+        const isAutocompleteModulesOrFunctionsDefined = typeof autocompleteModulesOrFunctions === 'object'
+        const isWebApp = APP === 'web'
+
+        if (isWebApp && isAutocompleteOptionsDefined && 
+            isAutocompleteModulesOrFunctionsDefined && 
+            forWebAutocompleteContainerRef.current
+        ) {
+            const editorRect = forWebEditorRef.current.getBoundingClientRect()
+            const optionsContainerRect = forWebAutocompleteContainerRef.current.getBoundingClientRect()
+            const maximumHeightOfPage = window.innerHeight
+            const bottomPositionOfOptionsContainer = optionsContainerRect.height + editorRect.y + editorRect.height
+            const isOptionsContainerBiggerThanWindow = bottomPositionOfOptionsContainer > maximumHeightOfPage
+            if (isOptionsContainerBiggerThanWindow) {
+                setIsToLoadAutocompleteOptionsOnBottom(false)
+            } else {
+                setIsToLoadAutocompleteOptionsOnBottom(true)
+            }
+            setEditorHeight(editorRect.height)
+        }
+    }
+
     /**
      * This is called whenever the user changes the text inside of the code editor. So you can do whatever type of
      * behaviour you want to do.
      * 
      * @param {string} flowCode - The code that the user has written in the editor.
      */
-    function onChangeCode(flowCode) {
+    async function onChangeCode(flowCode) {
+        let result = undefined
         const isOnChangeDefined = typeof props.onChange === 'function'
         if (isOnChangeDefined) {
-            props.onChange(flowCode)
+            result = await Promise.resolve(props.onChange(flowCode))
+            setEvaluationResult(result)
+        } else {
+            defaultDelay(() => {
+                evaluate(flowCode).then(async result => {
+                    if (result !== undefined && result._representation_ !== undefined) {
+                        const realResult = await(await result._string_())._representation_()
+                        setEvaluationResult(realResult.toString())
+                    }
+                })
+            })
         }
+        setFlowCode(flowCode)
     }
 
     /**
@@ -120,6 +185,8 @@ export default function FlowCodeEditor(props) {
             setAutocompleteModulesOrFunctions(null)
             setAutocompleteOptions([])
             codeEditorFunctionsRef.current.forceBlur()
+        } else {
+
         }
     }
     
@@ -288,22 +355,39 @@ export default function FlowCodeEditor(props) {
     }, [])
 
     useEffect(() => {
-        const doesPropsForPerformTestWereDefined = typeof props.performTestRef === 'object' && 
-            typeof props.performTestRef?.current !== 'function'
-        const isPerformTestFunctionDefined = typeof performTest === 'function'
-        if (doesPropsForPerformTestWereDefined && isPerformTestFunctionDefined) {
-            props.performTestRef.current = performTest
+        const doesPropsForEvaluateWereDefined = typeof props.evaluateRef === 'object' && 
+            typeof props.evaluateRef?.current !== 'function'
+        const isEvaluateFunctionDefined = typeof evaluate === 'function'
+        if (doesPropsForEvaluateWereDefined && isEvaluateFunctionDefined) {
+            props.evaluateRef.current = evaluate
         }  
-    }, [props.performTestRef, performTest])
+    }, [props.evaluateRef, evaluate])
+
+    useEffect(() => {
+        webAutomaticDefineWhereToRenderOptions()
+    }, [autocompleteOptions, autocompleteModulesOrFunctions, evaluationResult, flowCode])
+
+    useEffect(() => {
+        const isCodeFromParentDifferentFromLocalCode = typeof props.code === 'string' && props.code !== flowCode
+        if (isCodeFromParentDifferentFromLocalCode) {
+            setFlowCode(props.code)
+        }
+    }, [props.code])
 
     return (
         <Layouts 
+        forWebEditorRef={forWebEditorRef}
+        forWebAutocompleteContainerRef={forWebAutocompleteContainerRef}
         editorContainerRef={editorContainerRef}
         functionsRef={codeEditorFunctionsRef}
+        editorHeight={editorHeight}
+        isToLoadAutocompleteOptionsOnBottom={isToLoadAutocompleteOptionsOnBottom}
+        evaluationResult={evaluationResult}
         onAutoComplete={onAutoComplete}
         onHoverAutocompleteOption={onHoverAutocompleteOption}
         onAutocompleteFunctionOrModule={onAutocompleteFunctionOrModule}
         getFlowContext={getFlowContext}
+        initialCode={flowCode}
         onSelect={onCursorMove}
         onBlur={onBlur}
         onFocus={onFocus}

@@ -9,7 +9,6 @@ styled.div`
     padding: 0 10px 0 10px;
     width: calc(100% - 20px);
     border-radius: 5px;
-    margin-bottom: 500px;
 `
 :
 styled(View)``

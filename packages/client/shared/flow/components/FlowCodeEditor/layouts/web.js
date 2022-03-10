@@ -1,4 +1,4 @@
-import { useEffect, Fragment } from 'react'
+import { useEffect, useCallback, Fragment } from 'react'
 import { useFlowCodemirror } from '../../../hooks'
 import FlowAutocompleteDescription from '../../FlowAutocompleteDescription'
 import Styled from '../styles'
@@ -16,8 +16,9 @@ import Styled from '../styles'
  */
 export default function FlowWebCodeEditor(props) {
     const { 
-        editorRef, dispatchChange, forceFocus, forceBlur
+        editorRef: flowCodemirrorEditorRef, dispatchChange, forceFocus, forceBlur
     } = useFlowCodemirror({
+        code: props.flowCode,
         onAutoComplete: props.onAutoComplete,
         onAutocompleteFunctionOrModule: props.onAutocompleteFunctionOrModule,
         getFlowContext: props.getFlowContext,
@@ -26,7 +27,7 @@ export default function FlowWebCodeEditor(props) {
         onChange: props.onChange,
         onSelect: props.onSelect
     })
-    
+
     useEffect(() => {
         if (props.functionsRef !== undefined) {
             props.functionsRef.current = {
@@ -40,9 +41,25 @@ export default function FlowWebCodeEditor(props) {
     return (
         <div
         ref={props.editorContainerRef}
+        style={{ position: 'relative' }}
         >
-            <div ref={editorRef}/>
-            <Styled.AutocompleteAndFunctionOrModuleDescriptionContainer>
+            <div
+            ref={props.forWebEditorRef}
+            >
+                <div ref={flowCodemirrorEditorRef}/>
+                <div>
+                    <p style={{ margin: 0}}>
+                        <span style={{fontWeight: 'bold', marginRight: '5px'}}>{'='}</span>
+                        {props.evaluationResult}
+                    </p>
+                </div>
+            </div>
+            <Styled.AutocompleteAndFunctionOrModuleDescriptionContainer
+            ref={props.forWebAutocompleteContainerRef}
+            isToLoadOptionsOnBottom={props.isToLoadAutocompleteOptionsOnBottom}
+            editorHeight={props.editorHeight}
+            isShown={props.autocompleteModulesOrFunctions !== null || props.autocompleteOptions.length > 0}
+            >
                 {props.autocompleteModulesOrFunctions !== null ? (
                     <Styled.FunctionOrModuleDescriptionContainer>
                         <Styled.FunctionOrModuleDescriptionTitle>

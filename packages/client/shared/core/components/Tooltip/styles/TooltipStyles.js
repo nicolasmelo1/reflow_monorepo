@@ -13,6 +13,7 @@ styled.div`
     background-color: transparent;
     opacity: ${props => props.tooltipPosition.wasCalculated ? 1 : 0};
     overflow: auto;
+    z-index: 1;
 `
 :
 styled(View)``

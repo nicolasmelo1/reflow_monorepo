@@ -5,11 +5,11 @@ import Layout from './layouts'
 const defaultDelay = delay(2000)
 
 export default function FormularyFieldFormula(props) {
-    const performTestRef = useRef(null)
+    const evaluateRef = useRef(null)
 
     function onChangeFormula(newFormula) {
         defaultDelay(() => {
-            performTestRef.current(newFormula).then(async result => {
+            evaluateRef.current(newFormula).then(async result => {
                 if (result !== undefined && result._representation_ !== undefined) {
                     const realResult = await(await result._string_())._representation_()
                     console.log(realResult)
@@ -20,7 +20,7 @@ export default function FormularyFieldFormula(props) {
 
     return (
         <Layout
-        performTestRef={performTestRef}
+        evaluateRef={evaluateRef}
         onChangeFormula={onChangeFormula}
         types={props.types}
         field={props.field}

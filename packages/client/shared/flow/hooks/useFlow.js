@@ -206,7 +206,10 @@ export default function useFlow() {
         return flowServiceRef.current.context
     }
 
-    async function performTest(code) {
+    /**
+     * Performs a test on the given code. A test means, it will evaluate the result of a flow program.
+     */
+    async function evaluate(code) {
         return await flowServiceRef.current.evaluate(code)
     }
 
@@ -214,7 +217,7 @@ export default function useFlow() {
         flowServiceRef,
         runtimeModulesDocumentationRef,
         getFlowContext,
-        performTest,
+        evaluate,
         languageOptions,
         createAutocompleteOptions
     }

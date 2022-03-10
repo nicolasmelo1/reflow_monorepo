@@ -193,10 +193,6 @@ export default function Select(props) {
             onSearch('')
             if (APP === 'web') {
                 if (searchInputRef.current) searchInputRef.current.focus()
-                // On the web this will rotate 
-                setTimeout(() => {
-                    webAutomaticDefineWhereToRenderOptionsAndAdjustOffset()
-                }, 1)
             }
         }
             
@@ -401,6 +397,10 @@ export default function Select(props) {
     useEffect(() => {
         adjustWidthOfSearchInput(search)
     }, [props.placeholder])
+
+    useEffect(() => {
+        if (isOpen ===  true) webAutomaticDefineWhereToRenderOptionsAndAdjustOffset()
+    }, [isOpen])
 
     const filteredSelectedOptions = originalOptions.filter(option => selectedOptions.includes(option.value))
 
