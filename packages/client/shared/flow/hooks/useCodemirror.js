@@ -38,6 +38,7 @@ import { snippet } from '@codemirror/autocomplete'
  * when the editor loses focus.
  * @param {(event: FocusEvent) => void} [codemirrorOptions.onFocusCallback=undefined] - This is the callback that will be called
  * when the editor gains focus.
+ * @param {boolean} [isEditable=false] - Is the editor editable or is it just to show information?
  * 
  * @returns {{
  *      editorRef: {current: any},
@@ -53,14 +54,21 @@ export default function useCodemirror({
     onSelect=undefined,
     autocompleteCallback=undefined,
     onBlurCallback=undefined,
-    onFocusCallback=undefined
+    onFocusCallback=undefined,
+    isWithActiveLine=true,
+    isWithLineCounter=true,
+    isEditable=true
 }) {
     const onBlurCallbackRef = useRef(onBlurCallback)
     const onFocusCallbackRef = useRef(onFocusCallback)
     const autocompleteCallbackRef = useRef(autocompleteCallback)
     const onChangeRef = useRef(onChange)
     const onSelectRef = useRef(onSelect)
-    
+    const isEditableRef = useRef(isEditable)
+    const isWithLineCounterRef = useRef(isWithLineCounter)
+    const isWithActiveLineRef = useRef(isWithActiveLine)
+    const editorNodeRef = useRef(null)
+
     const editorSelectionFromRef = useRef(null)
     const eventListenersRef = useRef(() => {})
     const selectionRangeRef = useRef({from: 0, to: 0})
@@ -68,6 +76,7 @@ export default function useCodemirror({
     const editorViewRef = useRef(null)
     // Reference: https://stackoverflow.com/a/60066291
     const editorRef = useCallback(editorNode => {
+        editorNodeRef.current = editorNode
         function initializeEditor() {
             if (editorNode !== null) {
                 createNewCodeEditor(editorNode)
@@ -145,7 +154,6 @@ export default function useCodemirror({
                     }
                 })
             } else if (!isFromDefined && !isToDefined) {
-                console.log(editorViewRef.current.state.replaceSelection(newText))
                 editorViewRef.current.dispatch(editorViewRef.current.state.replaceSelection(newText))
             }
         }
@@ -283,7 +291,10 @@ export default function useCodemirror({
             parent: editorNode,
             code: codeRef.current,
             languagePack: null,
-            dispatchCallback: onDispatchTransaction
+            dispatchCallback: onDispatchTransaction,
+            editable: isEditableRef.current,
+            removeLineCounter: !isWithLineCounterRef.current,
+            isWithActiveLine: isWithActiveLineRef.current,
         }
 
         const isLanguagePackAFunction = typeof languagePack === 'function'
@@ -300,6 +311,24 @@ export default function useCodemirror({
     useEffect(() => { onChangeRef.current = onChange }, [onChange])
     useEffect(() => { onSelectRef.current = onSelect }, [onSelect])
     useEffect(() => { autocompleteCallbackRef.current = autocompleteCallback }, [autocompleteCallback])
+    useEffect(() => { 
+        const isIsEditableDifferentFromCurrentIsEditable = isEditable !== isEditableRef.current
+        if (isIsEditableDifferentFromCurrentIsEditable) {
+            createNewCodeEditor(editorNodeRef.current)
+        }
+    }, [isEditable])
+    useEffect(() => {
+        const isIsWithLineCounterDifferentFromCurrentIsWithLineCounter = isWithLineCounter !== isWithLineCounterRef.current
+        if (isIsWithLineCounterDifferentFromCurrentIsWithLineCounter) {
+            createNewCodeEditor(editorNodeRef.current)
+        }
+    }, [isWithLineCounter])
+    useEffect(() => {
+        const isIsWithActiveLineDifferentFromCurrentIsWithActiveLine = isWithActiveLine !== isWithActiveLineRef.current
+        if (isIsWithActiveLineDifferentFromCurrentIsWithActiveLine) {
+            createNewCodeEditor(editorNodeRef.current)
+        }
+    }, [isWithActiveLine])
 
     return {
         editorRef,

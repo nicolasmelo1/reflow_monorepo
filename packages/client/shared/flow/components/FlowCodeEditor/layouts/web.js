@@ -1,5 +1,6 @@
 import { useEffect, Fragment } from 'react'
-import { useFlowCodemirror } from "../../../hooks"
+import { useFlowCodemirror } from '../../../hooks'
+import FlowAutocompleteDescription from '../../FlowAutocompleteDescription'
 import Styled from '../styles'
 
 /**
@@ -61,7 +62,9 @@ export default function FlowWebCodeEditor(props) {
                                         isSelected={props.autocompleteModulesOrFunctions.currentParameter !== undefined ? 
                                             parameter.name === props.autocompleteModulesOrFunctions.currentParameter.name : false}
                                         >
-                                            <span>
+                                            <span
+                                            style={{display: 'inline-block'}}
+                                            >
                                                 {parameter.name}
                                             </span>
                                             {parameter.required === true ? (
@@ -98,6 +101,7 @@ export default function FlowWebCodeEditor(props) {
                                 <Styled.AutocompleteOptionContainer
                                 key={index}
                                 isLast={index === props.autocompleteOptions.length - 1}
+                                onMouseOver={() => props.onHoverAutocompleteOption(index)}
                                 onClick={(e) => {
                                     if (option.cursorOffset) {
                                         props.onClickAutocomplete(option.autocompleteText, { cursorAt: option.cursorOffset}) 
@@ -115,7 +119,13 @@ export default function FlowWebCodeEditor(props) {
                             ))}
                         </Styled.AutocompleteOptionsContainer>
                         <Styled.AutocompleteDescriptionContainer>
-
+                            <FlowAutocompleteDescription
+                            description={props.hoveringAutocompleteOption.description}
+                            parameters={props.hoveringAutocompleteOption.parameters}
+                            examples={props.hoveringAutocompleteOption.examples}
+                            label={props.hoveringAutocompleteOption.rawName}
+                            getFlowContext={props.getFlowContext}
+                            />
                         </Styled.AutocompleteDescriptionContainer>
                     </Styled.AutocompleteContainer>
                 ) : ''}

@@ -49,6 +49,14 @@ module.exports = {
         flowIfSnippetSecondCondition: '2º condição',
         flowIfSnippetWhenSecondCondition: 'quando 2º condição',
         flowIfSnippetWhenNoCondition: 'quando nenhuma condição',
+        flowFunctionSnippetName: 'nome',
+        flowFunctionSnippetParameters: 'parâmetros',
+        flowFunctionSnippetDo: 'fazer',
+        flowFunctionLambdaName: 'lambda',
+        flowFunctionAnonymousName: 'anônima',
+        flowDescriptionDescriptionLabel: 'Descrição',
+        flowDescriptionExampleLabel: 'Exemplos',
+        flowDescriptionParametersLabel: 'Argumentos',
         numberFormatTypeNumberLabel: 'Dinâmico',
         numberFormatTypeIntegerLabel: 'Inteiro',
         numberFormatTypeCurrencyLabel: 'Monetário',
@@ -100,7 +108,7 @@ module.exports = {
         flowFunctionKeyword: 'função',
         flowReturnKeyword: 'retornar',
         flowRaiseKeyword: 'lançar',
-        flowTryKeyword: 'tente',
+        flowTryKeyword: 'tentar',
         flowCatchKeyword: 'caso contrário',
         flowModuleKeyword: 'módulo',
         flowDecimalPointSeparator: ',',
@@ -119,9 +127,9 @@ module.exports = {
         flowHTTPGetMethodName: 'get',
         flowHTTPGetMethodDescription: 'Isso irá pegar os dados de uma URL, geralmente uma api, e irá retorná-los em formato JSON',
         flowHTTPGetMethodExample: "resposta = HTTP.get('https://pokeapi.co/api/v2/pokemon/pikachu')\ndados_do_pikachu = resposta.json\ndados_do_pikachu['types'][0]['type']['name']" + 
-                                  "\n\nCom isso nós puxamos o dado do pokemon pikachu, recebemos a resposta em formato json e navegamos pela estrutura dos dados até " + 
-                                  "pegarmos o que desejamos, que é o tipo do pokemon.\n" +
-                                  "O processo é o mesmo para conectar aplicações entre si.",
+                                  "\n\n# Com isso nós puxamos o dado do pokemon pikachu, recebemos a resposta\n# em formato json e navegamos pela estrutura dos dados até \n" + 
+                                  "# pegarmos o que desejamos, que é o tipo do pokemon.\n" +
+                                  "# O processo é o mesmo para conectar aplicações entre si.",
         flowHTTPUrlParameterName: 'endereço',
         flowHTTPUrlParameterDescription: 'O endereço para puxar/enviar/deletar ou atualizar um recurso de um serviço terceiro. Será sempre uma URL.',
         flowHTTPHeadersParameterName: 'cabeçalhos',

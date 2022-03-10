@@ -327,7 +327,7 @@ class FlowFunction extends FlowObject {
              * 
              * @param {() => Promise<import('./object')>} toEvaluateFunction - The function to return or the function to evaluate.
              * 
-             * @returns {function|FlowObject} - The function to evaluate later if in a recursion or the result of the FlowFunction.
+             * @returns {Promise<function|FlowObject>} - The function to evaluate later if in a recursion or the result of the FlowFunction.
              */
             async function tailCallOptimization(toEvaluateFunction) {
                 const currentScope = await this.interpreter.memory.callStack.peek()

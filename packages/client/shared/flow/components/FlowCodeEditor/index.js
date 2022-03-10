@@ -1,7 +1,11 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useFlow } from '../../hooks'
 import { useClickedOrPressedOutside, strings } from '../../../core'
 import Layouts from './layouts'
+import { APP } from '../../../conf'
+import { delay } from '../../../../../shared/utils'
+
+const defaultDelay = delay(1000)
 
 /**
  * This is different from the other components, most of the logic is on the layout itself and not here.
@@ -20,24 +24,25 @@ export default function FlowCodeEditor(props) {
     const [hoveringAutocompleteOption, setHoveringAutocompleteOption] = useState(null)
     const [autocompleteModulesOrFunctions, setAutocompleteModulesOrFunctions] = useState(null)
     const { 
-        flowServiceRef,
         runtimeModulesDocumentationRef,
         getFlowContext,
         performTest,
-        languageOptions
+        languageOptions,
+        createAutocompleteOptions
     } = useFlow()
     useClickedOrPressedOutside({ ref: editorContainerRef, callback: () => onToggleInputFocus(false) })
     
-    function onChangeFormula(text) {
-        //console.log(text)
-        /*defaultDelay(() => {
-            performTest(text).then(async result => {
-                if (result !== undefined && result._representation_ !== undefined) {
-                    const realResult = await(await result._string_())._representation_()
-                    console.log(realResult)
-                }
-            })
-        })*/
+    /**
+     * This is called whenever the user changes the text inside of the code editor. So you can do whatever type of
+     * behaviour you want to do.
+     * 
+     * @param {string} flowCode - The code that the user has written in the editor.
+     */
+    function onChangeCode(flowCode) {
+        const isOnChangeDefined = typeof props.onChange === 'function'
+        if (isOnChangeDefined) {
+            props.onChange(flowCode)
+        }
     }
 
     /**
@@ -88,6 +93,18 @@ export default function FlowCodeEditor(props) {
         if (isInputFocusedRef.current === true) codeEditorFunctionsRef.current.forceFocus()
     }
 
+    /** 
+     * / * WEB ONLY * /
+     * 
+     * This function is called when the window blurs, this means, when the user clicks anywhere outside of the
+     * current window. Usually we will only blur the element when the user clicks anywhere ON the window outside 
+     * of the element. But for example we can click the devtools, clicking the devtools will make the input lose 
+     * focus, on this case we should also blur the input.
+     */
+    function webOnWindowBlur() {
+        onToggleInputFocus(false)
+    }
+
     /**
      * Callback used for when we focus on the input, whenever we focus on the codemirror input this function is called. This will call the `onToggleInputFocus`
      * function that will hold most of the functionality for when the input is focused or when it is blurred.
@@ -105,10 +122,11 @@ export default function FlowCodeEditor(props) {
             codeEditorFunctionsRef.current.forceBlur()
         }
     }
-
+    
     /**
      * This function will be called whenever the user is typing something in the editor. This way, while the user is typing we can display 
      * the autocomplete options for him. This makes really easy to understand and learn how flow works.
+     * To create the autocomplete options we use the `createAutocompleteOptions` function that we created in the `useFlow` hook.
      * 
      * @param {{name: string, attributeName: string}} autocomplete - The autocomplete object that holds the informations needed to filter the autocomplete options.
      * By default, `name` is filled with whatever the user types. The `attributeName` is the name of the attribute that the user is in. For example: 
@@ -122,14 +140,17 @@ export default function FlowCodeEditor(props) {
 
         if (autocomplete.attributeName === '') {
             const allModules = runtimeModulesDocumentationRef.current
-            const modulesOptions = allModules.map(module => ({
-                label: `${module.name}`,
-                autocompleteText: `${module.name}.`,
-                description: module?.description,
-                type: 'module'
-            }))
-            options = modulesOptions.concat(languageOptions)
-            options = options.filter(({ label }) => label.startsWith(autocomplete.name))
+            const modulesOptions = allModules.map(module => {
+                const moduleDescription = typeof module?.description === 'string' ? module.description : ''
+                return createAutocompleteOptions(
+                    `${module.name}.`, 
+                    module.name,
+                    moduleDescription,
+                    'module'
+                )
+            })
+            const modulesAndLanguageOptions = modulesOptions.concat(languageOptions)
+            options = modulesAndLanguageOptions.filter(option => option.label.startsWith(autocomplete.name))
 
         } else if (autocomplete.attributeName !== '') {
             const builtinModule = runtimeModulesDocumentationRef.current.find(module => module.name === autocomplete.attributeName)
@@ -141,72 +162,153 @@ export default function FlowCodeEditor(props) {
                 options = filteredMethods.map(method => {
                     const hasParameters = typeof method?.parameters === 'object'
                     const hasRequiredParameters = (hasParameters === true ? Object.values(method.parameters).filter(parameter=> parameter.required === true) : []).length > 0
-                    return {
-                        type: 'function',
-                        autocompleteText: `${method.name}()`,
-                        cursorOffset: hasRequiredParameters ? -1 : 0,
-                        label: method.name,
-                        info: method.description,
-                    }
+                    const methodDescription = typeof method?.description === 'string' ? method.description : ''
+                    const parameters = hasParameters ? Object.values(method.parameters) : []
+                    const examples = Array.isArray(method?.examples) ? method.examples : []
+                    const cursorOffset = hasRequiredParameters ? -1 : 0
+                    return createAutocompleteOptions(
+                        `${method.name}()`,
+                        `${method.name}()`,
+                        methodDescription,
+                        'function',
+                        { 
+                            rawName: method.name, 
+                            parameters: parameters, 
+                            examples: examples,
+                            cursorOffset: cursorOffset
+                        }
+                    )
                 })
             } 
         } 
-
+        
+        // See that this creates a new object, this is really important. Because if we didn't do this and changed
+        // the original object we would be changing the original object, meaning that, if we search for "if " for example,
+        // we will remove this part from the `autocompleteText` of the original text, so the next time we type only "i", 
+        // the "if " part will be ~cut off~. Because you would be changing the actual object directly.
         options = options.map(option => {
-            option.autocompleteText = option.autocompleteText.substring(autocomplete.name.length)
-            return option
+            const filteredAutocompleteText = option.autocompleteText.substring(autocomplete.name.length)
+            return {
+                ...option,
+                autocompleteText: filteredAutocompleteText
+            }
         })
+
+        const isOptionsNotEmpty = options.length > 0
+        const isFirstOptionDifferentFromExistingHoveringOption = hoveringAutocompleteOption === null ||
+            (isOptionsNotEmpty && JSON.stringify(options[0]) !== JSON.stringify(hoveringAutocompleteOption))
+        if (isOptionsNotEmpty && isFirstOptionDifferentFromExistingHoveringOption) {
+            setHoveringAutocompleteOption(options[0])
+        }
+
         setAutocompleteOptions(options)
     }
     
-    function onAutocompleteFunctionOrModule(autocompleteData) {
-        const isEditingAFunctionCallOrStructCreation = typeof autocompleteData === 'object' && 
-            (autocompleteData.moduleName !== '' || autocompleteData.name !== '')
-            //(autocompleteData.currentParameterIndex !== -1 || autocompleteData.currentParameterName !== '')
+    /**
+     * This will help the user when he is filling a module or a function. Right now only functions.
+     * It works similarly to Excel, when the user is typing a function we will show the current parameter
+     * he is filling the function with, we show if it is required and also the description of what the parameter
+     * he is filling refers to.
+     * This makes it easy to understand how flow works and makes it fairly easy to write flow code.
+     * 
+     * @param {object} autocompleteFunctionOrModuleData - The data of the function or module that the user is filling.
+     * @param {string} [autocompleteFunctionOrModuleData.name=''] - The name of the function inside of a module.
+     * For example on "HTTP.get()" this will be "name".
+     * @param {string} [autocompleteFunctionOrModuleData.moduleName=''] - The name of the module.
+     * For example on "HTTP.get()" this will be "HTTP".
+     * @param {number} [autocompleteFunctionOrModuleData.currentParameterIndex=0] - The current parameter index that the user
+     * is filling. For example on "HTTP.get('https://www.google.com', |)" (Where '|' is the cursor) this will be 1. because the
+     * index 0 is the 'https://www.google.com' and since the cursor is after the ',', then this means we are filling 
+     * the second parameter.
+     * @param {number} [autocompleteFunctionOrModuleData.currentParameterName=''] - The current parameter name that the user is filling.
+     * For example: HTTP.get has the following parameters: ['url', 'parmeters', 'headers', 'basic_auth']. But the user just want to set up
+     * the url and the `headers`, he can do this by:
+     * ```
+     * HTTP.get('https://www.google.com', headers={'Content-Type': 'application/json'} |)
+     * ```
+     * ^ This will show the current parameter name that the user is filling as 'headers', although it is on parameter index position 1.
+     */
+    function onAutocompleteFunctionOrModule(
+        { name='', moduleName='', currentParameterIndex=0, currentParameterName='' }={}
+    ) {
+        const isEditingAFunctionCallOrStructCreation = moduleName !== '' || name !== ''
         if (isEditingAFunctionCallOrStructCreation) {
-            const builtinModule = runtimeModulesDocumentationRef.current.find(module => module.name === autocompleteData.moduleName)
+            const builtinModule = runtimeModulesDocumentationRef.current.find(module => module.name === moduleName)
             const hasMethods = typeof builtinModule === 'object' && typeof builtinModule?.methods === 'object'
-            const method = hasMethods === true && builtinModule.methods[autocompleteData.name] !== undefined ? 
-                builtinModule.methods[autocompleteData.name] : {}
+            const method = hasMethods === true && builtinModule.methods[name] !== undefined ? 
+                builtinModule.methods[name] : undefined
 
-            const currentModuleAndFunctionData = {
-                method: method,
-                currentParameter: undefined
-            }
-            
-            const isEditingTheParametersOfTheFunctionCall = autocompleteData.currentParameterIndex !== -1 || autocompleteData.currentParameterName !== ''
-            if (isEditingTheParametersOfTheFunctionCall) {
-                const hasParameters = typeof method?.parameters === 'object'
-                const listOfParameters = hasParameters === true ? Object.values(method.parameters) : []
-                const currentParameterDescription = listOfParameters.find((parameter, index) => {
-                    if (autocompleteData.currentParameterName !== '') {
-                        return parameter.name === autocompleteData.currentParameterName
-                    } else {
-                        return index === autocompleteData.currentParameterIndex
-                    }
-                })
+            if (method !== undefined) {
+                const currentModuleAndFunctionData = {
+                    method: method,
+                    currentParameter: undefined
+                }
+                
+                const isEditingTheParametersOfTheFunctionCall = currentParameterIndex !== -1 || currentParameterName !== ''
+                if (isEditingTheParametersOfTheFunctionCall) {
+                    const hasParameters = typeof method?.parameters === 'object'
+                    const listOfParameters = hasParameters === true ? Object.values(method.parameters) : []
+                    const currentParameterDescription = listOfParameters.find((parameter, index) => {
+                        const isCurrentParameterNameNotEmpty = currentParameterName !== ''
+                        if (isCurrentParameterNameNotEmpty) {
+                            return parameter.name === currentParameterName
+                        } else {
+                            return index === currentParameterIndex
+                        }
+                    })
 
-                currentModuleAndFunctionData.currentParameter = currentParameterDescription
+                    currentModuleAndFunctionData.currentParameter = currentParameterDescription
+                }
+                
+                setAutocompleteModulesOrFunctions(currentModuleAndFunctionData)
+                return undefined
             }
-            
-            setAutocompleteModulesOrFunctions(currentModuleAndFunctionData)
-        } else {
-            setAutocompleteModulesOrFunctions(null)
         }
+        setAutocompleteModulesOrFunctions(null)
     }
 
+    /**
+     * Callback supposed to be called when the user hovers over an option. On mobile defines this can be a callback for a
+     * 'onPress' event, since it doesn't have hovering behaviour.
+     * 
+     * What this does is that this retrieves the index of the option that is being displayed, and then set it as the current 
+     * hovering autocomplete option.
+     * 
+     * @param {number} optionIndex - The index of the option that is being hovered over.
+     */
+    function onHoverAutocompleteOption(optionIndex) {
+        setHoveringAutocompleteOption(autocompleteOptions[optionIndex])
+    }
+
+    useEffect(() => {
+        if (APP === 'web') window.addEventListener('blur', webOnWindowBlur)
+        return () => {
+            if (APP === 'web') window.removeEventListener('blur', webOnWindowBlur)
+        }
+    }, [])
+
+    useEffect(() => {
+        const doesPropsForPerformTestWereDefined = typeof props.performTestRef === 'object' && 
+            typeof props.performTestRef?.current !== 'function'
+        const isPerformTestFunctionDefined = typeof performTest === 'function'
+        if (doesPropsForPerformTestWereDefined && isPerformTestFunctionDefined) {
+            props.performTestRef.current = performTest
+        }  
+    }, [props.performTestRef, performTest])
 
     return (
         <Layouts 
         editorContainerRef={editorContainerRef}
         functionsRef={codeEditorFunctionsRef}
         onAutoComplete={onAutoComplete}
+        onHoverAutocompleteOption={onHoverAutocompleteOption}
         onAutocompleteFunctionOrModule={onAutocompleteFunctionOrModule}
         getFlowContext={getFlowContext}
         onSelect={onCursorMove}
         onBlur={onBlur}
         onFocus={onFocus}
-        onChange={onChangeFormula}
+        onChange={onChangeCode}
+        hoveringAutocompleteOption={hoveringAutocompleteOption}
         autocompleteOptions={autocompleteOptions}
         autocompleteModulesOrFunctions={autocompleteModulesOrFunctions}
         onClickAutocomplete={onClickAutocomplete}

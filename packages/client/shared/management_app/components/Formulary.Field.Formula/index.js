@@ -1,18 +1,26 @@
 import { useRef } from 'react'
+import { delay } from '../../../../../shared/utils'
 import Layout from './layouts'
 
-//const defaultDelay = delay(1000)
+const defaultDelay = delay(2000)
 
 export default function FormularyFieldFormula(props) {
-    const codeEditorFunctionsRef = useRef({})
+    const performTestRef = useRef(null)
 
     function onChangeFormula(newFormula) {
-
+        defaultDelay(() => {
+            performTestRef.current(newFormula).then(async result => {
+                if (result !== undefined && result._representation_ !== undefined) {
+                    const realResult = await(await result._string_())._representation_()
+                    console.log(realResult)
+                }
+            })
+        })
     }
 
     return (
         <Layout
-        codeEditorFunctionsRef={codeEditorFunctionsRef}
+        performTestRef={performTestRef}
         onChangeFormula={onChangeFormula}
         types={props.types}
         field={props.field}

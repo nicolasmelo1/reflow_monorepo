@@ -97,7 +97,6 @@ class DraftService {
 
     async saveDraft({draftFile=undefined, draftValue=undefined, isPublicDraft=false, uuid=null}={}, transaction) {
         const isDraftFileDefined = ![null, undefined].includes(draftFile)
-        console.log(draftFile)
         const fileSize = isDraftFileDefined ? draftFile.fileSize : null
         draftValue = isDraftFileDefined ? draftFile.fileName : draftValue
 

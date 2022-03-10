@@ -247,7 +247,7 @@ class HTTP extends LibraryModule {
                 get: {
                     name: strings('flowHTTPGetMethodName', language),
                     description: strings('flowHTTPGetMethodDescription', language),
-                    examples: strings('flowHTTPGetMethodExample', language),
+                    examples: [strings('flowHTTPGetMethodExample', language)],
                     parameters: {
                         ...urlDefaultParameter,
                         ...deleteOrGetParameters,

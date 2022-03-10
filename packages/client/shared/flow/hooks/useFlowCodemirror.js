@@ -51,6 +51,7 @@ import { styleTags, tags as t } from '@codemirror/highlight'
  * in the codemirror input.
  * @param {() => void | undefined} [onFocus=undefined] - Callback that is supposed to be called when `onfocus` event
  * is fired in the codemirror component.
+ * @param {boolean} [isEditable=false] - Is the editor editable or is it just to show information?
  * 
  * @returns {{
  *      editorRef: { current: HTMLElement },
@@ -62,7 +63,8 @@ import { styleTags, tags as t } from '@codemirror/highlight'
 export default function useFlowCodemirror({ 
     code='', onAutoComplete=undefined, onChange=undefined, onSelect=undefined,
     onAutocompleteFunctionOrModule=undefined, getFlowContext=undefined,
-    onBlur=undefined, onFocus=undefined
+    onBlur=undefined, onFocus=undefined, isEditable=true, isWithActiveLine=true,
+    isWithLineCounter=true,
 } = {}) {
     const onAutocompleteFunctionOrModuleRef = useRef(onAutocompleteFunctionOrModule)
     const onAutoCompleteRef = useRef(onAutoComplete)
@@ -75,6 +77,9 @@ export default function useFlowCodemirror({
         defaultCode: code,
         onChange,
         onSelect,
+        isEditable,
+        isWithActiveLine,
+        isWithLineCounter,
         autocompleteCallback: autocomplete,
         onBlurCallback: onBlur,
         onFocusCallback: onFocus

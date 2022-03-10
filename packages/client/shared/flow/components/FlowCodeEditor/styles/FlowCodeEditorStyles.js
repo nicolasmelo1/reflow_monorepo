@@ -25,6 +25,7 @@ export const FunctionOrModuleDescriptionTitle = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
 `
 :
 styled(View)``
@@ -61,14 +62,14 @@ styled(Text)``
 export const AutocompleteContainer = APP === 'web' ?
 styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     max-height: 200px;
 `:
 styled(View)``
 
 export const AutocompleteOptionsContainer = APP === 'web' ?
 styled.div`
-    width: 50%;
+    width: 30%;
     overflow-y: auto;
 `
 :
@@ -76,7 +77,8 @@ styled(View)``
 
 export const AutocompleteDescriptionContainer = APP === 'web' ?
 styled.div`
-    width: 50%;
+    width: 70%;
+    overflow-y: auto;
 `
 :
 styled(View)``

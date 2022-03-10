@@ -114,38 +114,40 @@ class Interpreter {
         if (argumentsLength > parametersLength) {
             await FlowError.new(this.settings, errorTypes.ATTRIBUTE, `Too many arguments provided. Expected '${parametersLength}' but got '${argumentsLength}'`)
         }
+
         // we loop through all of the parameters but we do not set them yet, because it will mess the hashTable.rawKeys and hashTable.values
         // if we try to change the value inside of the loop, so we just store them in `toSetInParameters` to set them later.
         for (let i=0; i < await(await parameters._length_())._representation_(); i++) {
-            let parameterName = await parameters.hashTable.rawKeys.getItem(i)
+            let functionDefinitionParameterName = await parameters.hashTable.rawKeys.getItem(i)
             let defaultValueInParameter = await parameters.hashTable.values.getItem(i)
 
             // If the defaultValue defined on the parameters is of type Object, this means it's a obligatory parameter.
-            if (defaultValueInParameter.type === objectTypes.OBJECT_TYPE) obligatoryParameters.push(await (await parameterName._string_())._representation_())
+            if (defaultValueInParameter.type === objectTypes.OBJECT_TYPE) obligatoryParameters.push(await (await functionDefinitionParameterName._string_())._representation_())
 
             // The arguments of the functionCall or the struct initialization, we loop through them as we loop through all of the parameters.
             // notice that we loop through the parameters and not the arguments, that's because we need to check for obligatory parameters and see
             // if all parameters are defined and satisfied.
             if (nodeArguments[i]) {
+                let functionCallParameterName = functionDefinitionParameterName
                 let value = null
                 if (nodeArguments[i].nodeType === NodeType.ASSIGN) {
-                    parameterName = await FlowString.new(this.settings, nodeArguments[i].left.token.value)
+                    functionCallParameterName = await FlowString.new(this.settings, nodeArguments[i].left.token.value)
                     value = await this.evaluate(nodeArguments[i].right)
                 } else {
                     value = await this.evaluate(nodeArguments[i])
                 }
-                definedParameters.push(await (await parameterName._string_())._representation_())
+                definedParameters.push(await (await functionCallParameterName._string_())._representation_())
                 toSetInParameters.push({
-                    item: parameterName,
+                    item: functionCallParameterName,
                     value: value
                 })
-            } else {
-                if (!definedParameters.includes(await (await parameterName._string_())._representation_())) {
-                    toSetInParameters.push({
-                        item: parameterName,
-                        value: defaultValueInParameter
-                    })
-                }
+            } 
+
+            if (!definedParameters.includes(await (await functionDefinitionParameterName._string_())._representation_())) {
+                toSetInParameters.push({
+                    item: functionDefinitionParameterName,
+                    value: defaultValueInParameter
+                })
             }
         }
 
@@ -503,7 +505,7 @@ class Interpreter {
      * 
      * @param {import('./parser/nodes').FunctionCall} node - The node to evaluate will be the FunctionCall node.
      * 
-     * @returns {FlowObject} - The result of the function call.
+     * @returns {Promise<FlowObject>} - The result of the function call.
      */
     async #handleFunctionCall(node) {
         /** @type {FlowFunction} */

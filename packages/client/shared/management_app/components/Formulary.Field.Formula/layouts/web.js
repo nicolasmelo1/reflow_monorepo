@@ -37,7 +37,7 @@ export default function FormularyFieldFormulaWebLayout(props) {
                     ) : (
                         <FlowCodeEditor
                         onChange={props.onChangeFormula}
-                        codeEditorFunctionsRef={props.codeEditorFunctionsRef}
+                        performTestRef={props.performTestRef}
                         />
                     )}
                 </Fragment>
