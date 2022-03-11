@@ -93,7 +93,8 @@ class FlowObject {
      async resetCached() {
         /** 
          * @type {object} - Whenever a new operation is made we reset the _cached variable, otherwise 
-         * we will keep the actual representation of the dict cached so whenever we need to retrieve again we will not have to
+         * we will keep the actual representation of the dict cached so whenever we need to retrieve again 
+         * we will not have to recalculate it
          */ 
         this._cached = {
             representation: null,
@@ -302,6 +303,8 @@ class FlowObject {
      *  * Called when using the + operator to add the value of two objects or do other things.
      * 
      * @param {FlowObject} obj - The object to be added to the current object.
+     * 
+     * @return {Promise<FlowObject>} - Returns a new FlowObject if everything goes right.
      */
     async _add_(obj) {
         await this.newError(errorTypes.TYPE, `Unsuported operation '+' between types '${this.type}' and '${obj.type}'.`)
@@ -311,6 +314,8 @@ class FlowObject {
      * Called when using the - operator to subtract the value of two objects or do other things.
      * 
      * @param {FlowObject} obj - The object to be subtracted from the current object.
+     * 
+     * @return {Promise<FlowObject>} - Returns a new FlowObject if everything goes right.
      */
     async _subtract_(obj) {
         await this.newError(errorTypes.TYPE, `Unsuported operation '-' between types '${this.type}' and '${obj.type}'.`)
@@ -406,6 +411,8 @@ class FlowObject {
      * Checks if the current object is less than or equal a given object. By default we just check if they are equals.
      * 
      * @param {FlowObject} obj - The object to be compared with the current object.
+     * 
+     * @returns {Promise<import('./boolean')>} - The new boolean value.
      */
     async _lessthanequal_(obj) {
         const equalsRepresentation = await (await this._equals_(obj))._representation_()
@@ -419,6 +426,8 @@ class FlowObject {
      * By default we return false.
      * 
      * @param {FlowObject} obj - The object to be compared with the current object.
+     * 
+     * @returns {Promise<import('./boolean')>} - The new boolean value.
      */
     async _greaterthan_(obj) {
         await this.newError(errorTypes.TYPE, `Operation '>' is not supported between '${this.type}' and '${obj.type}'.`)
@@ -430,6 +439,8 @@ class FlowObject {
      * might throw an error. This means by default >= and <= works like equals first.
      * 
      * @param {FlowObject} obj - The object to be compared with the current object.
+     * 
+     * @returns {Promise<import('./boolean')>} - The new boolean value.
      */
     async _greaterthanequal_(obj) {
         const equalsRepresentation = await (await this._equals_(obj))._representation_()

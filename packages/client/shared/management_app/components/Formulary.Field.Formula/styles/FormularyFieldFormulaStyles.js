@@ -13,6 +13,30 @@ styled.div`
 :
 styled(View)``
 
+export const DoneButtonContainer = APP === 'web' ?
+styled.div`
+    display: flex;
+    flex-direction: row;
+`
+:
+styled(View)``
+export const DoneEditingButton = APP === 'web' ?
+styled.button`
+    border-radius: 5px;
+    margin-top: 5px;
+    padding: 5px;
+    background-color: ${props => props.theme.green_REFLOW}70;
+    border: 0;
+    color: ${props => props.theme.darkBlue};
+    cursor: pointer;
+
+    &:hover {
+        background-color: ${props => props.theme.green_REFLOW}50;
+    }
+`
+:
+styled(TouchableOpacity)`` 
+
 export const TooltipWrapper = APP === 'web' ? 
 styled.div`
     display: flex;
@@ -69,3 +93,4 @@ styled.small`
 `
 :
 styled(Text)``
+

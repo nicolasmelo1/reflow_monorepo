@@ -278,6 +278,12 @@ function CustomOptionSelect(props) {
 function OptionFormatOption(props) {
     const [isDropdown, setIsDropdown] = useState(props.isDropdown)
     
+    /**
+     * Changes if the option is a dropdown menu or not. A dropdown menu means that all of the options will be
+     * inside of a select. When it is not a dropdown menu, it is simple radio buttons.
+     * 
+     * @param {boolean} isDropdownMenu - If it is a dropdown menu it will be true, otherwise, false.
+     */
     function onChangeIfIsDropdownMenu(isDropdownMenu=!isDropdown) {
         setIsDropdown(isDropdownMenu)
         props.onChangeIfIsDropdownMenu(isDropdownMenu)

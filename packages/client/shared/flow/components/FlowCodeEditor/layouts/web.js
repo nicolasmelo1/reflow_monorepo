@@ -1,5 +1,6 @@
-import { useEffect, useCallback, Fragment } from 'react'
+import { useEffect, Fragment } from 'react'
 import { useFlowCodemirror } from '../../../hooks'
+import { Loading } from '../../../../core'
 import FlowAutocompleteDescription from '../../FlowAutocompleteDescription'
 import Styled from '../styles'
 
@@ -18,7 +19,7 @@ export default function FlowWebCodeEditor(props) {
     const { 
         editorRef: flowCodemirrorEditorRef, dispatchChange, forceFocus, forceBlur
     } = useFlowCodemirror({
-        code: props.flowCode,
+        code: props.initialCode,
         onAutoComplete: props.onAutoComplete,
         onAutocompleteFunctionOrModule: props.onAutocompleteFunctionOrModule,
         getFlowContext: props.getFlowContext,
@@ -47,12 +48,22 @@ export default function FlowWebCodeEditor(props) {
             ref={props.forWebEditorRef}
             >
                 <div ref={flowCodemirrorEditorRef}/>
-                <div>
-                    <p style={{ margin: 0}}>
-                        <span style={{fontWeight: 'bold', marginRight: '5px'}}>{'='}</span>
-                        {props.evaluationResult}
-                    </p>
-                </div>
+                <Styled.ResultContainer>
+                    <Styled.ResultEqualLabel>
+                        {'='}
+                    </Styled.ResultEqualLabel>
+                    {props.isCalculating === true ? (
+                        <div style={{ width: '20px' }}>
+                            <Loading/>
+                        </div>
+                    ) : (
+                        <Styled.ResultLabel
+                        type={props.evaluationResult.type}
+                        >
+                            {props.evaluationResult.value}
+                        </Styled.ResultLabel>
+                    )}
+                </Styled.ResultContainer>
             </div>
             <Styled.AutocompleteAndFunctionOrModuleDescriptionContainer
             ref={props.forWebAutocompleteContainerRef}

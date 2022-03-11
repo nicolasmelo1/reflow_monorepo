@@ -208,6 +208,11 @@ export default function useFlow() {
 
     /**
      * Performs a test on the given code. A test means, it will evaluate the result of a flow program.
+     * 
+     * @param {string} code - The code to be evaluated in the FlowService.
+     * 
+     * @returns {Promise<import('../../../../shared/flow/builtins/objects').FlowObject} - Returns a flow object which is
+     * the result of the function
      */
     async function evaluate(code) {
         return await flowServiceRef.current.evaluate(code)

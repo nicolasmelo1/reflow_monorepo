@@ -1,44 +1,77 @@
 import { Fragment } from 'react'
+import { faCog, faCheck } from '@fortawesome/free-solid-svg-icons'
 import { strings, Tooltip } from '../../../../core'
 import FlowCodeEditor from '../../../../flow/components/FlowCodeEditor'
 import Styled from '../styles'
 
+
+export function DropdownMenuFormulaFormatOptionWebLayout(props) {
+    return (
+        <Styled.DropdownMenuInputContainer>
+            <Styled.IsToEditFormulaButton
+            onClick={() => props.onEditFormula()}
+            >
+                <Styled.IsToEditFormulaButtonIcon 
+                icon={props.isEditingFormula === true ? faCheck : faCog}
+                />
+                {props.isEditingFormula === true ? 
+                    strings('formularyFieldFormulaDropdownMenuToFinishEditOnFormulaLabel') : 
+                    strings('formularyFieldFormulaDropdownMenuToEditFormulaLabel')}
+            </Styled.IsToEditFormulaButton>
+        </Styled.DropdownMenuInputContainer>
+    )
+}
+
 export default function FormularyFieldFormulaWebLayout(props) {
     const hasValueDefined = !['', null, undefined].includes(props.value)
     const hasPlaceholder = !['', null, undefined].includes(props.field.placeholder)
-    
+
     return (
         <Styled.Container 
         ref={props.editorContainerRef}
         hasTooltip={hasValueDefined === true || (hasValueDefined === false && hasPlaceholder === true)}
         >
-            {hasValueDefined === true ? (
-                <Styled.TooltipWrapper>
-                    <Tooltip
-                    text={strings('formularyFieldFormulaDescriptionLabel')}
-                    >
-                        <Styled.Value>
-                            {props.value}
-                        </Styled.Value>
-                    </Tooltip>
-                </Styled.TooltipWrapper>
+            {props.isEditingFormula === true ? (
+                <Fragment>
+                    <FlowCodeEditor
+                    code={props.field.formulaField !== null ? props.field.formulaField.formula : ''}
+                    onChange={props.onChangeFormula}
+                    evaluateRef={props.evaluateRef}
+                    />
+                    <Styled.DoneButtonContainer>
+                        <Styled.DoneEditingButton
+                        onClick={() => props.onToggleIsEditingFormula(false)}
+                        >
+                            {strings('formularyFieldFormulaDoneEditingFormula')}
+                        </Styled.DoneEditingButton>
+                    </Styled.DoneButtonContainer>
+                </Fragment>
+
             ) : (
                 <Fragment>
-                    {hasPlaceholder === true ? (
+                    {hasValueDefined === true ? (
                         <Styled.TooltipWrapper>
                             <Tooltip
-                            text={strings('formularyFieldFormulaEmptyValueDescriptionLabel')}
+                            text={hasPlaceholder === true ? 
+                                props.field.placeholder :
+                                strings('formularyFieldFormulaDescriptionLabel')
+                            }
                             >
-                                <Styled.Description>
-                                    {props.field.placeholder}
-                                </Styled.Description>
+                                <Styled.Value>
+                                    {props.value}
+                                </Styled.Value>
                             </Tooltip>
                         </Styled.TooltipWrapper>
                     ) : (
-                        <FlowCodeEditor
-                        //onChange={props.onChangeFormula}
-                        evaluateRef={props.evaluateRef}
-                        />
+                        <Fragment>
+                            <Styled.TooltipWrapper>
+                                <Styled.Description>
+                                    {hasPlaceholder === true ? 
+                                        props.field.placeholder : 
+                                        strings('formularyFieldFormulaDescriptionLabel')}
+                                </Styled.Description>
+                            </Styled.TooltipWrapper>
+                        </Fragment>
                     )}
                 </Fragment>
             )}

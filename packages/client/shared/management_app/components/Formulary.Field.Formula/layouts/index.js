@@ -1,5 +1,8 @@
 import { APP } from '../../../../conf'
-import Mobile from './mobile'
-import Web from './web'
+import Mobile, { DropdownMenuFormulaFormatOptionMobileLayout } from './mobile'
+import Web, { DropdownMenuFormulaFormatOptionWebLayout } from './web'
 
-export default APP === 'web' ? Web : Mobile
+export default {
+    Field: APP === 'web' ? Web : Mobile,
+    DropdownMenu: APP === 'web' ? DropdownMenuFormulaFormatOptionWebLayout : DropdownMenuFormulaFormatOptionMobileLayout
+}

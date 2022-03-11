@@ -7,7 +7,7 @@ import {
     foldNodeProp, foldInside, syntaxTree
 } from '@codemirror/language'
 import { styleTags, tags as t } from '@codemirror/highlight'
-//import { visualize, Color, defaultTheme } from '@colin_t/lezer-tree-visualizer'
+import { visualize, Color, defaultTheme } from '@colin_t/lezer-tree-visualizer'
 
 /**
  * Hook created to be tightly coupled with the codemirror editor on one side, and Flow on the other.
@@ -213,13 +213,13 @@ export default function useFlowCodemirror({
         const fromPosition = state.selection.ranges[0].from
         const currentNode = syntaxTree(state).resolveInner(fromPosition, -1)
 
-        /*visualize(syntaxTree(state).cursor(), state.doc.toString(), { 
+        visualize(syntaxTree(state).cursor(), state.doc.toString(), { 
             theme: {
                 ...defaultTheme,
                 name: Color.DarkGreen,
                 source: Color.DarkRed,
             }    
-        })*/
+        })
 
         if (onAutocompleteFunctionOrModuleRef.current !== undefined) {
             const { name: nodeName, node: functionOrModuleNode } = traverseNodesFromBottomToTopOfTheTree(
@@ -278,6 +278,7 @@ export default function useFlowCodemirror({
             const attributeName = attributeOrFunctionCallNode !== undefined && attributeOrFunctionCallNodeName === 'Attribute' ? 
                 state.sliceDoc(attributeOrFunctionCallNode.firstChild.from, attributeOrFunctionCallNode.firstChild.to) : ''
             
+            console.log(currentNode.name)
             if (currentNode.name === 'Script') {
                 onAutoCompleteRef.current({
                     name: '',
@@ -285,11 +286,14 @@ export default function useFlowCodemirror({
                 })
             } else if (currentNode.name === 'Variable') {
                 const searching = state.sliceDoc(currentNode.from, currentNode.to)
+                if (currentNode.parent && currentNode.parent.name === 'ReflowVariable') {
+                    console.log('teste')
+                }
                 onAutoCompleteRef.current({
                     name: searching,
                     attributeName
                 })
-            } else {
+            }  else {
                 onAutoCompleteRef.current({
                     name: typeof currentNode.name === 'string' && currentNode.name !== '.' ? currentNode.name : '',
                     attributeName
@@ -337,6 +341,10 @@ export default function useFlowCodemirror({
             hourFormat: flowContext.datetime.hourFormat, 
             documentationKeyword: flowContext.keyword.documentationKeyword
         }
+        // Sometimes when you open the editor the browser window can be slow because of this,
+        // This is where the code should be optimized, we can generate the parser before having
+        // the code in production so if the user is using flow with the same predefined context, 
+        // we should need to rebuild the parser should happen.
         const parser = flowLanguageParser(context)
         const operatorKeywords = `${context.conjunction} ${context.disjunction} ${context.equality} ${context.inversion} ${context.includes}`
         const controlKeywords = `${context.blockDo} ${context.blockEnd} ${context.ifIf} ${context.ifElse} ${context.tryKeyword} ${context.catchKeyword} ` +

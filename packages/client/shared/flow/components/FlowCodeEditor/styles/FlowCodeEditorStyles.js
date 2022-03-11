@@ -119,3 +119,35 @@ styled.p`
 `
 :
 styled(Text)``
+
+export const ResultContainer = APP === 'web' ? 
+styled.div`
+    display: flex;
+    flex-direction: row;
+    margin-top: 5px;
+`
+:
+styled(View)``
+
+export const ResultEqualLabel = APP === 'web' ? 
+styled.span`
+    font-weight: bold;
+    margin-right: 5px
+`
+:
+styled(Text)``
+
+
+export const ResultLabel = APP === 'web' ? 
+styled.span`
+    color: ${props => 
+        props.type === 'error' ? props.theme.red_REFLOW : 
+        ['int', 'float'].includes(props.type) ? props.theme.darkblue_REFLOW : 
+        props.type === 'string' ? props.theme.green_REFLOW :
+        `${props.theme.gray_REFLOW}90`};
+    font-size: 14px;
+    white-space: pre-wrap;
+`
+:
+styled(Text)``
+

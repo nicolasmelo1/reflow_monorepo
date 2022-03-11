@@ -191,6 +191,7 @@ Atom {
 	Datetime |
 	Boolean |
 	Dict |
+	ReflowVariable |
 	List |
 	keyword<"${nullValue}"> |
 	!string String |
@@ -246,6 +247,8 @@ List { "[" Expression ((PositionalArgumentSeparator Expression)+)? "]" }
 
 	spaces[@export] { $[\u0009 \u000b\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff]+ }
 	newline[@export] { $[\r\n\u2028\u2029] }
+	
+	ReflowVariable { "{{" ![}}]+ }
 
 	LineComment { "#" ![\n]+ }
 	DocumentationBlockComment { "/*" ![*/]+ "*/" }

@@ -27,18 +27,16 @@ const defaultDelay = delay(2000)
  * you want to evaluate the flow code you will need to call `props.evaluateRef.current(code)`. Remember that
  * this will give you the result as a FlowObject, so you need to convert it to a javascript value in order
  * to use it.
- * @param {
- *      undefined | 
- *      (code) => Promise<import('../../../../../shared/flow/builtins/objects').FlowObject>
+ * @param {undefined | (code) => 
+ *      Promise<import('../../../../../shared/flow/builtins/objects').FlowObject>
  * } [props.onChange=undefined] - Callback that is called whenever the code in the editor
  * changes.
  * @param {string} [props.code=''] - The code that will be shown/written inside of the editor.
  * 
- * 
  * @return {import('react').ReactElement} - The component that will be rendered.
  */
 export default function FlowCodeEditor(props) {
-    const initialCode = typeof props.code === 'string' ? code : ''
+    const initialCode = typeof props.code === 'string' ? props.code : ''
     const codeEditorFunctionsRef = props.codeEditorFunctionsRef !== undefined ? props.codeEditorFunctionsRef : useRef({})
     const forWebEditorRef = useRef()
     const forWebAutocompleteContainerRef = useRef()
@@ -46,8 +44,9 @@ export default function FlowCodeEditor(props) {
     const isInputFocusedRef = useRef(false)
     const cursorPositionRef = useRef({ from: 0, to: 0})
     
+    const [isCalculating, setIsCalculating] = useState(false)
     const [flowCode, setFlowCode] = useState(initialCode)
-    const [evaluationResult, setEvaluationResult] = useState(undefined)
+    const [evaluationResult, setEvaluationResult] = useState({ value: undefined, type: '' })
     const [editorHeight, setEditorHeight] = useState(0)
     const [isToLoadAutocompleteOptionsOnBottom, setIsToLoadAutocompleteOptionsOnBottom] = useState(true)
     const [autocompleteOptions, setAutocompleteOptions] = useState([])
@@ -61,15 +60,21 @@ export default function FlowCodeEditor(props) {
         createAutocompleteOptions
     } = useFlow()
     useClickedOrPressedOutside({ ref: editorContainerRef, callback: () => onToggleInputFocus(false) })
-    
+   
+    /**
+     * / * WEB ONLY * /
+     * 
+     * Function used for defining the height of the editor for absolute positioning it in the screen, and also defining
+     * if the autocomplete options should be rendered in the bottom or the top of the editor.
+     */
     function webAutomaticDefineWhereToRenderOptions() {
         const isAutocompleteOptionsDefined = autocompleteOptions.length > 0
         const isAutocompleteModulesOrFunctionsDefined = typeof autocompleteModulesOrFunctions === 'object'
         const isWebApp = APP === 'web'
 
-        if (isWebApp && isAutocompleteOptionsDefined && 
-            isAutocompleteModulesOrFunctionsDefined && 
-            forWebAutocompleteContainerRef.current
+        if (isWebApp && forWebAutocompleteContainerRef.current &&
+            (isAutocompleteOptionsDefined || 
+            isAutocompleteModulesOrFunctionsDefined)
         ) {
             const editorRect = forWebEditorRef.current.getBoundingClientRect()
             const optionsContainerRect = forWebAutocompleteContainerRef.current.getBoundingClientRect()
@@ -81,7 +86,8 @@ export default function FlowCodeEditor(props) {
             } else {
                 setIsToLoadAutocompleteOptionsOnBottom(true)
             }
-            setEditorHeight(editorRect.height)
+            const isNewHeightDifferentFromCurrentHeight = editorRect.height !== editorHeight
+            if (isNewHeightDifferentFromCurrentHeight) setEditorHeight(editorRect.height)
         }
     }
 
@@ -92,18 +98,40 @@ export default function FlowCodeEditor(props) {
      * @param {string} flowCode - The code that the user has written in the editor.
      */
     async function onChangeCode(flowCode) {
-        let result = undefined
+        /**
+         * Function used for extracting the type and the representation value of a FlowObject.
+         * 
+         * @param {import('../../../../../shared/flow/builtins/objects').FlowObject} flowObject - The FlowObject 
+         * that you want to extract the type and the representation value from.
+         * 
+         * @return {Promise<{
+         *     type: string,
+         *     value: *
+         * }>} - The type and the representation value of the FlowObject.
+         */
+        const retrieveValueAndTypeFromFlowObject = async (flowObject) => {
+            let type = ''
+            let value = undefined
+            if (flowObject !== undefined && flowObject._representation_ !== undefined) {
+                type = flowObject.type
+                value = await(await flowObject._string_())._representation_()
+            }
+            return { type, value }
+        }
         const isOnChangeDefined = typeof props.onChange === 'function'
         if (isOnChangeDefined) {
-            result = await Promise.resolve(props.onChange(flowCode))
-            setEvaluationResult(result)
+            setIsCalculating(true)
+            const flowObject = await Promise.resolve(props.onChange(flowCode))
+            const { value, type } = await retrieveValueAndTypeFromFlowObject(flowObject)
+            setIsCalculating(false)
+            setEvaluationResult({ value, type })
         } else {
             defaultDelay(() => {
+                setIsCalculating(true)
                 evaluate(flowCode).then(async result => {
-                    if (result !== undefined && result._representation_ !== undefined) {
-                        const realResult = await(await result._string_())._representation_()
-                        setEvaluationResult(realResult.toString())
-                    }
+                    const { value, type } = await retrieveValueAndTypeFromFlowObject(result)
+                    setIsCalculating(false)
+                    setEvaluationResult({ value, type })
                 })
             })
         }
@@ -348,6 +376,7 @@ export default function FlowCodeEditor(props) {
     }
 
     useEffect(() => {
+        if (typeof flowCode === 'string' && flowCode !== '') onChangeCode(flowCode)
         if (APP === 'web') window.addEventListener('blur', webOnWindowBlur)
         return () => {
             if (APP === 'web') window.removeEventListener('blur', webOnWindowBlur)
@@ -374,6 +403,7 @@ export default function FlowCodeEditor(props) {
         }
     }, [props.code])
 
+    
     return (
         <Layouts 
         forWebEditorRef={forWebEditorRef}
@@ -382,6 +412,7 @@ export default function FlowCodeEditor(props) {
         functionsRef={codeEditorFunctionsRef}
         editorHeight={editorHeight}
         isToLoadAutocompleteOptionsOnBottom={isToLoadAutocompleteOptionsOnBottom}
+        isCalculating={isCalculating}
         evaluationResult={evaluationResult}
         onAutoComplete={onAutoComplete}
         onHoverAutocompleteOption={onHoverAutocompleteOption}

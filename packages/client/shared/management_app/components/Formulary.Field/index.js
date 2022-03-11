@@ -188,10 +188,11 @@ export default function FormularyField(props) {
                 if (xPosition < 0) xPosition = 0
             }
 
-            const hasPositionChanged = editMenuPosition.wasCalculated !== true ||
+            const hasPositionChanged = editMenuPosition.wasCalculated !== true && (
                 editMenuPosition.position.x !== xPosition ||
                 editMenuPosition.position.y !== yPosition ||
                 editMenuPosition.maxHeight !== maxHeight
+            )
 
             if (hasPositionChanged === true) {
                 setEditMenuPosition({

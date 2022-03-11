@@ -720,7 +720,6 @@ class FlowStruct extends FlowObject {
             const getStructParametersRepresentation = async () => {
                 let stringfiedRepresentationOfStructParameters = `{`
                 for (let i=0; i < this.parameters.hashTable.keys.numberOfElements; i++) {
-                    console.log(this.parameters.hashTable.keys.array[i])
                     if (this.parameters.hashTable.keys.array[i] !== undefined) {
                         const rawKey = await this.parameters.hashTable.rawKeys.getItem(i)
                         const rawValue = await this.parameters._getitem_(rawKey)
