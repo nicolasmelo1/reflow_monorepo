@@ -234,8 +234,8 @@ Datetime {
 	)?
 	)? "]" 
 }
-Dict { "{" Atom ":" Expression ((PositionalArgumentSeparator Atom ":" Expression)+)? "}" }
-List { "[" Expression ((PositionalArgumentSeparator Expression)+)? "]" }
+Dict { "{" (Atom ":" Expression ((PositionalArgumentSeparator Atom ":" Expression)+)?)? "}" }
+List { "[" (Expression ((PositionalArgumentSeparator Expression)+)?)? "]" }
 
 // To skip
 @skip { spaces | newline | LineComment }
@@ -249,7 +249,7 @@ List { "[" Expression ((PositionalArgumentSeparator Expression)+)? "]" }
 	spaces[@export] { $[\u0009 \u000b\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff]+ }
 	newline[@export] { $[\r\n\u2028\u2029] }
 	
-	ReflowVariable { "{{" ![}]+ "}}" }
+	ReflowVariable { "{{" (![}]+)? "}}" }
 
 	LineComment { "#" ![\n]+ }
 	DocumentationBlockComment { "/*" ![*/]+ "*/" }

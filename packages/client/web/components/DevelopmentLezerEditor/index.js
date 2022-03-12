@@ -17,7 +17,7 @@ export default function LezerEditorPage(props) {
 
     if (isInDevelopment === true) {
         const [flowLezer, setFlowLezer] = useState(flowLanguageParser)
-        const [flowCode, setFlowCode] = useState('{{Teste de Sei la}} + 1')
+        const [flowCode, setFlowCode] = useState('{} + 1')
         const { visualize, Color, defaultTheme } = require('@colin_t/lezer-tree-visualizer')     
         const { editorRef } = useCodemirror({ 
             languagePack: lezer(), 
