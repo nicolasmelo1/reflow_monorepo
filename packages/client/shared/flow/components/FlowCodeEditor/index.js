@@ -32,6 +32,25 @@ const defaultDelay = delay(2000)
  * } [props.onChange=undefined] - Callback that is called whenever the code in the editor
  * changes.
  * @param {string} [props.code=''] - The code that will be shown/written inside of the editor.
+ * @param {undefined |
+ *      ({name: string, attributeName: string}, function) => {
+ *          label: string,
+ *          autocompleteText: string,
+ *          description: string,
+ *          type: string,
+ *          rawName: string,
+ *          examples: Array<string>,
+ *          parameters: Array<{
+ *              name: string, 
+ *              description: string,
+ *              type: string, 
+ *              required: boolean
+ *          }>,
+ *          cursorOffset: number,
+ *          isSnippet: boolean
+ *      }
+ * } [props.onAutoComplete=undefined] - This function will be called whenever we want to retrieve the autocomplete options
+ * this is used to retrieve extra autocomplete options for the user that is bounded to the context where flow is being used.
  * 
  * @return {import('react').ReactElement} - The component that will be rendered.
  */
@@ -233,6 +252,12 @@ export default function FlowCodeEditor(props) {
     function onAutoComplete(autocomplete) {
         let options = []
 
+        const isOnAutocompleteDefined = typeof props.onAutoComplete === 'function'
+        if (isOnAutocompleteDefined) {
+            const customAutocompleteOptions = props.onAutoComplete(autocomplete, createAutocompleteOptions)
+            if (Array.isArray(customAutocompleteOptions)) options = options.concat(customAutocompleteOptions)
+        }
+
         if (autocomplete.attributeName === '') {
             const allModules = runtimeModulesDocumentationRef.current
             const modulesOptions = allModules.map(module => {
@@ -245,7 +270,7 @@ export default function FlowCodeEditor(props) {
                 )
             })
             const modulesAndLanguageOptions = modulesOptions.concat(languageOptions)
-            options = modulesAndLanguageOptions.filter(option => option.label.startsWith(autocomplete.name))
+            options = options.concat(modulesAndLanguageOptions.filter(option => option.label.startsWith(autocomplete.name)))
 
         } else if (autocomplete.attributeName !== '') {
             const builtinModule = runtimeModulesDocumentationRef.current.find(module => module.name === autocomplete.attributeName)
@@ -254,26 +279,28 @@ export default function FlowCodeEditor(props) {
                 const hasMethods = typeof builtinModule?.methods === 'object'
                 const listMethods = hasMethods === true ? Object.values(builtinModule.methods) : []
                 const filteredMethods = autocomplete.name !== '' ? listMethods.filter(method => method.name.startsWith(autocomplete.name)) : listMethods
-                options = filteredMethods.map(method => {
-                    const hasParameters = typeof method?.parameters === 'object'
-                    const hasRequiredParameters = (hasParameters === true ? Object.values(method.parameters).filter(parameter=> parameter.required === true) : []).length > 0
-                    const methodDescription = typeof method?.description === 'string' ? method.description : ''
-                    const parameters = hasParameters ? Object.values(method.parameters) : []
-                    const examples = Array.isArray(method?.examples) ? method.examples : []
-                    const cursorOffset = hasRequiredParameters ? -1 : 0
-                    return createAutocompleteOptions(
-                        `${method.name}()`,
-                        `${method.name}()`,
-                        methodDescription,
-                        'function',
-                        { 
-                            rawName: method.name, 
-                            parameters: parameters, 
-                            examples: examples,
-                            cursorOffset: cursorOffset
-                        }
-                    )
-                })
+                options = options.concat(
+                    filteredMethods.map(method => {
+                        const hasParameters = typeof method?.parameters === 'object'
+                        const hasRequiredParameters = (hasParameters === true ? Object.values(method.parameters).filter(parameter=> parameter.required === true) : []).length > 0
+                        const methodDescription = typeof method?.description === 'string' ? method.description : ''
+                        const parameters = hasParameters ? Object.values(method.parameters) : []
+                        const examples = Array.isArray(method?.examples) ? method.examples : []
+                        const cursorOffset = hasRequiredParameters ? -1 : 0
+                        return createAutocompleteOptions(
+                            `${method.name}()`,
+                            `${method.name}()`,
+                            methodDescription,
+                            'function',
+                            { 
+                                rawName: method.name, 
+                                parameters: parameters, 
+                                examples: examples,
+                                cursorOffset: cursorOffset
+                            }
+                        )
+                    })
+                )
             } 
         } 
         

@@ -4,9 +4,12 @@ import managementAppAgent from '../../agent'
 import { FormularyContext } from '../../contexts'
 import Layout from './layouts'
 import { APP } from '../../../conf'
+import { deepCopy } from '../../../../../shared/utils'
 
 export default function Formulary(props) {
     const sourceRef = useRef()
+    const formularyFieldsCacheRef = useRef([])
+    const isToRecalculateFormularyFieldsRef = useRef(true)
     const formularyContainerRef = useRef()
     const { state: { formulary }, setFormulary, retrieveFromPersist } = useContext(FormularyContext)
     const [formularyContainerOffset, setFormularyContainerOffset] = useState(0)
@@ -21,7 +24,23 @@ export default function Formulary(props) {
      * https://www.google.com/url?sa=i&url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F43826922%2Fif-java-is-pass-by-value-then-why-can-we-change-the-properties-of-objects-in-me&psig=AOvVaw3Pln8znHHN39RJWWQSoaqx&ust=1642467147354000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCKC08ojJt_UCFQAAAAAdAAAAABAD
      */
     function onUpdateFormulary() {
+        isToRecalculateFormularyFieldsRef.current = true
         setFormulary(props.app.uuid, formulary)
+    }
+
+    function retrieveFields() {
+        if (isToRecalculateFormularyFieldsRef.current === true) {
+            const fields = []
+            for (const section of formulary.sections) {
+                for (const field of section.fields) {
+                    const copiedField = deepCopy(field)
+                    copiedField.section = deepCopy(section)
+                    fields.push(copiedField)
+                }
+            }
+            formularyFieldsCacheRef.current = fields
+        }
+        return formularyFieldsCacheRef.current
     }
 
     useEffect(() => {
@@ -67,6 +86,7 @@ export default function Formulary(props) {
         workspace={props.workspace}
         app={props.app}
         formulary={formulary}
+        retrieveFields={retrieveFields}
         onUpdateFormulary={onUpdateFormulary}
         />
     )

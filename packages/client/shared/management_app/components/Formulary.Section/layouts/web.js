@@ -15,6 +15,7 @@ export default function FormularySectionWebLayout(props) {
                 onUpdateFormulary={props.onUpdateFormulary}
                 onRemoveField={props.onRemoveField}
                 onDuplicateField={props.onDuplicateField}
+                retrieveFields={props.retrieveFields}
                 />
             ))}
         </div>

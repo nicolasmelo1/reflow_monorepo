@@ -36,6 +36,7 @@ export default function FormularyFieldFormulaWebLayout(props) {
                     <FlowCodeEditor
                     code={props.field.formulaField !== null ? props.field.formulaField.formula : ''}
                     onChange={props.onChangeFormula}
+                    onAutoComplete={props.onAutocomplete}
                     evaluateRef={props.evaluateRef}
                     />
                     <Styled.DoneButtonContainer>

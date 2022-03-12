@@ -17,7 +17,7 @@ export default function LezerEditorPage(props) {
 
     if (isInDevelopment === true) {
         const [flowLezer, setFlowLezer] = useState(flowLanguageParser)
-        const [flowCode, setFlowCode] = useState('if 1 + 1 == 2 do 2 end')
+        const [flowCode, setFlowCode] = useState('{{Teste de Sei la}} + 1')
         const { visualize, Color, defaultTheme } = require('@colin_t/lezer-tree-visualizer')     
         const { editorRef } = useCodemirror({ 
             languagePack: lezer(), 
@@ -135,15 +135,19 @@ export default function LezerEditorPage(props) {
          * This information will be available on the console of the browser, so you need to open devtools in your favorite browser.
          */
         async function onTestFlowLezer() {
-            const parser = buildParser(flowLezer)
-            const tree = parser.parse(flowCode)
-            visualize(tree.cursor(), flowCode, { 
-                theme: {
-                    ...defaultTheme,
-                    name: Color.DarkGreen,
-                    source: Color.DarkRed,
-                }    
-            })
+            try {
+                const parser = buildParser(flowLezer)
+                const tree = parser.parse(flowCode)
+                visualize(tree.cursor(), flowCode, { 
+                    theme: {
+                        ...defaultTheme,
+                        name: Color.DarkGreen,
+                        source: Color.DarkRed,
+                    }    
+                })
+            } catch (error) {
+                console.error(error)
+            }
         }
             
         function onChangeFlowCode(newFlowCode) {

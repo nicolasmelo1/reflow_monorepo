@@ -67,7 +67,6 @@ export default function FormularyFieldFormula(props) {
         }
     }
 
-
     /**
      * Callback called whenever the user changes something in the flow codemirror editor. If he adds a space,
      * or deletes something this function will always be called.
@@ -93,13 +92,64 @@ export default function FormularyFieldFormula(props) {
         })
     }
 
+    /**
+     * This function is used to generate custom options for the autocomplete menu. In order to fully work we need to filter the options here.
+     * while the user is typing, the filter functionality does NOT work out of the box when we send the options.
+     * 
+     * @param {{name: string, attributeName: string}} autocompleteData - The autocomplete data that we will use to filter the options.
+     * @param {function} createAutocompleteOptions - A function that is used to create the autocomplete options. This way we can have 
+     * a default value. This function is created on `useFlow` hook and passed here as a callback so we can have a default structure.
+     * 
+     * @returns {Array<{
+     *      label: string,
+     *      autocompleteText: string,
+     *      description: string,
+     *      type: string,
+     *      rawName: string,
+     *      examples: Array<string>,
+     *      parameters: Array<{
+     *          name: string, 
+     *          description: string,
+     *          type: string, 
+     *          required: boolean
+     *      }>,
+     *      cursorOffset: number,
+     *      isSnippet: boolean
+     * }>} - The array of options created by the `createAutocompleteOptions` function.
+     */
+    function onAutocomplete(autocompleteData, createAutocompleteOptions) {
+        const formularyFields = props.retrieveFields()
+        const customAutocompleteData = formularyFields
+            .filter(field => field.labelName.startsWith(autocompleteData.name))
+            .map(field => createAutocompleteOptions(
+                    `{{${field.labelName}}}`, 
+                    field.labelName, 
+                    'Esta é uma váriavel. Uma variável refere-se a um dos campos do seu formulário. O valor de uma variável é definida pelo valor no campo.', 
+                    'custom'
+                )
+            )
+        return customAutocompleteData
+    }
+
+    /**
+     * Function supposed to toggle if the user is editing the formula or not. We use this instead of using the 
+     * `setIsEditingFormula` state directly. For obvious reasons, only admins are able to edit the formula.
+     * 
+     * @param {boolean} [isEditing=!isEditingFormula] - if the user is editing the formula it should be true, 
+     * otherwise it should be false.
+     */
     function onToggleIsEditingFormula(isEditing=!isEditingFormula) {
         if (isUserAnAdmin) {
             setIsEditingFormula(isEditing)
         } 
     }
 
-
+    /**
+     * When the formula field type was just created or if for some other reason the field does not have
+     * formula specific data, we will create the data by default when the field is created.
+     * 
+     * This formula field data is a specific data that is specific for the `formula` field type.
+     */
     function onDefaultCreateFormulaOptionsIfDoesNotExist() {
         if (props.field.formulaField === null) {
             props.field.formulaField = createFormulaFieldData()
@@ -107,6 +157,11 @@ export default function FormularyFieldFormula(props) {
         }
     }
 
+    /**
+     * This will load and change the FormulaFormatOption menu that is loaded in the field menu.
+     * This component is a component that will live inside of the Dropdown Menu of the field, where we configure 
+     * the field, stuff like the placeholder, if it's obligatory and so on.
+     */
     useEffect(() => {
         onDefaultCreateFormulaOptionsIfDoesNotExist()
         props.addComponentForFieldSpecificOptionsForDropdownMenu(FormulaFormatOption, {
@@ -115,7 +170,10 @@ export default function FormularyFieldFormula(props) {
         })
     }, [isEditingFormula])
 
-
+    /** 
+     * If the user hasn't configured the formula of a formula field type, by default we will open the screen for him
+     * to configure the formula.
+     */
     useEffect(() => {
         const isFormulaFieldDataDefined = typeof props.field.formulaField === 'object' && 
             props.field.formulaField !== null
@@ -128,6 +186,7 @@ export default function FormularyFieldFormula(props) {
         <Layout.Field
         evaluateRef={evaluateRef}
         onChangeFormula={onChangeFormula}
+        onAutocomplete={onAutocomplete}
         isEditingFormula={isEditingFormula}
         onToggleIsEditingFormula={onToggleIsEditingFormula}
         types={props.types}

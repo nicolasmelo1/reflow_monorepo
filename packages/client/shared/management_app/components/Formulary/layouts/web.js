@@ -40,6 +40,7 @@ export default function FormularyWebLayout(props) {
                     workspace={props.workspace}
                     key={section.uuid}
                     section={section}
+                    retrieveFields={props.retrieveFields}
                     onUpdateFormulary={props.onUpdateFormulary}
                     />
                 ))}

@@ -7,7 +7,7 @@ import {
     foldNodeProp, foldInside, syntaxTree
 } from '@codemirror/language'
 import { styleTags, tags as t } from '@codemirror/highlight'
-import { visualize, Color, defaultTheme } from '@colin_t/lezer-tree-visualizer'
+//import { visualize, Color, defaultTheme } from '@colin_t/lezer-tree-visualizer'
 
 /**
  * Hook created to be tightly coupled with the codemirror editor on one side, and Flow on the other.
@@ -94,11 +94,11 @@ export default function useFlowCodemirror({
      * @param {Array<string>} nodeTypes - The list of node types to see if it's up in the tree structure. These are one of the
      * nodes defined in the `lezerParser.js` file. It matches the first node that it finds in the list.
      * 
-     * @returns {{name: string, node: import('@lezer/common').BufferNode | undefined }} - Returns an object with found 
+     * @returns {Promise<{name: string, node: import('@lezer/common').BufferNode | undefined }>} - Returns an object with found 
      * the name of the node as well as the node itself. If the node is not found, it will return undefined in the node 
      * and an empty string.
      */
-    function traverseNodesFromBottomToTopOfTheTree(node, nodeTypes) {
+    async function traverseNodesFromBottomToTopOfTheTree(node, nodeTypes) {
         if (node !== null && nodeTypes.includes(node.name)) {
             return {
                 name: node.name,
@@ -109,7 +109,7 @@ export default function useFlowCodemirror({
                 name: '',
                 node: undefined
             }
-        } else return traverseNodesFromBottomToTopOfTheTree(node.parent, nodeTypes)
+        } else return await traverseNodesFromBottomToTopOfTheTree(node.parent, nodeTypes)
     }
 
     /**
@@ -209,20 +209,20 @@ export default function useFlowCodemirror({
      * 
      * @param {import('@codemirror/state').EditorState} state - The codemirror editor state.
      */
-    function autocomplete(state) {
+    async function autocomplete(state) {
         const fromPosition = state.selection.ranges[0].from
         const currentNode = syntaxTree(state).resolveInner(fromPosition, -1)
 
-        visualize(syntaxTree(state).cursor(), state.doc.toString(), { 
+        /*visualize(syntaxTree(state).cursor(), state.doc.toString(), { 
             theme: {
                 ...defaultTheme,
                 name: Color.DarkGreen,
                 source: Color.DarkRed,
             }    
-        })
+        })*/
 
         if (onAutocompleteFunctionOrModuleRef.current !== undefined) {
-            const { name: nodeName, node: functionOrModuleNode } = traverseNodesFromBottomToTopOfTheTree(
+            const { name: nodeName, node: functionOrModuleNode } = await traverseNodesFromBottomToTopOfTheTree(
                 currentNode, ['FunctionCall', 'Struct']
             )
 
@@ -233,7 +233,7 @@ export default function useFlowCodemirror({
                 const firstChild = functionOrModuleNode.firstChild
                 
                 let moduleName = null
-                const {node: attributeNode} = traverseNodesFromBottomToTopOfTheTree(
+                const {node: attributeNode} = await traverseNodesFromBottomToTopOfTheTree(
                     currentNode, ['Attribute']
                 )
                 if (attributeNode !== undefined) {
@@ -272,27 +272,36 @@ export default function useFlowCodemirror({
             const { 
                 node: attributeOrFunctionCallNode, 
                 name: attributeOrFunctionCallNodeName
-            } = traverseNodesFromBottomToTopOfTheTree(
+            } = await traverseNodesFromBottomToTopOfTheTree(
                 currentNode, ['Attribute', 'FunctionCall']
             )
             const attributeName = attributeOrFunctionCallNode !== undefined && attributeOrFunctionCallNodeName === 'Attribute' ? 
                 state.sliceDoc(attributeOrFunctionCallNode.firstChild.from, attributeOrFunctionCallNode.firstChild.to) : ''
             
-            console.log(currentNode.name)
             if (currentNode.name === 'Script') {
                 onAutoCompleteRef.current({
                     name: '',
                     attributeName
                 })
             } else if (currentNode.name === 'Variable') {
-                const searching = state.sliceDoc(currentNode.from, currentNode.to)
-                if (currentNode.parent && currentNode.parent.name === 'ReflowVariable') {
-                    console.log('teste')
+                const { 
+                    node: expressionStatementNode, 
+                    name: expressionStatementNodeName
+                } = await traverseNodesFromBottomToTopOfTheTree(currentNode, ['ExpressionStatement'])
+
+                if (expressionStatementNodeName === 'ExpressionStatement') {
+                    const searching = state.sliceDoc(expressionStatementNode.from, expressionStatementNode.to)
+                    onAutoCompleteRef.current({
+                        name: searching,
+                        attributeName
+                    })
+                } else {
+                    const searching = state.sliceDoc(currentNode.from, currentNode.to)
+                    onAutoCompleteRef.current({
+                        name: searching,
+                        attributeName
+                    })
                 }
-                onAutoCompleteRef.current({
-                    name: searching,
-                    attributeName
-                })
             }  else {
                 onAutoCompleteRef.current({
                     name: typeof currentNode.name === 'string' && currentNode.name !== '.' ? currentNode.name : '',

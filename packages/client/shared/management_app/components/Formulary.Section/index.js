@@ -48,6 +48,7 @@ export default function FormularySection(props) {
         onUpdateFormulary={props.onUpdateFormulary}
         onRemoveField={onRemoveField}
         onDuplicateField={onDuplicateField}
+        retrieveFields={props.retrieveFields}
         />
     )
 }

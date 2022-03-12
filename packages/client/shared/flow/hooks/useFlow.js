@@ -119,7 +119,7 @@ export default function useFlow() {
      * @param {string} description - The description of the autocomplete option, this description will not be shown in the list,
      * when the user hover over the option with the mouse we will show the details of this option, this description is supposed 
      * to explain what the model/function/language snippet does.
-     * @param {'language'|'function'|'module'} type - There are three types of autocomplete options at the current time:
+     * @param {'language'|'function'|'module'|'custom'} type - There are three types of autocomplete options at the current time:
      * language snippets (like creating an if statement, a function, and so on.), function snippets, this is one of the most important
      * because it's similar to excel. And last but not least, module snippets. Modules are used to organize the functions.
      * @param {object} extraOptions - This is an object that contains extra options for the autocomplete options list, it's something
@@ -162,7 +162,7 @@ export default function useFlow() {
         autocompleteText, label, description, type, 
         { rawName=undefined, examples=[], parameters=[], cursorOffset=0, isSnippet=false}={}
     ) {
-        const validAutocompleteOptionTypes = ['language', 'function', 'module']
+        const validAutocompleteOptionTypes = ['language', 'function', 'module', 'custom']
         const isTypeValid = validAutocompleteOptionTypes.includes(type)
         if (isTypeValid) {
             const isRawNameDefined = typeof rawName === 'string'

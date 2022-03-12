@@ -394,6 +394,7 @@ export default function FormularyField(props) {
         workspace={props.workspace}
         types={types}
         field={props.field}
+        retrieveFields={props.retrieveFields}
         retrieveFieldTypeName={retrieveFieldTypeName}
         isHovering={isHovering}
         onToggleEditFieldMenu={onToggleEditFieldMenu}

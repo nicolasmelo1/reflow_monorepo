@@ -38,8 +38,8 @@
  * 
  * objectToHold.a = 4
  * 
- * holdObject.logHoldedObject() --> This will output { a: 4, b:2 }, WHYYYYY? I'VE never touched the object inside of 
- * the class
+ * holdObject.logHoldedObject() --> This will output { a: 4, b:2 }, // WHYYYYY? I'VE never touched the object inside of 
+ * // the class
  * ```
  * 
  * This happens because the object is passed as reference, it is an address in the memory that represents this object.
