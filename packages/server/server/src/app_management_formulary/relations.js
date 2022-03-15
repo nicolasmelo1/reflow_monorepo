@@ -13,6 +13,7 @@ const {
     FieldNumber,
     FieldDate,
     FieldFormula,
+    FieldFormulaVariable,
     FieldOption,
     FieldTags,
     Option
@@ -105,10 +106,43 @@ class FieldTagsRelation extends serializers.ModelSerializer {
     }
 }
 
+/** 
+ * This relation is used for retrieving the variables of a specific formula. The variables are fields that will have it's values used inside of the formula.
+ */
+class FieldFormulaVariableRelation extends serializers.ModelSerializer {
+    async toRepresentation(fieldFormulaId) {
+        const fieldFormulaVariables = await FieldFormulaVariable.APP_MANAGEMENT_FORMULARY.uuidsVariableIdAndOrderByFieldFormulaId(fieldFormulaId)
+        const data = []
+        // The ordering here is important, that's why we don't use Promise.all.
+        for (const { uuid, variableId, order} of fieldFormulaVariables) {
+            const fieldUUID = await Field.APP_MANAGEMENT_FORMULARY.uuidByFieldId(variableId)
+            data.push({
+                uuid,
+                variableUUID: fieldUUID,
+                order
+            })
+        }
+        return await super.toRepresentation(data)
+    }
+
+    fields = {
+        variableUUID: new serializers.UUIDField()
+    }
+
+    options = {
+        model: FieldFormulaVariable,
+        exclude: ['id', 'fieldFormulaId', 'variableId']
+    }
+}
+
 class FieldFormulaRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldFormula = await FieldFormula.APP_MANAGEMENT_FORMULARY.fieldFormulaByFieldId(fieldId)
         return await super.toRepresentation(fieldFormula)
+    }
+
+    fields = {
+        variables: new FieldFormulaVariableRelation({ source: 'id', many: true })
     }
 
     options = {

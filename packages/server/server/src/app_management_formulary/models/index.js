@@ -11,6 +11,7 @@ const {
     FieldDateAppManagementFormularyManager,
     FieldNumberAppManagementFormularyManager,
     FieldFormulaAppManagementFormularyManager,
+    FieldFormulaVariableAppManagementFormularyManager,
     FieldUserAppManagementFormularyManager,
     FieldOptionAppManagementFormularyManager,
     FieldTagsAppManagementFormularyManager,
@@ -423,6 +424,42 @@ class FieldFormula extends models.Model {
 }
 
 /**
+ * These are the variables for the formula field. We can define the variables that we can use in the formula.
+ * Those variables are fields inside of the formulary that we can use the values as values of the formula.
+ * 
+ * For example we can write a formula like:
+ * `{{ Valor de cobrança }} + 200`, we will use `Valor de Cobrança` is the variable, it is a 'number' field type.
+ * We substitute the value of the field and then make the calculation.
+ * 
+ * The variable is tied to the `fieldFormula` instance and NOT to the `field` instance directly. That's because this
+ * is something exclusive for the formula field type. If other field types also have variables it should be tied to them.
+ * The variables otherwise as tied to the fields itself because each field can be of different types.
+ */
+class FieldFormulaVariable extends models.Model {
+    attributes = {
+        uuid: new models.fields.UUIDField({ autoGenerate: true }),
+        fieldFormula: new models.fields.ForeignKeyField({
+            relatedTo: 'FieldFormula',
+            onDelete: models.fields.ON_DELETE.CASCADE,
+            dbIndex: true
+        }),
+        variable: new models.fields.ForeignKeyField({
+            relatedTo: 'Field',
+            onDelete: models.fields.ON_DELETE.CASCADE,
+            dbIndex: true
+        }),
+        order: new models.fields.IntegerField({ defaultValue: 0 })
+    }
+
+    options = {
+        ordering: ['order'],
+        tableName: 'field_formula_variable'
+    }
+
+    static APP_MANAGEMENT_FORMULARY = new FieldFormulaVariableAppManagementFormularyManager()
+}
+
+/**
  * This will hold the attributes for the attachments, the configuration for the attachments is really simple.
  * A user can add one or multiple files as attachment. That's the catch.
  * If the maxNumberOfAttachments is null then we consider it as unlimited, so the user can add an unlimited amount
@@ -531,6 +568,7 @@ module.exports = {
     Option,
     FieldUser,
     FieldFormula,
+    FieldFormulaVariable,
     FieldOption,
     FieldTags
 }

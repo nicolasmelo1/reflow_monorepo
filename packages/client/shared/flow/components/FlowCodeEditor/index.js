@@ -72,6 +72,7 @@ export default function FlowCodeEditor(props) {
     const [hoveringAutocompleteOption, setHoveringAutocompleteOption] = useState(null)
     const [autocompleteModulesOrFunctions, setAutocompleteModulesOrFunctions] = useState(null)
     const { 
+        flowServiceRef,
         runtimeModulesDocumentationRef,
         getFlowContext,
         evaluate,
@@ -418,6 +419,14 @@ export default function FlowCodeEditor(props) {
             props.evaluateRef.current = evaluate
         }  
     }, [props.evaluateRef, evaluate])
+
+    useEffect(() => {
+        const doesPropsForFlowServiceWereDefined = typeof props.flowServiceRef === 'object' && props.flowServiceRef?.current === null        
+        const isFlowServiceDefined = typeof flowServiceRef === 'object' && typeof flowServiceRef?.current !== undefined
+        if (doesPropsForFlowServiceWereDefined && isFlowServiceDefined) {
+            props.flowServiceRef.current = flowServiceRef.current
+        }
+    }, [props.flowServiceRef, flowServiceRef])
 
     useEffect(() => {
         webAutomaticDefineWhereToRenderOptions()

@@ -16,6 +16,23 @@ class FieldAppManagementFormularyManager extends models.Manager {
             }
         })
     }
+
+    /**
+     * Retrieves the uuid of the field by the given field id if it exists.
+     * 
+     * @param {number} fieldId - The id of the field to retrieve the uuid for.
+     * 
+     * @returns {Promise<string | null>} - The uuid of the field or null if the field doesn't exist.
+     */
+    async uuidByFieldId(fieldId) {
+        const result = await this.getInstance().findOne({
+            where: {
+                id: fieldId
+            },
+            attributes: ['uuid']
+        })
+        return result !== null ? result.uuid : null
+    }
 }
 
 module.exports = FieldAppManagementFormularyManager

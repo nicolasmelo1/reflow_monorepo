@@ -34,10 +34,11 @@ export default function FormularyFieldFormulaWebLayout(props) {
             {props.isEditingFormula === true ? (
                 <Fragment>
                     <FlowCodeEditor
-                    code={props.field.formulaField !== null ? props.field.formulaField.formula : ''}
+                    code={props.getFormula()}
                     onChange={props.onChangeFormula}
                     onAutoComplete={props.onAutocomplete}
                     evaluateRef={props.evaluateRef}
+                    flowServiceRef={props.flowServiceRef}
                     />
                     <Styled.DoneButtonContainer>
                         <Styled.DoneEditingButton

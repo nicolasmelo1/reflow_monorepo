@@ -267,7 +267,6 @@ export default function useFlowCodemirror({
                 })
             }
         }
-
         if (onAutoCompleteRef.current !== undefined) {
             const { 
                 node: attributeOrFunctionCallNode, 
@@ -281,6 +280,12 @@ export default function useFlowCodemirror({
             if (currentNode.name === 'Script') {
                 onAutoCompleteRef.current({
                     name: '',
+                    attributeName
+                })
+            } else if (currentNode.name === 'ReflowVariable') {
+                const searching = state.sliceDoc(currentNode.from, currentNode.to)
+                onAutoCompleteRef.current({
+                    name: searching,
                     attributeName
                 })
             } else if (currentNode.name === 'Variable') {

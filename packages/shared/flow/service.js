@@ -153,6 +153,7 @@ class ContextService {
  * in order to evaluate a function. We can work with different contexts, variable translation, and all of that stuff.
  */
 class FlowService {
+
     /**
      * @param {import('./context')} context - The context of the formula, in other words, on what spoken language the hole formula is written?
      */
