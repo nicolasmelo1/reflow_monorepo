@@ -7,7 +7,7 @@ import {
     foldNodeProp, foldInside, syntaxTree
 } from '@codemirror/language'
 import { styleTags, tags as t } from '@codemirror/highlight'
-//import { visualize, Color, defaultTheme } from '@colin_t/lezer-tree-visualizer'
+import { visualize, Color, defaultTheme } from '@colin_t/lezer-tree-visualizer'
 
 /**
  * Hook created to be tightly coupled with the codemirror editor on one side, and Flow on the other.
@@ -280,37 +280,28 @@ export default function useFlowCodemirror({
             if (currentNode.name === 'Script') {
                 onAutoCompleteRef.current({
                     name: '',
-                    attributeName
+                    attributeName,
+                    elementAt: currentNode.from
                 })
             } else if (currentNode.name === 'ReflowVariable') {
                 const searching = state.sliceDoc(currentNode.from, currentNode.to)
                 onAutoCompleteRef.current({
                     name: searching,
-                    attributeName
+                    attributeName,
+                    elementAt: currentNode.from
                 })
             } else if (currentNode.name === 'Variable') {
-                const { 
-                    node: expressionStatementNode, 
-                    name: expressionStatementNodeName
-                } = await traverseNodesFromBottomToTopOfTheTree(currentNode, ['ExpressionStatement'])
-
-                if (expressionStatementNodeName === 'ExpressionStatement') {
-                    const searching = state.sliceDoc(expressionStatementNode.from, expressionStatementNode.to)
-                    onAutoCompleteRef.current({
-                        name: searching,
-                        attributeName
-                    })
-                } else {
-                    const searching = state.sliceDoc(currentNode.from, currentNode.to)
-                    onAutoCompleteRef.current({
-                        name: searching,
-                        attributeName
-                    })
-                }
+                const searching = state.sliceDoc(currentNode.from, currentNode.to)
+                onAutoCompleteRef.current({
+                    name: searching,
+                    attributeName,
+                    elementAt: currentNode.from
+                })
             }  else {
                 onAutoCompleteRef.current({
-                    name: typeof currentNode.name === 'string' && currentNode.name !== '.' ? currentNode.name : '',
-                    attributeName
+                    name: typeof currentNode.name === 'string' && currentNode.name === '.' ? currentNode.name : '',
+                    attributeName,
+                    elementAt: currentNode.from
                 })
             }
         }

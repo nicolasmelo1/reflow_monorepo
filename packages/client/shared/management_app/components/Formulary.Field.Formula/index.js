@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useContext } from 'react'
+import { strings } from '../../../core'
 import { delay, generateUUID } from '../../../../../shared/utils'
 import { WorkspaceContext } from '../../../authentication/contexts'
 import Layout from './layouts'
@@ -51,7 +52,11 @@ export default function FormularyFieldFormula(props) {
 
     const { state: { selectedWorkspace: { isAdmin: isUserAnAdmin } } } = useContext(WorkspaceContext)
     const [isEditingFormula, setIsEditingFormula] = useState(false)
-    
+    const [formula, setFormula] = useState({
+        userFacingFormula: getUserFacingFormula(),
+        forBackendFormula: getBackendFormula()
+    })
+
     function getFieldsByFieldUUID() {
         const formularyFields = props.retrieveFields()
         const isSavedFormularyFieldsEqualFormularyFields = JSON.stringify(formularyFieldsRef.current) === JSON.stringify(formularyFields)
@@ -64,13 +69,23 @@ export default function FormularyFieldFormula(props) {
         return fieldsByFieldUUIDRef.current
     }
 
-
-    function getVariableValue(fieldLabelName) {
-
+    /**
+     * Function used for retrieving the variable value, we will retrieve the fieldUUID, and with this uuid, we will get
+     * the value to use on the variable. We will retrieve the value as string because we need this to convert to a value 
+     * that flow understands.
+     * 
+     * @param {string} fieldUUID - The uuid of the field to get the value for.
+     * 
+     * @param {string} - The value to substitute on the formula. For example: 
+     * `{{Nome do Cliente}}` will be transformed to `"Nicolas"`, a string inside of "" is something that flow is able to 
+     * understand.
+     */
+    function getVariableValue(fieldUUID) {
+        return '20'
     }
 
     /**
-     * This function will set the variables inside of the formula. It will use the occurences to get the actual variable value of the field.
+     * This function will set the variables inside of the formula. It will use the occurrences to get the actual variable value of the field.
      * 
      * So for you to understand how this works:
      * - WHen it loads, the variables array hold the single source of truth about the variables
@@ -81,16 +96,16 @@ export default function FormularyFieldFormula(props) {
      * @returns {string} - Returns the formula with the variables set.
      */
     function setVariablesInFormula(formula) {
-        const variableOccurences = formula.match(VARIABLE_IN_FORMULA_REGEX)
-        const doesVariableOccurrencesExist = variableOccurences !== null && variableOccurences.length > 0
+        const variableOccurrences = formula.match(VARIABLE_IN_FORMULA_REGEX)
+        const doesVariableOccurrencesExist = variableOccurrences !== null && variableOccurrences.length > 0
         const fieldsByFieldUUID = getFieldsByFieldUUID()
         
         if (doesVariableOccurrencesExist) {
             const newVariables = []
-            for (let i=0; i<variableOccurences.length; i++) {
-                const variableOccurence = variableOccurences[i]
+            for (let i=0; i<variableOccurrences.length; i++) {
+                const variableOccurrence = variableOccurrences[i]
                 const variable = props.field.formulaField.variables[i]
-                const variableFieldLabelName = variableOccurence.replace(/^{{/, '').replace(/}}$/, '')
+                const variableFieldLabelName = variableOccurrence.replace(/^{{/, '').replace(/}}$/, '')
                 
                 const doesVariableExistAtIndex = variable !== undefined && typeof variable === 'object'
                 
@@ -114,7 +129,9 @@ export default function FormularyFieldFormula(props) {
                     }
                 }
                 
-                if (variableFieldData !== undefined) formula = formula.replace(variableOccurence, '20')
+                if (variableFieldData !== undefined) {
+                    formula = formula.replace(variableOccurrence, getVariableValue(variableFieldData.uuid))
+                }
             }
             props.field.formulaField.variables = newVariables
             props.onUpdateFormulary()
@@ -129,22 +146,56 @@ export default function FormularyFieldFormula(props) {
      * 
      * @returns {string} - Returns the formula that will be rendered inside of the text editor.
      */
-    function getRealFormula() {
-        const isFormulaDefined = props.field.formulaField !== null && props.field.formulaField.formula !== undefined
-        if (isFormulaDefined) {
-            let realFormula = props.field.formulaField.formula
-            const variableOccurences = props.field.formulaField.formula.matchAll(VARIABLE_IN_FORMULA_REGEX)
-            if (variableOccurences !== null && variableOccurences.length > 0) {
+    function getUserFacingFormula(formula=undefined) {
+        const isFormulaDefinedInFieldData = props.field.formulaField !== null && 
+            props.field.formulaField.formula !== undefined
+        formula = formula !== undefined ? 
+            formula : isFormulaDefinedInFieldData ? 
+                props.field.formulaField.formula : undefined
+        if (formula !== undefined) {
+            let userFacingFormula = formula
+            const variableOccurrences = userFacingFormula.match(VARIABLE_IN_FORMULA_REGEX)
+            const doesVariableOccurrenceExistInFormula = variableOccurrences !== null && variableOccurrences.length > 0
+            if (doesVariableOccurrenceExistInFormula) {
                 const fieldsByFieldUUID = getFieldsByFieldUUID()
 
                 for (const { variableUUID } of props.field.formulaField.variables) {
                     if (fieldsByFieldUUID[variableUUID] !== undefined) {
-                        realFormula = realFormula.replace(/{{((\s+)?(.+(\s+)?)+)?}}/, `{{${fieldsByFieldUUID[variableUUID].labelName}}}`)
+                        userFacingFormula = userFacingFormula.replace(/{{((\s+)?([^\s{}]+(\s+)?)+)?}}/, `{{${fieldsByFieldUUID[variableUUID].labelName}}}`)
                     }
                 }
             }
-            return realFormula
+            return userFacingFormula
         }
+        return ''
+    }
+
+    /**
+     * In the backend we don't have any reference for what this variable refers to, we will only rely on the ordering of the variables
+     * inside of `field.formulaField.variables` array. We define this array using the `setVariablesInFormula` function. This function run
+     * on two times: when we submit the formula to the backend and when we evaluate the formula.
+     * 
+     * @returns {string} 
+     */
+    function getBackendFormula(formula=undefined) {
+        const isFormulaDefinedInFieldData = props.field.formulaField !== null && 
+            props.field.formulaField.formula !== undefined
+        formula = formula !== undefined ? 
+            formula : isFormulaDefinedInFieldData ? 
+                props.field.formulaField.formula : undefined
+        if (formula !== undefined) {
+            let backendFormula = formula
+            const variableOccurrences = formula.match(VARIABLE_IN_FORMULA_REGEX)
+
+            const doesVariableOccurrencesExist = Array.isArray(variableOccurrences) && variableOccurrences.length > 0
+            if (doesVariableOccurrencesExist) {
+                for (const variableOccurrence of variableOccurrences) {
+                    backendFormula = backendFormula.replace(variableOccurrence, '{{}}')
+                }
+            }
+            return backendFormula
+        }
+
         return ''
     }
 
@@ -189,15 +240,22 @@ export default function FormularyFieldFormula(props) {
      * evaluates to a FlowObject.
      */
     function onChangeFormula(newFormula) {
-        props.field.formulaField.formula = newFormula
+        const formulaData = {
+            userFacingFormula: getUserFacingFormula(newFormula),
+            forBackendFormula: getBackendFormula(newFormula)
+        }
+        props.field.formulaField.formula = formulaData.forBackendFormula
+        setFormula(formulaData)
         props.onUpdateFormulary()
 
         return new Promise((resolve, reject) => {
             defaultDelay(() => {
                 const actualFormulaWithoutVariables = setVariablesInFormula(newFormula)
-                evaluateRef.current(actualFormulaWithoutVariables)
-                    .then(result => resolve(result))
-                    .catch(error => reject(error))
+                if (isEditingFormula === true && evaluateRef.current) {
+                    evaluateRef.current(actualFormulaWithoutVariables)
+                        .then(result => resolve(result))
+                        .catch(error => reject(error))
+                }
             })
         })
     }
@@ -209,7 +267,10 @@ export default function FormularyFieldFormula(props) {
      * P.S.: We check if something is a variable or not here, variables are defined when written inside between double braces `{{}}`. When they
      * are defined inside of a variable we need to make sure we show the variable options that he can select.
      * 
-     * @param {{name: string, attributeName: string}} autocompleteData - The autocomplete data that we will use to filter the options.
+     * Variables are subst
+     * 
+     * @param {{name: string, attributeName: string, elementAt: number}} autocompleteData - The autocomplete data that we will use 
+     * to filter the options.
      * @param {function} createAutocompleteOptions - A function that is used to create the autocomplete options. This way we can have 
      * a default value. This function is created on `useFlow` hook and passed here as a callback so we can have a default structure.
      * 
@@ -226,6 +287,10 @@ export default function FormularyFieldFormula(props) {
      *          type: string, 
      *          required: boolean
      *      }>,
+     *      toSubstitute: {
+     *          from: number,
+     *          to: number
+     *      } | undefined,
      *      cursorOffset: number,
      *      isSnippet: boolean
      * }>} - The array of options created by the `createAutocompleteOptions` function.
@@ -233,27 +298,32 @@ export default function FormularyFieldFormula(props) {
     function onAutocomplete(autocompleteData, createAutocompleteOptions) {
         let formularyFields = props.retrieveFields()
     
-        const isEmptyVariable = (EMPTY_VARIABLE_REGEX).test(autocompleteData.name)
         const variableMatch = autocompleteData.name.match(VARIABLE_IN_FORMULA_REGEX)
         const isVariable = variableMatch !== null && variableMatch.length > 0
-
-        if (!(isEmptyVariable || autocompleteData.name === '')) {
-            formularyFields = formularyFields.filter(field => {
-                let autocompleteName = autocompleteName
-                if (isVariable === true) {
-                    autocompleteName = autocompleteData.name.replace(/[{}]/g, '')
-                }
-                return field.labelName.startsWith(autocompleteName)
-            })
+        const variableFieldName = isVariable === true ? 
+            autocompleteData.name.replace(/^{{/, '').replace(/}}$/, '') : autocompleteData.name
+        const variableFieldNameIsNotAnEmptyString = variableFieldName !== ''
+        if (variableFieldNameIsNotAnEmptyString) {
+            formularyFields = formularyFields.filter(field => field.labelName.startsWith(variableFieldName))
         }
-        const customAutocompleteData = formularyFields
-            .map(field => createAutocompleteOptions(
-                    isEmptyVariable ? `${' '.repeat(autocompleteData.name.length)}${field.labelName}` : `{{${field.labelName}}}`, 
-                    field.labelName, 
-                    'Esta é uma váriavel. Uma variável refere-se a um dos campos do seu formulário. O valor de uma variável é definida pelo valor no campo.', 
-                    'custom'
-                )
-            )
+
+        // When setting a variable we need to substitute the value that was inserted with the complete variable.
+        // That's exactly what we do here.
+        // For example: 'Nome' will be replaced with '{{Nome}}', for this replacing we need the starting position of the element
+        // we want to substitute. The ending position otherwise is calculated, we don't need that.
+        const toSubstitute = autocompleteData.name.length > 0 ? {
+            from: autocompleteData.elementAt,
+            to: autocompleteData.elementAt + autocompleteData.name.length
+        } : undefined
+        const customAutocompleteData = formularyFields.map(field => createAutocompleteOptions(
+            `{{${field.labelName}}}`, 
+            field.labelName, 
+            strings('formularyFieldFormulaVariableDescription'), 
+            'custom',
+            {
+                toSubstitute: toSubstitute
+            }
+        ))
         return customAutocompleteData
     }
 
@@ -306,8 +376,14 @@ export default function FormularyFieldFormula(props) {
     useEffect(() => {
         const isFormulaFieldDataDefined = typeof props.field.formulaField === 'object' && 
             props.field.formulaField !== null
-        if (isFormulaFieldDataDefined && props.field.formulaField.formula === '') {
-            onToggleIsEditingFormula(true)
+        if (isFormulaFieldDataDefined) {
+            if (props.field.formulaField.formula === '') {
+                onToggleIsEditingFormula(true)
+            } 
+
+            if (props.field.formulaField.formula !== formula.forBackendFormula) {
+                onChangeFormula(props.field.formulaField.formula)
+            }
         }
     }, [props.field.formulaField])
 
@@ -319,7 +395,7 @@ export default function FormularyFieldFormula(props) {
         onAutocomplete={onAutocomplete}
         isEditingFormula={isEditingFormula}
         onToggleIsEditingFormula={onToggleIsEditingFormula}
-        getFormula={getRealFormula}
+        formula={formula.userFacingFormula}
         types={props.types}
         field={props.field}
         />

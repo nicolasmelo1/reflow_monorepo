@@ -34,7 +34,7 @@ export default function FormularyFieldFormulaWebLayout(props) {
             {props.isEditingFormula === true ? (
                 <Fragment>
                     <FlowCodeEditor
-                    code={props.getFormula()}
+                    code={props.formula}
                     onChange={props.onChangeFormula}
                     onAutoComplete={props.onAutocomplete}
                     evaluateRef={props.evaluateRef}

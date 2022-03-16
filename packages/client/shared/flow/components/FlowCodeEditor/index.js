@@ -33,7 +33,7 @@ const defaultDelay = delay(2000)
  * changes.
  * @param {string} [props.code=''] - The code that will be shown/written inside of the editor.
  * @param {undefined |
- *      ({name: string, attributeName: string}, function) => {
+ *      ({name: string, attributeName: string, elementAt: number}, function) => {
  *          label: string,
  *          autocompleteText: string,
  *          description: string,
@@ -182,12 +182,19 @@ export default function FlowCodeEditor(props) {
      * that the user needs to move to in order to write what he wants. For example, defining an `if` expression can be a lot easier with a snippet
      * where we add the condition as placeholder and the body also as a placeholder.
      */
-    function onClickAutocomplete(label='', { cursorAt=undefined, isSnippet=false }={}) {
+    function onClickAutocomplete(label='', { from=undefined, to=undefined, cursorAt=undefined, isSnippet=false }={}) {
+        const isToSubstituteFromToPosition = typeof from === 'number' && typeof to === 'number'
+        const isToSetCursorAtPosition = typeof cursorAt === 'number'
         if (isSnippet === true) {
             codeEditorFunctionsRef.current.dispatchChange(label, { isSnippet })
-        } else if (cursorAt !== undefined) {
+        } else if (isToSetCursorAtPosition) {
             codeEditorFunctionsRef.current.dispatchChange(label, { 
                 withCursorAt: label.length + cursorPositionRef.current.from + cursorAt,
+            })
+        } else if (isToSubstituteFromToPosition){
+            codeEditorFunctionsRef.current.dispatchChange(label, {
+                from,
+                to
             })
         } else {
             codeEditorFunctionsRef.current.dispatchChange(label)
@@ -243,7 +250,8 @@ export default function FlowCodeEditor(props) {
      * the autocomplete options for him. This makes really easy to understand and learn how flow works.
      * To create the autocomplete options we use the `createAutocompleteOptions` function that we created in the `useFlow` hook.
      * 
-     * @param {{name: string, attributeName: string}} autocomplete - The autocomplete object that holds the informations needed to filter the autocomplete options.
+     * @param {{name: string, attributeName: string, elementAt: number}} autocomplete - The autocomplete object that holds the informations 
+     * needed to filter the autocomplete options.
      * By default, `name` is filled with whatever the user types. The `attributeName` is the name of the attribute that the user is in. For example: 
      * ```
      * HTTP.
@@ -252,11 +260,11 @@ export default function FlowCodeEditor(props) {
      */
     function onAutoComplete(autocomplete) {
         let options = []
-
+        let customOptions = []
         const isOnAutocompleteDefined = typeof props.onAutoComplete === 'function'
         if (isOnAutocompleteDefined) {
             const customAutocompleteOptions = props.onAutoComplete(autocomplete, createAutocompleteOptions)
-            if (Array.isArray(customAutocompleteOptions)) options = options.concat(customAutocompleteOptions)
+            if (Array.isArray(customAutocompleteOptions)) customOptions = customAutocompleteOptions
         }
 
         if (autocomplete.attributeName === '') {
@@ -279,7 +287,7 @@ export default function FlowCodeEditor(props) {
             if (builtinModule) {
                 const hasMethods = typeof builtinModule?.methods === 'object'
                 const listMethods = hasMethods === true ? Object.values(builtinModule.methods) : []
-                const filteredMethods = autocomplete.name !== '' ? listMethods.filter(method => method.name.startsWith(autocomplete.name)) : listMethods
+                const filteredMethods = autocomplete.name !== '.' ? listMethods.filter(method => method.name.startsWith(autocomplete.name)) : listMethods
                 options = options.concat(
                     filteredMethods.map(method => {
                         const hasParameters = typeof method?.parameters === 'object'
@@ -310,12 +318,14 @@ export default function FlowCodeEditor(props) {
         // we will remove this part from the `autocompleteText` of the original text, so the next time we type only "i", 
         // the "if " part will be ~cut off~. Because you would be changing the actual object directly.
         options = options.map(option => {
-            const filteredAutocompleteText = option.autocompleteText.substring(autocomplete.name.length)
+            const filteredAutocompleteText = option.autocompleteText.startsWith(autocomplete.name) ? 
+                option.autocompleteText.substring(autocomplete.name.length) : option.autocompleteText
             return {
                 ...option,
                 autocompleteText: filteredAutocompleteText
             }
         })
+        options = customOptions.concat(options)
 
         const isOptionsNotEmpty = options.length > 0
         const isFirstOptionDifferentFromExistingHoveringOption = hoveringAutocompleteOption === null ||
@@ -324,7 +334,7 @@ export default function FlowCodeEditor(props) {
             setHoveringAutocompleteOption(options[0])
         }
 
-        setAutocompleteOptions(options)
+        setAutocompleteOptions([...options])
     }
     
     /**
@@ -439,7 +449,6 @@ export default function FlowCodeEditor(props) {
         }
     }, [props.code])
 
-    
     return (
         <Layouts 
         forWebEditorRef={forWebEditorRef}

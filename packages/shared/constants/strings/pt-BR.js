@@ -44,6 +44,7 @@ module.exports = {
         formularyFieldFormulaDoneEditingFormula: 'Finalizar edição',
         formularyFieldFormulaDropdownMenuToEditFormulaLabel: 'Editar formula',
         formularyFieldFormulaDropdownMenuToFinishEditOnFormulaLabel: 'Concluir edição',
+        formularyFieldFormulaVariableDescription: 'Esta é uma váriavel. Uma variável refere-se a um dos campos do seu formulário. O valor de uma variável é definida pelo valor no campo.',
         flowIfSnippetCondition: 'condição',
         flowIfSnippetWhenTrue: 'quando verdadeiro',
         flowIfSnippetWhenFalse: 'quando falso',

@@ -135,18 +135,20 @@ export default function useFlow() {
      *      type: string,
      *      required: boolean
      * }>} [extraOptions.parameters=[]] - The parameters of functions so we can display them nicely in the function explanation.
-     * @param {number} [cursorOffset=0] - This is used for when you click the option and you don't want the cursor to be at the end
+     * @param {number} [extraOptions.cursorOffset=0] - This is used for when you click the option and you don't want the cursor to be at the end
      * of the string. For example, when click on function autocomplete options, we don't want the cursor to be `.get()|` (where '|' 
      * is the cursor), but on `.get(|)`, that's why we use this.
-     * @param {boolean} [isSnippet=false] - This is used for when we want to show the autocomplete option as a snippet. This will make
+     * @param {boolean} [extraOptions.isSnippet=false] - This is used for when we want to show the autocomplete option as a snippet. This will make
      * it easy for users to fill the snippet with their own logic.
+     * @param {{from: number, to: number} | undefined} [extraOptions.toSubstitute] - This is used to substitute the text from a position to
+     * a certain position, with a new text.
      * 
      * @returns {{
      *      label: string,
      *      autocompleteText: string,
      *      description: string,
      *      type: string,
-     *      rawName: string,
+     *      rawName: string | undefined,
      *      examples: Array<string>,
      *      parameters: Array<{
      *          name: string, 
@@ -154,13 +156,18 @@ export default function useFlow() {
      *          type: string,
      *          required: boolean
      *      }>,
+     *      toSubstitute: {
+     *          from: number,
+     *          to: number
+     *      } | undefined,
      *      cursorOffset: number,
      *      isSnippet: boolean
      * }} - Returns all of the parameters formated nicely in an object.
      */
     function createAutocompleteOptions(
         autocompleteText, label, description, type, 
-        { rawName=undefined, examples=[], parameters=[], cursorOffset=0, isSnippet=false}={}
+        { rawName=undefined, examples=[], parameters=[], cursorOffset=0, isSnippet=false,
+        toSubstitute=undefined}={}
     ) {
         const validAutocompleteOptionTypes = ['language', 'function', 'module', 'custom']
         const isTypeValid = validAutocompleteOptionTypes.includes(type)
@@ -173,6 +180,7 @@ export default function useFlow() {
                 autocompleteText,
                 description,
                 type,
+                toSubstitute,
                 rawName,
                 examples,
                 parameters,

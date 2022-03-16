@@ -135,6 +135,11 @@ export default function FlowWebCodeEditor(props) {
                                         props.onClickAutocomplete(option.autocompleteText, { cursorAt: option.cursorOffset}) 
                                     } else if (option.isSnippet === true) {
                                         props.onClickAutocomplete(option.autocompleteText, { isSnippet: true })
+                                    } else if (typeof option.toSubstitute === 'object') {
+                                        props.onClickAutocomplete(option.autocompleteText, { 
+                                            from: option.toSubstitute.from,
+                                            to: option.toSubstitute.to
+                                        })
                                     } else {
                                         props.onClickAutocomplete(option.autocompleteText)
                                     }
