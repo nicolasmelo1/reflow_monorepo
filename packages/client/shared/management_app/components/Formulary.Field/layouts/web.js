@@ -34,7 +34,9 @@ export default function FormularyFieldWebLayout(props) {
                 fieldIsHidden={props.field.fieldIsHidden}
                 autoFocus={true}
                 autoComplete={'off'}
+                onFocus={(e) => props.isNewField ? e.target.select() : null}
                 onChange={(e) => props.onChangeFieldLabelName(e.target.value)}
+                onBlur={() => props.setIsRenaming(false)}
                 onKeyPress={(e) => e.key === 'Enter' ? props.setIsRenaming(false) : null}
                 value={props.field.labelName}
                 />

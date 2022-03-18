@@ -19,7 +19,7 @@ export function DropdownMenuTagsFormatOptionWebLayout(props) {
 // ------------------------------------------------------------------------------------------
 export function CustomCreateOptionButtonWebLayout(props) {
     return (
-        <Styled.SelectContainer>
+        <Styled.SelectContainerOnDropdown>
             <Styled.SelectButton
             onClick={() => props.onCreateOption(props.color)}
             >
@@ -30,7 +30,7 @@ export function CustomCreateOptionButtonWebLayout(props) {
                     {props.value}
                 </Styled.CreateOptionLabel>
             </Styled.SelectButton>
-        </Styled.SelectContainer>
+        </Styled.SelectContainerOnDropdown>
     )
 }
 // ------------------------------------------------------------------------------------------

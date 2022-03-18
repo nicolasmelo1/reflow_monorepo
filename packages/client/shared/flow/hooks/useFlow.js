@@ -2,6 +2,11 @@ import { useRef, useMemo } from 'react'
 import { FlowService } from '../../../../shared/flow'
 import { strings } from '../../core'
 
+/**
+ * This hook is used to interact with flow code. Instead of repeating the usage of flow between multiple components we think that
+ * it might be better to define a hook, this way we can keep flow code concise, all of the logic are defined internally in a hook
+ * that we can reuse anywhere we want or need.
+ */
 export default function useFlow() {
     const flowServiceRef = useRef(null)
     const runtimeModulesDocumentationRef = useRef([])
@@ -140,8 +145,8 @@ export default function useFlow() {
      * is the cursor), but on `.get(|)`, that's why we use this.
      * @param {boolean} [extraOptions.isSnippet=false] - This is used for when we want to show the autocomplete option as a snippet. This will make
      * it easy for users to fill the snippet with their own logic.
-     * @param {{from: number, to: number} | undefined} [extraOptions.toSubstitute] - This is used to substitute the text from a position to
-     * a certain position, with a new text.
+     * @param {{from: number, to: number} | undefined} [extraOptions.toSubstitute=undefined] - This is used to substitute the text 
+     * from a position to a certain position, with a new text.
      * 
      * @returns {{
      *      label: string,

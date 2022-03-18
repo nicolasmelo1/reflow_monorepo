@@ -6,6 +6,7 @@ import Layout from './layouts'
 import { APP } from '../../../conf'
 import { deepCopy } from '../../../../../shared/utils'
 
+
 export default function Formulary(props) {
     const sourceRef = useRef()
     const formularyFieldsCacheRef = useRef([])
@@ -26,6 +27,10 @@ export default function Formulary(props) {
     function onUpdateFormulary() {
         isToRecalculateFormularyFieldsRef.current = true
         setFormulary(props.app.uuid, formulary)
+    }
+    
+    function getFieldTypeLabelNameByName(fieldTypeName) {
+
     }
 
     function retrieveFields() {

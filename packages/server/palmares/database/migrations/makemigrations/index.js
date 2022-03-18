@@ -66,7 +66,7 @@ async function makemigrations(settings) {
         originalModelsByModelName,
         appNameByModelName
     } = await getStateAndOriginalModels(settings)
-    const differenceList = getDifference(appNameByModelName, originalModelsByModelName, stateModelsByModelName)
+    const differenceList = await getDifference(appNameByModelName, originalModelsByModelName, stateModelsByModelName)
 
     const orderedDifferenceList = reorderDifferences(originalModelsByModelName, stateModelsByModelName, differenceList)
     if (orderedDifferenceList.length === 0) {

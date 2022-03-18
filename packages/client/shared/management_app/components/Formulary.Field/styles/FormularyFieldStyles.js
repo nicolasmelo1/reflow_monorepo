@@ -7,7 +7,6 @@ styled.div`
     position: relative;
     background-color: ${props => props.theme.white};
     padding: 10px;
-    margin-bottom: 10px;
     border-radius: 4px;
 `
 :

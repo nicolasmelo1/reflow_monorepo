@@ -1,20 +1,68 @@
 const FlowService = require('./packages/shared/flow/service')
 
 async function main() {
-    const flowService = await FlowService.initialize()
+    /*const flowService = await FlowService.initialize()
     const result = await flowService.evaluate(`
-função soma(a; b=20) faça
-    a + b
-fim
-  
-soma(2) 
+{
+    'result': {
+        'taskID': 19299046; 
+        'idUserFrom': 99075; 
+        'userFromName': 'Gestão'; 
+        'idUserTo': 99075; 
+        'userToName': 'Gestão'; 
+        'customerId': 0; 
+        'customerDescription': ''; 
+        'taskType': 83344; 
+        'creationDate': '2022-03-18T14:18:56'; 
+        'taskDate': '2022-03-18T18:00:00'; 
+        'latitude': -23,5533909; 
+        'longitude': -46,6542179; 
+        'address': 'Rua Frei Caneca; 485; 96B'; 
+        'orientation': "Gotta Catch 'Em All"; 
+        'priority': 3; 
+        'deliveredOnSmarthPhone': Falso; 
+        'deliveredDate': '0001-01-01T00:00:00'; 
+        'finished': Falso; 
+        'report': ''; 
+        'visualized': Falso; 
+        'visualizedDate': ''; 
+        'checkIn': Falso; 
+        'checkInDate': ''; 
+        'checkOut': Falso; 
+        'checkOutDate': ''; 
+        'checkinType': 1; 
+        'keyWords': []; 
+        'keyWordsDescriptions': []; 
+        'inputedKm': 0,0; 
+        'adoptedKm': 0,0; 
+        'attachments': []; 
+        'questionnaires': []; 
+        'signatureUrl': ''; 
+        'checkInDistance': 0; 
+        'checkOutDistance': 0; 
+        'sendSatisfactionSurvey': Falso; 
+        'survey': 'https://app.auvo.com.br/pesquisasatisfacao/formulario/6d3bb169-7c53-497f-9560-46658ba733e6'; 
+        'taskUrl': 'https://app.auvo.com.br/informacoes/tarefa/6d3bb169-7c53-497f-9560-46658ba733e6?chave=k7Pxr-hi19yOGnhIKEwjXg'; 
+        'pendency': ''; 
+        'equipmentsId': []; 
+        'dateLastUpdate': '2022-03-18T14:18:56'; 
+        'ticketId': 0; 
+        'expense': '0,00'; 
+        'duration': ''; 
+        'durationDecimal': ''; 
+        'taskStatus': 1
+    }
+}
 `
     )
-    console.log(await(await result._string_())._representation_())
+    console.log(await(await result._string_())._representation_())*/
+    const asker = require('./packages/server/palmares/database/migrations/makemigrations/ask')
+    const response = await asker.didUserRenameToOneOption('teste', ['Hey', 'Senhorita', 'Não sei', 'Se você acredita'])
+    await asker.didUserRename('teste', 'teste')
+    console.log(response)
 }
 
 main()
-
 //async function main() {
 //    const q = await question('Digite a expressão: ')
 //}

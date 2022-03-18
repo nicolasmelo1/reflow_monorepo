@@ -30,21 +30,22 @@ export default function FormularyWebLayout(props) {
                     </Styled.ToolbarContainer>
                 </Fragment>
             ) : ''}
-            <Styled.FormularyContainer
-            ref={props.formularyContainerRef}
-            offset={props.formularyContainerOffset}
-            >
-                {props.formulary?.sections.map(section => (
-                    <FormularySection 
-                    formularyContainerRef={props.formularyContainerRef}
-                    workspace={props.workspace}
-                    key={section.uuid}
-                    section={section}
-                    retrieveFields={props.retrieveFields}
-                    onUpdateFormulary={props.onUpdateFormulary}
-                    />
-                ))}
-            </Styled.FormularyContainer>
+            <Styled.FormularyWrapper>
+                <Styled.FormularyContainer
+                ref={props.formularyContainerRef}
+                offset={props.formularyContainerOffset}
+                >
+                    {props.formulary?.sections.map(section => (
+                        <FormularySection 
+                        workspace={props.workspace}
+                        key={section.uuid}
+                        section={section}
+                        retrieveFields={props.retrieveFields}
+                        onUpdateFormulary={props.onUpdateFormulary}
+                        />
+                    ))}
+                </Styled.FormularyContainer>
+            </Styled.FormularyWrapper>
         </Styled.Container>
     )
 }

@@ -4,5 +4,6 @@ export { default as dynamicImport } from './utils/dynamicImport'
 export { 
     useClickedOrPressedOutside, 
     useRouterOrNavigationRedirect,
-    useDebugWebView
+    useDebugWebView,
+    useOpenFloatingDropdown
 } from './hooks'

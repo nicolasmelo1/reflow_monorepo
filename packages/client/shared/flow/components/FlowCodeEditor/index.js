@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { useFlow } from '../../hooks'
 import { APP } from '../../../conf'
-import { useClickedOrPressedOutside, strings } from '../../../core'
+import { useClickedOrPressedOutside } from '../../../core'
 import { delay } from '../../../../../shared/utils'
 import Layouts from './layouts'
 
@@ -27,13 +27,15 @@ const defaultDelay = delay(2000)
  * you want to evaluate the flow code you will need to call `props.evaluateRef.current(code)`. Remember that
  * this will give you the result as a FlowObject, so you need to convert it to a javascript value in order
  * to use it.
+ * @param {undefined | {current: null | import('../../../../../shared/flow/service')}} [props.flowServiceRef=undefined] - This is
+ * a ref object that will hold the FlowService instance. With this we can use this outside of this component.
  * @param {undefined | (code) => 
  *      Promise<import('../../../../../shared/flow/builtins/objects').FlowObject>
  * } [props.onChange=undefined] - Callback that is called whenever the code in the editor
  * changes.
  * @param {string} [props.code=''] - The code that will be shown/written inside of the editor.
  * @param {undefined |
- *      ({name: string, attributeName: string, elementAt: number}, function) => {
+ *      ({name: string, attributeName: string, elementAt: number}, function) => Array<{
  *          label: string,
  *          autocompleteText: string,
  *          description: string,
@@ -48,7 +50,7 @@ const defaultDelay = delay(2000)
  *          }>,
  *          cursorOffset: number,
  *          isSnippet: boolean
- *      }
+ *      }>
  * } [props.onAutoComplete=undefined] - This function will be called whenever we want to retrieve the autocomplete options
  * this is used to retrieve extra autocomplete options for the user that is bounded to the context where flow is being used.
  * 
@@ -175,12 +177,19 @@ export default function FlowCodeEditor(props) {
      * Function called when clicking a option inside of the autocomplete menu.
      * 
      * @param {string} [label=''] - By default the label is always defined, this is the text that will be inserted in the editor.
-     * @param {object} customAutocompleteParams - Custom autocomplete parameters used for extending and giving extra functionality to the autocomplete.
-     * @param {number | undefined} [customAutocompleteParams.cursorAt=undefined] - After inserting the text you might want to set the cursor at a specific
-     * position in the text editor, this is exactly what this is for.
-     * @param {boolean} [customAutocompleteParams.isSnippet=false] - This will add the text as a snippet, being a snippet means that there will be placeholders
-     * that the user needs to move to in order to write what he wants. For example, defining an `if` expression can be a lot easier with a snippet
-     * where we add the condition as placeholder and the body also as a placeholder.
+     * @param {object} customAutocompleteParams - Custom autocomplete parameters used for extending and giving extra 
+     * functionality to the autocomplete.
+     * @param {number | undefined} [customAutocompleteParams.from=undefined] - This is used in conjunction with `to`, if either
+     * this or `to` are undefined it will not work as expected. When the `from` is defined, this means we will substitute the text
+     * from the position to another position with a new text.
+     * @param {number | undefined} [customAutocompleteParams.to=undefined] - This function is used in conjunction with the `from`
+     * parameter, if this or the `from` parameter are undefined, it will not work as expected. This is the value that defines to
+     * what position the text shoule be substituted with the new text.
+     * @param {number | undefined} [customAutocompleteParams.cursorAt=undefined] - After inserting the text you might 
+     * want to set the cursor at a specific position in the text editor, this is exactly what this is for.
+     * @param {boolean} [customAutocompleteParams.isSnippet=false] - This will add the text as a snippet, being a snippet 
+     * means that there will be placeholders that the user needs to move to in order to write what he wants. For example,
+     * defining an `if` expression can be a lot easier with a snippet where we add the condition as placeholder and the body also as a placeholder.
      */
     function onClickAutocomplete(label='', { from=undefined, to=undefined, cursorAt=undefined, isSnippet=false }={}) {
         const isToSubstituteFromToPosition = typeof from === 'number' && typeof to === 'number'
@@ -233,6 +242,15 @@ export default function FlowCodeEditor(props) {
         onToggleInputFocus(true)
     }
 
+    /**
+     * Function used to toggle the focus on the input, when we want to focus on the input we call this input, same thing 
+     * if we want to blur on the element.
+     * 
+     * When we set the input to be blurred, we will force to blur on the editor, but we will also dismiss the autocomplete
+     * modules or functions and the autocomplete options.
+     * 
+     * @param {boolean} [isFocused=!isInputFocused] - True if the input will be focused, false if the input will be blurred.
+     */
     function onToggleInputFocus(isFocused=!isInputFocused) {
         isInputFocusedRef.current = isFocused
 
@@ -240,8 +258,6 @@ export default function FlowCodeEditor(props) {
             setAutocompleteModulesOrFunctions(null)
             setAutocompleteOptions([])
             codeEditorFunctionsRef.current.forceBlur()
-        } else {
-
         }
     }
     
@@ -249,6 +265,15 @@ export default function FlowCodeEditor(props) {
      * This function will be called whenever the user is typing something in the editor. This way, while the user is typing we can display 
      * the autocomplete options for him. This makes really easy to understand and learn how flow works.
      * To create the autocomplete options we use the `createAutocompleteOptions` function that we created in the `useFlow` hook.
+     * 
+     * If you want to set custom autocomplete options you need to set a `onAutoComplete` callback function. If an onAutoComplete callback function exists
+     * we will retrieve custom values using this hook. Those custom values will be shown ABOVE the default options. There are two things
+     * about custom options: WE WILL NOT take out what the user wrote. For example, by default if wrote HT and the autocomplete text is 
+     * HTTP, when the user clicks this options it WON'T SHOW HTHTTP, instead it should be `HTTP`, so on this case, if the user
+     * wrote HT, the autocomplete text will be `TP`. This behaviour will not exist on custom options, you will need to handle this 
+     * outside of this function.
+     * 
+     * Also, this DOES NOT handle filtering of custom autocomplete options. You need to handle it in your `onAutoComplete` callback
      * 
      * @param {{name: string, attributeName: string, elementAt: number}} autocomplete - The autocomplete object that holds the informations 
      * needed to filter the autocomplete options.

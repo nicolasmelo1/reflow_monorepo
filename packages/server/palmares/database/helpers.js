@@ -84,7 +84,7 @@ function retrieveModels(settings) {
  * 
  * @returns {Object} - Returns an object similar to stateModels besides that this will be an object of the initialized models
  */
-const initializedStateModelsByModelName = (stateModels, engineInstance, prefix='') => {
+const initializedStateModelsByModelName = (stateModels, engineInstance) => {
     const newStateModels = {}
     // reset the defined models so it doesn't clash with the original models.
     engineInstance.resetModels()
@@ -97,9 +97,8 @@ const initializedStateModelsByModelName = (stateModels, engineInstance, prefix='
         }
 
         const stateModelInstance = new StateModel()
-        stateModelInstance.initialize(StateModel, engineInstance, `${prefix}${stateModelName}`)
+        stateModelInstance.initialize(StateModel, engineInstance, `${stateModelName}`)
         newStateModels[stateModelName] = {
-            prefix: prefix,
             original: StateModel,
             initialized: StateModel.instance
         }

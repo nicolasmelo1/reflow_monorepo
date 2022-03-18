@@ -650,35 +650,14 @@ class SequelizeEngine extends Engine {
      * This creates all of the indexes in all of the tables so you do not miss any index.
      */
     async handleIndexesMigration(transaction, {fromModel, toModel}) {
-        const cleanPrefixFromIndexes = (fromIndexes=[], toIndexes=[]) => {
-            if (fromModel && fromModel.original.options.tableName === null && fromIndexes) {
-                fromIndexes = fromIndexes.map(index => {
-                    const regexToRemove = new RegExp(`^(${fromModel.prefix.toLowerCase()}_)`)
-                    index.name = index.name.replace(regexToRemove,"")
-                    return index
-                })
-            }
-
-            if (toModel && toModel.original.options.tableName === null && toIndexes) {
-                toIndexes = toIndexes.map(index => {
-                    const regexToRemove = new RegExp(`^(${toModel.prefix.toLowerCase()}_)`)
-                    index.name = index.name.replace(regexToRemove,"")
-                    return index
-                })
-            }
-
-            return [fromIndexes, toIndexes]
-        }
-
         let failedIndexesForNextIteration = []
         this.#indexesToAddOnNextIteration = []
 
-        let fromIndexes = []
+        let fromModelIndexes = []
         if (fromModel) {
-            fromIndexes = fromModel.initialized._indexes
+            fromModelIndexes = fromModel.initialized._indexes
         }
-        let toIndexes = toModel.initialized._indexes
-        const [fromModelIndexes, toModelIndexes] = cleanPrefixFromIndexes(fromIndexes, toIndexes)
+        const toModelIndexes = toModel.initialized._indexes
 
         const toModelDatabaseColumnNames = Object.keys(toModel.initialized.rawAttributes).map(attributeName => toModel.initialized.rawAttributes[attributeName].field)
         for (const toModelIndex of toModelIndexes) {
@@ -822,12 +801,14 @@ class SequelizeEngine extends Engine {
     /**
      * Removes a column from a model from the database in a running migration. 
      * 
-     * @param {Object} toModel - This object will hold the model initialized by the engine and the original model. 
-     * This is the model of the state IN the migration.
-     * @param {String} attributeName - The name of the removed attribute name.
+     * @param {{initialized: import('sequelize').Model, original: import('../models').Model}} toModel - This object will hold the model initialized 
+     * by the engine and the original model. This is the model of the state IN the migration.
+     * @param {{initialized: import('sequelize').Model, original: import('../models').Model}} fromModel - This object will hold the model initialized
+     * by the engine and the original model. This is the model of how it was before.
+     * @param {string} attributeName - The name of the removed attribute name.
      */
     async removeColumnMigration(transaction, toModel, fromModel, attributeName) {
-        const columnName = fromModel.initialized.rawAttributes[attributeName].field
+        const columnName = fromModel.original.attributes[attributeName].databaseName
         await this.#queryInterface.removeColumn(fromModel.initialized.options.tableName, columnName, {transaction: transaction})
         await this.handleIndexesMigration(transaction, {toModel, fromModel})
     }
@@ -853,18 +834,8 @@ class SequelizeEngine extends Engine {
      * @param {String} modelName - The name of the model.
      */
     async changeModelMigration(transaction, toModel, fromModel, modelName) {
-        let fromTableName = fromModel.initialized.tableName
-        let toTableName = toModel.initialized.tableName
-
-        if (fromModel.original.options.tableName === null) {
-            const regexToRemove = new RegExp(`^(${fromModel.prefix})`)
-            fromTableName = fromTableName.replace(regexToRemove,"")
-        }
-
-        if (toModel.original.options.tableName === null) {
-            const regexToRemove = new RegExp(`^(${toModel.prefix})`)
-            toTableName = toTableName.replace(regexToRemove,"")
-        }
+        const fromTableName = fromModel.initialized.tableName
+        const toTableName = toModel.initialized.tableName
 
         if (toTableName !== fromTableName) {
             await this.#queryInterface.renameTable(

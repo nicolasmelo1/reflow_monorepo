@@ -23,7 +23,10 @@ const asker = require('./ask')
  * @param {Function} callbackIfDeleted - A callback function to be called when a attribute or when a model was deleted
  * @param {Function} callBackIfChanged - A callback function to be called when a attribute or when a model was changed
  */
-const getDifferenceFromModelsOrAttributes = (originalModelsOrAttributesObject, stateModelsOrAttributesObject, callbackIfRenamed, callbackIfCreated, callbackIfDeleted, callBackIfChanged) => {
+async function getDifferenceFromModelsOrAttributes(
+    originalModelsOrAttributesObject, stateModelsOrAttributesObject, callbackIfRenamed, 
+    callbackIfCreated, callbackIfDeleted, callBackIfChanged
+) {
     const originalAttributesOrModelsEntries = Object.entries(originalModelsOrAttributesObject)
     const stateAttributesOrModelsEntries = Object.entries(stateModelsOrAttributesObject)
 
@@ -31,7 +34,7 @@ const getDifferenceFromModelsOrAttributes = (originalModelsOrAttributesObject, s
     let modelsOrAttributesInStateButNotDefinedInOriginal = []
 
     // Check if something is in state that is not on original. In other words, check if any attribute or model was removed
-    stateAttributesOrModelsEntries.forEach(([stateAttributeOrModelName, stateAttributeOrModelObject]) => {
+    for (const [stateAttributeOrModelName, stateAttributeOrModelObject] of stateAttributesOrModelsEntries) {
         const didRenamedAttributeNameOrModelName = originalModelsOrAttributesObject[stateAttributeOrModelName] === undefined         
         if (didRenamedAttributeNameOrModelName) {
             if (originalAttributesOrModelsEntries.length === stateAttributesOrModelsEntries.length) {
@@ -45,17 +48,17 @@ const getDifferenceFromModelsOrAttributes = (originalModelsOrAttributesObject, s
                     }
                 }
                 
-                if (asker.didUserRename(stateAttributeOrModelName, renamedTo)) {
+                if (await asker.didUserRename(stateAttributeOrModelName, renamedTo)) {
                     const originalModelOrAttribute = originalModelsOrAttributesObject[renamedTo]
                     const stateModelOrAttribute = stateModelsOrAttributesObject[stateAttributeOrModelName]
-                    callbackIfRenamed(stateAttributeOrModelName, renamedTo, stateModelOrAttribute, originalModelOrAttribute)
+                    await callbackIfRenamed(stateAttributeOrModelName, renamedTo, stateModelOrAttribute, originalModelOrAttribute)
 
                     // We change the name of the state model or attribute to the actual name, so we can compare other stuff
                     // also now when we loop though the original models or attributes it will not catch as it was renamed
                     stateModelsOrAttributesObject[renamedTo] = stateAttributeOrModelObject
                     delete stateModelsOrAttributesObject[stateAttributeOrModelName]
                 } else {
-                    callbackIfDeleted(stateAttributeOrModelName, stateAttributeOrModelObject)
+                    await callbackIfDeleted(stateAttributeOrModelName, stateAttributeOrModelObject)
                 }
             } else {
                 // we cannot make guesses, for example in case like originalAttributes = {parameterName, name}, stateAttribute={createdAt}. 
@@ -67,15 +70,15 @@ const getDifferenceFromModelsOrAttributes = (originalModelsOrAttributesObject, s
                 modelsOrAttributesInStateButNotDefinedInOriginal.push(stateAttributeOrModelName)
             }
         }
-    })
+    }
 
-    originalAttributesOrModelsEntries.forEach(([originalAttributeOrModelName, originalAttributeOrModelObject]) => {
+    for (const [originalAttributeOrModelName, originalAttributeOrModelObject] of stateAttributesOrModelsEntries) {
         const stateAttributeOrModelObject = stateModelsOrAttributesObject[originalAttributeOrModelName]
         // created 
         if (stateAttributeOrModelObject === undefined) {
             // we already asked and changed the state so a new was definetly created
             if (originalAttributesOrModelsEntries.length === stateAttributesOrModelsEntries.length) {
-                callbackIfCreated(originalAttributeOrModelName, originalAttributeOrModelObject)
+                await callbackIfCreated(originalAttributeOrModelName, originalAttributeOrModelObject)
             } else {
                 // we cannot make guesses, for example in case like originalAttributes = {parameterName, name}, stateAttribute={createdAt}. 
                 // it's not clear that one of {parameterName} or {name} was added and the other was renamed, or both of them could be added and {createdAt} 
@@ -86,41 +89,41 @@ const getDifferenceFromModelsOrAttributes = (originalModelsOrAttributesObject, s
                 modelsOrAttributesInOriginalButNotDefinedInState.push(originalAttributeOrModelName)
             }
         } else {
-            callBackIfChanged(originalAttributeOrModelName, stateAttributeOrModelObject, originalAttributeOrModelObject)
+            await callBackIfChanged(originalAttributeOrModelName, stateAttributeOrModelObject, originalAttributeOrModelObject)
         }
-    })
+    }
 
     // on this case we can safely guess it was added
-    if (modelsOrAttributesInOriginalButNotDefinedInState.length > 0 && modelsOrAttributesInStateButNotDefinedInOriginal.length === 0) {        
-        modelsOrAttributesInOriginalButNotDefinedInState.forEach(originalAttributeOrModelNameToAdd => {
+    if (modelsOrAttributesInOriginalButNotDefinedInState.length > 0 && modelsOrAttributesInStateButNotDefinedInOriginal.length === 0) {      
+        for (const originalAttributeOrModelNameToAdd of modelsOrAttributesInOriginalButNotDefinedInState) {  
             const originalAttributeOrModelObject = originalModelsOrAttributesObject[originalAttributeOrModelNameToAdd]
-            callbackIfCreated(originalAttributeOrModelNameToAdd, originalAttributeOrModelObject)
-        })
+            await callbackIfCreated(originalAttributeOrModelNameToAdd, originalAttributeOrModelObject)
+        }
     } else if (modelsOrAttributesInStateButNotDefinedInOriginal.length > 0 && modelsOrAttributesInOriginalButNotDefinedInState.length === 0) {
         // we can safely guess it was removed
-        modelsOrAttributesInStateButNotDefinedInOriginal.forEach(stateAttributeOrModelNameToRemove => {
+        for (const stateAttributeOrModelNameToRemove of modelsOrAttributesInStateButNotDefinedInOriginal) {
             const stateAttributeOrModelObject = stateModelsOrAttributesObject[stateAttributeOrModelNameToRemove]
-            callbackIfDeleted(stateAttributeOrModelNameToRemove, stateAttributeOrModelObject)
-        })
+            await callbackIfDeleted(stateAttributeOrModelNameToRemove, stateAttributeOrModelObject)
+        }
     } else {
         let nonRenamedAttributesOrModels = [...modelsOrAttributesInOriginalButNotDefinedInState]
-
         // same as before, first we loop through state objects and then we loop through newly defined models
-        modelsOrAttributesInStateButNotDefinedInOriginal.forEach(attributeOrModelNameInState => {
+
+        for (const attributeOrModelNameInState of stateAttributesOrModelsEntries) {
             let answer = false
             if (nonRenamedAttributesOrModels.length !== 0) {
-                answer = asker.didUserRenameToOneOption(attributeOrModelNameInState, nonRenamedAttributesOrModels)
+                answer = await asker.didUserRenameToOneOption(attributeOrModelNameInState, nonRenamedAttributesOrModels)
             }
 
             const stateAttributeOrModelObject = stateModelsOrAttributesObject[attributeOrModelNameInState]
 
             if (answer === false) {
                 // was deleted
-                callbackIfDeleted(attributeOrModelNameInState, stateAttributeOrModelObject)
+                await callbackIfDeleted(attributeOrModelNameInState, stateAttributeOrModelObject)
             } else {
                 // was renamed
                 const originalModelOrAttributeObject = originalModelsOrAttributesObject[answer]
-                callbackIfRenamed(attributeOrModelNameInState, answer, stateAttributeOrModelObject, originalModelOrAttributeObject)
+                await callbackIfRenamed(attributeOrModelNameInState, answer, stateAttributeOrModelObject, originalModelOrAttributeObject)
 
                 const indexOfSelectedAnswer = nonRenamedAttributesOrModels.indexOf(answer)
                 nonRenamedAttributesOrModels.splice(indexOfSelectedAnswer, 1)
@@ -130,19 +133,18 @@ const getDifferenceFromModelsOrAttributes = (originalModelsOrAttributesObject, s
                 stateModelsOrAttributesObject[answer] = stateAttributeOrModelObject
                 delete stateModelsOrAttributesObject[attributeOrModelNameInState]
             }
-        })
-
-        modelsOrAttributesInOriginalButNotDefinedInState.forEach(attributeOrModelNameInOriginal => {
+        }
+        for (const attributeOrModelNameInOriginal of modelsOrAttributesInOriginalButNotDefinedInState) {
             const originalAttributeOrModelObject = originalModelsOrAttributesObject[attributeOrModelNameInOriginal]
             const stateAttributeOrModelObject = stateModelsOrAttributesObject[attributeOrModelNameInOriginal]
 
             if (stateAttributeOrModelObject === undefined) {
                 // we already asked and changed the state so a new was definetly created
-                callbackIfCreated(attributeOrModelNameInOriginal, originalAttributeOrModelObject)
+                await callbackIfCreated(attributeOrModelNameInOriginal, originalAttributeOrModelObject)
             } else {
-                callBackIfChanged(attributeOrModelNameInOriginal, stateAttributeOrModelObject, originalAttributeOrModelObject)
+                await callBackIfChanged(attributeOrModelNameInOriginal, stateAttributeOrModelObject, originalAttributeOrModelObject)
             }
-        })
+        }
     }
 }
 
@@ -157,17 +159,14 @@ const getDifferenceFromModelsOrAttributes = (originalModelsOrAttributesObject, s
  * @param {string} modelName - The model name that we are dealing with
  * @param {object} originalModelObject - The original model, this is how it is at the current time.
  * @param {object} stateModelObject - The state model, this is how the model was before making the migration.
- * 
- * @returns {void} - Nothing is returned. We just append data in the `differences` array since the array is passed to this
- * function as reference.
  */
-const getDifferenceFromAttributes = (differences, appNameByModelName, modelName, originalModelObject, stateModelObject) => {
+async function getDifferenceFromAttributes(differences, appNameByModelName, modelName, originalModelObject, stateModelObject) {
     const originalModelAttributes = originalModelObject.attributes
     const stateModelAttributes = stateModelObject.attributes
 
-    const callbackIfCreated = (originalAttributeName, originalAttributeObject) => {
+    async function callbackIfCreated(originalAttributeName, originalAttributeObject) {
         if (originalAttributeObject.defaultValue === undefined && originalAttributeObject.allowNull === false) {
-            if (!asker.theNewAttributeCantHaveNullDoYouWishToContinue(modelName, originalAttributeName)) {
+            if (!(await asker.theNewAttributeCantHaveNullDoYouWishToContinue(modelName, originalAttributeName))) {
                 return process.exit(1)
             }
         } 
@@ -181,7 +180,7 @@ const getDifferenceFromAttributes = (differences, appNameByModelName, modelName,
         )
     }
     
-    const callbackIfDeleted = (stateAttributeName, stateAttributeObject) => {
+    async function callbackIfDeleted(stateAttributeName, stateAttributeObject) {
         differences.push(
             operations.removeColumn(
                 appNameByModelName[modelName],
@@ -191,7 +190,7 @@ const getDifferenceFromAttributes = (differences, appNameByModelName, modelName,
         )
     }
 
-    const callbackIfRenamed = (nameBeforeInState, nameAfterInOriginal, stateAttributeObject, originalAttributeObject) => {
+    async function callbackIfRenamed(nameBeforeInState, nameAfterInOriginal, stateAttributeObject, originalAttributeObject){
         differences.push(
             operations.renameColumn(
                 appNameByModelName[modelName],
@@ -203,7 +202,7 @@ const getDifferenceFromAttributes = (differences, appNameByModelName, modelName,
         )
     }
 
-    const callBackIfChanged = (attributeName, stateAttributeObject, originalAttributeObject) => {
+    async function callBackIfChanged(attributeName, stateAttributeObject, originalAttributeObject) {
         // Reference: https://sequelize.org/master/class/lib/model.js~Model.html#static-method-init
         const stateAttributeData = {...stateAttributeObject}
         const originalAttributeData = {...originalAttributeObject}
@@ -228,7 +227,7 @@ const getDifferenceFromAttributes = (differences, appNameByModelName, modelName,
         }
     }
 
-    getDifferenceFromModelsOrAttributes(originalModelAttributes, stateModelAttributes, callbackIfRenamed, callbackIfCreated, callbackIfDeleted, callBackIfChanged)
+    await getDifferenceFromModelsOrAttributes(originalModelAttributes, stateModelAttributes, callbackIfRenamed, callbackIfCreated, callbackIfDeleted, callBackIfChanged)
 
 }
 
@@ -246,16 +245,12 @@ const getDifferenceFromAttributes = (differences, appNameByModelName, modelName,
  * in the current state when the makemigration is running.
  * @param {object} stateModelsByModelName - The same as the originalModelsByModelName except that this is the state of the model.
  * We get the state by checking each migration in order and building the model. This will get the last model.
- * 
- * @returns {void} - Nothing is returned. We just append data in the `differences` array since the array is passed to this
  */
-const getDifferenceFromModels = async (
-    differences,
-    appNameByModelName, 
-    originalModelsByModelName, 
+async function getDifferenceFromModels(
+    differences, appNameByModelName, originalModelsByModelName, 
     stateModelsByModelName
-) => {
-    const callbackIfCreated = (originalModelName, originalModelObject) => {
+) {
+    async function callbackIfCreated(originalModelName, originalModelObject) {
         const attributes = originalModelObject.attributes
         const options = originalModelObject.options
         differences.push(
@@ -263,20 +258,20 @@ const getDifferenceFromModels = async (
         )
     }
 
-    const callbackIfDeleted = (stateModelName, _) => {
+    async function callbackIfDeleted(stateModelName, _) {
         // Get app name here
         differences.push(
             operations.deleteModel(appNameByModelName[stateModelName], stateModelName)
         )
     }
 
-    const callbackIfRenamed = (nameBeforeInState, nameAfterInOriginal, stateModelObject, originalModelObject) => {
+    async function callbackIfRenamed(nameBeforeInState, nameAfterInOriginal, stateModelObject, originalModelObject) {
         differences.push(
             operations.renameModel(appNameByModelName[nameAfterInOriginal], nameBeforeInState, nameAfterInOriginal)
         )
     }
 
-    const callBackIfChanged = (modelName, stateModelObject, originalModelObject) => {
+    async function callBackIfChanged(modelName, stateModelObject, originalModelObject) {
         const stateModelOptions = {...stateModelObject.options}
         const originalModelOptions = {...originalModelObject.options}
 
@@ -293,10 +288,10 @@ const getDifferenceFromModels = async (
         }
 
         //getDifferenceFromIndexes(differences, originalModelName, originalModelObject?.options?.indexes, stateModelObject?.options?.indexes)
-        getDifferenceFromAttributes(differences, appNameByModelName, modelName, originalModelObject, stateModelObject)
+        await getDifferenceFromAttributes(differences, appNameByModelName, modelName, originalModelObject, stateModelObject)
     }
 
-    getDifferenceFromModelsOrAttributes(originalModelsByModelName, stateModelsByModelName, callbackIfRenamed, callbackIfCreated, callbackIfDeleted, callBackIfChanged)
+    await getDifferenceFromModelsOrAttributes(originalModelsByModelName, stateModelsByModelName, callbackIfRenamed, callbackIfCreated, callbackIfDeleted, callBackIfChanged)
 }
 
 /**
@@ -312,13 +307,20 @@ const getDifferenceFromModels = async (
  * states are created from the migrations, from the migrations we get the current state of the model and create the model as it
  * were before the makemigration.
  * 
- * @returns {object} - An object that holds the differences. The objects in this array are defined in './operations.js', this way you can know
+ * @returns {Promise<Array<{
+ *      action: string,
+ *      appName: string,
+ *      order: number,
+ *      modelName: string,   
+ *      dependsOn: Array<string>,
+ *      data: object
+ *}>>} - An object that holds the differences. The objects in this array are defined in './operations.js', this way you can know
  * the structure of the object
  */
-const getDifference = (appNameByModelName, originalModelsByModelName, stateModelsByModelName) => {
+async function getDifference(appNameByModelName, originalModelsByModelName, stateModelsByModelName) {
     let differences = []
 
-    getDifferenceFromModels(
+    await getDifferenceFromModels(
         differences, 
         appNameByModelName, 
         originalModelsByModelName, 

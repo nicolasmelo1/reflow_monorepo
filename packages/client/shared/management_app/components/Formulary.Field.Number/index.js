@@ -129,7 +129,7 @@ export default function FormularyFieldNumber(props) {
             NumberFormatOption, 
             {
                 selectedId: selectedNumberFormatTypeId,
-                numberFormatTypes: props.types.numberFormatType,
+                numberFormatTypes: props.types.numberFormatTypes,
                 getNumberFormatTypeStringByName,
                 onSelect: onChangeFormatType
             }

@@ -17,6 +17,7 @@ const {
     FieldTagsAppManagementFormularyManager,
     OptionAppManagementFormularyManager,
     FieldAppManagementFormularyManager,
+    SectionFieldsAppManagementFormularyManager,
     SectionAppManagementFormularyManager,
     FormularyAppManagementFormularyManager
 } = require('../managers') 
@@ -224,6 +225,39 @@ class Section extends models.Model {
 }
 
 /**
+ * These are the fields of a section, by default the fields will NOT be exactly tied to a specific formulary, instead a field will 
+ * be independent. An independent field means that a field can exist in other places, or the field for some reason can be untied 
+ * from everything.
+ * 
+ * This is specially useful for `multi_field` field type. This field type will hold multiple fields, but those fields on this field type
+ * will be tied to a specific field and not to a specific session.
+ */
+class SectionFields extends models.Model {
+    attributes = {
+        field: new models.fields.OneToOneField({
+            relatedTo: 'Field',
+            onDelete: models.fields.ON_DELETE.CASCADE
+        }),
+        section: new models.fields.ForeignKeyField({
+            relatedTo: 'Section',
+            onDelete: models.fields.ON_DELETE.CASCADE
+        }),
+        order: new models.fields.IntegerField({ defaultValue: 1 }),
+        formulary: new models.fields.ForeignKeyField({
+            relatedTo: 'Formulary',
+            onDelete: models.fields.ON_DELETE.CASCADE
+        })
+    }
+
+    options = {
+        tableName: 'section_fields',
+        ordering: ['order']
+    }
+
+    static APP_MANAGEMENT_FORMULARY = new SectionFieldsAppManagementFormularyManager()
+}
+
+/**
  * This model will hold the fields of the formulary. Every field are bound to a section AND NOT to a formulary directly.
  * As said in the Formulary model, the section will always hold a bunch of fields. And the formulary will hold a bunch
  * of sections.
@@ -249,14 +283,9 @@ class Field extends models.Model {
         labelName: new models.fields.CharField(),
         placeholder: new models.fields.CharField({ allowBlank: true, allowNull: true }),
         required: new models.fields.BooleanField({ defaultValue: true }),
-        order: new models.fields.IntegerField({ defaultValue: 1 }),
         isUnique: new models.fields.BooleanField({ defaultValue: false }),
         fieldIsHidden: new models.fields.BooleanField({ defaultValue: false }),
         labelIsHidden: new models.fields.BooleanField({ defaultValue: false }),
-        section: new models.fields.ForeignKeyField({
-            relatedTo: 'Section',
-            onDelete: models.fields.ON_DELETE.CASCADE
-        }),
         fieldType: new models.fields.ForeignKeyField({
             relatedTo: 'FieldType',
             onDelete: models.fields.ON_DELETE.CASCADE
@@ -264,11 +293,44 @@ class Field extends models.Model {
     }
 
     options = {
-        tableName: 'field',
-        ordering: ['order']
+        tableName: 'field'
     }
 
     static APP_MANAGEMENT_FORMULARY = new FieldAppManagementFormularyManager()
+}
+
+class FieldMultiField extends models.Model {
+    attributes = {
+        uuid: new models.fields.UUIDField({ autoGenerate: true }),
+        field:  new models.fields.OneToOneField({
+            relatedTo: 'Field',
+            onDelete: models.fields.ON_DELETE.CASCADE
+        })
+    }
+
+    options = {
+        tableName: 'field_multifield'
+    }
+}
+
+
+class FieldMultiFieldFields extends models.Model {
+    attributes = {
+        fieldMultiField: new models.fields.ForeignKeyField({
+            relatedTo: 'FieldMultiField',
+            onDelete: models.fields.ON_DELETE.CASCADE
+        }),
+        field: new models.fields.ForeignKeyField({
+            relatedTo: 'Field',
+            onDelete: models.fields.ON_DELETE.CASCADE
+        }),
+        order: new models.fields.IntegerField({ defaultValue: 1 }),
+    }
+
+    options = {
+        tableName: 'field_multifield_fields',
+        ordering: ['order']
+    }
 }
 
 /**
@@ -560,6 +622,7 @@ module.exports = {
     TimeFormatType,
     Formulary,
     Section,
+    SectionFields,
     Field,
     FieldConnection,
     FieldDate,
@@ -569,6 +632,8 @@ module.exports = {
     FieldUser,
     FieldFormula,
     FieldFormulaVariable,
+    FieldMultiField,
+    FieldMultiFieldFields,
     FieldOption,
     FieldTags
 }

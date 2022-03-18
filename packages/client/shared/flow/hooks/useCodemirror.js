@@ -30,15 +30,20 @@ import { snippet } from '@codemirror/autocomplete'
  * @param {string} [codemirrorOptions.defaultCode=''] - This is the code that will be loaded in the editor when the
  * editor is created and rendered. Be careful with this, you need to keep the state always updated. If we for some
  * reason destruct and recreate the editor, the code in it will be lost, so be sure to save it in a react state.
- * @param {(position: {from: number, to: number}) => void} [codeEditorOptions.onSelect=undefined] - The callback that will be called
- * whenever the selection changes in the editor.
+ * @param {(position: {from: number, to: number}) => void} [codeEditorOptions.onSelect=undefined] - The callback that 
+ * will be called whenever the selection changes in the editor.
  * @param {(text: string) => void} [codemirrorOptions.onChange=undefined] - This is the callback that will be called when
  * the code in the editor changes. Whenever the text changes in the editor we will call this function.
- * @param {(event: FocusEvent) => void} [codemirrorOptions.onBlurCallback=undefined] - This is the callback that will be called 
- * when the editor loses focus.
- * @param {(event: FocusEvent) => void} [codemirrorOptions.onFocusCallback=undefined] - This is the callback that will be called
- * when the editor gains focus.
- * @param {boolean} [isEditable=false] - Is the editor editable or is it just to show information?
+ * @param {(event: FocusEvent) => void} [codemirrorOptions.onBlurCallback=undefined] - This is the callback that will be 
+ * called when the editor loses focus.
+ * @param {(event: FocusEvent) => void} [codemirrorOptions.onFocusCallback=undefined] - This is the callback that will be 
+ * called when the editor gains focus.
+ * @param {boolean} [useFlowCcodemirrorOptionsodemirrorParams.isWithActiveLine=true] - The active line will show on the
+ * screen, for example, when we click on row 2 of the editor, it will be highlighted. Usually most editors have and use this.
+ * @param {boolean} [codemirrorOptions.isWithLineCounter=true] - Simple, we will show the active line gutter. I don't know
+ * which editor you(the guy or girl who is reading this) is using. But probably it will show the line numbers. You can supress 
+ * it if you want on codemirror editor.
+ * @param {boolean} [codemirrorOptions.isEditable=true] - Is the editor editable or is it just to show information?
  * 
  * @returns {{
  *      editorRef: {current: any},
@@ -244,10 +249,18 @@ export default function useCodemirror({
         }
     }
 
+    /**
+     * This will force to focus on the editor, we don't have access to the view/dom outside of this
+     * hook, that's why we need to make a callback.
+     */
     function forceFocus() { 
         if (editorViewRef.current) editorViewRef.current.contentDOM.focus() 
     }
 
+    /**
+     * This will force to blur on the editor, we don't have access to the editorview/dom outside of this hook.
+     * So we need to send a callback to enable to call this function.
+     */
     function forceBlur() { 
         if (editorViewRef.current) editorViewRef.current.contentDOM.blur()
     }

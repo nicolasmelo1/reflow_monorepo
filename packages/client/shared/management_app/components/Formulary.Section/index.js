@@ -1,7 +1,30 @@
+import { useState, useContext } from 'react'
 import { generateUUID, deepCopy } from '../../../../../shared/utils'
+import { AppManagementTypesContext } from '../../contexts'
 import Layout from './layouts'
 
 export default function FormularySection(props) {
+    const { state: { types: { fieldTypes } } } = useContext(AppManagementTypesContext)
+    const [newFieldUUID, setNewFieldUUID] = useState(null)
+
+    /**
+     * Used for adding a new field to the section. The data and logic for adding a new field is defined on `Formulary.AddField` component.
+     * This just recieves the data and the index of where the field should be added to the section.
+     * 
+     * After that we change the `newFieldUUID` so we can have a special behavior for the field that is being added. For example, the renaming
+     * and the configuration of the field will be shown.
+     * 
+     * @param {object} fieldData - The data of the field that is being added.
+     * @param {number} indexToAdd - The index of where the field should be added to the section.
+     * 
+     */
+    function onAddField(fieldData, indexToAdd) {
+        fieldData.order = indexToAdd
+        props.section.fields.splice(indexToAdd, 0, fieldData)
+        setNewFieldUUID(fieldData.uuid)
+        props.onUpdateFormulary()
+    }
+
     /**
      * Used for duplicating the field and creating a new field with the same properties in the section.
      * To duplicate the field it is easy, we just need to create new UUIDs for the options, and the field options.
@@ -46,6 +69,9 @@ export default function FormularySection(props) {
         workspace={props.workspace}
         section={props.section}
         onUpdateFormulary={props.onUpdateFormulary}
+        fieldTypes={fieldTypes}
+        onAddField={onAddField}
+        newFieldUUID={newFieldUUID}
         onRemoveField={onRemoveField}
         onDuplicateField={onDuplicateField}
         retrieveFields={props.retrieveFields}

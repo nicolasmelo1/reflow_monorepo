@@ -59,17 +59,17 @@ const createReflowMigrationsTableAndGetLastMigrationName = async (engineInstance
  * }
  * @param {object} transaction - The transaction object retrieved by the engine.
  */
-const runMigrationFile = async (engineInstance, settings, migration, transaction) => {
+const runMigrationFile = async (toEngineInstance, fromEngineInstance, settings, migration, transaction) => {
 
     logger.INFO.RUNNING_MIGRATION(migration.migrationName)
 
     let actionIndex = 0
     for (const action of migration.migration.operations(models, actions)) {
         const fromState = getState(settings, migration.migrationName, actionIndex, null)
-        const fromStateModelsByModelName = initializedStateModelsByModelName(fromState, engineInstance, 'From')
+        const fromStateModelsByModelName = initializedStateModelsByModelName(fromState, fromEngineInstance)
         const toState = getState(settings, migration.migrationName, null, actionIndex)
-        const toStateModelsByModelName = initializedStateModelsByModelName(toState, engineInstance)
-        await action.run(transaction, engineInstance, fromStateModelsByModelName, toStateModelsByModelName)
+        const toStateModelsByModelName = initializedStateModelsByModelName(toState, toEngineInstance)
+        await action.run(transaction, toEngineInstance, fromStateModelsByModelName, toStateModelsByModelName)
         actionIndex++
     }
 
@@ -102,7 +102,9 @@ const runMigrationFile = async (engineInstance, settings, migration, transaction
  * @param {object} settings - The settings file that will live in '.src/settings.js'
  */
 const migrate = async (settings) => {
-    const { engineInstance, internalModels, ...rest } = initialize(settings, [ReflowMigrations])
+    const { engineInstance: toEngineInstance, internalModels } = initialize(settings, [ReflowMigrations])
+    const { engineInstance: fromEngineInstance } = initialize(settings, [ReflowMigrations])
+
     const internalModelsByModelName = {}
     
     internalModels.forEach(data => {
@@ -110,7 +112,7 @@ const migrate = async (settings) => {
     })
     let migrations = retrieveMigrations(settings)
     migrations = reorderMigrations(migrations)
-    const lastMigrationName = await createReflowMigrationsTableAndGetLastMigrationName(engineInstance, internalModelsByModelName)
+    const lastMigrationName = await createReflowMigrationsTableAndGetLastMigrationName(toEngineInstance, internalModelsByModelName)
 
     
     // We just filter the migrations that was not run yet this way we will just run the new migrations
@@ -120,8 +122,8 @@ const migrate = async (settings) => {
     }
 
     for (const migration of migrations) {
-        await engineInstance.initializeMigrations()
-        await engineInstance.transaction(runMigrationFile, engineInstance, settings, migration)
+        await toEngineInstance.initializeMigrations()
+        await toEngineInstance.transaction(runMigrationFile, toEngineInstance, fromEngineInstance, settings, migration)
     }
 
     logger.INFO.FINISHED_MIGRATION()

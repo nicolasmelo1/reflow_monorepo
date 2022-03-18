@@ -186,7 +186,8 @@ export default function FormularyFieldAttachment(props) {
      * attachment field data. This data will be used to configure the `attachment` field type with custom data.
      */
     function onDefaultCreateAttachmentOptionsIfDoesNotExist() {
-        if (props.field.attachmentField === null) {
+        const doesFieldAttachmentDataExists = typeof props.field.attachmentField === 'object'
+        if (doesFieldAttachmentDataExists) {
             props.field.attachmentField = createAttachmentFieldData()
             props.onUpdateFormulary()
         }

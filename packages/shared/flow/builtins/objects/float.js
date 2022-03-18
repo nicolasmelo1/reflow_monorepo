@@ -97,9 +97,9 @@ class FlowFloat extends FlowInteger {
     async _string_() {
         const representation = await this._representation_()
         if (representation % 1 !== 0) {
-            return this.newString(this.value.toString().replace(/\./g, this.settings.decimalPointCharacter))
+            return this.newString(representation.toString().replace(/\./g, this.settings.decimalPointCharacter))
         } else {
-            return this.newString(`${this.value.toString()}${this.settings.decimalPointCharacter}0`)
+            return this.newString(`${representation.toString()}${this.settings.decimalPointCharacter}0`)
         }
     }
 

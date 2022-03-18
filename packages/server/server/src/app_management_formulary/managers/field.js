@@ -2,17 +2,17 @@ const { models } = require("../../../../palmares/database")
 
 class FieldAppManagementFormularyManager extends models.Manager {
     /**
-     * This will retrieve all of the fields of a section by the given section id.
+     * This will retrieve all of the fields by an array of fieldIds
      * 
-     * @param {number} sectionId - The id of the section to retrieve the fields for.
+     * @param {Array<number>} fieldIds - The array of the id of the fields to retrieve the fields for.
      * 
      * @returns {Promise<Array<import('../models').Field>>} - An array with all of the fields 
-     * of the section.
+     * of the list of fields.
      */
-    async fieldsBySectionId(sectionId) {
+    async fieldsByFieldIds(fieldIds) {
         return await this.getInstance().findAll({
             where: {
-                sectionId: sectionId
+                id: fieldIds
             }
         })
     }

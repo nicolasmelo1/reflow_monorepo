@@ -5,7 +5,6 @@ import { WorkspaceContext } from '../../../authentication/contexts'
 import Layout from './layouts'
 
 const defaultDelay = delay(2000)
-const EMPTY_VARIABLE_REGEX = /{{(\s+)?}}/g
 const VARIABLE_IN_FORMULA_REGEX = /{{((\s+)?([^\s{}]+(\s+)?)+)?}}/g
 
 /**
@@ -147,7 +146,7 @@ export default function FormularyFieldFormula(props) {
      * @returns {string} - Returns the formula that will be rendered inside of the text editor.
      */
     function getUserFacingFormula(formula=undefined) {
-        const isFormulaDefinedInFieldData = props.field.formulaField !== null && 
+        const isFormulaDefinedInFieldData = typeof props.field.formulaField === 'object' && 
             props.field.formulaField.formula !== undefined
         formula = formula !== undefined ? 
             formula : isFormulaDefinedInFieldData ? 
@@ -178,7 +177,7 @@ export default function FormularyFieldFormula(props) {
      * @returns {string} 
      */
     function getBackendFormula(formula=undefined) {
-        const isFormulaDefinedInFieldData = props.field.formulaField !== null && 
+        const isFormulaDefinedInFieldData = typeof props.field.formulaField === 'object' && 
             props.field.formulaField.formula !== undefined
         formula = formula !== undefined ? 
             formula : isFormulaDefinedInFieldData ? 
@@ -231,8 +230,14 @@ export default function FormularyFieldFormula(props) {
      * Callback called whenever the user changes something in the flow codemirror editor. If he adds a space,
      * or deletes something this function will always be called.
      * 
-     * By default the flow codemirror component expect us to return the type of the value that the formula gives us
-     * and the represented value.
+     * It's important to see that we save and handle 2 formulas: 
+     * - The user facing formula, this is the formula that the user sees.
+     * - The backend formula, this is what we actually use.
+     * 
+     * The user facing formula is what we show on the editor, where we replace the {{}} with the name of the variables.
+     * The backend formula is NOT shown on the editor, but instead it's what we save in the database. All of the names
+     * inside of the formula are striped out and left empty with only '{{}}', this make it A LOT easier for us
+     * to replace each '{{}}' with the actual values of the formula, since we will follow the order of the array.
      * 
      * @param {string} newFormula - The new formula that the user has entered in the text editor.
      * 
@@ -347,7 +352,7 @@ export default function FormularyFieldFormula(props) {
      * This formula field data is a specific data that is specific for the `formula` field type.
      */
     function onDefaultCreateFormulaOptionsIfDoesNotExist() {
-        if (props.field.formulaField === null) {
+        if (typeof props.field.formulaField !== 'object') {
             props.field.formulaField = createFormulaFieldData()
             props.onUpdateFormulary()
         }

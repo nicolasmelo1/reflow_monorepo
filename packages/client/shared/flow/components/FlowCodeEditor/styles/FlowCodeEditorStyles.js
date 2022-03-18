@@ -18,6 +18,7 @@ styled.div`
         border: 1px solid ${props.theme.clearGray};
         box-shadow: rgb(56 66 95 / 8%) 4px 4px 12px;
     ` : ''}
+    z-index: 1;
     background-color: ${props => props.theme.white};
 `
 :

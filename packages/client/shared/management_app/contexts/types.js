@@ -5,11 +5,11 @@ const persistState = 'appManagementTypesContext'
 const initialState = {
     state: {
         types: {
-            numberFormatType: [],
-            dateFormatType: [],
-            timeFormatType: [],
-            fieldType: [],
-            sectionType: [],
+            numberFormatTypes: [],
+            dateFormatTypes: [],
+            timeFormatTypes: [],
+            fieldTypes: [],
+            sectionTypes: [],
         }
     },
     setTypes: () => {},
@@ -52,11 +52,11 @@ const AppManagementTypesProvider = (props) => {
     function setTypes(numberFormatTypes, dateFormatTypes, timeFormatTypes, fieldTypes, sectionTypes) {
         setPersistState(persistState, { 
             types: { 
-                numberFormatType: numberFormatTypes, 
-                dateFormatType: dateFormatTypes, 
-                timeFormatType: timeFormatTypes, 
-                fieldType: fieldTypes, 
-                sectionType: sectionTypes 
+                numberFormatTypes: numberFormatTypes, 
+                dateFormatTypes: dateFormatTypes, 
+                timeFormatTypes: timeFormatTypes, 
+                fieldTypes: fieldTypes, 
+                sectionTypes: sectionTypes 
             } 
         }, setState)
     }

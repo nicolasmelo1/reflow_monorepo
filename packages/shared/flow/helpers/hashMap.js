@@ -274,8 +274,9 @@ class HashMapHelper {
     async remove(hash, key) {
         const hashIndex = hash % this.capacity
         let hashNodeToBeRemoved = this.table[hashIndex]
-        console.log(key)
-        if (this.keys.array.includes(key) && hashNodeToBeRemoved !== undefined) {
+        const doesKeyAndHashNodeExists = this.keys.array.includes(key) && hashNodeToBeRemoved !== undefined
+
+        if (doesKeyAndHashNodeExists) {
             // The hashNodeToBeRemoved is the first node in the linked list but is not the element we are looking for
             if (hashNodeToBeRemoved.key !== key) {
                 // We need to loop through the linked list to find the element we are looking for keeping track of 
@@ -290,7 +291,7 @@ class HashMapHelper {
                 }
                 // We kept track of the last node in the linked list so we can update the reference and delete it.
                 // the hashNodeToBeRemoved will lose reference
-                previousNodeToUpdateLinkedList = hashNodeToBeRemoved.next
+                previousNodeToUpdateLinkedList.next = hashNodeToBeRemoved.next
             } else {
                 // Update the next index with the next value of the hashNodeToBeRemoved
                 this.table[hashIndex] = hashNodeToBeRemoved.next
@@ -375,6 +376,10 @@ class HashMapHelper {
      */
     async #resize(newCapacity) {
         const newTable = await this.makeTable(newCapacity)
+        const [newHashes, newRawKeys, newKeys, newValues] = await Promise.all([
+            DynamicArray.initialize(), DynamicArray.initialize(),
+            DynamicArray.initialize(), DynamicArray.initialize()
+        ])
 
         for (const hash of this.hashes.array) {
             if (hash !== undefined) {
@@ -389,6 +394,11 @@ class HashMapHelper {
                     const newHashIndex = previous.hash % newCapacity
                     
                     await this.#addAtIndexAndHandleCollision(newTable, newHashIndex, previous)
+                    
+                    await Promise.all([
+                        newHashes.append(newHashIndex), newRawKeys.append(previous.rawKey),
+                        newKeys.append(previous.key), newValues.append(previous.value)
+                    ])
                 }
             }
         }

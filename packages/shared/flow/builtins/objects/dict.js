@@ -132,15 +132,18 @@ class FlowDict extends FlowObject {
     async _add_(obj) {
         if (obj.type === DICT_TYPE) {
             for (let i=0; i < await obj.hashTable.keys.length(); i++) {
-                const rawKey = await obj.hashTable.rawKeys.getItem(i)
-                const key = await obj.hashTable.keys.getItem(i)
-                const hash = await obj.hashTable.hashes.getItem(i)
-
+                const [key, rawKey, hash] = await Promise.all([
+                    obj.hashTable.keys.getItem(i),
+                    obj.hashTable.rawKeys.getItem(i),
+                    obj.hashTable.hashes.getItem(i)
+                ])
                 const hashNode = await obj.hashTable.search(key, hash)
-                const value = await hashNode.value
-                await this.appendParentResetCached(value)
-
-                await this.hashTable.append(rawKey, hash, key, value)
+                const value = hashNode.value
+                
+                await Promise.all([
+                    this.appendParentResetCached(value),
+                    this.hashTable.append(rawKey, hash, key, value)
+                ])
             }
 
             await this.resetCached()
@@ -286,9 +289,11 @@ class FlowDict extends FlowObject {
 
             for (let i=0; i < await this.hashTable.keys.length(); i++) {
                 if (this.hashTable.keys.array[i] !== undefined) {
-                    const key = await this.hashTable.keys.getItem(i)
-                    const hash = await this.hashTable.hashes.getItem(i)
-                    const rawKey = await this.hashTable.rawKeys.getItem(i)
+                    const [key, hash, rawKey] = await Promise.all([
+                        this.hashTable.keys.getItem(i),
+                        this.hashTable.hashes.getItem(i),
+                        this.hashTable.rawKeys.getItem(i)
+                    ])
                     const hashNode = await this.hashTable.search(key, hash)
                     const actualKeyRepresentation = await rawKey._representation_()
                     await this.appendParentResetCached(hashNode.value)
@@ -314,9 +319,11 @@ class FlowDict extends FlowObject {
 
             for (let i=0; i< await this.hashTable.keys.length(); i++) {
                 if (this.hashTable.keys.array[i] !== undefined) {
-                    const key = await this.hashTable.keys.getItem(i)
-                    const hash = await this.hashTable.hashes.getItem(i)
-                    const rawKey = await this.hashTable.rawKeys.getItem(i)
+                    const [key, hash, rawKey] = await Promise.all([
+                        this.hashTable.keys.getItem(i),
+                        this.hashTable.hashes.getItem(i),
+                        this.hashTable.rawKeys.getItem(i)
+                    ])
                     const hashNode = await this.hashTable.search(key, hash)
                     // Retrieves the boolean as true or false, not 1 or 0 as we consider inside of flow.
                     const actualKeyRepresentation = await rawKey._json_()

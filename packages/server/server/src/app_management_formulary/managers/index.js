@@ -14,6 +14,7 @@ const FieldTagsAppManagementFormularyManager = require('./fieldTags')
 const FieldOptionAppManagementFormularyManager = require('./fieldOption')
 const OptionAppManagementFormularyManager = require('./option')
 const FieldAppManagementFormularyManager = require('./field')
+const SectionFieldsAppManagementFormularyManager = require('./sectionFields')
 const SectionAppManagementFormularyManager = require('./section')
 const FormularyAppManagementFormularyManager = require('./formulary')
 const AppAppManagamentFormularyManager = require('./app')
@@ -35,6 +36,7 @@ module.exports = {
     FieldUserAppManagementFormularyManager,
     OptionAppManagementFormularyManager,
     FieldAppManagementFormularyManager,
+    SectionFieldsAppManagementFormularyManager,
     SectionAppManagementFormularyManager,
     FormularyAppManagementFormularyManager,
     AppAppManagamentFormularyManager

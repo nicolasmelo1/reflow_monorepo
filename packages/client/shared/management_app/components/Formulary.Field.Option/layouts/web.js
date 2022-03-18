@@ -19,7 +19,7 @@ export function DropdownMenuOptionFormatOptionWebLayout(props) {
 // ------------------------------------------------------------------------------------------
 export function CustomCreateOptionButtonWebLayout(props) {
     return (
-        <Styled.SelectContainer>
+        <Styled.SelectContainerOnDropdown>
             <Styled.SelectButton
             onClick={() => props.onCreateOption(props.color)}
             >
@@ -30,13 +30,13 @@ export function CustomCreateOptionButtonWebLayout(props) {
                     {props.value}
                 </Styled.CreateOptionLabel>
             </Styled.SelectButton>
-        </Styled.SelectContainer>
+        </Styled.SelectContainerOnDropdown>
     )
 }
 // ------------------------------------------------------------------------------------------
 export function CustomSelectedOptionWebLayout(props) {
     return (
-        <Styled.SelectedOption
+        <Styled.SelectContainerOnDropdown
         color={props.option.color}
         >
             <Styled.SelectedOptionLabel
@@ -55,7 +55,7 @@ export function CustomSelectedOptionWebLayout(props) {
                 icon={faTimes}
                 />
             </Styled.SelectedOptionRemoveButton>
-        </Styled.SelectedOption>
+        </Styled.SelectContainerOnDropdown>
     )
 }
 // ------------------------------------------------------------------------------------------

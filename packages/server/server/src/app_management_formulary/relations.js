@@ -16,8 +16,10 @@ const {
     FieldFormulaVariable,
     FieldOption,
     FieldTags,
-    Option
+    Option,
+    SectionFields
 } = require('./models')
+const FieldService = require("./services/field")
 
 // ------------------------------------------------------------------------------------------
 /**
@@ -138,7 +140,12 @@ class FieldFormulaVariableRelation extends serializers.ModelSerializer {
 class FieldFormulaRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldFormula = await FieldFormula.APP_MANAGEMENT_FORMULARY.fieldFormulaByFieldId(fieldId)
-        return await super.toRepresentation(fieldFormula)
+        const doesFieldFormulaDataExists = fieldFormula !== null
+        if (doesFieldFormulaDataExists) {
+            return await super.toRepresentation(fieldFormula)
+        } else {
+            return undefined
+        }
     }
 
     fields = {
@@ -190,7 +197,12 @@ class FieldUserRelation extends serializers.ModelSerializer {
 class FieldConnectionRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldConnection = await FieldConnection.APP_MANAGEMENT_FORMULARY.fieldConnectionByFieldId(fieldId)
-        return await super.toRepresentation(fieldConnection)
+        const doesFieldConnectionDataExists = fieldConnection !== null
+        if (doesFieldConnectionDataExists) {
+            return await super.toRepresentation(fieldConnection)
+        } else {
+            return undefined
+        }
     }
 
     options = {
@@ -202,7 +214,12 @@ class FieldConnectionRelation extends serializers.ModelSerializer {
 class FieldAttachmentRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldAttachment = await FieldAttachment.APP_MANAGEMENT_FORMULARY.fieldAttachmentByFieldId(fieldId)
-        return await super.toRepresentation(fieldAttachment)
+        const doesFieldAttachmentDataExists = fieldAttachment !== null
+        if (doesFieldAttachmentDataExists) {
+            return await super.toRepresentation(fieldAttachment)
+        } else {
+            return undefined
+        }
     }
 
     options = {
@@ -234,10 +251,15 @@ class OptionRelation extends serializers.ModelSerializer {
  */
 class FieldRelation extends serializers.ModelSerializer {
     async toRepresentation(sectionId) {
-        const fields = await Field.APP_MANAGEMENT_FORMULARY.fieldsBySectionId(sectionId)
+        const [sectionUUID, fieldIds] = await Promise.all([
+            Section.APP_MANAGEMENT_FORMULARY.sectionUUIDBySectionId(sectionId),
+            SectionFields.APP_MANAGEMENT_FORMULARY.fieldIdsBySectionId(sectionId)
+        ])
+        const unorderedFields = await Field.APP_MANAGEMENT_FORMULARY.fieldsByFieldIds(fieldIds)
+        const orderedFields = await FieldService.reorderFieldsByArrayOfOrderedFieldIds(unorderedFields, fieldIds)
+
         let data = []
-        for (const field of fields) {
-            const sectionUUID = await Section.APP_MANAGEMENT_FORMULARY.sectionUUIDBySectionId(sectionId)
+        for (const field of orderedFields) {
             data.push({
                 ...field,
                 sectionUUID: sectionUUID
@@ -248,20 +270,20 @@ class FieldRelation extends serializers.ModelSerializer {
 
     fields = {
         sectionUUID: new serializers.UUIDField(),
-        attachmentField: new FieldAttachmentRelation({ source: 'id' }),
-        connectionField: new FieldConnectionRelation({ source: 'id' }),
-        userField: new FieldUserRelation({ source: 'id' }),
-        numberField: new FieldNumberRelation({ source: 'id' }),
-        dateField: new FieldDateRelation({ source: 'id' }),
-        formulaField: new FieldFormulaRelation({ source: 'id' }),
-        optionField: new FieldOptionRelation({ source: 'id' }),
-        tagsField: new FieldTagsRelation({ source: 'id' }),
-        options: new OptionRelation({ source: 'id', many: true })
+        attachmentField: new FieldAttachmentRelation({ source: 'id', required: false, allowNull: true }),
+        connectionField: new FieldConnectionRelation({ source: 'id', required: false, allowNull: true }),
+        userField: new FieldUserRelation({ source: 'id', required: false, allowNull: true }),
+        numberField: new FieldNumberRelation({ source: 'id', required: false, allowNull: true }),
+        dateField: new FieldDateRelation({ source: 'id', required: false, allowNull: true }),
+        formulaField: new FieldFormulaRelation({ source: 'id', required: false, allowNull: true }),
+        optionField: new FieldOptionRelation({ source: 'id', required: false, allowNull: true }),
+        tagsField: new FieldTagsRelation({ source: 'id', required: false, allowNull: true }),
+        options: new OptionRelation({ source: 'id', many: true, required: false })
     }
 
     options = {
         model: Field,
-        exclude: ['id', 'order', 'createdAt', 'updatedAt', 'sectionId']
+        exclude: ['id', 'createdAt', 'updatedAt']
     }
 }
 

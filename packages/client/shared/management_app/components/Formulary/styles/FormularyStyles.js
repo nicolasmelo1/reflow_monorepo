@@ -71,15 +71,39 @@ styled.h1 `
 :
 styled(Text)``
 
-export const FormularyContainer = APP === 'web' ?
+export const FormularyWrapper = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
-    height: ${props => `calc(var(--app-height) - ${props.offset}px)`};
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    background-color: ${props => props.theme.gray_REFLOW}50;
+    top: 0;
+    left: 0;
+    width: var(--app-width);
+    height: var(--app-height);
     overflow: auto;
     scroll-behavior: smooth;
-    width: calc(100% - 20px);
     padding: 0 10px;
 `
 :
 styled(View)``
+export const FormularyContainer = APP === 'web' ?
+styled.div`
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+    background-color: ${props => props.theme.moreClearGray};
+    top: 0;
+    left: 0;
+    width: calc(var(--app-width) / 2);
+    max-height: calc(var(--app-height) - 100px);
+    overflow: auto;
+    scroll-behavior: smooth;
+    padding: 0 10px;
+`
+:
+styled(View)``
+
+//height: ${props => `calc(var(--app-height) - ${props.offset}px)`};
