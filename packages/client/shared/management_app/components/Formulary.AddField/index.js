@@ -27,6 +27,15 @@ export default function FormularyAddField(props) {
         }
     }})
     
+    /**
+     * This function is called after the user selects a field type from the dropdown menu. This field type will
+     * create a new field in the formulary.
+     * 
+     * After we click the button to add a new field we need to toggle off the hover and the dropdown menu of the
+     * field type selection options
+     * 
+     * @param {number} fieldTypeId - The id of the field type that the user selected.
+     */
     function onAddNewField(fieldTypeId) {
         onToggleFieldTypeOptionSelectionMenu(false)
         onToggleHover(false)

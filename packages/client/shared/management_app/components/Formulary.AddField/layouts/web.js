@@ -1,4 +1,5 @@
 import { Tooltip, strings } from '../../../../core'
+import FieldTypeIcon from '../../FieldTypeIcon'
 import Styled from '../styles'
 
 export default function FormularyAddFieldWebLayout(props) {
@@ -33,8 +34,9 @@ export default function FormularyAddFieldWebLayout(props) {
                             key={fieldType.id}
                             onClick={() => props.onAddNewField(fieldType.id)}
                             >
-                                <Styled.FieldTypeButtonIcon
-                                icon={props.getIconByFieldTypeId(fieldType.id)}
+                                <FieldTypeIcon 
+                                types={props.fieldTypes}
+                                fieldTypeId={fieldType.id}
                                 />
                                 {props.getFieldTypeLabelNameByFieldTypeId(fieldType.id)}
                             </Styled.FieldTypeButton>

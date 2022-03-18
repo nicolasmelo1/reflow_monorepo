@@ -20,13 +20,12 @@ export default function useFieldTypes(types) {
                 typeByIdRef.current[type.id] = type
             }
         }
+        return typeByIdRef.current
     }
 
     function getFieldTypeLabelNameByFieldTypeId(fieldTypeId) {
         const fieldType = typeByIdRef.current[fieldTypeId]
         const doesFieldTypeExistsForId = typeof fieldType === 'object'
-        console.log(doesFieldTypeExistsForId)
-        console.log(typeByIdRef.current)
         if (doesFieldTypeExistsForId) {
             const fieldTypeName = snakeCaseToCamelCase(fieldType.name)
             return strings(`fieldType${fieldTypeName.charAt(0).toUpperCase() + fieldTypeName.slice(1)}Label`)
@@ -85,6 +84,8 @@ export default function useFieldTypes(types) {
 
     return {
         getIconByFieldTypeId,
-        getFieldTypeLabelNameByFieldTypeId
+        getFieldTypeLabelNameByFieldTypeId,
+        getTypesById,
+        typeByIdRef
     }
 }

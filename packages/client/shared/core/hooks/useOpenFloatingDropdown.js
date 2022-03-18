@@ -5,6 +5,15 @@ import { APP } from '../../conf'
  * This is a hook supposed to be used when you want a floating dropdown to appear on the screen.
  * A floating dropdown is a dropdown that isn't absolute positioned but fixed positioned. This means
  * that when we open it we need to calculate the position on the screen.
+ * 
+ * @param {object} useOpenFloatingDropdownOptions - The options to configure this hook on first render.
+ * @param {boolean} [useOpenFloatingDropdownOptions.isOpen=false] - The initial state of the dropdown, is it open or closed?
+ * @param {boolean} [useOpenFloatingDropdownOptions.isCentered=false] - Should the dropdown be vertically centered or not?
+ * @param {{
+ *      position: { x: number, y: number},
+ *      maxHeight: null | number,
+ *      wasCalculated: boolean
+ * }} [useOpenFloatingDropdownOptions.menuPosition] - The position of the dropdown menu, since it is fixed positioned.
  */
 export default function useOpenFloatingDropdown({
     isOpen=false, 
@@ -129,6 +138,9 @@ export default function useOpenFloatingDropdown({
         }
     }
 
+    /**
+     * We will add event listeners to the window, so when the user resizes the window we will recalculate the dropdown menu position.
+     */
     useEffect(() => {
         if (APP === 'web') {
             window.addEventListener('resize', webLoadDropdownMenuTopOrDownAndDefineHeight)
