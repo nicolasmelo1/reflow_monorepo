@@ -17,7 +17,9 @@ const {
     FieldOption,
     FieldTags,
     Option,
-    SectionFields
+    SectionFields,
+    FieldMultiField,
+    FieldMultiFieldFields
 } = require('./models')
 const FieldService = require("./services/field")
 
@@ -158,6 +160,34 @@ class FieldFormulaRelation extends serializers.ModelSerializer {
     }
 }
 
+class FieldMultiFieldsRelation extends serializers.ModelSerializer {
+    async toRepresentation(fieldId) {
+        const fieldMultiField = await FieldMultiField.APP_MANAGEMENT_FORMULARY.fieldMultiFieldsByFieldId(fieldId)
+        const doesFieldMultiFieldsDataExists = fieldMultiField !== null
+        if (doesFieldMultiFieldsDataExists) {
+            const fieldIds = await FieldMultiFieldFields.APP_MANAGEMENT_FORMULARY.fieldIdsByFieldMultiFieldId(fieldMultiField.id)
+            const unorderedFields = await Field.APP_MANAGEMENT_FORMULARY.fieldsByFieldIds(fieldIds)
+            const orderedFields = await FieldService.reorderFieldsByArrayOfOrderedFieldIds(unorderedFields, fieldIds)
+            const data = {
+                ...fieldMultiField,
+                fields: orderedFields
+            }
+            return await super.toRepresentation(data)
+        } else {
+            return undefined
+        }
+    }   
+
+    fields = {
+        fields: new serializers.LazyField({ field: FieldRelation, many: true })
+    }
+
+    options = {
+        model: FieldMultiField,
+        exclude: ['id', 'fieldId']
+    }
+}
+
 class FieldDateRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldDate = await FieldDate.APP_MANAGEMENT_FORMULARY.fieldDateByFieldId(fieldId)
@@ -250,26 +280,9 @@ class OptionRelation extends serializers.ModelSerializer {
  * type models, so we can hold the data for this particular field type.
  */
 class FieldRelation extends serializers.ModelSerializer {
-    async toRepresentation(sectionId) {
-        const [sectionUUID, fieldIds] = await Promise.all([
-            Section.APP_MANAGEMENT_FORMULARY.sectionUUIDBySectionId(sectionId),
-            SectionFields.APP_MANAGEMENT_FORMULARY.fieldIdsBySectionId(sectionId)
-        ])
-        const unorderedFields = await Field.APP_MANAGEMENT_FORMULARY.fieldsByFieldIds(fieldIds)
-        const orderedFields = await FieldService.reorderFieldsByArrayOfOrderedFieldIds(unorderedFields, fieldIds)
-
-        let data = []
-        for (const field of orderedFields) {
-            data.push({
-                ...field,
-                sectionUUID: sectionUUID
-            })
-        }
-        return await super.toRepresentation(data)
-    }
-
     fields = {
-        sectionUUID: new serializers.UUIDField(),
+        sectionUUID: new serializers.UUIDField({ required: false }),
+        multiFieldsField: new FieldMultiFieldsRelation({ source: 'id', required: false, allowNull: true }),
         attachmentField: new FieldAttachmentRelation({ source: 'id', required: false, allowNull: true }),
         connectionField: new FieldConnectionRelation({ source: 'id', required: false, allowNull: true }),
         userField: new FieldUserRelation({ source: 'id', required: false, allowNull: true }),
@@ -294,6 +307,24 @@ class FieldRelation extends serializers.ModelSerializer {
 class SectionRelation extends serializers.ModelSerializer {
     async toRepresentation(formularyId) {
         const sections = await Section.APP_MANAGEMENT_FORMULARY.sectionsByFormularyId(formularyId)
+
+        for (const section of sections) {
+            const [sectionUUID, fieldIds] = await Promise.all([
+                Section.APP_MANAGEMENT_FORMULARY.sectionUUIDBySectionId(section.id),
+                SectionFields.APP_MANAGEMENT_FORMULARY.fieldIdsBySectionId(section.id)
+            ])
+            const unorderedFields = await Field.APP_MANAGEMENT_FORMULARY.fieldsByFieldIds(fieldIds)
+            const orderedFields = await FieldService.reorderFieldsByArrayOfOrderedFieldIds(unorderedFields, fieldIds)
+
+            let fieldsData = []
+            for (const field of orderedFields) {
+                fieldsData.push({
+                    ...field,
+                    sectionUUID: sectionUUID
+                })
+            }
+            section.fields = fieldsData
+        }
         return await super.toRepresentation(sections)
     }
 

@@ -9,6 +9,7 @@ import { deepCopy } from '../../../../../shared/utils'
 
 export default function Formulary(props) {
     const sourceRef = useRef()
+    const retrieveFieldsCallbacksRef = useRef({})
     const formularyFieldsCacheRef = useRef([])
     const isToRecalculateFormularyFieldsRef = useRef(true)
     const formularyContainerRef = useRef()
@@ -28,11 +29,50 @@ export default function Formulary(props) {
         isToRecalculateFormularyFieldsRef.current = true
         setFormulary(props.app.uuid, formulary)
     }
-    
-    function getFieldTypeLabelNameByName(fieldTypeName) {
 
-    }
-
+    /**
+     * Callback used to retrieve all of the field of the formulary. When we retrieve the fields of the formulary
+     * we need a way to retrieve those fields tied to a specific field. That's because we, at the current time,
+     * has the field type called 'multi_field' which is field that contains other fields.
+     * 
+     * We don't want to add logic tied to fields here, this means there are 2 ways to do this.
+     * 1 - When we find a `multi_fields` we get the fields tied to it. This means that this function should know
+     * that `multi_fields` field type has fields. This is a good approach, but this means we are adding logic
+     * of fields and how they work outside of the field component
+     * 2 - This is what we use. Instead of adding the logic directly here, we give a way for fields to notify
+     * they have fields, and when we request the fields again with this function we call the function on the field
+     * that has fields in it. It's like: "HEY, are you retrieving fields? I have fields in myself, let me get them for you".
+     * 
+     * With this generalistic approach we can have the logic needed inside of the fields directly.
+     * 
+     * So how does this work? We pass the `retrieveFieldsCallbacksRef` to the fields, if some field has fields in it, 
+     * it should tie a callback function in this ref that will be called to retrieve the fields.
+     * 
+     * So for example in the `multi_fields` component we will have something like: 
+     * ```
+     * function retrieveFields() {
+     *      // code to retrieve the fields here.
+     * }
+     * 
+     * useEffect(() => {
+     *      props.retrieveFieldsCallbacksRef.current = {
+     *          ...props.retrieveFieldsCallbacksRef
+     *          [props.field.uuid]: retrieveFields
+     *      }
+     * }, [])
+     * ```
+     * 
+     * Then the props.retrieveFieldsCallbacksRef.current will look like that:
+     * ```
+     * {
+     *      'd7785a43-ab91-4308-ac40-e6c33b3292ef': () => Array<fields>
+     * }
+     * ```
+     * Supposing that `d7785a43-ab91-4308-ac40-e6c33b3292ef` is the uuid of a multi_field array, this gives access for us to
+     * retrieve the fields inside of this field when needed.
+     * 
+     * @returns {Array<>}
+     */
     function retrieveFields() {
         if (isToRecalculateFormularyFieldsRef.current === true) {
             const fields = []
@@ -41,6 +81,15 @@ export default function Formulary(props) {
                     const copiedField = deepCopy(field)
                     copiedField.section = deepCopy(section)
                     fields.push(copiedField)
+
+                    const isFieldWithFieldsInIt = typeof retrieveFieldsCallbacksRef.current[copiedField.uuid] === 'function'
+                    if (isFieldWithFieldsInIt) {
+                        const fieldsOfFieldWithFieldsInIt = retrieveFieldsCallbacksRef.current[copiedField.uuid]()
+                        for (const fieldOfFieldWithFieldsInIt of fieldsOfFieldWithFieldsInIt) {
+                            const copiedFieldOfFieldWithFieldsInIt = deepCopy(fieldOfFieldWithFieldsInIt)
+                            fields.push(copiedFieldOfFieldWithFieldsInIt)
+                        }
+                    }
                 }
             }
             formularyFieldsCacheRef.current = fields
@@ -86,6 +135,7 @@ export default function Formulary(props) {
 
     return (
         <Layout
+        retrieveFieldsCallbacksRef={retrieveFieldsCallbacksRef}
         formularyContainerRef={formularyContainerRef}
         formularyContainerOffset={formularyContainerOffset}
         workspace={props.workspace}

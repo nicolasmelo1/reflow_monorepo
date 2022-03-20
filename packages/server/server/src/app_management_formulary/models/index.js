@@ -10,6 +10,8 @@ const {
     FieldConnectionAppManagementFormularyManager,
     FieldDateAppManagementFormularyManager,
     FieldNumberAppManagementFormularyManager,
+    FieldMultiFiedsAppManagementFormularyManager,
+    FieldMultiFieldFieldsAppManagementFormularyManager,
     FieldFormulaAppManagementFormularyManager,
     FieldFormulaVariableAppManagementFormularyManager,
     FieldUserAppManagementFormularyManager,
@@ -299,6 +301,14 @@ class Field extends models.Model {
     static APP_MANAGEMENT_FORMULARY = new FieldAppManagementFormularyManager()
 }
 
+/**
+ * This is a special field that is used to contain other fields, with this we can create a multi field.
+ * What this does is simple: we show a button that says "add field" and when the user clicks it, we show a new group
+ * of fields.
+ * 
+ * This is used to add for example, historic data, instead of creating a new formulary and connecting them, we just add this
+ * multi_field, with this we can, in a single formulary, repeat multiple times the same set of fields.
+ */
 class FieldMultiField extends models.Model {
     attributes = {
         uuid: new models.fields.UUIDField({ autoGenerate: true }),
@@ -311,6 +321,8 @@ class FieldMultiField extends models.Model {
     options = {
         tableName: 'field_multifield'
     }
+
+    static APP_MANAGEMENT_FORMULARY = new FieldMultiFiedsAppManagementFormularyManager()
 }
 
 
@@ -331,6 +343,8 @@ class FieldMultiFieldFields extends models.Model {
         tableName: 'field_multifield_fields',
         ordering: ['order']
     }
+
+    static APP_MANAGEMENT_FORMULARY = new FieldMultiFieldFieldsAppManagementFormularyManager()
 }
 
 /**

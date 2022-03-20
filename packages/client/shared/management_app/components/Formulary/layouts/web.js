@@ -37,6 +37,7 @@ export default function FormularyWebLayout(props) {
                 >
                     {props.formulary?.sections.map(section => (
                         <FormularySection 
+                        retrieveFieldsCallbacksRef={props.retrieveFieldsCallbacksRef}
                         workspace={props.workspace}
                         key={section.uuid}
                         section={section}

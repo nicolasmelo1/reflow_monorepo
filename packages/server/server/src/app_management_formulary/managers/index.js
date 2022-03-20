@@ -7,6 +7,8 @@ const FieldConnectionAppManagementFormularyManager = require('./fieldConnection'
 const FieldAttachmentAppManagementFormularyManager = require('./fieldAttachment')
 const FieldDateAppManagementFormularyManager = require('./fieldDate')
 const FieldNumberAppManagementFormularyManager = require('./fieldNumber')
+const FieldMultiFiedsAppManagementFormularyManager = require('./fieldMultiField')
+const FieldMultiFieldFieldsAppManagementFormularyManager = require('./fieldMultiFieldFields')
 const FieldFormulaAppManagementFormularyManager = require('./fieldFormula')
 const FieldFormulaVariableAppManagementFormularyManager = require('./fieldFormulaVariable')
 const FieldUserAppManagementFormularyManager = require('./fieldUser')
@@ -31,6 +33,8 @@ module.exports = {
     FieldAttachmentAppManagementFormularyManager,
     FieldDateAppManagementFormularyManager,
     FieldNumberAppManagementFormularyManager,
+    FieldMultiFiedsAppManagementFormularyManager,
+    FieldMultiFieldFieldsAppManagementFormularyManager,
     FieldFormulaAppManagementFormularyManager,
     FieldFormulaVariableAppManagementFormularyManager,
     FieldUserAppManagementFormularyManager,

@@ -13,6 +13,7 @@ import FormularyFieldId from '../../Formulary.Field.Id'
 import FormularyFieldLongText from '../../Formulary.Field.LongText'
 import FormularyFieldTags from '../../Formulary.Field.Tags'
 import FormularyFieldUser from '../../Formulary.Field.User'
+import FormularyFieldMultiField from '../../Formulary.Field.MultiField'
 import { Switch, strings } from '../../../../core'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { 
@@ -230,7 +231,11 @@ export default function FormularyFieldWebLayout(props) {
                 <FormularyFieldCheckbox
                 {...props}
                 />
-            ) : '' : ''}
+            ) : fieldTypeName === 'multi_field' ? (
+                <FormularyFieldMultiField
+                {...props}
+                />
+            ): '' : ''}
         </Styled.Container>
     )
 }

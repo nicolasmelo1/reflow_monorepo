@@ -1,5 +1,6 @@
 import { useRef, useContext, useState, useEffect } from 'react'
 import { AppManagementTypesContext } from '../../contexts'
+import { WorkspaceContext } from '../../../authentication/contexts'
 import { useClickedOrPressedOutside, useOpenFloatingDropdown } from '../../../core/hooks'
 import { APP } from '../../../conf'
 import Layout from './layouts'
@@ -10,7 +11,8 @@ export default function FormularyField(props) {
     const optionForDropdownMenuRef = useRef()
     const isHoveringRef = useRef(false)
     const isNewField = typeof props.isNewField === 'boolean' ? props.isNewField : false
-
+    
+    const { state: { selectedWorkspace }} = useContext(WorkspaceContext)
     const { state: { types } } = useContext(AppManagementTypesContext)
     const [isPlaceholderOpen, setIsPlaceholderOpen] = useState(!['', null, undefined].includes(props.field.placeholder))
     const [isHovering, _setIsHovering] = useState(isHoveringRef.current)
@@ -279,11 +281,12 @@ export default function FormularyField(props) {
     })
     return (
         <Layout
+        retrieveFieldsCallbacksRef={props.retrieveFieldsCallbacksRef}
         fieldRef={fieldRef}
         fieldEditMenuButtonRef={fieldEditMenuButtonRef}
         fieldEditDropdownMenuRef={fieldEditDropdownMenuRef}
         optionForDropdownMenuRef={optionForDropdownMenuRef}
-        workspace={props.workspace}
+        workspace={selectedWorkspace}
         types={types}
         field={props.field}
         retrieveFields={props.retrieveFields}

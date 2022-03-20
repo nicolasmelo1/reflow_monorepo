@@ -65,6 +65,7 @@ export default function FormularySection(props) {
 
     return (
         <Layout
+        retrieveFieldsCallbacksRef={props.retrieveFieldsCallbacksRef}
         formularyContainerRef={props.formularyContainerRef}
         workspace={props.workspace}
         section={props.section}

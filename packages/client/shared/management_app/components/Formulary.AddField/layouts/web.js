@@ -35,7 +35,6 @@ export default function FormularyAddFieldWebLayout(props) {
                             onClick={() => props.onAddNewField(fieldType.id)}
                             >
                                 <FieldTypeIcon 
-                                types={props.fieldTypes}
                                 fieldTypeId={fieldType.id}
                                 />
                                 {props.getFieldTypeLabelNameByFieldTypeId(fieldType.id)}
