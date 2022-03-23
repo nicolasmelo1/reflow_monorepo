@@ -15,6 +15,16 @@ class FormularyAppManagementFormularyManager extends models.Manager {
             }   
         })
     }
+
+    async formularyIdByUUID(uuid) {
+        const result = await this.getInstance().findOne({
+            attributes: ['id'],
+            where: {
+                uuid: uuid
+            }
+        })
+        return result !== null ? result.id : null
+    }
 }
 
 module.exports = FormularyAppManagementFormularyManager

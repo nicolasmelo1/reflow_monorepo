@@ -62,6 +62,8 @@ export default function Tooltip(props) {
     }
 
     /**
+     * / * WEB ONLY * /
+     * 
      * By now we've been doing this extensively on the application. The idea is simple:
      * we will calculate where the tooltip should be rendered and positioned in the DOM. 
      * By default we try to render on the right side of the element. Otherwise we will try
@@ -196,6 +198,8 @@ export default function Tooltip(props) {
     }
 
     /**
+     * / * WEB ONLY * / 
+     * 
      * When the user scrolls any scrollbar in the window we will recalculate the tooltip position, obviously this might
      * make it kinda slow, but it's not a problem for us since most users will be using this from the browser, and we are implementing
      * a full mobile version of the app.

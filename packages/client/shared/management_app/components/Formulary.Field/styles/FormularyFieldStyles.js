@@ -204,3 +204,10 @@ styled.input`
 `
 :
 styled(TextInput)``
+
+export const FieldContainer = APP === 'web' ?
+styled.div`
+    display: ${props => props.fieldIsHidden ? 'none' : 'inline'};
+`
+:
+styled(View)``

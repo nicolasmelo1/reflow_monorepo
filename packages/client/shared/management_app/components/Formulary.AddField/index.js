@@ -5,6 +5,25 @@ import { useOpenFloatingDropdown, useClickedOrPressedOutside } from '../../../co
 import { useFieldTypes } from '../../hooks'
 import Layout from './layouts'
 
+/**
+ * This component is just a button that is used to add new fields inside other fields or a section.
+ * If you need to add a field inside of any thing you should use this component.
+ * 
+ * @param {object} props - The props of the component.
+ * @param {object} props.fieldTypes - All of the field types accepted that we can add to the formulary/field.
+ * @param {(fieldData: {
+ *      fieldIsHidden: boolean,
+ *      isUnique: boolean,
+ *      labelIsHidden: boolean,
+ *      fieldTypeId: number,
+ *      labelName: string,
+ *      name: string,
+ *      options: [],
+ *      placeholder: null | string,
+ *      required: boolean,
+ *      uuid: string}
+ * ) => void} props.onAddField - A function that is called when the user clicks the button to add a new field.
+ */
 export default function FormularyAddField(props) {
     const [isHovered, setIsHovered] = useState(false)
     const { state: { selectedWorkspace: { isAdmin: isUserAnAdmin } } } = useContext(WorkspaceContext)

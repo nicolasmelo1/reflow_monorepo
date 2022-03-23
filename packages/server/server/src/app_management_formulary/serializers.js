@@ -1,12 +1,16 @@
 const serializers = require('../../../palmares/serializers')
-const { NumberFormatType, DateFormatType, TimeFormatType, FieldType, SectionType, Formulary } = require('./models')
+
+const FieldService = require('./services/field')
+const { 
+    NumberFormatType, DateFormatType, TimeFormatType, 
+    FieldType, Field, Formulary, FormularyFields 
+} = require('./models')
 const { 
     NumberFormatTypeRelation , 
     DateFormatTypeRelation, 
     TimeFormatTypeRelation, 
     FieldTypeRelation, 
-    SectionTypeRelation,
-    SectionRelation
+    FieldRelation
 } = require('./relations')
 
 /**
@@ -21,7 +25,6 @@ class TypeOutputSerializer extends serializers.Serializer {
             dateFormatType: await DateFormatType.APP_MANAGEMENT_FORMULARY.all(),
             timeFormatType: await TimeFormatType.APP_MANAGEMENT_FORMULARY.all(),
             fieldType: await FieldType.APP_MANAGEMENT_FORMULARY.all(),
-            sectionType: await SectionType.APP_MANAGEMENT_FORMULARY.all()
         }
         return await super.toRepresentation(data)
     }
@@ -31,7 +34,6 @@ class TypeOutputSerializer extends serializers.Serializer {
         dateFormatType: new DateFormatTypeRelation({ many: true }),
         timeFormatType: new TimeFormatTypeRelation({ many: true }),
         fieldType: new FieldTypeRelation({ many: true }),
-        sectionType: new SectionTypeRelation({ many: true })
     }
 }
 
@@ -41,8 +43,34 @@ class TypeOutputSerializer extends serializers.Serializer {
  * render it to the user.
  */
 class FormularyOutputSerializer extends serializers.ModelSerializer {
+    async toRepresentation() {
+        const isInstanceAnObject = typeof this.instance === 'object'
+        if (isInstanceAnObject) {
+            const { uuid } = this.instance
+            const formularyId = await Formulary.APP_MANAGEMENT_FORMULARY.formularyIdByUUID(uuid)
+            const fieldIds = await FormularyFields.APP_MANAGEMENT_FORMULARY.fieldIdsByFormularyId(formularyId)
+            const unorderedFields = await Field.APP_MANAGEMENT_FORMULARY.fieldsByFieldIds(fieldIds)
+            const orderedFields = await FieldService.reorderFieldsByArrayOfOrderedFieldIds(unorderedFields, fieldIds)
+
+            let fieldsData = []
+            for (const field of orderedFields) {
+                fieldsData.push({
+                    ...field,
+                    formularyUUID: uuid
+                })
+            }
+            const data = {
+                ...this.instance,
+                fields: fieldsData
+            }
+            return await super.toRepresentation(data)
+        } else {
+            return await super.toRepresentation(this.instance)
+        }
+    }
+
     fields = {
-        sections: new SectionRelation({ source: 'id', many: true }),
+        fields: new FieldRelation({ source: 'id', many: true }),
     }
     
     options = {

@@ -74,11 +74,9 @@ const reorderDifferences = (originalModels, stateModels, differences) => {
         const differenceObject = differences[index]
         const differenceModelName = differenceObject.modelName
         differenceObject.order = index
-        
         if (modelNamesInDifferencesDependentOn[differenceModelName] === undefined) {
             const modelDefition = originalModels[differenceModelName] === undefined ? 
                 stateModels[differenceModelName] : originalModels[differenceModelName]
-
             const modelAttributes = modelDefition.attributes
             let dependsOn = []
             Object.values(modelAttributes).forEach(attributeObject => {

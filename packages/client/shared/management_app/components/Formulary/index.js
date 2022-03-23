@@ -9,6 +9,7 @@ import { deepCopy } from '../../../../../shared/utils'
 
 export default function Formulary(props) {
     const sourceRef = useRef()
+    const duplicateFieldsCallbackRef = useRef({})
     const retrieveFieldsCallbacksRef = useRef({})
     const formularyFieldsCacheRef = useRef([])
     const isToRecalculateFormularyFieldsRef = useRef(true)
@@ -71,9 +72,37 @@ export default function Formulary(props) {
      * Supposing that `d7785a43-ab91-4308-ac40-e6c33b3292ef` is the uuid of a multi_field array, this gives access for us to
      * retrieve the fields inside of this field when needed.
      * 
-     * @returns {Array<>}
+     * @returns {Array<{
+     *      uuid: string,
+     *      name: string,
+     *      labelName: string,
+     *      labelIsHidden: boolean,
+     *      fieldIsHidden: boolean,
+     *      fieldTypeId: number,
+     *      isUnique: boolean,
+     *      options: Array<{
+     *          uuid: string, 
+     *          value: string, 
+     *          order: number, 
+     *          color: string
+     *      }>,
+     *      placeholder: null | string,
+     *      required: boolean
+     * }>} - Returns an array of the fields inside of this formulary.
      */
     function retrieveFields() {
+        function retrieveNestedFieldsFromFieldsWithFieldsInIt(field, fields) {
+            const isFieldWithFieldsInIt = typeof retrieveFieldsCallbacksRef.current[field.uuid] === 'function'
+            if (isFieldWithFieldsInIt) {
+                const fieldsOfFieldWithFieldsInIt = retrieveFieldsCallbacksRef.current[field.uuid]()
+                for (const fieldOfFieldWithFieldsInIt of fieldsOfFieldWithFieldsInIt) {
+                    const copiedFieldOfFieldWithFieldsInIt = deepCopy(fieldOfFieldWithFieldsInIt)
+                    fields.push(copiedFieldOfFieldWithFieldsInIt)
+                    retrieveNestedFieldsFromFieldsWithFieldsInIt(copiedFieldOfFieldWithFieldsInIt, fields)
+                }
+            }
+        } 
+
         if (isToRecalculateFormularyFieldsRef.current === true) {
             const fields = []
             for (const section of formulary.sections) {
@@ -81,20 +110,16 @@ export default function Formulary(props) {
                     const copiedField = deepCopy(field)
                     copiedField.section = deepCopy(section)
                     fields.push(copiedField)
-
-                    const isFieldWithFieldsInIt = typeof retrieveFieldsCallbacksRef.current[copiedField.uuid] === 'function'
-                    if (isFieldWithFieldsInIt) {
-                        const fieldsOfFieldWithFieldsInIt = retrieveFieldsCallbacksRef.current[copiedField.uuid]()
-                        for (const fieldOfFieldWithFieldsInIt of fieldsOfFieldWithFieldsInIt) {
-                            const copiedFieldOfFieldWithFieldsInIt = deepCopy(fieldOfFieldWithFieldsInIt)
-                            fields.push(copiedFieldOfFieldWithFieldsInIt)
-                        }
-                    }
+                    retrieveNestedFieldsFromFieldsWithFieldsInIt(copiedField, fields)
                 }
             }
             formularyFieldsCacheRef.current = fields
         }
         return formularyFieldsCacheRef.current
+    }
+
+    function registerOnDuplicateFieldTypeCallback(fieldUUID, callback) {
+
     }
 
     useEffect(() => {

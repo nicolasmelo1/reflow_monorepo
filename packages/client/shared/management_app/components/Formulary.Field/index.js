@@ -268,10 +268,12 @@ export default function FormularyField(props) {
     useEffect(() => {
         if (APP === 'web') {
             document.addEventListener('mousemove', webDismissEditFieldButton)
+            document.addEventListener('scroll', webLoadEditMenuTopOrDownAndDefineHeight, true)
         }
         return () => {
             if (APP === 'web') {
                 document.removeEventListener('mousemove', webDismissEditFieldButton)
+                document.addEventListener('scroll', webLoadEditMenuTopOrDownAndDefineHeight, true)
             }
         }
     }, [])

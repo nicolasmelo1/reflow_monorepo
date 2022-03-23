@@ -4,8 +4,6 @@ const {
     DateFormatType, 
     TimeFormatType, 
     FieldType, 
-    SectionType, 
-    Section, 
     Field,
     FieldAttachment,
     FieldConnection,
@@ -17,7 +15,7 @@ const {
     FieldOption,
     FieldTags,
     Option,
-    SectionFields,
+    FieldLabel,
     FieldMultiField,
     FieldMultiFieldFields
 } = require('./models')
@@ -68,19 +66,6 @@ class TimeFormatTypeRelation extends serializers.ModelSerializer {
 class FieldTypeRelation extends serializers.ModelSerializer {
     options = {
         model: FieldType,
-        exclude: ['order']
-    }
-}
-
-/**
- * This relation will be used for retrieving the types of the formulary. The types will be the first thing that
- * we retrieve and we will use it to render the formulary. We have 2 possible section types at the present time,
- * each of them will have different behaviours. On one the fields are displayed normally, just one time, on the second
- * one we will repeat the section as many times as needed.
- */
-class SectionTypeRelation extends serializers.ModelSerializer {
-    options = {
-        model: SectionType,
         exclude: ['order']
     }
 }
@@ -274,8 +259,20 @@ class OptionRelation extends serializers.ModelSerializer {
     }
 }
 
+class FieldLabelRelation extends serializers.ModelSerializer {
+    async toRepresentation(fieldId) {
+        const fieldLabel = await FieldLabel.APP_MANAGEMENT_FORMULARY.fieldLabelByFieldId(fieldId)
+        return await super.toRepresentation(fieldLabel)
+    }
+
+    options = {
+        model: FieldLabel,
+        exclude: ['id']
+    }
+}
+
 /**
- * This will render each field of the formulary that is inside of a particular section id.
+ * This will render each field of the formulary that is inside of a particular formulary id.
  * As said in the FieldConnection, FieldDate and other models like that we also bound the field to specific field 
  * type models, so we can hold the data for this particular field type.
  */
@@ -300,49 +297,10 @@ class FieldRelation extends serializers.ModelSerializer {
     }
 }
 
-/**
- * This will be used for retrieving all of the sections of the formulary. Sections here are simple and are just needed
- * to hold and display the fields of the formulary.
- */
-class SectionRelation extends serializers.ModelSerializer {
-    async toRepresentation(formularyId) {
-        const sections = await Section.APP_MANAGEMENT_FORMULARY.sectionsByFormularyId(formularyId)
-
-        for (const section of sections) {
-            const [sectionUUID, fieldIds] = await Promise.all([
-                Section.APP_MANAGEMENT_FORMULARY.sectionUUIDBySectionId(section.id),
-                SectionFields.APP_MANAGEMENT_FORMULARY.fieldIdsBySectionId(section.id)
-            ])
-            const unorderedFields = await Field.APP_MANAGEMENT_FORMULARY.fieldsByFieldIds(fieldIds)
-            const orderedFields = await FieldService.reorderFieldsByArrayOfOrderedFieldIds(unorderedFields, fieldIds)
-
-            let fieldsData = []
-            for (const field of orderedFields) {
-                fieldsData.push({
-                    ...field,
-                    sectionUUID: sectionUUID
-                })
-            }
-            section.fields = fieldsData
-        }
-        return await super.toRepresentation(sections)
-    }
-
-    fields = {
-        fields: new FieldRelation({ source: 'id', many: true }),
-    }
-
-    options = {
-        model: Section,
-        fields: ['uuid', 'name', 'labelName', 'order', 'sectionTypeId']
-    }
-}
-
 module.exports = {
     NumberFormatTypeRelation,
     DateFormatTypeRelation,
     TimeFormatTypeRelation,
     FieldTypeRelation,
-    SectionTypeRelation,
-    SectionRelation
+    FieldRelation
 }

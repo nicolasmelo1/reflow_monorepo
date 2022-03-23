@@ -1,5 +1,5 @@
 const FlowService = require('./packages/shared/flow/service')
-
+const { PBKDF2Hasher } =  require('./packages/server/palmares/authentication/hashers')
 async function main() {
     /*const flowService = await FlowService.initialize()
     const result = await flowService.evaluate(`
@@ -56,10 +56,8 @@ async function main() {
 `
     )
     console.log(await(await result._string_())._representation_())*/
-    const asker = require('./packages/server/palmares/database/migrations/makemigrations/ask')
-    const response = await asker.didUserRenameToOneOption('teste', ['Hey', 'Senhorita', 'Não sei', 'Se você acredita'])
-    await asker.didUserRename('teste', 'teste')
-    console.log(response)
+    const hasher = new PBKDF2Hasher()
+    console.log(hasher.encode('93aT@csd71'))
 }
 
 main()

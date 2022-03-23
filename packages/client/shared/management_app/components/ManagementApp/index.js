@@ -46,8 +46,7 @@ export default function ManagementApp(props) {
                         response.data.data.numberFormatType, 
                         response.data.data.dateFormatType, 
                         response.data.data.timeFormatType, 
-                        response.data.data.fieldType, 
-                        response.data.data.sectionType
+                        response.data.data.fieldType
                     )
                 } else {
                     retrieveFromPersist()

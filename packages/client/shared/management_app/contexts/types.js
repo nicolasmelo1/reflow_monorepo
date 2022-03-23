@@ -9,7 +9,6 @@ const initialState = {
             dateFormatTypes: [],
             timeFormatTypes: [],
             fieldTypes: [],
-            sectionTypes: [],
         }
     },
     setTypes: () => {},
@@ -46,17 +45,14 @@ const AppManagementTypesProvider = (props) => {
      * @param {Array<{id: number, name: string}>} timeFormatTypes - This is the format of the time, can be 24 or 12 hours.
      * @param {Array<{id: number, name: string}>} fieldTypes - This is all of the types that the fields can be inside of the formulary/listing and other parts of
      * the application.
-     * @param {Array<{id: number, name: string}>} sectionTypes - This is the types of the sections, by default a section can be of type 'unique' or 'multiple'.
-     * The first one will create just one section, the second one will repeat over and over the fields of the section.
      */
-    function setTypes(numberFormatTypes, dateFormatTypes, timeFormatTypes, fieldTypes, sectionTypes) {
+    function setTypes(numberFormatTypes, dateFormatTypes, timeFormatTypes, fieldTypes) {
         setPersistState(persistState, { 
             types: { 
                 numberFormatTypes: numberFormatTypes, 
                 dateFormatTypes: dateFormatTypes, 
                 timeFormatTypes: timeFormatTypes, 
                 fieldTypes: fieldTypes, 
-                sectionTypes: sectionTypes 
             } 
         }, setState)
     }

@@ -178,64 +178,67 @@ export default function FormularyFieldWebLayout(props) {
                     ) : ''}
                 </Fragment>
             ) : ''}
-            
-            {props.field.fieldIsHidden === false ? fieldTypeName === 'text' ? (
-                <FormularyFieldText
-                {...props}
-                />
-            ) : fieldTypeName === 'number' ? (
-                <FormularyFieldNumber
-                {...props}
-                />
-            ) : fieldTypeName === 'date' ? (
-                <FormularyFieldDate
-                {...props}
-                />
-            ) : fieldTypeName === 'option' ? (
-                <FormularyFieldOption
-                {...props}
-                />
-            ) : fieldTypeName === 'connection' ? (
-                <FormularyFieldConnection
-                {...props}
-                />
-            ) : fieldTypeName === 'attachment' ? (
-                <FormularyFieldAttachment
-                {...props}
-                />
-            ) : fieldTypeName === 'long_text' ? (
-                <FormularyFieldLongText
-                {...props}
-                />
-            ) : fieldTypeName === 'email' ? (
-                <FormularyFieldEmail
-                {...props}
-                />
-            ) : fieldTypeName === 'tags' ? (
-                <FormularyFieldTags
-                {...props}
-                />
-            ) : fieldTypeName === 'id' ? (
-                <FormularyFieldId
-                {...props}
-                />
-            ) : fieldTypeName === 'user' ? (
-                <FormularyFieldUser
-                {...props}
-                />
-            ) : fieldTypeName === 'formula' ? (
-                <FormularyFieldFormula
-                {...props}
-                />
-            ) : fieldTypeName === 'checkbox' ? (
-                <FormularyFieldCheckbox
-                {...props}
-                />
-            ) : fieldTypeName === 'multi_field' ? (
-                <FormularyFieldMultiField
-                {...props}
-                />
-            ): '' : ''}
+            <Styled.FieldContainer
+            fieldIsHidden={props.field.fieldIsHidden}
+            >
+                {fieldTypeName === 'text' ? (
+                    <FormularyFieldText
+                    {...props}
+                    />
+                ) : fieldTypeName === 'number' ? (
+                    <FormularyFieldNumber
+                    {...props}
+                    />
+                ) : fieldTypeName === 'date' ? (
+                    <FormularyFieldDate
+                    {...props}
+                    />
+                ) : fieldTypeName === 'option' ? (
+                    <FormularyFieldOption
+                    {...props}
+                    />
+                ) : fieldTypeName === 'connection' ? (
+                    <FormularyFieldConnection
+                    {...props}
+                    />
+                ) : fieldTypeName === 'attachment' ? (
+                    <FormularyFieldAttachment
+                    {...props}
+                    />
+                ) : fieldTypeName === 'long_text' ? (
+                    <FormularyFieldLongText
+                    {...props}
+                    />
+                ) : fieldTypeName === 'email' ? (
+                    <FormularyFieldEmail
+                    {...props}
+                    />
+                ) : fieldTypeName === 'tags' ? (
+                    <FormularyFieldTags
+                    {...props}
+                    />
+                ) : fieldTypeName === 'id' ? (
+                    <FormularyFieldId
+                    {...props}
+                    />
+                ) : fieldTypeName === 'user' ? (
+                    <FormularyFieldUser
+                    {...props}
+                    />
+                ) : fieldTypeName === 'formula' ? (
+                    <FormularyFieldFormula
+                    {...props}
+                    />
+                ) : fieldTypeName === 'checkbox' ? (
+                    <FormularyFieldCheckbox
+                    {...props}
+                    />
+                ) : fieldTypeName === 'multi_field' ? (
+                    <FormularyFieldMultiField
+                    {...props}
+                    />
+                ): null}
+            </Styled.FieldContainer>
         </Styled.Container>
     )
 }

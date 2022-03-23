@@ -1,11 +1,11 @@
 const { models } = require('../../../../palmares/database')
+const { settings } = require('../../../../palmares/conf')
 
 const { 
     FieldTypeAppManagementFormularyManager, 
     TimeFormatTypeAppManagementFormularyManager,
     DateFormatTypeAppManagementFormularyManager, 
     NumberFormatTypeAppManagementFormularyManager,
-    SectionTypeAppManagementFormularyManager,
     FieldAttachmentAppManagementFormularyManager,
     FieldConnectionAppManagementFormularyManager,
     FieldDateAppManagementFormularyManager,
@@ -19,32 +19,10 @@ const {
     FieldTagsAppManagementFormularyManager,
     OptionAppManagementFormularyManager,
     FieldAppManagementFormularyManager,
-    SectionFieldsAppManagementFormularyManager,
-    SectionAppManagementFormularyManager,
+    FormularyFieldsAppManagementFormularyManager,
     FormularyAppManagementFormularyManager
 } = require('../managers') 
 
-/**
- * This model is a type, it contains all of the data needed in order to build the management app.
- * 
- * By default we have two section types:
- * - unique - This will create just one section, the fields will NOT be repeated.
- * - multiple - This will create multiple sections, the fields can be repeated over and over. That's the hole idea. This specially useful
- * to create `historico` in sales.
- */
-class SectionType extends models.Model {
-    attributes = {
-        name: new models.fields.CharField({ dbIndex: true }),
-        order: new models.fields.IntegerField({ defaultValue: 1 })
-    }
-
-    options = {
-        ordering: ['order'],
-        tableName: 'section_type'
-    }
-
-    static APP_MANAGEMENT_FORMULARY = new SectionTypeAppManagementFormularyManager()
-}
 
 /**
  * This model is a type, it contains all of the data needed in order to build the management app.
@@ -68,7 +46,13 @@ class SectionType extends models.Model {
 class FieldType extends models.Model {
     attributes = {
         name: new models.fields.CharField({ dbIndex: true }),
-        order: new models.fields.IntegerField({ defaultValue: 1 })
+        order: new models.fields.IntegerField({ defaultValue: 1 }),
+        hasPlaceholder: new models.fields.BooleanField({ defaultValue: true }),
+        canBeRequired: new models.fields.BooleanField({ defaultValue: true }),
+        canBeUnique: new models.fields.BooleanField({ defaultValue: true }),
+        canFieldBeHidden: new models.fields.BooleanField({ defaultValue: true }),
+        canlabelBeHidden: new models.fields.BooleanField({ defaultValue: true }),
+        hasValues: new models.fields.BooleanField({ defaultValue: true })
     }
 
     options = {
@@ -156,8 +140,7 @@ class DateFormatType extends models.Model {
 
 /**
  * This is the formulary model. The formulary will hold everything needed to render the formulary. A formulary
- * is composed by sections and field. A formulary can have one or more sections, and each section can have one 
- * or more fields.
+ * is composed by fields. A formulary can have one or more fields
  * 
  * Each formulary is associated to an APP by default, so if the user wants to create another formulary for the same 
  * app it WILL NOT BE POSSIBLE. An app is tied to one and JUST ONE formulary.
@@ -186,83 +169,54 @@ class Formulary extends models.Model {
 }
 
 /**
- * All of the formularies are tied to a section. A section is like a group of fields. Most softwares don't have this 
- * concept of sections, but we use it. You can find a reference on another softwares on how this is made
- * taking a look at `google forms`. I think that JotForm also might have this concept but i'm not sure.
- * 
- * The idea is that, every formulary will have one or more sections, so this way you can organize really long formularies
- * with parts.
- * 
- * This is also nice because we can add conditional sections, so we can hide or show the section depending on the values
- * of the fields. It is way easier to setting the same conditional on a bunch of fields.
- * 
- * Last but not least, a section can be `multiple` or `unique`. This part is better explained in `SectionType` model above.
- * But in short, `multiple` means you can repeat the fields over and over again. This is particularly useful for `Historico`
- * in sales pipelines for the sale history.
- */
-class Section extends models.Model {
-    attributes = {
-        createdAt: new models.fields.DatetimeField({autoNowAdd: true }),
-        updatedAt: new models.fields.DatetimeField({autoNow: true }),
-        uuid: new models.fields.UUIDField({ autoGenerate: true, allowNull: true }),
-        name: new models.fields.CharField(),
-        labelName: new models.fields.CharField(),
-        order: new models.fields.IntegerField({ defaultValue: 1 }),
-        formulary: new models.fields.ForeignKeyField({
-            relatedTo: 'Formulary',
-            onDelete: models.fields.ON_DELETE.CASCADE
-        }),
-        sectionType: new models.fields.ForeignKeyField({
-            relatedTo: 'SectionType',
-            onDelete: models.fields.ON_DELETE.CASCADE
-        })
-    }
-
-    options = {
-        tableName: 'section',
-        ordering: ['order']
-    }
-
-    static APP_MANAGEMENT_FORMULARY = new SectionAppManagementFormularyManager()
-}
-
-/**
- * These are the fields of a section, by default the fields will NOT be exactly tied to a specific formulary, instead a field will 
+ * These are the fields of a formulary, by default the fields will NOT be exactly tied to a specific formulary, instead a field will 
  * be independent. An independent field means that a field can exist in other places, or the field for some reason can be untied 
  * from everything.
  * 
  * This is specially useful for `multi_field` field type. This field type will hold multiple fields, but those fields on this field type
  * will be tied to a specific field and not to a specific session.
  */
-class SectionFields extends models.Model {
+class FormularyFields extends models.Model {
     attributes = {
         field: new models.fields.OneToOneField({
             relatedTo: 'Field',
             onDelete: models.fields.ON_DELETE.CASCADE
         }),
-        section: new models.fields.ForeignKeyField({
-            relatedTo: 'Section',
-            onDelete: models.fields.ON_DELETE.CASCADE
-        }),
-        order: new models.fields.IntegerField({ defaultValue: 1 }),
         formulary: new models.fields.ForeignKeyField({
             relatedTo: 'Formulary',
             onDelete: models.fields.ON_DELETE.CASCADE
-        })
+        }),
+        order: new models.fields.IntegerField({ defaultValue: 1 })
     }
 
     options = {
-        tableName: 'section_fields',
+        tableName: 'formulary_fields',
         ordering: ['order']
     }
 
-    static APP_MANAGEMENT_FORMULARY = new SectionFieldsAppManagementFormularyManager()
+    static APP_MANAGEMENT_FORMULARY = new FormularyFieldsAppManagementFormularyManager()
 }
 
 /**
- * This model will hold the fields of the formulary. Every field are bound to a section AND NOT to a formulary directly.
- * As said in the Formulary model, the section will always hold a bunch of fields. And the formulary will hold a bunch
- * of sections.
+ * This is the label of the field. Instead of being a simple string, we decided to take it out
+ * of the field. That's because we sometimes want to add labels as image for example, add a rich text
+ * formated label. And so on.
+ */
+class FieldLabel extends models.Model {
+    attributes = {
+        name: new models.fields.TextField({ dbIndex: true }),
+        labelImageBucket: new models.fields.CharField({ maxLength: 200, defaultValue: settings.S3_BUCKET}),
+        labelImagePath: new models.fields.CharField({ maxLength:250, defaultValue: settings.S3_FIELD_LABEL_IMAGE_PATH }),
+        labelImageUrl: new models.fields.TextField({ allowNull: true, allowBlank: true }),
+    }
+
+    options = {
+        tableName: 'field_label'
+    }
+}
+
+/**
+ * This model will hold the fields of the formulary. Every field are bound to the formulary itself.
  * 
  * Okay so the field can be of many types, a field can access just numbers, others can accept only dates, others only 
  * attachments and so on. You can read more about the options the field types can have in the `FieldType` model.
@@ -283,6 +237,11 @@ class Field extends models.Model {
         uuid: new models.fields.UUIDField({ autoGenerate: true }),
         name: new models.fields.CharField(),
         labelName: new models.fields.CharField(),
+        label: new models.fields.ForeignKeyField({
+            relatedTo: 'FieldLabel',
+            onDelete: models.fields.ON_DELETE.CASCADE,
+            allowNull: true
+        }),
         placeholder: new models.fields.CharField({ allowBlank: true, allowNull: true }),
         required: new models.fields.BooleanField({ defaultValue: true }),
         isUnique: new models.fields.BooleanField({ defaultValue: false }),
@@ -629,15 +588,14 @@ class Option extends models.Model {
 }
 
 module.exports = {
-    SectionType,
     FieldType,
     NumberFormatType,
     DateFormatType,
     TimeFormatType,
     Formulary,
-    Section,
-    SectionFields,
+    FormularyFields,
     Field,
+    FieldLabel,
     FieldConnection,
     FieldDate,
     FieldNumber,

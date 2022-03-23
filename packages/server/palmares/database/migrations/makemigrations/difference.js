@@ -36,6 +36,7 @@ async function getDifferenceFromModelsOrAttributes(
     // Check if something is in state that is not on original. In other words, check if any attribute or model was removed
     for (const [stateAttributeOrModelName, stateAttributeOrModelObject] of stateAttributesOrModelsEntries) {
         const didRenamedAttributeNameOrModelName = originalModelsOrAttributesObject[stateAttributeOrModelName] === undefined         
+
         if (didRenamedAttributeNameOrModelName) {
             if (originalAttributesOrModelsEntries.length === stateAttributesOrModelsEntries.length) {
                 // ask if user renamed
@@ -47,7 +48,7 @@ async function getDifferenceFromModelsOrAttributes(
                         break
                     }
                 }
-                
+               
                 if (await asker.didUserRename(stateAttributeOrModelName, renamedTo)) {
                     const originalModelOrAttribute = originalModelsOrAttributesObject[renamedTo]
                     const stateModelOrAttribute = stateModelsOrAttributesObject[stateAttributeOrModelName]
@@ -72,7 +73,7 @@ async function getDifferenceFromModelsOrAttributes(
         }
     }
 
-    for (const [originalAttributeOrModelName, originalAttributeOrModelObject] of stateAttributesOrModelsEntries) {
+    for (const [originalAttributeOrModelName, originalAttributeOrModelObject] of originalAttributesOrModelsEntries) {
         const stateAttributeOrModelObject = stateModelsOrAttributesObject[originalAttributeOrModelName]
         // created 
         if (stateAttributeOrModelObject === undefined) {
@@ -109,7 +110,7 @@ async function getDifferenceFromModelsOrAttributes(
         let nonRenamedAttributesOrModels = [...modelsOrAttributesInOriginalButNotDefinedInState]
         // same as before, first we loop through state objects and then we loop through newly defined models
 
-        for (const attributeOrModelNameInState of stateAttributesOrModelsEntries) {
+        for (const attributeOrModelNameInState of modelsOrAttributesInStateButNotDefinedInOriginal) {
             let answer = false
             if (nonRenamedAttributesOrModels.length !== 0) {
                 answer = await asker.didUserRenameToOneOption(attributeOrModelNameInState, nonRenamedAttributesOrModels)
@@ -166,7 +167,8 @@ async function getDifferenceFromAttributes(differences, appNameByModelName, mode
 
     async function callbackIfCreated(originalAttributeName, originalAttributeObject) {
         if (originalAttributeObject.defaultValue === undefined && originalAttributeObject.allowNull === false) {
-            if (!(await asker.theNewAttributeCantHaveNullDoYouWishToContinue(modelName, originalAttributeName))) {
+            const answer = await asker.theNewAttributeCantHaveNullDoYouWishToContinue(modelName, originalAttributeName)
+            if (answer === false) {
                 return process.exit(1)
             }
         } 
