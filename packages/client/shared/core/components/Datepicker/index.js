@@ -188,11 +188,14 @@ export default function Datepicker(props) {
         wasCalculated:false
     })
     const [dateValue, setDateValue] = useState('')
-    useClickedOrPressedOutside({ref: dateInputRef, callback: (e) => {
-        if (datePickerRef.current && !datePickerRef.current.contains(e.target)) {
-            onToggleInputFocus(false)
+    useClickedOrPressedOutside({
+        customRef: dateInputRef, 
+        callback: (e) => {
+            if (datePickerRef.current && !datePickerRef.current.contains(e.target)) {
+                onToggleInputFocus(false)
+            }
         }
-    }})
+    })
 
     /**
      * Get the regex for the parts of the string that are not formats. So on the example date format: 

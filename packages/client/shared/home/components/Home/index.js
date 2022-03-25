@@ -25,7 +25,7 @@ export default function Home(props) {
         setState: setSelectedAreaAndApp,
         retrieveFromPersist
     } = useContext(HomeDefaultsContext)
-    useClickedOrPressedOutside({ ref: areaDropdownEditMenuRef, callback: webClickOutsideToClose})
+    useClickedOrPressedOutside({ customRef: areaDropdownEditMenuRef, callback: webClickOutsideToClose})
     const [isResizing, setIsResizing] = useState(false)
     const [isFloatingSidebar, setIsFloatingSidebar] = useState(false)
     const [isOpenSidebar, setIsOpenSidebar] = useState(true)

@@ -38,7 +38,7 @@ export default function useDropdownMenuSelect({
     const [menuPosition, setMenuPosition] = useState(null)
     
     if (APP === 'web') {
-        useClickedOrPressedOutside({ ref: menuRef, callback: webOnUserClickOutsideMenu})
+        useClickedOrPressedOutside({ customRef: menuRef, callback: webOnUserClickOutsideMenu})
     }
 
     /** 

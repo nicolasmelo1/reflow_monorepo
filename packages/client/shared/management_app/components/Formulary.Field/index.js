@@ -4,9 +4,9 @@ import { WorkspaceContext } from '../../../authentication/contexts'
 import { useClickedOrPressedOutside, useOpenFloatingDropdown } from '../../../core/hooks'
 import { APP } from '../../../conf'
 import Layout from './layouts'
+import { useFieldTypes } from '../../hooks'
 
 export default function FormularyField(props) {
-    const fieldTypeNameCacheRef = useRef()
     const fieldRef = useRef()
     const optionForDropdownMenuRef = useRef()
     const isHoveringRef = useRef(false)
@@ -26,11 +26,17 @@ export default function FormularyField(props) {
         dropdownMenuPosition: editMenuPosition,
         onToggleDropdownMenu: onToggleEditFieldMenu
     } = useOpenFloatingDropdown({isOpen: isNewField})
-    useClickedOrPressedOutside({ ref: fieldEditDropdownMenuRef, callback: (e) => {
-        if (fieldEditMenuButtonRef.current && !fieldEditMenuButtonRef.current.contains(e.target)) {
-            onToggleEditFieldMenu(false)
+    const { 
+        getTypesById
+    } = useFieldTypes(types)
+    useClickedOrPressedOutside({ 
+        customRef: fieldEditDropdownMenuRef, 
+        callback: (e) => {
+            if (fieldEditMenuButtonRef.current && !fieldEditMenuButtonRef.current.contains(e.target)) {
+                onToggleEditFieldMenu(false)
+            }
         }
-    }})
+    })
 
     function setIsHovering(isUserHoveringOnField=!isHovering) {
         isHoveringRef.current = isUserHoveringOnField
@@ -148,7 +154,7 @@ export default function FormularyField(props) {
      * @param {string} newLabelName - The new label name of the field.
      */
     function onChangeFieldLabelName(newLabelName) {
-        props.field.labelName = newLabelName
+        props.field.label.name = newLabelName
         props.onUpdateFormulary()
     }
 
@@ -236,35 +242,6 @@ export default function FormularyField(props) {
         props.onUpdateFormulary()
     }
 
-    /**
-     * Retrieves the field type name from the cache if it exists or save the type name to the cache so we do
-     * not need to loop everytime we want to retrieve this information.
-     * 
-     * This use the props directly so there is no need to pass anything to this function in order to retrieve
-     * the data that you need.
-     * 
-     * @returns {string} - Returns the field type name of the field.
-     */
-    function retrieveFieldTypeName() {
-        const isCacheDefined = ![null, undefined].includes(fieldTypeNameCacheRef.current)
-        const fieldTypeId = props.field.fieldTypeId
-
-        if (isCacheDefined && fieldTypeNameCacheRef.current.fieldTypeId === fieldTypeId) {
-            return fieldTypeNameCacheRef.current.fieldTypeName
-        } else {
-            for (const fieldType of types.fieldTypes) {
-                if (fieldType.id === fieldTypeId) {
-                    fieldTypeNameCacheRef.current = {
-                        fieldTypeId,
-                        fieldTypeName: fieldType.name
-                    }
-                    return fieldType.name
-                }
-            }
-            return ''
-        }
-    }
-
     useEffect(() => {
         if (APP === 'web') {
             document.addEventListener('mousemove', webDismissEditFieldButton)
@@ -292,8 +269,8 @@ export default function FormularyField(props) {
         types={types}
         field={props.field}
         retrieveFields={props.retrieveFields}
-        retrieveFieldTypeName={retrieveFieldTypeName}
         isHovering={isHovering}
+        getTypesById={getTypesById}
         onToggleEditFieldMenu={onToggleEditFieldMenu}
         editMenuPosition={editMenuPosition}
         isEditMenuOpen={isEditMenuOpen}

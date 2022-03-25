@@ -38,9 +38,9 @@ class TypeOutputSerializer extends serializers.Serializer {
 }
 
 /**
- * The formulary serializer will retrieve the data needed to build the formulary, all of the sections with
- * all of the fields it have. With this data we are able to build the formulary to display and 
- * render it to the user.
+ * The formulary serializer will retrieve the data needed to build the formulary, with all of 
+ * the fields it have. 
+ * With this data we are able to build the formulary to display and render it to the user.
  */
 class FormularyOutputSerializer extends serializers.ModelSerializer {
     async toRepresentation() {
@@ -51,17 +51,19 @@ class FormularyOutputSerializer extends serializers.ModelSerializer {
             const fieldIds = await FormularyFields.APP_MANAGEMENT_FORMULARY.fieldIdsByFormularyId(formularyId)
             const unorderedFields = await Field.APP_MANAGEMENT_FORMULARY.fieldsByFieldIds(fieldIds)
             const orderedFields = await FieldService.reorderFieldsByArrayOfOrderedFieldIds(unorderedFields, fieldIds)
-
-            let fieldsData = []
-            for (const field of orderedFields) {
-                fieldsData.push({
+            const orderedFieldsWithContext = orderedFields.map(field => {
+                return {
                     ...field,
-                    formularyUUID: uuid
-                })
-            }
+                    context: {
+                        name: 'formulary',
+                        metadata: uuid
+                    }
+                }
+            })
+            
             const data = {
                 ...this.instance,
-                fields: fieldsData
+                fields: orderedFieldsWithContext
             }
             return await super.toRepresentation(data)
         } else {

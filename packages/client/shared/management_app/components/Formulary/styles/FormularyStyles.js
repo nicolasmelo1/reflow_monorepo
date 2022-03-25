@@ -89,19 +89,20 @@ styled.div`
 `
 :
 styled(View)``
+
 export const FormularyContainer = APP === 'web' ?
 styled.div`
     display: flex;
     flex-direction: column;
     border-radius: 5px;
-    background-color: ${props => props.theme.moreClearGray};
+    background-color: ${props => props.theme.white};
     top: 0;
     left: 0;
     width: calc(var(--app-width) / 2);
     max-height: calc(var(--app-height) - 100px);
     overflow: auto;
     scroll-behavior: smooth;
-    padding: 0 10px;
+    padding: 7px 10px;
 `
 :
 styled(View)``

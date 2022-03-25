@@ -10,18 +10,20 @@ export default function FormularyAddFieldWebLayout(props) {
         onMouseLeave={() => props.onToggleHover(false)}
         >   
             {props.isHovered === true ? (
-                <Styled.ButtonContainer>
-                    <Tooltip
-                    text={strings('formularyAddFieldTooltipButtonLabel')}
-                    >
-                        <Styled.Button
-                        ref={props.addButtonRef}
-                        onClick={() => props.onToggleFieldTypeOptionSelectionMenu(true)}
+                <Styled.ButtonWrapper>
+                    <Styled.ButtonContainer>
+                        <Tooltip
+                        text={strings('formularyAddFieldTooltipButtonLabel')}
                         >
-                            {'+'}
-                        </Styled.Button>
-                    </Tooltip>
-                </Styled.ButtonContainer>
+                            <Styled.Button
+                            ref={props.addButtonRef}
+                            onClick={() => props.onToggleFieldTypeOptionSelectionMenu(true)}
+                            >
+                                {'+'}
+                            </Styled.Button>
+                        </Tooltip>
+                    </Styled.ButtonContainer>
+                </Styled.ButtonWrapper>
             ) : null}
             {props.isFieldTypeOptionsSelectorOpen === true ? (
                 <Styled.FieldTypeSelectorMenuWrapper>

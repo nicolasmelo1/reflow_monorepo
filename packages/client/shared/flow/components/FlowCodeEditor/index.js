@@ -81,7 +81,7 @@ export default function FlowCodeEditor(props) {
         languageOptions,
         createAutocompleteOptions
     } = useFlow()
-    useClickedOrPressedOutside({ ref: editorContainerRef, callback: () => onToggleInputFocus(false) })
+    useClickedOrPressedOutside({ customRef: editorContainerRef, callback: () => onToggleInputFocus(false) })
    
     /**
      * / * WEB ONLY * /

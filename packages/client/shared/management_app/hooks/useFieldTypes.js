@@ -64,6 +64,7 @@ export default function useFieldTypes(types=undefined) {
         return ''
     }
 
+    
     useEffect(() => {
         const isTypesRefDifferentFromTypes = JSON.stringify(typesRef.current) !== JSON.stringify(types)
         if (isTypesRefDifferentFromTypes) {

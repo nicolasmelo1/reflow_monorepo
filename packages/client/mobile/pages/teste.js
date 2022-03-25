@@ -1,10 +1,8 @@
-import { useRef } from 'react'
 import { View, Text } from 'react-native'
 import { useClickedOrPressedOutside } from '../../shared/core/hooks'
 
 export default function TestePage(props) {
-    const containerRef = useRef()
-    useClickedOrPressedOutside({ ref: containerRef, callback: teste })
+    const { ref: containerRef } = useClickedOrPressedOutside({ callback: teste })
 
     function teste(e) {
         console.log('teste')

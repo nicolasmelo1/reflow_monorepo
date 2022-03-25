@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef, useContext } from 'react'
 import axios from 'axios'
 import managementAppAgent from '../../agent'
-import { FormularyContext } from '../../contexts'
+import { AppManagementTypesContext, FormularyContext } from '../../contexts'
 import Layout from './layouts'
 import { APP } from '../../../conf'
-import { deepCopy } from '../../../../../shared/utils'
-
+import { deepCopy, generateUUID } from '../../../../../shared/utils'
 
 export default function Formulary(props) {
     const sourceRef = useRef()
@@ -14,8 +13,69 @@ export default function Formulary(props) {
     const formularyFieldsCacheRef = useRef([])
     const isToRecalculateFormularyFieldsRef = useRef(true)
     const formularyContainerRef = useRef()
+    
     const { state: { formulary }, setFormulary, retrieveFromPersist } = useContext(FormularyContext)
+    const { state: { types: { fieldTypes } } } = useContext(AppManagementTypesContext)
+    
     const [formularyContainerOffset, setFormularyContainerOffset] = useState(0)
+    const [newFieldUUID, setNewFieldUUID] = useState(null)
+
+    /**
+     * Used for adding a new field to the formulary. The data and logic for adding a new field is defined on `Formulary.AddField` component.
+     * This just recieves the data and the index of where the field should be added to the formulary.
+     * 
+     * After that we change the `newFieldUUID` so we can have a special behavior for the field that is being added. For example, the renaming
+     * and the configuration of the field will be shown.
+     * 
+     * @param {object} fieldData - The data of the field that is being added.
+     * @param {number} indexToAdd - The index of where the field should be added to the formulary.
+     * 
+     */
+    function onAddField(fieldData, indexToAdd) {
+        fieldData.order = indexToAdd
+        formulary.fields.splice(indexToAdd, 0, fieldData)
+        setNewFieldUUID(fieldData.uuid)
+        onUpdateFormulary()
+    }
+
+    /**
+     * Used for duplicating the field and creating a new field with the same properties in the formulary.
+     * To duplicate the field it is easy, we just need to create new UUIDs for the options, and the field options.
+     * By generating new UUIDs we are able to create a new field with the exact same properties as an old field.
+     * 
+     * @param {string} fieldUUID - The uuid of the field that we want to duplicate.
+     */
+    function onDuplicateField(fieldUUID) {
+        const fieldIndexInFormulary = formulary.fields.findIndex(field => field.uuid === fieldUUID)
+        const doesExistFieldIndexInFormulary = fieldIndexInFormulary !== -1
+        if (doesExistFieldIndexInFormulary) {
+            const newField = deepCopy(formulary.fields[fieldIndexInFormulary])
+            newField.uuid = generateUUID()
+            newField.options = newField.options.map(option => { 
+                option.uuid = generateUUID()
+                return option
+            })
+            if (![null, undefined].includes(newField.connectionField)) newField.connectionField.uuid = generateUUID()
+            if (![null, undefined].includes(newField.userField)) newField.userField.uuid = generateUUID()
+            if (![null, undefined].includes(newField.numberField)) newField.numberField.uuid = generateUUID()
+            if (![null, undefined].includes(newField.dateField)) newField.dateField.uuid = generateUUID()
+            if (![null, undefined].includes(newField.formulaField)) newField.formulaField.uuid = generateUUID()
+            formulary.fields.splice(fieldIndexInFormulary + 1, 0, newField)
+            onUpdateFormulary(props.formulary)
+        }
+    }
+
+    /**
+     * This function is used when the user wants to remove a field from the formulary. For that we just filter the field
+     * uuid out of the formulary and then we update the formulary.
+     * 
+     * @param {string} fieldUuid - The uuid of the field that we want to remove.
+     */
+    function onRemoveField(fieldUUID) {
+        const newFormularyFields = formulary.fields.filter(field => field.uuid !== fieldUUID)
+        formulary.fields = newFormularyFields
+        onUpdateFormulary()
+    }
 
     /**
      * Probably by now you already know what is passing a value by reference and pass by value. Objects, and arrays
@@ -105,13 +165,10 @@ export default function Formulary(props) {
 
         if (isToRecalculateFormularyFieldsRef.current === true) {
             const fields = []
-            for (const section of formulary.sections) {
-                for (const field of section.fields) {
-                    const copiedField = deepCopy(field)
-                    copiedField.section = deepCopy(section)
-                    fields.push(copiedField)
-                    retrieveNestedFieldsFromFieldsWithFieldsInIt(copiedField, fields)
-                }
+            for (const field of formulary.fields) {
+                const copiedField = deepCopy(field)
+                fields.push(copiedField)
+                retrieveNestedFieldsFromFieldsWithFieldsInIt(copiedField, fields)
             }
             formularyFieldsCacheRef.current = fields
         }
@@ -163,11 +220,16 @@ export default function Formulary(props) {
         retrieveFieldsCallbacksRef={retrieveFieldsCallbacksRef}
         formularyContainerRef={formularyContainerRef}
         formularyContainerOffset={formularyContainerOffset}
+        fieldTypes={fieldTypes}
+        onAddField={onAddField}
+        newFieldUUID={newFieldUUID}
+        onRemoveField={onRemoveField}
+        onDuplicateField={onDuplicateField}
+        onUpdateFormulary={onUpdateFormulary}
         workspace={props.workspace}
         app={props.app}
         formulary={formulary}
         retrieveFields={retrieveFields}
-        onUpdateFormulary={onUpdateFormulary}
         />
     )
 }

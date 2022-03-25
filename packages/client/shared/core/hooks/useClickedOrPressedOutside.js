@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { APP } from '../../conf'
 
 let registeredCallbacks = {}
@@ -14,7 +14,7 @@ let registeredCallbacks = {}
  * function MyComponent() {
  *      const [isOpen, setIsOpen] = useState(false)
  *      const elementRef = useRef()
- *      useClickedOrPressedOutside({ ref: elementRef, callback: closeWhenUserClicksOutside })
+ *      useClickedOrPressedOutside({ currentRef: elementRef, callback: closeWhenUserClicksOutside })
  * 
  *      function closeWhenUserClicksOutside() {
  *          setIsOpen(false)          
@@ -50,7 +50,7 @@ let registeredCallbacks = {}
  * function InnerComponent() {
  *      const [isOpen, setIsOpen] = useState(false)
  *      const containerRef = useRef()
- *      useClickedOrPressedOutside({ ref: containerRef, callback: closeWhenUserPressesOutside })
+ *      useClickedOrPressedOutside({ currentRef: containerRef, callback: closeWhenUserPressesOutside })
  * 
  *      function closeWhenUserPressesOutside() {
  *          setIsOpen(false)          
@@ -74,15 +74,31 @@ let registeredCallbacks = {}
  * app structure. IT will detect any onPress events. And similar to the web version, it will only call the callback when the user clicks any element outtside of a company.
  * 
  * For both use cases you need to pass the ref of the element.
+ * 
+ * @param {object} clickedOrPressedOutsideParams - THe params for the hook.
+ * @param {object} [clickedOrPressedOutsideParams.customRef=null] - The ref of the target element. This means the element that will call the callback
+ * behaviour.
+ * @param {(event: MouseEvent | import('react-native').NativeEventEmitter) => void} [clickedOrPressedOutsideParams.callback=null] - The callback that 
+ * will be called when the user clicks or presses outside of the target element.\
+ * 
+ * @returns {
+ *     ref: {current: any},
+ *     onPress: (event: MouseEvent | import('react-native').NativeEventEmitter) => void
+ * }
  */
-export default function useClickedOrPressedOutside({ callback=null, ref=null }={}) {
+export default function useClickedOrPressedOutside({ callback=null, customRef=null }={}) {
+    const ref = useRef(null)
+
     if (APP === 'web') {
         useEffect(() => {
             /**
              * Alert if clicked on outside of element
              */
             function handleClickOutside(event) {
-                if (ref.current && !ref.current.contains(event.target)) {
+                const isCustomRefDefined = customRef !== null && typeof customRef === 'object'
+                if (isCustomRefDefined && customRef.current && !customRef.current.contains(event.target)) {
+                    callback(event)
+                } else if (ref.current && !ref.current.contains(event.target)) {
                     callback(event)
                 }
             }
@@ -93,7 +109,11 @@ export default function useClickedOrPressedOutside({ callback=null, ref=null }={
                 // Unbind the event listener on clean up
                 document.removeEventListener("mousedown", handleClickOutside)
             }
-        }, [ref])
+        }, [])
+        
+        return { 
+            ref 
+        }
     } else {
         if (callback !== null) {
             registeredCallbacks[callback.name] = {
@@ -102,6 +122,7 @@ export default function useClickedOrPressedOutside({ callback=null, ref=null }={
             }
         }
         return {
+            ref,
             onPress: (e) => {
                 /**
                  * I don't know a better way to do this except to loop through all of the children elements of an component and check if the event target is inside of it.

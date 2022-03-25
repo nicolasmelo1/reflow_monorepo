@@ -76,7 +76,7 @@ export function CustomOptionSelectWebLayout(props) {
                 <Styled.RadioInput 
                 type={'radio'}
                 onChange={() => props.onSelectOrRemoveOption(props.option)}
-                name={props.field.labelName}
+                name={props.field.label.name}
                 />
             ) : ''}
             {props.isRenaming ? (

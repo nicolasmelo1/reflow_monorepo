@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
-import FormularySection from '../../Formulary.Section'
+import FormularyField from '../../Formulary.Field'
+import FormularyAddField from '../../Formulary.AddField'
 import Styled from '../styles'
 import { strings } from '../../../../core/utils/constants'
 import { 
@@ -8,6 +9,7 @@ import {
 
 export default function FormularyWebLayout(props) {
     const isAppDefined = ![null, undefined].includes(props.app)
+    const formularyFields = Array.isArray(props.formulary?.fields) ? props.formulary.fields : []
 
     return (
         <Styled.Container>
@@ -35,15 +37,28 @@ export default function FormularyWebLayout(props) {
                 ref={props.formularyContainerRef}
                 offset={props.formularyContainerOffset}
                 >
-                    {props.formulary?.sections.map(section => (
-                        <FormularySection 
-                        retrieveFieldsCallbacksRef={props.retrieveFieldsCallbacksRef}
-                        workspace={props.workspace}
-                        key={section.uuid}
-                        section={section}
-                        retrieveFields={props.retrieveFields}
-                        onUpdateFormulary={props.onUpdateFormulary}
-                        />
+                    <FormularyAddField
+                    fieldTypes={props.fieldTypes}
+                    onAddField={(fieldData) => props.onAddField(fieldData, 0)}
+                    />
+                    {formularyFields.map((field, index) => (
+                        <Fragment
+                        key={field.uuid}
+                        >
+                            <FormularyField
+                            retrieveFieldsCallbacksRef={props.retrieveFieldsCallbacksRef}
+                            field={field}
+                            isNewField={props.newFieldUUID === field.uuid}
+                            onUpdateFormulary={props.onUpdateFormulary}
+                            onRemoveField={props.onRemoveField}
+                            onDuplicateField={props.onDuplicateField}
+                            retrieveFields={props.retrieveFields}
+                            />
+                            <FormularyAddField
+                            fieldTypes={props.fieldTypes}
+                            onAddField={(fieldData) => props.onAddField(fieldData, index + 1)}
+                            />
+                        </Fragment>
                     ))}
                 </Styled.FormularyContainer>
             </Styled.FormularyWrapper>

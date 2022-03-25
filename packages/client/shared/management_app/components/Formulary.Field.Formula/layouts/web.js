@@ -4,7 +4,6 @@ import { strings, Tooltip } from '../../../../core'
 import FlowCodeEditor from '../../../../flow/components/FlowCodeEditor'
 import Styled from '../styles'
 
-
 export function DropdownMenuFormulaFormatOptionWebLayout(props) {
     return (
         <Styled.DropdownMenuInputContainer>

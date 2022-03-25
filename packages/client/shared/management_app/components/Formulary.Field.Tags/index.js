@@ -121,11 +121,11 @@ function CustomOptionSelect(props) {
     const [isHovering, setIsHovering] = useState(false)
     const [option, setOption] = useState(props.option)
 
-    useClickedOrPressedOutside({ ref: editMenuContainerRef, callback: () => {
+    useClickedOrPressedOutside({ customRef: editMenuContainerRef, callback: () => {
         setIsHovering(false)
         setIsEditing(false)
     }})
-    useClickedOrPressedOutside({ ref: renameOptionInputRef, callback: () => {
+    useClickedOrPressedOutside({ customRef: renameOptionInputRef, callback: () => {
         onToggleRenaming(false)
     }})
 

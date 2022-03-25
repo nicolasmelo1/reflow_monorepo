@@ -1,5 +1,6 @@
 const DateFormatTypeAppManagementFormularyManager = require('./dateFormatType')
 const FieldTypeAppManagementFormularyManager = require('./fieldType')
+const FieldTypeCategoryTypeAppManagementFormularyManager = require('./fieldTypeCategoryType')
 const NumberFormatTypeAppManagementFormularyManager = require('./numberFormatType')
 const TimeFormatTypeAppManagementFormularyManager = require('./timeFormatType')
 const FieldConnectionAppManagementFormularyManager = require('./fieldConnection')
@@ -14,6 +15,7 @@ const FieldUserAppManagementFormularyManager = require('./fieldUser')
 const FieldTagsAppManagementFormularyManager = require('./fieldTags')
 const FieldOptionAppManagementFormularyManager = require('./fieldOption')
 const OptionAppManagementFormularyManager = require('./option')
+const FieldLabelAppManagementFormularyManager = require('./fieldLabel')
 const FieldAppManagementFormularyManager = require('./field')
 const FormularyFieldsAppManagementFormularyManager = require('./formularyFields')
 const FormularyAppManagementFormularyManager = require('./formulary')
@@ -24,6 +26,7 @@ module.exports = {
     FieldTagsAppManagementFormularyManager,
     DateFormatTypeAppManagementFormularyManager,
     FieldTypeAppManagementFormularyManager,
+    FieldTypeCategoryTypeAppManagementFormularyManager,
     NumberFormatTypeAppManagementFormularyManager,
     TimeFormatTypeAppManagementFormularyManager,
     FieldConnectionAppManagementFormularyManager,
@@ -36,6 +39,7 @@ module.exports = {
     FieldFormulaVariableAppManagementFormularyManager,
     FieldUserAppManagementFormularyManager,
     OptionAppManagementFormularyManager,
+    FieldLabelAppManagementFormularyManager,
     FieldAppManagementFormularyManager,
     FormularyFieldsAppManagementFormularyManager,
     FormularyAppManagementFormularyManager,

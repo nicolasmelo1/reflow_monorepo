@@ -8,7 +8,7 @@ const initialState = {
             uuid: null,
             name: '',
             labelName: '',
-            sections: []
+            fields: []
         }
     },
     setFormulary: () => {},

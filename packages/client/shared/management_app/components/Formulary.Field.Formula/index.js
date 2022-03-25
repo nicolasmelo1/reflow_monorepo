@@ -109,7 +109,7 @@ export default function FormularyFieldFormula(props) {
                 const doesVariableExistAtIndex = variable !== undefined && typeof variable === 'object'
                 
                 let variableFieldData = doesVariableExistAtIndex ? fieldsByFieldUUID[variable.variableUUID] : undefined
-                const isFieldLabelNameEqualVariable = variableFieldData !== undefined && variableFieldLabelName === variableFieldData.labelName
+                const isFieldLabelNameEqualVariable = variableFieldData !== undefined && variableFieldLabelName === variableFieldData.label.name
                     
                 if (isFieldLabelNameEqualVariable) {
                     newVariables.push({
@@ -117,7 +117,7 @@ export default function FormularyFieldFormula(props) {
                         order: i
                     })
                 } else {
-                    variableFieldData = Object.values(fieldsByFieldUUID).find(field => field.labelName === variableFieldLabelName)
+                    variableFieldData = Object.values(fieldsByFieldUUID).find(field => field.label.name === variableFieldLabelName)
                     const doesFieldExistForGivenVariableLabelName = variableFieldData !== undefined && typeof variableFieldData === 'object'
                     if (doesFieldExistForGivenVariableLabelName) {
                         newVariables.push({
@@ -160,7 +160,7 @@ export default function FormularyFieldFormula(props) {
 
                 for (const { variableUUID } of props.field.formulaField.variables) {
                     if (fieldsByFieldUUID[variableUUID] !== undefined) {
-                        userFacingFormula = userFacingFormula.replace(/{{((\s+)?([^\s{}]+(\s+)?)+)?}}/, `{{${fieldsByFieldUUID[variableUUID].labelName}}}`)
+                        userFacingFormula = userFacingFormula.replace(/{{((\s+)?([^\s{}]+(\s+)?)+)?}}/, `{{${fieldsByFieldUUID[variableUUID].label.name}}}`)
                     }
                 }
             }
@@ -309,7 +309,7 @@ export default function FormularyFieldFormula(props) {
             autocompleteData.name.replace(/^{{/, '').replace(/}}$/, '') : autocompleteData.name
         const variableFieldNameIsNotAnEmptyString = variableFieldName !== ''
         if (variableFieldNameIsNotAnEmptyString) {
-            formularyFields = formularyFields.filter(field => field.labelName.startsWith(variableFieldName))
+            formularyFields = formularyFields.filter(field => field.label.name.startsWith(variableFieldName))
         }
 
         // When setting a variable we need to substitute the value that was inserted with the complete variable.
@@ -321,8 +321,8 @@ export default function FormularyFieldFormula(props) {
             to: autocompleteData.elementAt + autocompleteData.name.length
         } : undefined
         const customAutocompleteData = formularyFields.map(field => createAutocompleteOptions(
-            `{{${field.labelName}}}`, 
-            field.labelName, 
+            `{{${field.label.name}}}`, 
+            field.label.name, 
             strings('formularyFieldFormulaVariableDescription'), 
             'custom',
             {

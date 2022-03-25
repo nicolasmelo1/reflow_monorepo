@@ -147,12 +147,20 @@ const { getErrorCodeContext } = require('../helpers/index')
  * variable: IDENTITY
  */
 class Parser {
+    /**
+     * @param {import('../lexer')} lexer - The lexer to use, we will get the next token as we parse.
+     * @param {import('../settings').Settings} settings - This is the settings of the language so we can use handy
+     * functions.
+     */
     constructor (lexer, settings) {
         this.lexer = lexer
         this.settings = settings
         this.currentToken = null
     }
 
+    /**
+     * @returns {Promise<import('./nodes').Program>} - The AST node of the program to evaluate.
+     */
     async parse() {
         this.currentToken = await this.lexer.getNextToken()
         return await this.program()

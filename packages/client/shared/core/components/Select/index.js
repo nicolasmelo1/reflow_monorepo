@@ -106,7 +106,10 @@ export default function Select(props) {
         isPropsSelectedOptionsDefined ? 
         props.options.filter(option => !props.selectedOptions.includes(option.value)) : 
         props.options : [])
-    useClickedOrPressedOutside({ ref: selectRef, callback: webCloseWhenUserPressesOutside })
+    useClickedOrPressedOutside({ 
+        customRef: selectRef, 
+        callback: webCloseWhenUserPressesOutside 
+    })
 
     function setSelectedOptions(newSelectedOptions) {
         _setSelectedOptions(newSelectedOptions)

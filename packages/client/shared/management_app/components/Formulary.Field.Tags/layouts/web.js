@@ -76,7 +76,7 @@ export function CustomOptionSelectWebLayout(props) {
                 <Styled.CheckboxInput 
                 type={'checkbox'}
                 onChange={() => props.onSelectOrRemoveOption(props.option)}
-                name={props.field.labelName}
+                name={props.field.label.name}
                 />
             ) : ''}
             {props.isRenaming ? (

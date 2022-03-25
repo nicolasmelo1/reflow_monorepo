@@ -2,7 +2,9 @@ const { models } = require('../../../../palmares/database')
 const { settings } = require('../../../../palmares/conf')
 
 const { 
+    FieldTypeCategoryTypeAppManagementFormularyManager,
     FieldTypeAppManagementFormularyManager, 
+    FieldLabelAppManagementFormularyManager,
     TimeFormatTypeAppManagementFormularyManager,
     DateFormatTypeAppManagementFormularyManager, 
     NumberFormatTypeAppManagementFormularyManager,
@@ -23,6 +25,29 @@ const {
     FormularyAppManagementFormularyManager
 } = require('../managers') 
 
+/**
+ * This model is a type, it contains all of the data needed in order to build the management app.
+ * This model is strictly tied to `FieldType` model. It is used to define the category of the field
+ * type. Simple as that.
+ * 
+ * At the current time we have the following categories:
+ * - `advanced` - These are field types for advanced users. It needs some thinking and some knowledge.
+ * - `input` - Those are field types that have an input to it.
+ * - `layout` - Those are field types that doesn't change a thing in the formulary. They just change the layout.
+ * For example a heading, a title, and so on.
+ */
+class FieldTypeCategoryType extends models.Model {
+    attributes = {
+        name: new models.fields.CharField(),
+        order: new models.fields.IntegerField({ defaultValue: 1 }),
+    }
+
+    options = {
+        tableName: 'field_type_category',
+    }
+
+    static APP_MANAGEMENT_FORMULARY = new FieldTypeCategoryTypeAppManagementFormularyManager()
+}
 
 /**
  * This model is a type, it contains all of the data needed in order to build the management app.
@@ -51,8 +76,13 @@ class FieldType extends models.Model {
         canBeRequired: new models.fields.BooleanField({ defaultValue: true }),
         canBeUnique: new models.fields.BooleanField({ defaultValue: true }),
         canFieldBeHidden: new models.fields.BooleanField({ defaultValue: true }),
-        canlabelBeHidden: new models.fields.BooleanField({ defaultValue: true }),
-        hasValues: new models.fields.BooleanField({ defaultValue: true })
+        canLabelBeHidden: new models.fields.BooleanField({ defaultValue: true }),
+        hasValues: new models.fields.BooleanField({ defaultValue: true }),
+        category: new models.fields.ForeignKeyField({
+            relatedTo: 'FieldTypeCategoryType',
+            onDelete: models.fields.ON_DELETE.CASCADE,
+            allowNull: true
+        })
     }
 
     options = {
@@ -213,6 +243,8 @@ class FieldLabel extends models.Model {
     options = {
         tableName: 'field_label'
     }
+
+    static APP_MANAGEMENT_FORMULARY = new FieldLabelAppManagementFormularyManager()
 }
 
 /**
@@ -588,6 +620,7 @@ class Option extends models.Model {
 }
 
 module.exports = {
+    FieldTypeCategoryType,
     FieldType,
     NumberFormatType,
     DateFormatType,

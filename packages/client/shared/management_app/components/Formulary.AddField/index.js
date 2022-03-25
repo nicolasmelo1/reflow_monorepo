@@ -6,7 +6,7 @@ import { useFieldTypes } from '../../hooks'
 import Layout from './layouts'
 
 /**
- * This component is just a button that is used to add new fields inside other fields or a section.
+ * This component is just a button that is used to add new fields inside other fields or a formulary.
  * If you need to add a field inside of any thing you should use this component.
  * 
  * @param {object} props - The props of the component.
@@ -39,7 +39,7 @@ export default function FormularyAddField(props) {
         getFieldTypeLabelNameByFieldTypeId
     } = useFieldTypes(props.fieldTypes)
 
-    useClickedOrPressedOutside({ ref: fieldTypeOptionsMenuRef, callback: (e) => {
+    useClickedOrPressedOutside({ customRef: fieldTypeOptionsMenuRef, callback: (e) => {
         if (addButtonRef.current && !addButtonRef.current.contains(e.target)) {
             onToggleFieldTypeOptionSelectionMenu(false)
             onToggleHover(false)
@@ -62,7 +62,13 @@ export default function FormularyAddField(props) {
             fieldIsHidden: false,
             isUnique: false,
             labelIsHidden: false,
-            fieldTypeId, // change this
+            fieldTypeId,
+            label: {
+                name: getFieldTypeLabelNameByFieldTypeId(fieldTypeId),
+                labelImageBucket: null,
+                labelImagePath: null,
+                labelImageUrl: null
+            },
             labelName: getFieldTypeLabelNameByFieldTypeId(fieldTypeId),
             name: 'novocampo',
             options: [],

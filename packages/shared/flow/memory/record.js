@@ -129,7 +129,7 @@ class Record {
      * @param {string} key - The key you want to retrieve. This is the name of the variable. Be aware that the names should be unique, so
      * if you assign the value again you will loose the reference to the old value.
      * 
-     * @returns {import('../builtins/objects/object')} - The saved value inside of the variable.
+     * @returns {Promise<import('../builtins/objects/object')>} - The saved value inside of the variable.
      */
     async get(key) {
         if (this.members[key] === undefined) {

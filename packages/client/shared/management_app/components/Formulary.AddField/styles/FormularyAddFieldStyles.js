@@ -6,7 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 export const Container = APP === 'web' ? 
 styled.div`
     width: 100%;
-    height: 15px;
+    min-height: 15px;
+    max-height: 15px;
     border-radius: 3px;
     background-color: ${props => props.isHovered ? `${props.theme.gray_REFLOW}10` : 'transparent'};
     position: relative;
@@ -14,19 +15,29 @@ styled.div`
 :
 styled(View)``
 
-export const ButtonContainer = APP === 'web' ?
+// Reference: https://stackoverflow.com/questions/12013066/how-to-ignore-parent-elements-overflowhidden-in-css
+export const ButtonWrapper = APP === 'web' ?
 styled.div`
     position: absolute;
     top: calc(-50% + 2.5px);
     left: calc(50% - 12.5px);
-    border-radius: 50%;
-    height: 25px;
-    width: 25px;
-    background-color: ${props => props.theme.white};
     z-index: 1;
 `
 :
 styled(View)``
+
+// Reference: https://stackoverflow.com/questions/12013066/how-to-ignore-parent-elements-overflowhidden-in-css
+export const ButtonContainer = APP === 'web' ?
+styled.div`
+    position: absolute;
+    background-color: ${props => props.theme.white};
+    border-radius: 50%;
+    height: 25px;
+    width: 25px;
+`
+:
+styled(View)``
+
 
 export const Button = APP === 'web' ?
 styled.button`
