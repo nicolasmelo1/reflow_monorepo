@@ -1,10 +1,10 @@
-import { useRef, useState, useEffect } from 'react'
-import { APP } from '../../../conf'
-import { useClickedOrPressedOutside } from '../../../core'
 import useHeadingField from '../../hooks/useHeadingField'
 import Layout from './layouts'
 
-export function FormularyFieldHeadingDropdownMenu(props) {
+export function HeadingDropdownMenuOptions(props) {
+    /**
+     * This function is called when the user clicks the button rename the heading.
+     */
     function onClickToRename() {
         props.onToggleRenaming()
     }
@@ -26,24 +26,15 @@ export default function FormularyFieldHeading(props) {
     const {
         inputRef,
         isRenaming,
-        onToggleRenaming
+        onToggleRenaming,
+        onChangeHeadingName
     } = useHeadingField(
+        props.field,
+        props.onChangeFieldConfiguration, 
         props.onToggleEditFieldMenu, 
-        props.addComponentForFieldSpecificOptionsForDropdownMenu,
+        props.registerComponentForFieldSpecificOptionsForDropdownMenu,
         isNewField
     )
-
-    /**
-     * Changes the value of the heading name to display in this field. Be aware, this field type does not have values, so the only thing
-     * we change is the label.
-     * 
-     * @param {string} headingName - The new heading name to display in this field.
-     */
-    function onChangeHeadingName(newName) {
-        props.field.label.name = newName
-        props.onUpdateFormulary()
-    }
-
 
     return (
         <Layout.Field

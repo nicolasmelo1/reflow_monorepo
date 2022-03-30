@@ -44,11 +44,16 @@ export default function Formulary(props) {
      * By generating new UUIDs we are able to create a new field with the exact same properties as an old field.
      * 
      * @param {string} fieldUUID - The uuid of the field that we want to duplicate.
+     * @param {object} fieldData - The new field data that is being duplicated.
      */
-    function onDuplicateField(fieldUUID) {
+    function onDuplicateField(fieldUUID, newField) {
         const fieldIndexInFormulary = formulary.fields.findIndex(field => field.uuid === fieldUUID)
         const doesExistFieldIndexInFormulary = fieldIndexInFormulary !== -1
         if (doesExistFieldIndexInFormulary) {
+            formulary.fields.splice(fieldIndexInFormulary + 1, 0, newField)
+            onUpdateFormulary(props.formulary)
+
+            /*
             const newField = deepCopy(formulary.fields[fieldIndexInFormulary])
             newField.uuid = generateUUID()
             newField.options = newField.options.map(option => { 
@@ -61,7 +66,7 @@ export default function Formulary(props) {
             if (![null, undefined].includes(newField.dateField)) newField.dateField.uuid = generateUUID()
             if (![null, undefined].includes(newField.formulaField)) newField.formulaField.uuid = generateUUID()
             formulary.fields.splice(fieldIndexInFormulary + 1, 0, newField)
-            onUpdateFormulary(props.formulary)
+            onUpdateFormulary(props.formulary)*/
         }
     }
 
@@ -69,10 +74,10 @@ export default function Formulary(props) {
      * This function is used when the user wants to remove a field from the formulary. For that we just filter the field
      * uuid out of the formulary and then we update the formulary.
      * 
-     * @param {string} fieldUuid - The uuid of the field that we want to remove.
+     * @param {object} fieldData - The uuid of the field that we want to remove.
      */
-    function onRemoveField(fieldUUID) {
-        const newFormularyFields = formulary.fields.filter(field => field.uuid !== fieldUUID)
+    function onRemoveField(fieldData) {
+        const newFormularyFields = formulary.fields.filter(field => field.uuid !== fieldData.uuid)
         formulary.fields = newFormularyFields
         onUpdateFormulary()
     }
@@ -139,6 +144,9 @@ export default function Formulary(props) {
      *      labelIsHidden: boolean,
      *      fieldIsHidden: boolean,
      *      fieldTypeId: number,
+     *      label: {
+     *          name: string
+     *      },
      *      isUnique: boolean,
      *      options: Array<{
      *          uuid: string, 
@@ -173,10 +181,6 @@ export default function Formulary(props) {
             formularyFieldsCacheRef.current = fields
         }
         return formularyFieldsCacheRef.current
-    }
-
-    function registerOnDuplicateFieldTypeCallback(fieldUUID, callback) {
-
     }
 
     useEffect(() => {

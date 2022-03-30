@@ -535,7 +535,7 @@ export default function FormularyFieldTags(props) {
     }, [])
     
     useEffect(() => {
-        props.addComponentForFieldSpecificOptionsForDropdownMenu(TagsFormatOption, {
+        props.registerComponentForFieldSpecificOptionsForDropdownMenu(TagsFormatOption, {
             isDropdown: typeof props.field?.tagsField?.isDropdown === 'boolean' ? props.field.tagsField.isDropdown : true,
             onChangeIfIsDropdownMenu
         })

@@ -26,6 +26,9 @@ export default function FormularyFieldMultiField(props) {
      *      labelName: string,
      *      labelIsHidden: boolean,
      *      fieldIsHidden: boolean,
+     *      label: {
+     *          name: string
+     *      },
      *      fieldTypeId: number,
      *      isUnique: boolean,
      *      options: Array<{

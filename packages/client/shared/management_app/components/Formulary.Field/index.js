@@ -3,29 +3,42 @@ import { AppManagementTypesContext } from '../../contexts'
 import { WorkspaceContext } from '../../../authentication/contexts'
 import { useClickedOrPressedOutside, useOpenFloatingDropdown } from '../../../core/hooks'
 import { APP } from '../../../conf'
+import { useFieldTypes, useFieldEdit } from '../../hooks'
+import { deepCopy } from '../../../../../shared/utils'
 import Layout from './layouts'
-import { useFieldTypes } from '../../hooks'
 
-export default function FormularyField(props) {
-    const fieldRef = useRef()
-    const optionForDropdownMenuRef = useRef()
-    const isHoveringRef = useRef(false)
-    const isNewField = typeof props.isNewField === 'boolean' ? props.isNewField : false
-    
-    const { state: { selectedWorkspace }} = useContext(WorkspaceContext)
-    const { state: { types } } = useContext(AppManagementTypesContext)
+/**
+ * This component is responsible for adding the dropdown menu to the field, this means that what this does is load the menu
+ * dropdown when the user clicks the button to edit the field.
+ * 
+ * @param {object} props - The props that this component recieves
+ * @param {import('react').RefObject<HTMLButtonElement>} props.buttonRef - The ref to the button that will open 
+ * the dropdown menu when clicked. IMPORTANT: this can't be dynamic, so once you render this component passing 
+ * the ref of the button then it's this button we will use.
+ * @param {boolean} props.isOpen - Is the menu open o closed.
+ * @param {(isOpen: boolean) => void} props.onToggleDropdownMenu - A function that is called when we close the menu.
+ * This way we can control the behavior of the menu outside of this component.
+ * @param {(fieldData: object) => void} props.onChangeField - This is called when the field changes.
+ * @param {boolean} [props.isRenaming=false] - Is the field being renamed or not? By default it's not.
+ * @param {(isRenaming: boolean) => void} [props.onToggleIsRenaming=undefined] - The callback that will be called when the user clicks to rename
+ * the field.
+ */
+export function FieldEditDropdownMenu(props) {
+    const defaultInitialIsRenamingState = typeof props.isRenaming === 'boolean' ? props.isRenaming : false
+
+    console.log(props.field.label.name)
+    const [isRenaming, setIsRenaming] = useState(defaultInitialIsRenamingState)
+    const [field, setField] = useState(deepCopy(props.field))
     const [isPlaceholderOpen, setIsPlaceholderOpen] = useState(!['', null, undefined].includes(props.field.placeholder))
-    const [isHovering, _setIsHovering] = useState(isHoveringRef.current)
-    const [isRenaming, setIsRenaming] = useState(isNewField)
-    const [customOptionForDropdownMenuProps, setCustomOptionForDropdownMenuProps] = useState({})
+    const { state: { types } } = useContext(AppManagementTypesContext)
     const {
         dropdownButtonRef: fieldEditMenuButtonRef,
         dropdownMenuRef: fieldEditDropdownMenuRef,
         webLoadDropdownMenuTopOrDownAndDefineHeight: webLoadEditMenuTopOrDownAndDefineHeight,
         isDropdownOpen: isEditMenuOpen,
         dropdownMenuPosition: editMenuPosition,
-        onToggleDropdownMenu: onToggleEditFieldMenu
-    } = useOpenFloatingDropdown({isOpen: isNewField})
+        onToggleDropdownMenu
+    } = useOpenFloatingDropdown({ isOpen: props.isOpen })
     const { 
         getTypesById
     } = useFieldTypes(types)
@@ -38,77 +51,231 @@ export default function FormularyField(props) {
         }
     })
 
+    /**
+     * This is called whenever we want to close or open the dropdown menu. If the `onToggleDropdownMenu` props is defined
+     * we will also call the parent function.
+     * 
+     * @param {boolean} [isOpen=!isEditMenuOpen] - Is the menu open or closed.
+     */
+    function onToggleEditFieldMenu(isOpen=!isEditMenuOpen) {
+        const isOnToggleDropdownMenuDefined = typeof props.onToggleDropdownMenu === 'function'
+        if (isOnToggleDropdownMenuDefined) {
+            props.onToggleDropdownMenu(isOpen)
+        }
+        onToggleDropdownMenu(isOpen)
+    }
+
+    /**
+     * When we change the data of the field we call this function, with this we will do two things:
+     * - Update the internal state of the field.
+     * - Call the `onChangeField` props function to change the field.
+     */
+    function onChangeField(fieldData) {
+        setField({...fieldData})
+        props.onChangeField(fieldData)
+    }
+    
+    /**
+     * This will change if the field is required or not. This means, the field can or cannot be empty.
+     *
+     * If we have hid the field we cannot make it obligatory since we cannot change it's value.
+     * 
+     * @param {boolean} [isRequired=!field.isRequired] - Whether or not the field is required.
+     */
+    function onChangeFieldIsRequired(isRequired=!field.isRequired) {
+        if (field.fieldIsHidden === false && isRequired === true) {
+            field.required = isRequired
+            onChangeField(field)
+        } else if (isRequired === false) {
+            field.required = isRequired
+            onChangeField(field)
+        }
+    }   
+
+    /**
+     * Change if the label of the field is visible or not. If it is then we show the name of the field at the top, otherwise
+     * we do not show any label at the top.
+     * 
+     * @param {boolean} [isLabelVisible=!field.labelIsHidden] - Whether or not the label of the field is visible.
+     */
+    function onChangeLabelIsHidden(isLabelHidden=!field.labelIsHidden) {
+        field.labelIsHidden = isLabelHidden
+        onChangeField(field)
+    }
+
+    /**
+     * Change wheather or not the field is visible or not. If the field is hidden we will not show the field to the user, 
+     * the field is the input. Otherwise we show it to the user.
+     * When we hide the field, we cannot make it obligatory since we cannot edit it's value.
+     * 
+     * @param {boolean} [isFieldHidden=!field.fieldIsHidden] - Whether or not the field is hidden.
+     */
+     function onChangeFieldIsHidden(isFieldHidden=!field.fieldIsHidden) {
+        field.fieldIsHidden = isFieldHidden
+        if (isFieldHidden === true) onChangeFieldIsRequired(false)
+        onChangeField(field)
+    }
+
+    /**
+     * Change when the field is unique or not. If the field is unique, then we can only have one value for this field. We
+     * cannot have multiple values equal for this field. This means that if we try to save a record with the same already
+     * existing value it will not save.
+     * 
+     * @param {boolean} isUnique - Whether or not the field is unique.
+     */
+    function onChangeFieldIsUnique(isUnique=!field.isUnique) {
+        field.isUnique = isUnique
+        onChangeField(field)
+    }
+
+    /**
+     * The placeholder input opens or closes if the user checks or unchecks a given checkbox.
+     * 
+     * When he checks the box then we will show the input so he can start typing the placeholder, otherwise we close 
+     * it.
+     * 
+     * When it is closing, then the placeholder will be null by default, so every value inside of it disappears.
+     * 
+     * @param {boolean} [placeholderIsOpen=!isPlaceholderOpen] - Whether or not the placeholder input menu is open.
+     */
+    function onTogglePlaceholderInput(placeholderIsOpen=!isPlaceholderOpen) {
+        if (placeholderIsOpen === false) {
+            field.placeholder = null
+            onChangeField(field)
+        }
+        setIsPlaceholderOpen(placeholderIsOpen)
+    }
+
+    /** 
+     * Will change effectively the value of the placeholder when he starts typing in the input.
+     * 
+     * @param {string} value - The value of the placeholder.
+     */
+    function onChangePlaceholder(value) {
+        field.placeholder = value
+        onChangeField(field)
+    }
+
+    /** 
+     * Function called when the user clicks to rename the field. When this happens we will call a parent callback.
+     * 
+     * @param {boolean} [isRenaming=!isRenaming] - Whether or not the user is renaming the field.
+     */
+    function onToggleIsRenaming(isRenaming=!isRenaming) {
+        const isOnToggleIsRenaming = typeof props.onToggleIsRenaming === 'function'
+        if (isOnToggleIsRenaming) {
+            props.onToggleIsRenaming(isRenaming)   
+        }
+        setIsRenaming(isRenaming)
+    }
+
+    useEffect(() => {
+        if (APP === 'web') {
+            document.addEventListener('scroll', webLoadEditMenuTopOrDownAndDefineHeight, true)
+            fieldEditMenuButtonRef.current = props.buttonRef.current
+        }
+        return () => {
+            if (APP === 'web') {
+                document.removeEventListener('scroll', webLoadEditMenuTopOrDownAndDefineHeight, true)
+            }
+        }
+    }, [])
+
+    /**
+     * When the props of the `isOpen` is different from the internal component, than we will load the internal component
+     * with the state of the outside component.
+     */
+    useEffect(() => {
+        const isPropsOpenDefined = typeof props.isOpen === 'boolean'
+        const isPropsOpenDifferentFromInternalState = props.isOpen !== isEditMenuOpen
+        if (isPropsOpenDefined && isPropsOpenDifferentFromInternalState) {
+            onToggleDropdownMenu(props.isOpen)
+        }
+    }, [props.isOpen])
+
+    /**
+     * The internal field data is different from the props recieved with the field data. Both field datas should
+     * be the same and synchronized.
+     */
+    useEffect(() => {
+        const isExternalFieldDataDifferentFromTheInternalFieldDataState = 
+            JSON.stringify(props.field) !== JSON.stringify(field)
+        if (isExternalFieldDataDifferentFromTheInternalFieldDataState) {
+            setField(deepCopy(props.field))
+        }
+    }, [props.field])
+
+    useEffect(() => {
+        const isRenamingDefined = typeof props.isRenaming === 'boolean'
+        const isExternalIsRenamingDifferentFromInternalIsRenaming = props.isRenaming !== isRenaming
+        if (isRenamingDefined && isExternalIsRenamingDifferentFromInternalIsRenaming) {
+            setIsRenaming(props.isRenaming)
+        }
+    }, [props.isRenaming])
+    console.log(editMenuPosition)
+
+    return (
+        <Layout.DropdownMenu
+        componentOptionForDropdownMenuRef={props.componentOptionForDropdownMenuRef}
+        fieldEditMenuButtonRef={fieldEditMenuButtonRef}
+        fieldEditDropdownMenuRef={fieldEditDropdownMenuRef}
+        isPlaceholderOpen={isPlaceholderOpen}
+        isEditMenuOpen={isEditMenuOpen}
+        editMenuPosition={editMenuPosition}
+        onToggleEditFieldMenu={onToggleEditFieldMenu}
+        onDuplicateField={props.onDuplicateField}
+        onRemoveField={props.onRemoveField}
+        getTypesById={getTypesById}
+        field={props.field}
+        isRenaming={isRenaming}
+        onToggleIsRenaming={onToggleIsRenaming}
+        customOptionForDropdownMenuProps={props.customOptionForDropdownMenuProps}
+        onChangeFieldIsRequired={onChangeFieldIsRequired}
+        onChangeLabelIsHidden={onChangeLabelIsHidden}
+        onChangeFieldIsHidden={onChangeFieldIsHidden}
+        onChangeFieldIsUnique={onChangeFieldIsUnique}
+        onTogglePlaceholderInput={onTogglePlaceholderInput}
+        onChangePlaceholder={onChangePlaceholder}
+        />
+    )
+}
+// ------------------------------------------------------------------------------------------
+export default function FormularyField(props) {
+    const fieldRef = useRef()
+    const isHoveringRef = useRef(false)
+    const fieldEditMenuButtonRef = useRef()
+    const isNewField = typeof props.isNewField === 'boolean' ? props.isNewField : false
+
+    const { state: { selectedWorkspace }} = useContext(WorkspaceContext)
+    const { state: { types } } = useContext(AppManagementTypesContext)
+    const [isFieldEditDropdownMenuOpen, setIsFieldEditDropdownMenuOpen] = useState(isNewField)
+    const [isHovering, _setIsHovering] = useState(isHoveringRef.current)
+    const [isRenaming, setIsRenaming] = useState(isNewField)
+    const { getTypesById } = useFieldTypes(types)
+    const {
+        registerOnDeleteOfField,
+        registerOnDuplicateOfField,
+        registerComponentForFieldSpecificOptionsForDropdownMenu,
+        onDuplicateField,
+        onRemoveField,
+        componentOptionForDropdownMenuRef,
+        customOptionForDropdownMenuProps
+     } = useFieldEdit(props.onDuplicateField, props.onRemoveField)
+
+
     function setIsHovering(isUserHoveringOnField=!isHovering) {
         isHoveringRef.current = isUserHoveringOnField
         _setIsHovering(isUserHoveringOnField)
     }
 
     /**
-     * This will add components to the dropdown menu so the user can edit it.
+     * This is used to toggle the edit dropdown menu of the field. This means that the
+     * settings of the field will be shown or closed.
      * 
-     * This data that the field needs comes from the component of the field type. 
-     * 
-     * What this means in other words is, suppose that for `number` fieldType we need to add the checkbox
-     * if we allow negative numbers to this input and the checkbox to be checked if we allow numbers to be 0.
-     * This means we need two extra switches in the dropdown menu to edit the field.
-     * 
-     * For that we would need to know here what the options are for the `number` fieldType.
-     * 
-     * We would need to define it for each fieldType here directly. But we can be more efficient and divide this responsability.
-     * In the `Formulary.Field.Number` component we can define the options that can exist in the dropdown. And then append it using 
-     * this function.
-     * 
-     * For example:
-     * 
-     * ```
-     * function DefaultValueInput(props) {
-     *      const [defaultValue, setDefaultValue] = useState(props.value)
-     * 
-     *      function onChange(value) {
-     *          props.onChange(value)
-     *          setDefaultValue(value)
-     *      }
-     * 
-     *      return <input type={'text'} value={defaultValue} onChange={(e) => onChange(e.target.value)}/>
-     * }
-     * 
-     * function FormularyFieldText(props) {
-     *      function onChangeDefaultValueInCustomOption(value) {
-     *          props.field.defaultValue = value
-     *          props.onUpdateFormulary()
-     *      }
-     *      
-     *      useEffect(() => {
-     *          props.addComponentForFieldSpecificOptionsForDropdownMenu(
-     *              DefaultValueInput,
-     *              {
-     *                  value: defaultValue,
-     *                  onChange: onChangeDefaultValueInCustomOption
-     *              }
-     *         )
-     *      }, [props.field.defaultValue])
-     * 
-     *      return APP === 'web' ? (
-     *          <Layouts.Web types={props.types} field={props.field} />
-     *      ) : (
-     *          <Layouts.Mobile/>
-     *      )
-     * }
-     * ```
-     * 
-     * So in this example let's look for some things: 
-     * FormularyFieldText has a useEffect function with `props.field.defaultValue` as dependency, this means that it will be called everytime the `props.field.defaultValue` 
-     * changes to a new value. So we will be able rerender the `DefaultValueInput` component even though the logic is kept completely in the `FormularyFieldNumber` component.
-     *
-     * Important thing to note is that we DO NOT keep track of when the `onChangeDefaultValueInCustomOption` function changes in the `useEffect` hook, that's because it's a function
-     * and the only purpose of functions is to serve as a callback we do not need to rerender the component everytime the function changes.
-     * 
-     * @param {import('react').ReactElement} component - The component that holds all of the custom options for the field type.
-     * @param {object} props - The props that the component will receive.
+     * @param {boolean} isOpen - Is the field edit dropdown menu open or closed?
      */
-    function addComponentForFieldSpecificOptionsForDropdownMenu(component, componentProps={}) {
-        optionForDropdownMenuRef.current = component
-        setCustomOptionForDropdownMenuProps(componentProps)
+    function onToggleEditFieldMenu(isOpen=!isEditMenuOpen) {
+        setIsFieldEditDropdownMenuOpen(isOpen)
     }
 
     /**
@@ -122,7 +289,7 @@ export default function FormularyField(props) {
     function webOnHoverFieldWeb(isUserHoveringField) {
         if (isUserHoveringField === false) {
             setIsHovering(isUserHoveringField)
-            onToggleEditFieldMenu(false)
+            //onToggleEditFieldMenu(false)
         } else {
             setIsHovering(isUserHoveringField)
         }
@@ -147,9 +314,6 @@ export default function FormularyField(props) {
     
     /**
      * Updates the label name of the field. When we update it we also update the hole formulary and rerender it again.
-     * We update the formulary by reference, so you need to understand what is passing a value by reference and by value.
-     * Here:
-     * https://www.google.com/url?sa=i&url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F43826922%2Fif-java-is-pass-by-value-then-why-can-we-change-the-properties-of-objects-in-me&psig=AOvVaw3Pln8znHHN39RJWWQSoaqx&ust=1642467147354000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCKC08ojJt_UCFQAAAAAdAAAAABAD
      * 
      * @param {string} newLabelName - The new label name of the field.
      */
@@ -159,137 +323,75 @@ export default function FormularyField(props) {
     }
 
     /**
-     * This will change if the field is required or not. This means, the field can or cannot be empty.
-     * 
      * We update the formulary by reference, so you need to understand what is passing a value by reference and by value.
      * Here:
      * https://www.google.com/url?sa=i&url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F43826922%2Fif-java-is-pass-by-value-then-why-can-we-change-the-properties-of-objects-in-me&psig=AOvVaw3Pln8znHHN39RJWWQSoaqx&ust=1642467147354000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCKC08ojJt_UCFQAAAAAdAAAAABAD
      * 
-     * If we have hid the field we cannot make it obligatory since we cannot change it's value.
-     * 
-     * @param {boolean} isRequired - Whether or not the field is required.
      */
-    function onChangeFieldIsRequired(isRequired) {
-        if (props.field.fieldIsHidden === false && isRequired === true) {
-            props.field.required = isRequired
-            props.onUpdateFormulary()
-        } else if (isRequired === false) {
-            props.field.required = isRequired
-            props.onUpdateFormulary()
+    function onChangeFieldConfiguration(newFieldData, namespaces=[]) {
+        const isNamespacesDefined = namespaces.length > 0
+        if (isNamespacesDefined === false) {
+            for (const [key, value] of Object.entries(newFieldData)) {
+                const isDifferentType = typeof props.field[key] !== typeof value
+                const isDifferentValue = props.field[key] !== value
+                const isDifferentStringValue = JSON.stringify(props.field[key]) !== JSON.stringify(value)
+                if (isDifferentType || isDifferentValue || isDifferentStringValue) {
+                    props.field[key] = value
+                }
+                    
+                props.field[key] = value
+            }
+        } else {
+            let objectToChangeValue = props.field
+            let newObjectWithValueChanged = newFieldData
+            const lastNamespace = namespaces.pop()
+            for (const namespace of namespaces) {
+                objectToChangeValue = objectToChangeValue[namespace]
+                newObjectWithValueChanged = newObjectWithValueChanged[namespace]
+            }
+            objectToChangeValue[lastNamespace] = newObjectWithValueChanged[lastNamespace]
         }
-    }   
-
-    /**
-     * Change if the label of the field is visible or not. If it is then we show the name of the field at the top, otherwise
-     * we do not show any label at the top.
-     * 
-     * @param {boolean} isLabelVisible - Whether or not the label of the field is visible.
-     */
-    function onChangeLabelIsHidden(isLabelHidden) {
-        props.field.labelIsHidden = isLabelHidden
-        props.onUpdateFormulary()
-    }
-
-    /**
-     * Change wheather or not the field is visible or not. If the field is hidden we will not show the field to the user, 
-     * the field is the input. Otherwise we show it to the user.
-     * When we hide the field, we cannot make it obligatory since we cannot edit it's value.
-     * 
-     * @param {boolean} isFieldHidden - Whether or not the field is hidden.
-     */
-    function onChangeFieldIsHidden(isFieldHidden) {
-        props.field.fieldIsHidden = isFieldHidden
-        if (isFieldHidden === true) onChangeFieldIsRequired(false)
-        props.onUpdateFormulary()
-    }
-
-    /**
-     * Change when the field is unique or not. If the field is unique, then we can only have one value for this field. We
-     * cannot have multiple values equal for this field. This means that if we try to save a record with the same already
-     * existing value it will not save.
-     * 
-     * @param {boolean} isFieldUnique - Whether or not the field is unique.
-     */
-    function onChangeFieldIsUnique(isUnique) {
-        props.field.isUnique = isUnique
-        props.onUpdateFormulary()
-    }
-
-    /**
-     * The placeholder input opens or closes if the user checks or unchecks a given checkbox.
-     * 
-     * When he checks the box then we will show the input so he can start typing the placeholder, otherwise we close 
-     * it.
-     * 
-     * When it is closing, then the placeholder will be null by default, so every value inside of it disappears.
-     */
-    function onTogglePlaceholderInput() {
-        const nextState = !isPlaceholderOpen
-        if (nextState === false) {
-            props.field.placeholder = null
-            props.onUpdateFormulary()
-        }
-        setIsPlaceholderOpen(!isPlaceholderOpen)
-    }
-
-    /** 
-     * Will change effectively the value of the placeholder when he starts typing in the input.
-     * 
-     * @param {string} value - The value of the placeholder.
-     */
-    function onChangePlaceholder(value) {
-        props.field.placeholder = value
         props.onUpdateFormulary()
     }
 
     useEffect(() => {
         if (APP === 'web') {
             document.addEventListener('mousemove', webDismissEditFieldButton)
-            document.addEventListener('scroll', webLoadEditMenuTopOrDownAndDefineHeight, true)
         }
         return () => {
             if (APP === 'web') {
                 document.removeEventListener('mousemove', webDismissEditFieldButton)
-                document.addEventListener('scroll', webLoadEditMenuTopOrDownAndDefineHeight, true)
             }
         }
     }, [])
-    
-    useEffect(() => {
-        if (APP === 'web') webLoadEditMenuTopOrDownAndDefineHeight()
-    })
+   
     return (
-        <Layout
+        <Layout.Field
         retrieveFieldsCallbacksRef={props.retrieveFieldsCallbacksRef}
         fieldRef={fieldRef}
         fieldEditMenuButtonRef={fieldEditMenuButtonRef}
-        fieldEditDropdownMenuRef={fieldEditDropdownMenuRef}
-        optionForDropdownMenuRef={optionForDropdownMenuRef}
+        FieldEditDropdownMenu={FieldEditDropdownMenu}
+        isFieldEditDropdownMenuOpen={isFieldEditDropdownMenuOpen}
+        onToggleEditFieldMenu={onToggleEditFieldMenu}
+        onChangeFieldConfiguration={onChangeFieldConfiguration}
         workspace={selectedWorkspace}
         types={types}
         field={props.field}
         retrieveFields={props.retrieveFields}
         isHovering={isHovering}
         getTypesById={getTypesById}
-        onToggleEditFieldMenu={onToggleEditFieldMenu}
-        editMenuPosition={editMenuPosition}
-        isEditMenuOpen={isEditMenuOpen}
         setIsRenaming={setIsRenaming}
         isRenaming={isRenaming}
-        isPlaceholderOpen={isPlaceholderOpen}
         isNewField={isNewField}
-        addComponentForFieldSpecificOptionsForDropdownMenu={addComponentForFieldSpecificOptionsForDropdownMenu}
+        registerOnDeleteOfField={registerOnDeleteOfField}
+        registerOnDuplicateOfField={registerOnDuplicateOfField}
+        registerComponentForFieldSpecificOptionsForDropdownMenu={registerComponentForFieldSpecificOptionsForDropdownMenu}
+        componentOptionForDropdownMenuRef={componentOptionForDropdownMenuRef}
         customOptionForDropdownMenuProps={customOptionForDropdownMenuProps}
         onChangeFieldLabelName={onChangeFieldLabelName}
-        onChangeFieldIsRequired={onChangeFieldIsRequired}
-        onChangeLabelIsHidden={onChangeLabelIsHidden}
-        onChangeFieldIsHidden={onChangeFieldIsHidden}
-        onChangeFieldIsUnique={onChangeFieldIsUnique}
-        onChangePlaceholder={onChangePlaceholder}
-        onTogglePlaceholderInput={onTogglePlaceholderInput}
         onUpdateFormulary={props.onUpdateFormulary}
-        onRemoveField={props.onRemoveField}
-        onDuplicateField={props.onDuplicateField}
+        onRemoveField={onRemoveField}
+        onDuplicateField={onDuplicateField}
         />
     )
 }

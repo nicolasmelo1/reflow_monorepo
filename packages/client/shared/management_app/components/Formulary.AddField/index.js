@@ -17,8 +17,16 @@ import Layout from './layouts'
  *      labelIsHidden: boolean,
  *      fieldTypeId: number,
  *      labelName: string,
+ *      label: {
+ *          name: string
+ *      },
  *      name: string,
- *      options: [],
+ *      options: Array<{
+ *          uuid: string, 
+ *          value: string, 
+ *          order: number, 
+ *          color: string
+ *      }>,
  *      placeholder: null | string,
  *      required: boolean,
  *      uuid: string}

@@ -543,7 +543,7 @@ export default function FormularyFieldOption(props) {
      * For example the `isDropdown` state will be changed when the user toggles between the switch in the field menu.
      */
     useEffect(() => {
-        props.addComponentForFieldSpecificOptionsForDropdownMenu(OptionFormatOption, {
+        props.registerComponentForFieldSpecificOptionsForDropdownMenu(OptionFormatOption, {
             isDropdown: typeof props.field?.optionField?.isDropdown === 'boolean' ? props.field.optionField.isDropdown : true,
             onChangeIfIsDropdownMenu
         })

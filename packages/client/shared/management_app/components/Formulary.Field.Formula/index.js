@@ -368,7 +368,7 @@ export default function FormularyFieldFormula(props) {
      * the field, stuff like the placeholder, if it's obligatory and so on.
      */
     useEffect(() => {
-        props.addComponentForFieldSpecificOptionsForDropdownMenu(FormulaFormatOption, {
+        props.registerComponentForFieldSpecificOptionsForDropdownMenu(FormulaFormatOption, {
             onEditFormula: onToggleIsEditingFormula,
             isEditingFormula
         })
