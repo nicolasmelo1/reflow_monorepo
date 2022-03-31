@@ -26,9 +26,7 @@ import Layout from './layouts'
 export function FieldEditDropdownMenu(props) {
     const defaultInitialIsRenamingState = typeof props.isRenaming === 'boolean' ? props.isRenaming : false
 
-    console.log(props.field.label.name)
     const [isRenaming, setIsRenaming] = useState(defaultInitialIsRenamingState)
-    const [field, setField] = useState(deepCopy(props.field))
     const [isPlaceholderOpen, setIsPlaceholderOpen] = useState(!['', null, undefined].includes(props.field.placeholder))
     const { state: { types } } = useContext(AppManagementTypesContext)
     const {
@@ -41,7 +39,7 @@ export function FieldEditDropdownMenu(props) {
     } = useOpenFloatingDropdown({ isOpen: props.isOpen })
     const { 
         getTypesById
-    } = useFieldTypes(types)
+    } = useFieldTypes(types.fieldTypes)
     useClickedOrPressedOutside({ 
         customRef: fieldEditDropdownMenuRef, 
         callback: (e) => {
@@ -50,6 +48,21 @@ export function FieldEditDropdownMenu(props) {
             }
         }
     })
+
+    /**
+     * / * WEB ONLY * /
+     * 
+     * Function called only on web, when the user scrolls anything outside of the dropdown menu.
+     * 
+     * @param {Event} e - The scroll event that triggered this function.
+     */
+    function webOnScroll(e) {
+        const scrollingElementIsNotTheMenu = fieldEditDropdownMenuRef.current && !fieldEditDropdownMenuRef.current.contains(e.target) 
+        const isButtonDefined = ![null, undefined].includes(fieldEditMenuButtonRef.current)
+        if (scrollingElementIsNotTheMenu && isButtonDefined) {
+            webLoadEditMenuTopOrDownAndDefineHeight()
+        }
+    }
 
     /**
      * This is called whenever we want to close or open the dropdown menu. If the `onToggleDropdownMenu` props is defined
@@ -71,7 +84,6 @@ export function FieldEditDropdownMenu(props) {
      * - Call the `onChangeField` props function to change the field.
      */
     function onChangeField(fieldData) {
-        setField({...fieldData})
         props.onChangeField(fieldData)
     }
     
@@ -80,15 +92,15 @@ export function FieldEditDropdownMenu(props) {
      *
      * If we have hid the field we cannot make it obligatory since we cannot change it's value.
      * 
-     * @param {boolean} [isRequired=!field.isRequired] - Whether or not the field is required.
+     * @param {boolean} [isRequired=!props.field.isRequired] - Whether or not the field is required.
      */
-    function onChangeFieldIsRequired(isRequired=!field.isRequired) {
-        if (field.fieldIsHidden === false && isRequired === true) {
-            field.required = isRequired
-            onChangeField(field)
+    function onChangeFieldIsRequired(isRequired=!props.field.isRequired) {
+        if (props.field.fieldIsHidden === false && isRequired === true) {
+            props.field.required = isRequired
+            onChangeField(props.field)
         } else if (isRequired === false) {
-            field.required = isRequired
-            onChangeField(field)
+            props.field.required = isRequired
+            onChangeField(props.field)
         }
     }   
 
@@ -96,11 +108,11 @@ export function FieldEditDropdownMenu(props) {
      * Change if the label of the field is visible or not. If it is then we show the name of the field at the top, otherwise
      * we do not show any label at the top.
      * 
-     * @param {boolean} [isLabelVisible=!field.labelIsHidden] - Whether or not the label of the field is visible.
+     * @param {boolean} [isLabelVisible=!props.field.labelIsHidden] - Whether or not the label of the field is visible.
      */
-    function onChangeLabelIsHidden(isLabelHidden=!field.labelIsHidden) {
-        field.labelIsHidden = isLabelHidden
-        onChangeField(field)
+    function onChangeLabelIsHidden(isLabelHidden=!props.field.labelIsHidden) {
+        props.field.labelIsHidden = isLabelHidden
+        onChangeField(props.field)
     }
 
     /**
@@ -108,12 +120,12 @@ export function FieldEditDropdownMenu(props) {
      * the field is the input. Otherwise we show it to the user.
      * When we hide the field, we cannot make it obligatory since we cannot edit it's value.
      * 
-     * @param {boolean} [isFieldHidden=!field.fieldIsHidden] - Whether or not the field is hidden.
+     * @param {boolean} [isFieldHidden=!props.field.fieldIsHidden] - Whether or not the field is hidden.
      */
-     function onChangeFieldIsHidden(isFieldHidden=!field.fieldIsHidden) {
-        field.fieldIsHidden = isFieldHidden
+     function onChangeFieldIsHidden(isFieldHidden=!props.field.fieldIsHidden) {
+        props.field.fieldIsHidden = isFieldHidden
         if (isFieldHidden === true) onChangeFieldIsRequired(false)
-        onChangeField(field)
+        onChangeField(props.field)
     }
 
     /**
@@ -123,9 +135,9 @@ export function FieldEditDropdownMenu(props) {
      * 
      * @param {boolean} isUnique - Whether or not the field is unique.
      */
-    function onChangeFieldIsUnique(isUnique=!field.isUnique) {
-        field.isUnique = isUnique
-        onChangeField(field)
+    function onChangeFieldIsUnique(isUnique=!props.field.isUnique) {
+        props.field.isUnique = isUnique
+        onChangeField(props.field)
     }
 
     /**
@@ -140,8 +152,8 @@ export function FieldEditDropdownMenu(props) {
      */
     function onTogglePlaceholderInput(placeholderIsOpen=!isPlaceholderOpen) {
         if (placeholderIsOpen === false) {
-            field.placeholder = null
-            onChangeField(field)
+            props.field.placeholder = null
+            onChangeField(props.field)
         }
         setIsPlaceholderOpen(placeholderIsOpen)
     }
@@ -152,8 +164,8 @@ export function FieldEditDropdownMenu(props) {
      * @param {string} value - The value of the placeholder.
      */
     function onChangePlaceholder(value) {
-        field.placeholder = value
-        onChangeField(field)
+        props.field.placeholder = value
+        onChangeField(props.field)
     }
 
     /** 
@@ -171,12 +183,11 @@ export function FieldEditDropdownMenu(props) {
 
     useEffect(() => {
         if (APP === 'web') {
-            document.addEventListener('scroll', webLoadEditMenuTopOrDownAndDefineHeight, true)
-            fieldEditMenuButtonRef.current = props.buttonRef.current
+            document.addEventListener('scroll', webOnScroll, true)
         }
         return () => {
             if (APP === 'web') {
-                document.removeEventListener('scroll', webLoadEditMenuTopOrDownAndDefineHeight, true)
+                document.removeEventListener('scroll', webOnScroll, true)
             }
         }
     }, [])
@@ -193,18 +204,6 @@ export function FieldEditDropdownMenu(props) {
         }
     }, [props.isOpen])
 
-    /**
-     * The internal field data is different from the props recieved with the field data. Both field datas should
-     * be the same and synchronized.
-     */
-    useEffect(() => {
-        const isExternalFieldDataDifferentFromTheInternalFieldDataState = 
-            JSON.stringify(props.field) !== JSON.stringify(field)
-        if (isExternalFieldDataDifferentFromTheInternalFieldDataState) {
-            setField(deepCopy(props.field))
-        }
-    }, [props.field])
-
     useEffect(() => {
         const isRenamingDefined = typeof props.isRenaming === 'boolean'
         const isExternalIsRenamingDifferentFromInternalIsRenaming = props.isRenaming !== isRenaming
@@ -212,7 +211,18 @@ export function FieldEditDropdownMenu(props) {
             setIsRenaming(props.isRenaming)
         }
     }, [props.isRenaming])
-    console.log(editMenuPosition)
+
+    /**
+     * This is an effect that is called whenever the `props.buttonRef` changes.
+     */
+    useEffect(() => {
+        fieldEditMenuButtonRef.current = props.buttonRef.current
+        if (APP === 'web') webLoadEditMenuTopOrDownAndDefineHeight()
+    }, [props.buttonRef])
+
+    useEffect(() => {
+        if (APP === 'web') webLoadEditMenuTopOrDownAndDefineHeight()
+    }, [props.customOptionForDropdownMenuProps])
 
     return (
         <Layout.DropdownMenu
@@ -241,17 +251,18 @@ export function FieldEditDropdownMenu(props) {
 }
 // ------------------------------------------------------------------------------------------
 export default function FormularyField(props) {
-    const fieldRef = useRef()
-    const isHoveringRef = useRef(false)
-    const fieldEditMenuButtonRef = useRef()
     const isNewField = typeof props.isNewField === 'boolean' ? props.isNewField : false
+
+    const fieldRef = useRef()
+    const isHoveringRef = useRef(isNewField)
+    const fieldEditMenuButtonRef = useRef()
 
     const { state: { selectedWorkspace }} = useContext(WorkspaceContext)
     const { state: { types } } = useContext(AppManagementTypesContext)
     const [isFieldEditDropdownMenuOpen, setIsFieldEditDropdownMenuOpen] = useState(isNewField)
     const [isHovering, _setIsHovering] = useState(isHoveringRef.current)
     const [isRenaming, setIsRenaming] = useState(isNewField)
-    const { getTypesById } = useFieldTypes(types)
+    const { getTypesById } = useFieldTypes(types.fieldTypes)
     const {
         registerOnDeleteOfField,
         registerOnDuplicateOfField,
@@ -319,7 +330,27 @@ export default function FormularyField(props) {
      */
     function onChangeFieldLabelName(newLabelName) {
         props.field.label.name = newLabelName
-        props.onUpdateFormulary()
+        onChangeFieldConfiguration(props.field, ['label', 'name'])
+    }
+
+    /**
+     * This is responsible for checking if the change to the field was valid or not. In other words, this means that the changes
+     * to the field are not valid, or they are. For example we cannot have a field with the same name as another field so we validate that here.
+     * 
+     * @param {object} newFieldData - Recieves the hole field data to check to the other fields inside of the formulary.
+     */
+    function areFieldChangesValid(newFieldData) {
+        const allFields = props.retrieveFields()
+        const labelNamesByFieldUUID = {}
+        
+        for (const field of allFields) {
+            labelNamesByFieldUUID[field.label.name] = field.uuid
+        }
+
+        if (labelNamesByFieldUUID[newFieldData.label.name] !== undefined && labelNamesByFieldUUID[newFieldData.label.name] !== props.field.uuid) {
+            return false
+        }
+        return true
     }
 
     /**
@@ -351,6 +382,10 @@ export default function FormularyField(props) {
             }
             objectToChangeValue[lastNamespace] = newObjectWithValueChanged[lastNamespace]
         }
+        
+        if (areFieldChangesValid(newFieldData) === false) {
+            console.log('Inválido')
+        }
         props.onUpdateFormulary()
     }
 
@@ -367,7 +402,7 @@ export default function FormularyField(props) {
    
     return (
         <Layout.Field
-        retrieveFieldsCallbacksRef={props.retrieveFieldsCallbacksRef}
+        registerRetrieveFieldsCallback={props.registerRetrieveFieldsCallback}
         fieldRef={fieldRef}
         fieldEditMenuButtonRef={fieldEditMenuButtonRef}
         FieldEditDropdownMenu={FieldEditDropdownMenu}

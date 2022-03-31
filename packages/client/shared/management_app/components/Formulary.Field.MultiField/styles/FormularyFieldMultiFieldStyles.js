@@ -8,10 +8,11 @@ styled.div`
     position: relative;
     display: flex;
     flex-direction: column;
-    background-color: ${props => props.theme.background};
+    border: 1px solid ${props => props.theme.background};
     padding: 5px 20px;
     margin-bottom: ${props => props.isLast ? '0' : '10px'};
     border-radius: 5px;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1)
 `
 :
 styled(View)``

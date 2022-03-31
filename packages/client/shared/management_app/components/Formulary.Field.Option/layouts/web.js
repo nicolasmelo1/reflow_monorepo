@@ -195,7 +195,7 @@ export function CustomOptionSelectWebLayout(props) {
 // ------------------------------------------------------------------------------------------
 export default function FormularyFieldOptionWebLayout(props) {
     const isADropdownMenu = typeof props.field?.optionField?.isDropdown === 'boolean' ? props.field.optionField.isDropdown : true
-    const OptionComponent = props.customOptionComponent.customOption
+    const OptionComponent = props.customOptionComponent
 
     return isADropdownMenu === true ? (
         <Styled.Container
@@ -208,8 +208,8 @@ export default function FormularyFieldOptionWebLayout(props) {
                 strings('formularyFieldOptionCustomHelperLabelIfIsAdmin') : 
                 strings('formularyFieldOptionCustomHelperLabelIfIsNotAdmin')}
             customCreateOptionComponent={props.customCreateOptionComponent}
-            selectedComponents={props.customSelectedComponent}
-            optionComponents={props.customOptionComponent}
+            selectedComponent={props.customSelectedComponent}
+            optionComponent={props.customOptionComponent}
             onCreateOption={props.onCreateOption}
             onOpen={props.onOpenSelect}
             isOpen={props.isOpen}

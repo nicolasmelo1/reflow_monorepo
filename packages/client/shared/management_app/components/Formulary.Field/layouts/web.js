@@ -134,7 +134,10 @@ export function FieldEditDropdownMenuWebLayout(props) {
                             {strings('formularyFieldEditEditLabel')}
                         </Styled.FieldEditMenuDropdownButton>
                         <Styled.FieldEditMenuDropdownButton
-                        onClick={() => props.onDuplicateField(props.field)}
+                        onClick={() => {
+                            props.onToggleEditFieldMenu(false)
+                            props.onDuplicateField(props.field)
+                        }}
                         >
                             {strings('formularyFieldEditDuplicateLabel')}
                         </Styled.FieldEditMenuDropdownButton>

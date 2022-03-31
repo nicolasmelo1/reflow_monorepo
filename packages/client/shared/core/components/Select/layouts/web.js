@@ -3,7 +3,12 @@ import { strings } from '../../../utils/constants'
 import Styled from '../styles'
 
 export default function SelectWebLayout(props) {
-    const CustomCreateOption = props.customCreateOptionComponent !== undefined ? props.customCreateOptionComponent : undefined
+    const isCustomCreateOptionDefined = ![null, undefined].includes( props.customCreateOptionComponent)
+    const CustomCreateOption = isCustomCreateOptionDefined ? props.customCreateOptionComponent : undefined
+    const isCustomOptionComponentDefined =  ![null, undefined].includes(props.optionComponent)
+    const CustomOptionComponent = isCustomOptionComponentDefined ? props.optionComponent : null
+    const isCustomSelectedComponentDefined = ![null, undefined].includes(props.selectedComponent)
+    const CustomSelectedComponent = isCustomSelectedComponentDefined ? props.selectedComponent : null
 
     return (
         <Styled.Container
@@ -13,13 +18,8 @@ export default function SelectWebLayout(props) {
             onClick={() => props.onToggleOpen(!props.isOpen)}
             >
                 {props.selectedOptions.map(option => {
-                    const CustomSelectedComponet = props.selectedComponents !== undefined && 
-                        props.selectedComponents[option.selectedComponent] !== undefined ? 
-                        props.selectedComponents[option.selectedComponent] :
-                        null
-                    
-                    return CustomSelectedComponet !== null ? (
-                        <CustomSelectedComponet 
+                    return isCustomSelectedComponentDefined ? (
+                        <CustomSelectedComponent 
                         key={option.value}
                         option={option}
                         onSelectOrRemoveOption={props.onSelectOrRemoveOption}
@@ -80,12 +80,7 @@ export default function SelectWebLayout(props) {
                             </Styled.HelperContainer>
                         ) : ''}
                         {props.options.map(option => {
-                            const CustomOptionComponent = props.optionComponents !== undefined && 
-                                props.optionComponents[option.optionComponent] !== undefined ? 
-                                props.optionComponents[option.optionComponent] :
-                                null
-
-                            return CustomOptionComponent !== null ? (
+                            return isCustomOptionComponentDefined ? (
                                 <CustomOptionComponent 
                                 key={option.value}
                                 option={option}
@@ -105,7 +100,7 @@ export default function SelectWebLayout(props) {
                             )
                         })}
                         {props.isToShowCreatable ? 
-                        ![null, undefined].includes(CustomCreateOption) ? (
+                        isCustomCreateOptionDefined ? (
                             <CustomCreateOption
                             onCreateOption={props.onCreateOption}
                             search={props.search}

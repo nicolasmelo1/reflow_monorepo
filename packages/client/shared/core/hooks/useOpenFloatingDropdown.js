@@ -78,7 +78,7 @@ export default function useOpenFloatingDropdown({
      * 
      * Important: We only change the state if the values actually change, otherwise we calculate but we don't change the state.
      */
-     function webLoadDropdownMenuTopOrDownAndDefineHeight() {
+    function webLoadDropdownMenuTopOrDownAndDefineHeight() {
         if (APP === 'web' && dropdownButtonRef.current && dropdownMenuRef.current) {
             const dropdownButtonRect = dropdownButtonRef.current.getBoundingClientRect()
             const dropdownMenuRect = dropdownMenuRef.current.getBoundingClientRect()
@@ -87,6 +87,7 @@ export default function useOpenFloatingDropdown({
             let maxHeight = window.innerHeight - dropdownButtonRect.bottom
             let yPosition = dropdownButtonRect.bottom
             let xPosition = dropdownButtonRect.left - ( isCentered === true ? (dropdownMenuRect.width / 2) - (dropdownButtonRect.width/2)  : 0 )
+
             if (doesPassBottom === true) {
                 // will load on top
                 yPosition = dropdownButtonRect.top - dropdownMenuRect.height
@@ -99,11 +100,8 @@ export default function useOpenFloatingDropdown({
                 if (xPosition < 0) xPosition = 0
             }
 
-            const hasPositionChanged = dropdownMenuPosition.wasCalculated !== true && (
-                dropdownMenuPosition.position.x !== xPosition ||
-                dropdownMenuPosition.position.y !== yPosition ||
+            const hasPositionChanged = dropdownMenuPosition.position.x !== xPosition || dropdownMenuPosition.position.y !== yPosition || 
                 dropdownMenuPosition.maxHeight !== maxHeight
-            )
 
             if (hasPositionChanged === true) {
                 setDropdownMenuPosition({

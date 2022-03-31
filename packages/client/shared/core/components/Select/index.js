@@ -22,9 +22,7 @@ import Layout from "./layouts"
  * @param {Object} props - The props that this component is able to recieve.
  * @param {Array<{
  *      label: string, 
- *      value: string | number,
- *      optionComponent: string | undefined, 
- *      selectedComponent: string | undefined
+ *      value: string | number
  * }>} [props.options=[]] - The options that the user can select from when we open the select options menu.
  * You see that 'label' and `value` are both required for each option but you can also set `optionComponent`
  * and `selectedComponent` to render a custom component instead of the default. The `optionComponent` will render
@@ -56,10 +54,10 @@ import Layout from "./layouts"
  * @param {(option: {label: string, value: string | number}) => void} [props.onRemove=undefined] - This is a callback that will be called when
  * the user removes an option. It recieves the hole option object that was removed. This means you can append more data to the options
  * besides the default `label` and `value` properties.
- * @param {{[nameOfTheComponent]: import('react').Component | (props) => import('react').ReactElement}} [props.optionComponents={}] - This is an object 
+ * @param {import('react').Component | (props) => import('react').ReactElement | null} [props.optionComponent=null] - This is an object 
  * that holds all of the custom components to load on the options. Each key is the name of the component to use that was defined in the `optionComponent` property
  * in `props.options`
- * @param {{[nameOfTheComponent]: import('react').Component | (props) => import('react').ReactElement}} [props.selectedComponents={}] - This is an object 
+ * @param {import('react').Component | (props) => import('react').ReactElement | null} [props.selectedComponent=null] - This is an object 
  * that holds all of the custom components to load on the selected options. Each key is the name of the component to use that was defined in the `selectedComponent`
  * property in `props.options`
  * @param {object} [props.customProps={}] - This are custom props that will be passed to the `optionComponents` and to the `selectedComponents`
@@ -416,8 +414,8 @@ export default function Select(props) {
         customProps={customProps}
         customHelperLabel={props.customHelperLabel}
         customCreateOptionComponent={props.customCreateOptionComponent}
-        optionComponents={props.optionComponents}
-        selectedComponents={props.selectedComponents}
+        optionComponent={props.optionComponent}
+        selectedComponent={props.selectedComponent}
         selectedOptions={filteredSelectedOptions}
         options={filteredOptions}
         search={search}

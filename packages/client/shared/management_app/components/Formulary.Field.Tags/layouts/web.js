@@ -206,8 +206,8 @@ export default function FormularyFieldTagsWebLayout(props) {
                 strings('formularyFieldOptionCustomHelperLabelIfIsAdmin') : 
                 strings('formularyFieldOptionCustomHelperLabelIfIsNotAdmin')}
             customCreateOptionComponent={props.customCreateOptionComponent}
-            selectedComponents={props.customSelectedComponent}
-            optionComponents={props.customOptionComponent}
+            selectedComponent={props.customSelectedComponent}
+            optionComponent={props.customOptionComponent}
             onCreateOption={props.onCreateOption}
             onOpen={props.onOpenSelect}
             isOpen={props.isOpen}

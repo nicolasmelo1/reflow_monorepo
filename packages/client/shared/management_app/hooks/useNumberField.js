@@ -129,7 +129,7 @@ export default function useNumberField(
      * does not exist.
      */
     function checkIfNumberFieldDataExistsAndIfNotCreateIt() {
-        const doesNumberFieldDataExist = typeof field.numberField === 'object'
+        const doesNumberFieldDataExist = typeof field.numberField === 'object' && ![null, undefined].includes(field.numberField)
         if (doesNumberFieldDataExist === false) {
             field.numberField = createNumberFieldData()
         }
@@ -138,8 +138,8 @@ export default function useNumberField(
     }
 
     useEffect(() => {
-        registerOnDuplicateOfField(onDuplicateNumberField)
         checkIfNumberFieldDataExistsAndIfNotCreateIt()
+        registerOnDuplicateOfField(onDuplicateNumberField)
     }, [])
 
     /**

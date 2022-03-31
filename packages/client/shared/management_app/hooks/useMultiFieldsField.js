@@ -1,19 +1,19 @@
-import { useState, useEffect, useContext, useRef } from 'react'
-import { AppManagementTypesContext } from '../../contexts'
-import { generateUUID } from '../../../../../shared/utils'
-import Layout from './layouts'
+import { useRef, useEffect, useState, useContext } from 'react'
+import { AppManagementTypesContext } from '../contexts'
+import { generateUUID } from '../../../../shared/utils'
 
-export default function FormularyFieldMultiField(props) {
+export default function useMultiFieldsField(
+    fieldData, onChangeField
+) {
     const fieldTypesRef = useRef([])
     const hasFieldTypesChangedRef = useRef(true)
     
+    const [field, setField] = useState(fieldData)
     const [sections, setSections] = useState([])
     const [newFieldUUID, setNewFieldUUID] = useState(null)
     const [activeSectionUUID, setActiveSectionUUID] = useState(null)
 
     const { state: { types: { fieldTypes } } } = useContext(AppManagementTypesContext)
-
-
     /**
      * When we retrieve the fields for any place inside of the formulary we need to retrieve the fields 
      * of the fields that contain fields. This might seem confusing at first but it makes sense.
@@ -44,9 +44,17 @@ export default function FormularyFieldMultiField(props) {
      *      required: boolean
      * }>} - Returns an array of the fields inside of this specific field.
      */
-    function retrieveFields() {
+    function retrieveFieldsOfMultiFieldCallback() {
         return props.field.multiFieldsField.fields
     }
+
+    function createMultiFieldsFieldData({ fields=[] } = {}) {
+        return {
+            uuid: generateUUID(),
+            fields
+        }
+    }
+
 
     function onAddSection() {
         const newSection = {
@@ -106,10 +114,50 @@ export default function FormularyFieldMultiField(props) {
      * 
      * @param {string} fieldUuid - The uuid of the field that we want to remove.
      */
-    function onRemoveField(fieldUUID) {
-        const newMultiFieldFields = props.field.multiFieldsField.fields.filter(field => field.uuid !== fieldUUID)
+    function onRemoveField(fieldData) {
+        const newMultiFieldFields = props.field.multiFieldsField.fields.filter(field => field.uuid !== fieldData.uuid)
         props.field.multiFieldsField.fields = newMultiFieldFields
         props.onUpdateFormulary()
+    }
+
+    function onDuplicateField(fieldUUID, newField) {
+        const fieldIndexInFormulary = props.field.multiFieldsField.fields.findIndex(field => field.uuid === fieldUUID)
+        const doesExistFieldIndexInFormulary = fieldIndexInFormulary !== -1
+        
+        if (doesExistFieldIndexInFormulary) {
+            const allFields = retrieveFields()
+            const fieldLabelNames = allFields.map(field => field.label.name)
+            const copyNumber = 0
+            
+            while (fieldLabelNames.includes(newField.label.name)) {
+                let duplicatedFieldLabelName = `${newField.label.name} ${strings('formularyCopyFieldLabel')}`
+                if (copyNumber > 0) {
+                    duplicatedFieldLabelName = `${duplicatedFieldLabelName} ${copyNumber}`
+                }
+                newField.label.name = duplicatedFieldLabelName
+                copyNumber++
+            }
+
+            props.field.multiFieldsField.fields.splice(fieldIndexInFormulary + 1, 0, newField)
+            setNewFieldUUID(newField.uuid)
+        }
+    }
+
+    function onDuplicateMultiFieldsField(newField) {
+
+    }
+
+    /**
+     * If the field is not an attachment, or at least it has just been changed to an attachment, then we need to create the
+     * attachment field data. This data will be used to configure the `attachment` field type with custom data.
+     */
+     function onDefaultCreateMultiFieldsOptionsIfDoesNotExist() {
+        const doesFieldMultiFieldsDataExists = typeof field.multiFields === 'object' && ![null, undefined].includes(field.multiFields)
+        if (doesFieldMultiFieldsDataExists === false) {
+            field.multiFields = createMultiFieldsFieldData()
+            setField(field)
+            onChangeField(field, ['attachmentField'])
+        }
     }
 
     useEffect(() => {
@@ -117,7 +165,7 @@ export default function FormularyFieldMultiField(props) {
             typeof props.registerRetrieveFieldsCallback === 'function'
         if (doesRegisterRetrieveFieldsCallbackDefined) {
             const fieldUUID = props.field.uuid
-            props.registerRetrieveFieldsCallback(fieldUUID, retrieveFields)
+            props.registerRetrieveFieldsCallback(fieldUUID, retrieveFieldsOfMultiFieldCallback)
         }
     }, [])
 
@@ -125,20 +173,14 @@ export default function FormularyFieldMultiField(props) {
         hasFieldTypesChangedRef.current = true
         getFieldTypes()
     }, [fieldTypes])
-    
-    return (
-        <Layout
-        sections={sections}
-        field={props.field}
-        fieldTypes={getFieldTypes()}
-        onAddSection={onAddSection}
-        onRemoveSection={onRemoveSection}
-        onAddField={onAddField}
-        onRemoveField={onRemoveField}
-        activeSectionUUID={activeSectionUUID}
-        newFieldUUID={newFieldUUID}
-        retrieveFields={props.retrieveFields}
-        onUpdateFormulary={props.onUpdateFormulary}
-        />
-    )
+
+    /**
+     * When the external field changes we should also change the internal field value.
+     */
+     useEffect(() => {
+        const isFieldDifferentFromStateField = typeof fieldData !== typeof field && JSON.stringify(fieldData) !== JSON.stringify(field)
+        if (isFieldDifferentFromStateField) {
+            setField(fieldData)
+        }
+    }, [fieldData])
 }

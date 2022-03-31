@@ -120,7 +120,7 @@ styled.div`
     min-height: 50px;
     top: ${props => props.editMenuPosition.position.y}px;
     left: ${props => props.editMenuPosition.position.x}px;
-    max-height: ${props => props.editMenuPosition.maxHeight !== null ? `${props.editMenuPosition.maxHeight}px` : 'var(--app-height)'};
+    ${props => props.editMenuPosition.maxHeight !== null ? `max-height: ${props.editMenuPosition.maxHeight}px;` : ''}
     overflow-y: auto;
     opacity: ${props => props.editMenuPosition.wasCalculated ? '1' : '0'};
     transition: opacity 0.2s ease-in-out;

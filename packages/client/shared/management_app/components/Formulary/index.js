@@ -1,14 +1,14 @@
+import { APP } from '../../../conf'
 import { useState, useEffect, useRef, useContext } from 'react'
 import axios from 'axios'
 import managementAppAgent from '../../agent'
 import { AppManagementTypesContext, FormularyContext } from '../../contexts'
+import { strings } from '../../../core'
+import { deepCopy } from '../../../../../shared/utils'
 import Layout from './layouts'
-import { APP } from '../../../conf'
-import { deepCopy, generateUUID } from '../../../../../shared/utils'
 
 export default function Formulary(props) {
     const sourceRef = useRef()
-    const duplicateFieldsCallbackRef = useRef({})
     const retrieveFieldsCallbacksRef = useRef({})
     const formularyFieldsCacheRef = useRef([])
     const isToRecalculateFormularyFieldsRef = useRef(true)
@@ -29,7 +29,6 @@ export default function Formulary(props) {
      * 
      * @param {object} fieldData - The data of the field that is being added.
      * @param {number} indexToAdd - The index of where the field should be added to the formulary.
-     * 
      */
     function onAddField(fieldData, indexToAdd) {
         fieldData.order = indexToAdd
@@ -49,24 +48,24 @@ export default function Formulary(props) {
     function onDuplicateField(fieldUUID, newField) {
         const fieldIndexInFormulary = formulary.fields.findIndex(field => field.uuid === fieldUUID)
         const doesExistFieldIndexInFormulary = fieldIndexInFormulary !== -1
+        
         if (doesExistFieldIndexInFormulary) {
-            formulary.fields.splice(fieldIndexInFormulary + 1, 0, newField)
-            onUpdateFormulary(props.formulary)
+            const allFields = retrieveFields()
+            const fieldLabelNames = allFields.map(field => field.label.name)
+            const copyNumber = 0
+            
+            while (fieldLabelNames.includes(newField.label.name)) {
+                let duplicatedFieldLabelName = `${newField.label.name} ${strings('formularyCopyFieldLabel')}`
+                if (copyNumber > 0) {
+                    duplicatedFieldLabelName = `${duplicatedFieldLabelName} ${copyNumber}`
+                }
+                newField.label.name = duplicatedFieldLabelName
+                copyNumber++
+            }
 
-            /*
-            const newField = deepCopy(formulary.fields[fieldIndexInFormulary])
-            newField.uuid = generateUUID()
-            newField.options = newField.options.map(option => { 
-                option.uuid = generateUUID()
-                return option
-            })
-            if (![null, undefined].includes(newField.connectionField)) newField.connectionField.uuid = generateUUID()
-            if (![null, undefined].includes(newField.userField)) newField.userField.uuid = generateUUID()
-            if (![null, undefined].includes(newField.numberField)) newField.numberField.uuid = generateUUID()
-            if (![null, undefined].includes(newField.dateField)) newField.dateField.uuid = generateUUID()
-            if (![null, undefined].includes(newField.formulaField)) newField.formulaField.uuid = generateUUID()
             formulary.fields.splice(fieldIndexInFormulary + 1, 0, newField)
-            onUpdateFormulary(props.formulary)*/
+            setNewFieldUUID(newField.uuid)
+            onUpdateFormulary(props.formulary)
         }
     }
 
@@ -111,8 +110,8 @@ export default function Formulary(props) {
      * 
      * With this generalistic approach we can have the logic needed inside of the fields directly.
      * 
-     * So how does this work? We pass the `retrieveFieldsCallbacksRef` to the fields, if some field has fields in it, 
-     * it should tie a callback function in this ref that will be called to retrieve the fields.
+     * So how does this work? We pass the `registerRetrieveFieldsCallback` to the fields, if some field has fields in it, 
+     * it should register the callback using this function.
      * 
      * So for example in the `multi_fields` component we will have something like: 
      * ```
@@ -121,10 +120,7 @@ export default function Formulary(props) {
      * }
      * 
      * useEffect(() => {
-     *      props.retrieveFieldsCallbacksRef.current = {
-     *          ...props.retrieveFieldsCallbacksRef
-     *          [props.field.uuid]: retrieveFields
-     *      }
+     *      props.registerRetrieveFieldsCallback(props.field.uuid, retrieveFields)
      * }, [])
      * ```
      * 
@@ -183,6 +179,38 @@ export default function Formulary(props) {
         return formularyFieldsCacheRef.current
     }
 
+    /**
+     * This function is used to register the callback function that will be called to retrieve the fields of a field.
+     * For example, `multi_fields` field type has fields in it. So when we are retrieving all of the fields of the formulary
+     * we need to know how to retrieve those fields. Instead of appending this logic to the formulary (since we can have
+     * multiple field types) we keep the logic on the field, so when we pass over this field we retrieve the fields inside of it.
+     * 
+     * @param {string} fieldUUID - The uuid of the field that has fields in it.
+     * @param {() => Array<{
+     *      uuid: string,
+     *      name: string,
+     *      labelName: string,
+     *      labelIsHidden: boolean,
+     *      fieldIsHidden: boolean,
+     *      fieldTypeId: number,
+     *      label: {
+     *          name: string
+     *      },
+     *      isUnique: boolean,
+     *      options: Array<{
+     *          uuid: string, 
+     *          value: string, 
+     *          order: number, 
+     *          color: string
+     *      }>,
+     *      placeholder: null | string,
+     *      required: boolean
+     * }>} callback - The function that will be called to retrieve the fields of the field.
+     */
+    function registerRetrieveFieldsCallback(fieldUUID, callback) {
+        retrieveFieldsCallbacksRef.current[fieldUUID] = callback
+    }
+
     useEffect(() => {
         sourceRef.current = axios.CancelToken.source()
         if (APP === 'web') {
@@ -221,7 +249,7 @@ export default function Formulary(props) {
 
     return (
         <Layout
-        retrieveFieldsCallbacksRef={retrieveFieldsCallbacksRef}
+        registerRetrieveFieldsCallback={registerRetrieveFieldsCallback}
         formularyContainerRef={formularyContainerRef}
         formularyContainerOffset={formularyContainerOffset}
         fieldTypes={fieldTypes}

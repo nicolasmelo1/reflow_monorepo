@@ -13,7 +13,7 @@ import draftAgent from '../agent'
  * 
  * @returns {{
  *      uploadFile: (file: File) => Promise<string>,
- *      retrieveUrl: (draftUUID: string) => Promise<string>,
+ *      retrieveUrl: (draftUUID: string) => Promise<string>
  * }} - Return
  */
 function useDraft(workspaceUUID) {

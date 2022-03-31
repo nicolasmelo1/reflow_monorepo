@@ -46,7 +46,7 @@ export default function FormularyWebLayout(props) {
                         key={field.uuid}
                         >
                             <FormularyField
-                            retrieveFieldsCallbacksRef={props.retrieveFieldsCallbacksRef}
+                            registerRetrieveFieldsCallback={props.registerRetrieveFieldsCallback}
                             field={field}
                             isNewField={props.newFieldUUID === field.uuid}
                             onUpdateFormulary={props.onUpdateFormulary}

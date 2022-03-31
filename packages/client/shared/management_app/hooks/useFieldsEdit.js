@@ -16,9 +16,9 @@ import { deepCopy, generateUUID } from '../../../../shared/utils'
  * inside here is the one that is called when the user clicks to remove, and then this function does some work and call the
  * `onRemoveFieldCallback` function that is passed in here.
  */
-export default function useFieldEdit(onDuplicateFieldCallback, onRemoveFieldCallback) {
-    const onDuplicateCallbackRef = useRef(null)
-    const onDeleteCallbackRef = useRef(null)
+export default function useFieldEdit(fields, onChangeFields) {
+    const onDuplicateCallbackRef = useRef({})
+    const onDeleteCallbackRef = useRef({})
     const componentOptionForDropdownMenuRef = useRef(null)
     const [customOptionForDropdownMenuProps, setCustomOptionForDropdownMenuProps] = useState({}) 
 
