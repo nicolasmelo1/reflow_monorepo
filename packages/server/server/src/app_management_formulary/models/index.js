@@ -303,7 +303,7 @@ class Field extends models.Model {
 class FieldMultiField extends models.Model {
     attributes = {
         uuid: new models.fields.UUIDField({ autoGenerate: true }),
-        field:  new models.fields.OneToOneField({
+        field: new models.fields.OneToOneField({
             relatedTo: 'Field',
             onDelete: models.fields.ON_DELETE.CASCADE
         })

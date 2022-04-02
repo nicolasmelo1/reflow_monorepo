@@ -1,19 +1,42 @@
 import { useRef, useEffect, useState, useContext } from 'react'
 import { AppManagementTypesContext } from '../contexts'
 import { generateUUID } from '../../../../shared/utils'
+import useFieldsEdit from './useFieldsEdit'
 
 export default function useMultiFieldsField(
-    fieldData, onChangeField
+    fieldData, onChangeField, registerOnDuplicateOfField, registerRetrieveFieldsOfField
 ) {
     const fieldTypesRef = useRef([])
     const hasFieldTypesChangedRef = useRef(true)
-    
-    const [field, setField] = useState(fieldData)
-    const [sections, setSections] = useState([])
-    const [newFieldUUID, setNewFieldUUID] = useState(null)
-    const [activeSectionUUID, setActiveSectionUUID] = useState(null)
+    const fieldRef = useRef(fieldData)
 
+    const [field, _setField] = useState(fieldData)
+    const [sections, setSections] = useState([])
+    const [activeSectionUUID, setActiveSectionUUID] = useState(null)
+    
     const { state: { types: { fieldTypes } } } = useContext(AppManagementTypesContext)
+
+    const {
+        newFieldUUID,
+        registerOnDeleteOfField: registerOnDeleteOfFieldFromMultiFieldsField,
+        registerOnDuplicateOfField: registerOnDuplicateOfFieldFromMultiFieldsField,
+        onAddField,
+        onRemoveField: onRemoveFieldFromMultiFieldsField,
+        onDuplicateField: onDuplicateFieldFromMultiFieldsField,
+    } = useFieldsEdit(field.multiFieldsField.fields, onChangeFields)
+
+    function setField(state) {
+        fieldRef.current = state
+        _setField(state)
+    }
+
+
+    function onChangeFields(newFields) {
+        field.multiFieldsField.fields = newFields
+        setField(field)
+        onChangeField({...field})
+    }
+
     /**
      * When we retrieve the fields for any place inside of the formulary we need to retrieve the fields 
      * of the fields that contain fields. This might seem confusing at first but it makes sense.
@@ -45,7 +68,7 @@ export default function useMultiFieldsField(
      * }>} - Returns an array of the fields inside of this specific field.
      */
     function retrieveFieldsOfMultiFieldCallback() {
-        return props.field.multiFieldsField.fields
+        return fieldRef.current.multiFieldsField.fields
     }
 
     function createMultiFieldsFieldData({ fields=[] } = {}) {
@@ -54,7 +77,6 @@ export default function useMultiFieldsField(
             fields
         }
     }
-
 
     function onAddSection() {
         const newSection = {
@@ -95,78 +117,52 @@ export default function useMultiFieldsField(
     }
 
     /**
-     * Callback for adding a field inside of the current `multi_field` field.
+     * When the user adds a new field inside of the multi_fields field type we need to make sure of the active section uuid
+     * this ways we will not open the field edit menu in all of the fields.
      * 
-     * @param {object} fieldData - The data of the field that is being added.
-     * @param {number} indexToAdd - The index that we need to add the field to.
+     * @param {number} fieldTypeId - The id of the fieldType selected to be added.
+     * @param {number} indexToAddField - The index that we want to add the field to.
+     * @param {string} activeSectionUUID - The uuid of the section that we are adding the field to. Each section repeats the field
+     * N times. What this does is that we guarantee that the field edit menu will be opened just once.
      */
-    function onAddField(fieldData, indexToAdd, activeSectionUUID) {
-        fieldData.order = indexToAdd
-        props.field.multiFieldsField.fields.splice(indexToAdd, 0, fieldData)
-        setNewFieldUUID(fieldData.uuid)
+    function onAddFieldFromMultiFieldsField(fieldTypeId, indexToAddField, activeSectionUUID) {
+        onAddField(fieldTypeId, indexToAddField)
         setActiveSectionUUID(activeSectionUUID)
-        props.onUpdateFormulary()
     }
 
     /**
-     * This function is used when the user wants to remove a field from the multi_field field. 
-     * For that we just filter the field uuid out of the multi_field and then we update the formulary.
+     * When we duplicate the `multi_fields` field type what we do is that we call the onDuplicateField
+     * for each of the fields inside. That's because we can't have fields with the same name inside, and
+     * we also have some special logic for each field type that needs to taken into account.
      * 
-     * @param {string} fieldUuid - The uuid of the field that we want to remove.
+     * @param {object} newField - The new field that was duplicated.
      */
-    function onRemoveField(fieldData) {
-        const newMultiFieldFields = props.field.multiFieldsField.fields.filter(field => field.uuid !== fieldData.uuid)
-        props.field.multiFieldsField.fields = newMultiFieldFields
-        props.onUpdateFormulary()
-    }
-
-    function onDuplicateField(fieldUUID, newField) {
-        const fieldIndexInFormulary = props.field.multiFieldsField.fields.findIndex(field => field.uuid === fieldUUID)
-        const doesExistFieldIndexInFormulary = fieldIndexInFormulary !== -1
-        
-        if (doesExistFieldIndexInFormulary) {
-            const allFields = retrieveFields()
-            const fieldLabelNames = allFields.map(field => field.label.name)
-            const copyNumber = 0
-            
-            while (fieldLabelNames.includes(newField.label.name)) {
-                let duplicatedFieldLabelName = `${newField.label.name} ${strings('formularyCopyFieldLabel')}`
-                if (copyNumber > 0) {
-                    duplicatedFieldLabelName = `${duplicatedFieldLabelName} ${copyNumber}`
-                }
-                newField.label.name = duplicatedFieldLabelName
-                copyNumber++
-            }
-
-            props.field.multiFieldsField.fields.splice(fieldIndexInFormulary + 1, 0, newField)
-            setNewFieldUUID(newField.uuid)
-        }
-    }
-
-    function onDuplicateMultiFieldsField(newField) {
-
+    async function onDuplicateMultiFieldsField(newField) {
+        newField.multiFieldsField.fields = await Promise.all(
+            newField.multiFieldsField.fields.map(field => 
+                onDuplicateFieldFromMultiFieldsField(field, true)
+            )
+        )
+        newField.multiFieldsField.uuid = generateUUID()
     }
 
     /**
      * If the field is not an attachment, or at least it has just been changed to an attachment, then we need to create the
      * attachment field data. This data will be used to configure the `attachment` field type with custom data.
      */
-     function onDefaultCreateMultiFieldsOptionsIfDoesNotExist() {
-        const doesFieldMultiFieldsDataExists = typeof field.multiFields === 'object' && ![null, undefined].includes(field.multiFields)
+    function onDefaultCreateMultiFieldsOptionsIfDoesNotExist() {
+        const doesFieldMultiFieldsDataExists = typeof field.multiFieldsField === 'object' && ![null, undefined].includes(field.multiFieldsField)
         if (doesFieldMultiFieldsDataExists === false) {
-            field.multiFields = createMultiFieldsFieldData()
+            field.multiFieldsField = createMultiFieldsFieldData()
             setField(field)
-            onChangeField(field, ['attachmentField'])
+            onChangeField(field, ['multiFieldsField'])
         }
     }
 
     useEffect(() => {
-        const doesRegisterRetrieveFieldsCallbackDefined = ![null, undefined].includes(props.registerRetrieveFieldsCallback) &&
-            typeof props.registerRetrieveFieldsCallback === 'function'
-        if (doesRegisterRetrieveFieldsCallbackDefined) {
-            const fieldUUID = props.field.uuid
-            props.registerRetrieveFieldsCallback(fieldUUID, retrieveFieldsOfMultiFieldCallback)
-        }
+        onDefaultCreateMultiFieldsOptionsIfDoesNotExist()
+        registerOnDuplicateOfField(field.uuid, onDuplicateMultiFieldsField)
+        registerRetrieveFieldsOfField(field.uuid, retrieveFieldsOfMultiFieldCallback)
     }, [])
 
     useEffect(() => {
@@ -183,4 +179,18 @@ export default function useMultiFieldsField(
             setField(fieldData)
         }
     }, [fieldData])
+
+    return {
+        sections,
+        activeSectionUUID,
+        onAddSection,
+        onRemoveSection,
+        getFieldTypes,
+        newFieldUUID,
+        onAddFieldFromMultiFieldsField,
+        onRemoveFieldFromMultiFieldsField,
+        onDuplicateFieldFromMultiFieldsField,
+        registerOnDeleteOfFieldFromMultiFieldsField,
+        registerOnDuplicateOfFieldFromMultiFieldsField
+    }
 }

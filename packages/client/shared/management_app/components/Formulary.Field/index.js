@@ -264,11 +264,7 @@ export default function FormularyField(props) {
     const [isRenaming, setIsRenaming] = useState(isNewField)
     const { getTypesById } = useFieldTypes(types.fieldTypes)
     const {
-        registerOnDeleteOfField,
-        registerOnDuplicateOfField,
         registerComponentForFieldSpecificOptionsForDropdownMenu,
-        onDuplicateField,
-        onRemoveField,
         componentOptionForDropdownMenuRef,
         customOptionForDropdownMenuProps
      } = useFieldEdit(props.onDuplicateField, props.onRemoveField)
@@ -277,16 +273,6 @@ export default function FormularyField(props) {
     function setIsHovering(isUserHoveringOnField=!isHovering) {
         isHoveringRef.current = isUserHoveringOnField
         _setIsHovering(isUserHoveringOnField)
-    }
-
-    /**
-     * This is used to toggle the edit dropdown menu of the field. This means that the
-     * settings of the field will be shown or closed.
-     * 
-     * @param {boolean} isOpen - Is the field edit dropdown menu open or closed?
-     */
-    function onToggleEditFieldMenu(isOpen=!isEditMenuOpen) {
-        setIsFieldEditDropdownMenuOpen(isOpen)
     }
 
     /**
@@ -418,15 +404,16 @@ export default function FormularyField(props) {
         setIsRenaming={setIsRenaming}
         isRenaming={isRenaming}
         isNewField={isNewField}
-        registerOnDeleteOfField={registerOnDeleteOfField}
-        registerOnDuplicateOfField={registerOnDuplicateOfField}
+        registerOnDuplicateOfField={props.registerOnDuplicateOfField}
+        registerOnDeleteOfField={props.registerOnDeleteOfField}
+        registerRetrieveFieldsOfField={props.registerRetrieveFieldsOfField}
         registerComponentForFieldSpecificOptionsForDropdownMenu={registerComponentForFieldSpecificOptionsForDropdownMenu}
         componentOptionForDropdownMenuRef={componentOptionForDropdownMenuRef}
         customOptionForDropdownMenuProps={customOptionForDropdownMenuProps}
         onChangeFieldLabelName={onChangeFieldLabelName}
         onUpdateFormulary={props.onUpdateFormulary}
-        onRemoveField={onRemoveField}
-        onDuplicateField={onDuplicateField}
+        onRemoveField={props.onRemoveField}
+        onDuplicateField={props.onDuplicateField}
         />
     )
 }

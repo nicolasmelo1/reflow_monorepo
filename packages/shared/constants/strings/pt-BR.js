@@ -15,6 +15,7 @@ module.exports = {
         workspaceNotUniqueErrorMessage: 'Nome do workspace deve ser único',
         formularyToolbarShareButtonLabel: 'Compartilhar',
         formularyAddFieldTooltipButtonLabel: 'Adicionar novo campo',
+        formularyNewFieldLabel: 'Novo',
         formularyCopyFieldLabel: 'cópia',
         formularyFieldEditIsRequiredLabel: 'Obrigatório',
         formularyFieldEditLabelIsHiddenLabel: 'Ocultar titulo',

@@ -11,26 +11,7 @@ import Layout from './layouts'
  * 
  * @param {object} props - The props of the component.
  * @param {object} props.fieldTypes - All of the field types accepted that we can add to the formulary/field.
- * @param {(fieldData: {
- *      fieldIsHidden: boolean,
- *      isUnique: boolean,
- *      labelIsHidden: boolean,
- *      fieldTypeId: number,
- *      labelName: string,
- *      label: {
- *          name: string
- *      },
- *      name: string,
- *      options: Array<{
- *          uuid: string, 
- *          value: string, 
- *          order: number, 
- *          color: string
- *      }>,
- *      placeholder: null | string,
- *      required: boolean,
- *      uuid: string}
- * ) => void} props.onAddField - A function that is called when the user clicks the button to add a new field.
+ * @param {(fieldTypeId: number) => void} props.onAddField - A function that is called when the user clicks the button to add a new field.
  */
 export default function FormularyAddField(props) {
     const [isHovered, setIsHovered] = useState(false)
@@ -66,24 +47,7 @@ export default function FormularyAddField(props) {
     function onAddNewField(fieldTypeId) {
         onToggleFieldTypeOptionSelectionMenu(false)
         onToggleHover(false)
-        props.onAddField({
-            fieldIsHidden: false,
-            isUnique: false,
-            labelIsHidden: false,
-            fieldTypeId,
-            label: {
-                name: getFieldTypeLabelNameByFieldTypeId(fieldTypeId),
-                labelImageBucket: null,
-                labelImagePath: null,
-                labelImageUrl: null
-            },
-            labelName: getFieldTypeLabelNameByFieldTypeId(fieldTypeId),
-            name: 'novocampo',
-            options: [],
-            placeholder: null,
-            required: false,
-            uuid: generateUUID()
-        })
+        props.onAddField(fieldTypeId)
     }
 
     /**

@@ -320,7 +320,7 @@ export default function useOptionOrTagsField(
      */
     useEffect(() => {
         onDefaultCreateOptionOrTagsOptionsIfDoesNotExist()
-        registerOnDuplicateOfField(onDuplicateOptionOrTagField)
+        registerOnDuplicateOfField(field.uuid, onDuplicateOptionOrTagField)
     }, [])
 
     /**

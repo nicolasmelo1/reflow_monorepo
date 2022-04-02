@@ -9,6 +9,19 @@ export default function FormularyFieldMultiFieldWebLayout(props) {
 
     return (
         <div>
+            <div style={{display: 'none'}}>
+                {fieldsInside.map(fieldInside => (
+                    <FormularyField
+                    key={fieldInside.uuid}
+                    retrieveFields={props.retrieveFields}
+                    onRemoveField={props.onRemoveField}
+                    onUpdateFormulary={props.onUpdateFormulary}
+                    field={fieldInside}
+                    registerOnDeleteOfField={props.registerOnDeleteOfFieldFromMultiFieldsField}
+                    registerOnDuplicateOfField={props.registerOnDuplicateOfFieldFromMultiFieldsField}
+                    />
+                ))}
+            </div>
             <Styled.AddButton
             onClick={() => props.onAddSection()}
             hasSections={props.sections.length > 0}
@@ -29,7 +42,7 @@ export default function FormularyFieldMultiFieldWebLayout(props) {
                     </Styled.RemoveButton>
                     <FormularyAddField
                     fieldTypes={props.fieldTypes}
-                    onAddField={(fieldData) => props.onAddField(fieldData, 0, section.uuid)}
+                    onAddField={(fieldTypeId) => props.onAddFieldFromMultiFieldsField(fieldTypeId, 0, section.uuid)}
                     />
                     {fieldsInside.map((fieldInside, index) => (
                         <Fragment
@@ -37,17 +50,20 @@ export default function FormularyFieldMultiFieldWebLayout(props) {
                         >
                             <FormularyField
                             retrieveFields={props.retrieveFields}
-                            onRemoveField={props.onRemoveField}
+                            onRemoveField={props.onRemoveFieldFromMultiFieldsField}
+                            onDuplicateField={props.onDuplicateFieldFromMultiFieldsField}
                             onUpdateFormulary={props.onUpdateFormulary}
                             isNewField={
                                 fieldInside.uuid === props.newFieldUUID && 
                                 props.activeSectionUUID === section.uuid
                             }
                             field={fieldInside}
+                            registerOnDeleteOfField={props.registerOnDeleteOfFieldFromMultiFieldsField}
+                            registerOnDuplicateOfField={props.registerOnDuplicateOfFieldFromMultiFieldsField}
                             />
                             <FormularyAddField
                             fieldTypes={props.fieldTypes}
-                            onAddField={(fieldData) => props.onAddField(fieldData, index + 1)}
+                            onAddField={(fieldTypeId) => props.onAddFieldFromMultiFieldsField(fieldTypeId, index + 1, section.uuid)}
                             />
                         </Fragment>
                     ))}

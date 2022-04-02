@@ -8,7 +8,7 @@ import { AppManagementTypesContext } from '../contexts'
  * Useful hook created for handling field types. Since the types can change dependending on the context you can send the
  * types array so we will use it inside of the hook, otherwise, by default it will retrieve the fieldTypes from the context.
  * 
- * @param {Array<{id: number, name: string}> | undefined} types - The field types to be considered and use depending on the 
+ * @param {Array<{id: number, name: string}> | undefined} [types=undefined] - The field types to be considered and use depending on the 
  * context.
  * 
  * @returns {{

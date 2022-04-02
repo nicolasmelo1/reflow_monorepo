@@ -406,7 +406,7 @@ export default function useFormulaField(
 
     useEffect(() => {
         onDefaultCreateFormulaOptionsIfDoesNotExist()
-        registerOnDuplicateOfField(onDuplicateFormulaField)
+        registerOnDuplicateOfField(field.uuid, onDuplicateFormulaField)
     }, [])
 
     /**

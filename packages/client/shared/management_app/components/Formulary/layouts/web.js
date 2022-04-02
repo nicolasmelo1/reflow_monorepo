@@ -39,14 +39,16 @@ export default function FormularyWebLayout(props) {
                 >
                     <FormularyAddField
                     fieldTypes={props.fieldTypes}
-                    onAddField={(fieldData) => props.onAddField(fieldData, 0)}
+                    onAddField={(fieldTypeId) => props.onAddField(fieldTypeId, 0)}
                     />
                     {formularyFields.map((field, index) => (
                         <Fragment
                         key={field.uuid}
                         >
                             <FormularyField
-                            registerRetrieveFieldsCallback={props.registerRetrieveFieldsCallback}
+                            registerOnDuplicateOfField={props.registerOnDuplicateOfField}
+                            registerOnDeleteOfField={props.registerOnDeleteOfField}
+                            registerRetrieveFieldsOfField={props.registerRetrieveFieldsOfField}
                             field={field}
                             isNewField={props.newFieldUUID === field.uuid}
                             onUpdateFormulary={props.onUpdateFormulary}
@@ -56,7 +58,7 @@ export default function FormularyWebLayout(props) {
                             />
                             <FormularyAddField
                             fieldTypes={props.fieldTypes}
-                            onAddField={(fieldData) => props.onAddField(fieldData, index + 1)}
+                            onAddField={(fieldTypeId) => props.onAddField(fieldTypeId, index + 1)}
                             />
                         </Fragment>
                     ))}

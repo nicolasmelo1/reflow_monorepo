@@ -139,7 +139,7 @@ export default function useNumberField(
 
     useEffect(() => {
         checkIfNumberFieldDataExistsAndIfNotCreateIt()
-        registerOnDuplicateOfField(onDuplicateNumberField)
+        registerOnDuplicateOfField(field.uuid, onDuplicateNumberField)
     }, [])
 
     /**

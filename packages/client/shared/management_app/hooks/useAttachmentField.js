@@ -226,7 +226,7 @@ export default function useAttachmentField(fieldData, onChangeField, registerOnD
      */
     useEffect(() => {
         onDefaultCreateAttachmentOptionsIfDoesNotExist()
-        registerOnDuplicateOfField(onDuplicateField)
+        registerOnDuplicateOfField(field.uuid, onDuplicateField)
     }, [])
 
     /**
