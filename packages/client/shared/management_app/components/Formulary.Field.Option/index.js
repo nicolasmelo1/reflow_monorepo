@@ -309,7 +309,7 @@ export default function FormularyFieldOption(props) {
         onChangeOptionColor,
         retrieveUniqueCustomColor
     } = useOptionOrTagsField(
-        props.field, props.onChangeFieldConfiguration, 
+        props.field, props.onChangeField, 
         props.registerComponentForFieldSpecificOptionsForDropdownMenu, 
         props.registerOnDuplicateOfField,
         'option'

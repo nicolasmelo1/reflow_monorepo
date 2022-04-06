@@ -14,8 +14,8 @@ export default function FormularyFieldMultiFieldWebLayout(props) {
                     <FormularyField
                     key={fieldInside.uuid}
                     retrieveFields={props.retrieveFields}
-                    onRemoveField={props.onRemoveField}
                     onUpdateFormulary={props.onUpdateFormulary}
+                    onChangeField={props.onChangeFieldFromMultiFieldsField}
                     field={fieldInside}
                     registerOnDeleteOfField={props.registerOnDeleteOfFieldFromMultiFieldsField}
                     registerOnDuplicateOfField={props.registerOnDuplicateOfFieldFromMultiFieldsField}
@@ -52,6 +52,7 @@ export default function FormularyFieldMultiFieldWebLayout(props) {
                             retrieveFields={props.retrieveFields}
                             onRemoveField={props.onRemoveFieldFromMultiFieldsField}
                             onDuplicateField={props.onDuplicateFieldFromMultiFieldsField}
+                            onChangeField={props.onChangeFieldFromMultiFieldsField}
                             onUpdateFormulary={props.onUpdateFormulary}
                             isNewField={
                                 fieldInside.uuid === props.newFieldUUID && 

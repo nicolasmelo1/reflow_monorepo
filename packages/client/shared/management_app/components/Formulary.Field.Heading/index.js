@@ -30,7 +30,7 @@ export default function FormularyFieldHeading(props) {
         onChangeHeadingName
     } = useHeadingField(
         props.field,
-        props.onChangeFieldConfiguration, 
+        props.onChangeField, 
         props.onToggleEditFieldMenu, 
         props.registerComponentForFieldSpecificOptionsForDropdownMenu,
         isNewField

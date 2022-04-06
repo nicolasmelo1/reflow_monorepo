@@ -5,14 +5,41 @@ import useFieldTypes from './useFieldTypes'
 
 /**
  * Hook used for managing the fields inside of the formulary, listing, or whatever. This handles
- * the adding, removing and duplicating of fields.
+ * the adding, removing and duplicating of fields. This also handles the change of the field. So whenever
+ * we need to make some changes to the field configuration we should need to use this hook.
+ * 
+ * This means we don't change the field directly inside of the field but we change each field using the component
+ * that holds all of the fields.
+ * 
+ * @param {Array<{
+ *      uuid: string,
+ *      labelIsHidden: boolean,
+ *      fieldIsHidden: boolean,
+ *      fieldTypeId: number,
+ *      label: {
+ *          name: string
+ *      },
+ *      isUnique: boolean,
+ *      options: Array<{
+ *          uuid: string, 
+ *          value: string, 
+ *          order: number, 
+ *          color: string
+ *      }>,
+ *      placeholder: null | string,
+ *      required: boolean
+ * }>} fieldsData - All of the fields inside of the field or the formulary.
+ * @param {(newFields: fieldsData) => void} onChangeFieldsData - Function that will be called when we need
+ * to update the fields array inside of a field or a formulary.
  */
 export default function useFieldsEdit(fieldsData, onChangeFieldsData) {
     const onDuplicateCallbackByFieldUUIDRef = useRef({})
     const onDeleteCallbackByFieldUUIDRef = useRef({})
     const retrieveFieldsCallbackByFieldUUIDRef = useRef({})
+    const fieldUUIDsByIndexPoisitonRef = useRef({})
     const fieldsCacheRef = useRef([])
     const isToRecalculateFieldsRef = useRef(true)
+
 
     const [fields, setFields] = useState(fieldsData)
     const [newFieldUUID, setNewFieldUUID] = useState(null)
@@ -24,9 +51,7 @@ export default function useFieldsEdit(fieldsData, onChangeFieldsData) {
      * we also update the parent component state.
      * 
      * @param {Array<{
-      *      uuid: string,
-     *      name: string,
-     *      labelName: string,
+     *      uuid: string,
      *      labelIsHidden: boolean,
      *      fieldIsHidden: boolean,
      *      fieldTypeId: number,
@@ -237,7 +262,7 @@ export default function useFieldsEdit(fieldsData, onChangeFieldsData) {
                 await Promise.resolve(onDuplicateCallbackOfField(newField))
             }
 
-            newField.label.name = verifyIfNameExistAndCreateNewName(newField.label.name)
+            newField.label.name = verifyIfNameExistAndCreateNewName(newField.label.name, true)
             if (doNotUpdateState === true) {
                 return newField
             } else {
@@ -248,6 +273,44 @@ export default function useFieldsEdit(fieldsData, onChangeFieldsData) {
             }
         }
         return null
+    }
+
+    /**
+     * This is passed as props to the fields and is used to change the field data in the fields array.
+     * 
+     * @param {{
+     *      uuid: string,
+     *      labelIsHidden: boolean,
+     *      fieldIsHidden: boolean,
+     *      fieldTypeId: number,
+     *      label: {
+     *          name: string
+     *      },
+     *      isUnique: boolean,
+     *      options: Array<{
+     *          uuid: string, 
+     *          value: string, 
+     *          order: number, 
+     *          color: string
+     *      }>,
+     *      placeholder: null | string,
+     *      required: boolean
+     * }} newFieldData - The new field data, this is the data for the field.
+     * @param {boolean} [isToForceToRefindIndex=false] - This is used so we will not use the cache index.
+     * To make it faster instead of finding everytime in the list of fields what we do is that we save 
+     * the indexes in an object so we just retrieve the index of the field in the object.
+     */
+    function onChangeField(newFieldData, isToForceToRefindIndex=false) {
+        const fieldUUID = newFieldData.uuid
+        const doesFieldUUIDsExistInChache = typeof fieldUUIDsByIndexPoisitonRef.current[fieldUUID] === 'number'
+        const fieldUUIDIndex = doesFieldUUIDsExistInChache && isToForceToRefindIndex === false ?
+            fieldUUIDsByIndexPoisitonRef.current[fieldUUID] : fields.findIndex(field => field.uuid === fieldUUID)
+        const doesFieldUUIDExist = fieldUUIDIndex !== -1
+        if (doesFieldUUIDExist) {
+            fieldUUIDsByIndexPoisitonRef.current[fieldUUID] = fieldUUIDIndex
+            fields[fieldUUIDIndex] = newFieldData
+            onChangeFields([...fields])
+        }
     }
 
     /**
@@ -355,6 +418,7 @@ export default function useFieldsEdit(fieldsData, onChangeFieldsData) {
         retrieveFields,
         onAddField,
         onRemoveField,
+        onChangeField,
         onDuplicateField
     }
 }

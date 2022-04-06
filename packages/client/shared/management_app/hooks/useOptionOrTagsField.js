@@ -11,7 +11,7 @@ import { TagsFormatOption } from '../components/Formulary.Field.Tags'
  * @param {string} [optionsType='option'] - Is the field type an `option` type or a `tags` type
  */
 export default function useOptionOrTagsField(
-    fieldData, onChangeField, registerComponentForFieldSpecificOptionsForDropdownMenu, 
+    fieldData, onChangeFieldData, registerComponentForFieldSpecificOptionsForDropdownMenu, 
     registerOnDuplicateOfField, optionsType='option'
 ) {
     const { state: { selectedWorkspace: { isAdmin: isUserAnAdmin } } } = useContext(WorkspaceContext)
@@ -41,6 +41,11 @@ export default function useOptionOrTagsField(
         }
     }
 
+    function onChangeField(newFieldData) {
+        setField(field)
+        onChangeFieldData(newFieldData)
+    }
+
     /**
      * This will create a new option field data, this is the data needed in order to configure the `option` field type.
      * 
@@ -57,8 +62,6 @@ export default function useOptionOrTagsField(
         }
     }
 
-
-
     /**
      * If the field is not an option, or at least it has just been changed to an option, then we need to create the
      * option field data. This data will be used to configure the `option` field type with custom data.
@@ -68,13 +71,13 @@ export default function useOptionOrTagsField(
             const isOptionFieldDataDefined = typeof field.optionField === 'object' && ![null, undefined].includes(field.optionField)
             if (isOptionFieldDataDefined === false) {
                 field.optionField = createOptionFieldData()
-                onChangeField(field, ['optionField'])
+                onChangeField(field)
             }
         } else if (optionsType === 'tags') {
             const isTagsFieldDataDefined = typeof field.tagsField === 'object' && ![null, undefined].includes(field.tagsField)
             if (isTagsFieldDataDefined === false) {
                 field.tagsField = createTagsFieldData()
-                onChangeField(field, ['tagsField'])
+                onChangeField(field)
             }
         }
         setField(field)
@@ -116,8 +119,7 @@ export default function useOptionOrTagsField(
         if (doesOptionIndexExist) {
             field.options[optionIndex].value = newValue
             setOptions(getSelectOptions())
-            setField(field)
-            onChangeField(field, ['options'])
+            onChangeField(field)
         }
     }
 
@@ -133,8 +135,7 @@ export default function useOptionOrTagsField(
         if (optionIndex !== -1) {
             field.options[optionIndex].color = color
             setOptions(getSelectOptions())
-            setField(field)
-            onChangeField(field, ['options'])
+            onChangeField(field)
         }
     } 
 
@@ -153,8 +154,7 @@ export default function useOptionOrTagsField(
             field.options[optionIndex] = field.options[newIndex]
             field.options[newIndex] = optionToSwap
             setOptions(getSelectOptions())
-            setField(field)
-            onChangeField(field, ['options'])
+            onChangeField(field)
         }
     }
 
@@ -173,8 +173,7 @@ export default function useOptionOrTagsField(
             field.options[optionIndex] = field.options[newIndex]
             field.options[newIndex] = optionToSwap
             setOptions(getSelectOptions())
-            setField(field)
-            onChangeField(field, ['options'])
+            onChangeField(field)
         }
     }
 
@@ -194,8 +193,7 @@ export default function useOptionOrTagsField(
             color: color
         })
         setOptions(getSelectOptions())
-        setField(field)
-        onChangeField(field, ['options'])
+        onChangeField(field)
     }
 
     /**
@@ -206,8 +204,7 @@ export default function useOptionOrTagsField(
     function onRemoveOption(optionUUID) {
         field.options = field.options.filter(option => option.uuid !== optionUUID)
         setOptions(getSelectOptions())
-        setField(field)
-        onChangeField(field, ['options'])
+        onChangeField(field)
     }
 
     /**
@@ -234,10 +231,10 @@ export default function useOptionOrTagsField(
     function onChangeIfIsDropdownMenu(isDropdown) {
         if (optionsType === 'option') {
             field.optionField.isDropdown = isDropdown
-            onChangeField(field, ['optionField'])
+            onChangeField(field)
         } else if (optionsType === 'tags') {
             field.tagsField.isDropdown = isDropdown
-            onChangeField(field, ['tagsField'])
+            onChangeField(field)
         }
         setField(field)
     }

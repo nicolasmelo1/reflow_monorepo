@@ -1,3 +1,4 @@
+import { useTheme } from 'styled-components'
 import Layout from './layouts'
 
 /** 
@@ -8,7 +9,12 @@ import Layout from './layouts'
  * div.
  */
 export default function Loading(props) {
+    const theme = useTheme()
+    const color = typeof props.color === 'string' ? props.color : theme.gray_REFLOW
+
     return (
-        <Layout/>
+        <Layout
+        color={color}
+        />
     )
 }

@@ -48,7 +48,7 @@ export default function FormularyFieldFormula(props) {
         onToggleIsEditingFormula,
         userFacingFormula
     } = useFormulaField(
-        props.field, props.onChangeFieldConfiguration, props.registerComponentForFieldSpecificOptionsForDropdownMenu,
+        props.field, props.onChangeField, props.registerComponentForFieldSpecificOptionsForDropdownMenu,
         props.registerOnDuplicateOfField, props.retrieveFields
     )
 

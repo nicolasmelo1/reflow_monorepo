@@ -4,6 +4,7 @@ import Layout from './layouts'
 export default function FormularyFieldAttachment(props) {
     const { 
         containerRef,
+        isUploading,
         draggingOver,
         webOnToggleDraggingOver,
         onDownloadAttachmentFile,
@@ -13,11 +14,12 @@ export default function FormularyFieldAttachment(props) {
         valueUUIdOpened,
         values,
         retrieveFileNameAndUrlByValue
-    } = useAttachmentField(props.field, props.onChangeFieldConfiguration, props.registerOnDuplicateOfField)
+    } = useAttachmentField(props.field, props.onChangeField, props.registerOnDuplicateOfField)
     
     return (
         <Layout
         containerRef={containerRef}
+        isUploading={isUploading}
         draggingOver={draggingOver}
         webOnToggleDraggingOver={webOnToggleDraggingOver}
         onDownloadAttachmentFile={onDownloadAttachmentFile}

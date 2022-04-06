@@ -3,6 +3,55 @@ import { AppManagementTypesContext } from '../contexts'
 import { generateUUID } from '../../../../shared/utils'
 import useFieldsEdit from './useFieldsEdit'
 
+/**
+ * Hook used for handling the `multi_fields` field type. As you probably already know (if you read the 
+ * model from the backend), the `multi_fields` will create an structure that can be repeated multiple times.
+ * For example, let's say that we want to simulate a comment section. We can have the `date` field type, The
+ * `user` field type and the `commentary` which is a long_text field type. So each `commentary` will be a repeat
+ * of this structure  of 3 fields. You can add a new comentary in the same formulary without needing to rely on 
+ * special connections and all that.
+ * 
+ * Another example would be for example, in a `sales` example and perspective. Usually sales funnel needs to have
+ * the `history` of the conversation. The history have a simple structure: The date and the history commentary. One formulary
+ * can have multiple histories. 
+ * 
+ * In a more tecnhnical view, the logic here is rather similar to the `formulary` itself. You will see that we use the
+ * `useFieldsEdit` hook which is used in the formulary to handle all of the fields. So the logic is like: whenever we update
+ * one of thefields of this field, we update the field, that in consequence will update the formulary itself. Be aware:
+ * to prevent recursion and other issues that could be caused, an user cannot create a `multi_field` inside of a `multi_fields`,
+ * of course this would open certain doors but it's not that good idea.
+ * 
+ * @param {{
+ *      uuid: string,
+ *      name: string,
+ *      labelName: string,
+ *      labelIsHidden: boolean,
+ *      fieldIsHidden: boolean,
+ *      fieldTypeId: number,
+ *      label: {
+ *          name: string
+ *      },
+ *      isUnique: boolean,
+ *      options: Array<{
+ *          uuid: string, 
+ *          value: string, 
+ *          order: number, 
+ *          color: string
+ *      }>,
+ *      placeholder: null | string,
+ *      required: boolean,
+ *      multiFieldsField: {
+ *          uuid: string,
+ *          fields: Array<fieldData>
+ *      }
+ * }} fieldData - The data of the field that will be saved in a state internally inside of the hook itself.
+ * @param {(newFieldData: fieldData) => void} onChangeField - Callback that will be called whenever we change any 
+ * configuration of the field. as well as changes to the fields inside of this field.
+ * @param {(callback: (newDuplicatedField: fieldData) => void) => void} registerOnDuplicateOfField - This will
+ * register the function that handles the logic for when the field is duplicated.
+ * @param {(callback: () => Array<fieldData>) => void} registerRetrieveFieldsOfField - This is a function that registers
+ * what happens when the duplicated field is called.
+ */
 export default function useMultiFieldsField(
     fieldData, onChangeField, registerOnDuplicateOfField, registerRetrieveFieldsOfField
 ) {
@@ -23,6 +72,7 @@ export default function useMultiFieldsField(
         onAddField,
         onRemoveField: onRemoveFieldFromMultiFieldsField,
         onDuplicateField: onDuplicateFieldFromMultiFieldsField,
+        onChangeField: onChangeFieldFromMultiFieldsField
     } = useFieldsEdit(field.multiFieldsField.fields, onChangeFields)
 
     function setField(state) {
@@ -34,7 +84,7 @@ export default function useMultiFieldsField(
     function onChangeFields(newFields) {
         field.multiFieldsField.fields = newFields
         setField(field)
-        onChangeField({...field})
+        onChangeField(field.uuid, {...field})
     }
 
     /**
@@ -191,6 +241,7 @@ export default function useMultiFieldsField(
         onRemoveFieldFromMultiFieldsField,
         onDuplicateFieldFromMultiFieldsField,
         registerOnDeleteOfFieldFromMultiFieldsField,
-        registerOnDuplicateOfFieldFromMultiFieldsField
+        registerOnDuplicateOfFieldFromMultiFieldsField,
+        onChangeFieldFromMultiFieldsField
     }
 }

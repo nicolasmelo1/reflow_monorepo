@@ -115,10 +115,20 @@ class FieldTypeRelation extends serializers.ModelSerializer {
 }
 
 // ------------------------------------------------------------------------------------------
+/**
+ * This will resolve the special data needed for the `option` field type. The only special data needed here is a booleab
+ * that defines if option input is a dropdown menu or not. It's really similar to the `FieldTagsRelation` but because both
+ * are different field types we handle them in different relations/options.
+ */
 class FieldOptionRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldOption = await FieldOption.APP_MANAGEMENT_FORMULARY.fieldOptionByFieldId(fieldId)
-        return await super.toRepresentation(fieldOption)
+        const doesFieldOptionDataExists = fieldOption !== null
+        if (doesFieldOptionDataExists) {
+            return await super.toRepresentation(fieldOption)
+        } else {
+            return undefined
+        }
     }
 
     options = {
@@ -130,7 +140,12 @@ class FieldOptionRelation extends serializers.ModelSerializer {
 class FieldTagsRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldTags = await FieldTags.APP_MANAGEMENT_FORMULARY.fieldTagsByFieldId(fieldId)
-        return await super.toRepresentation(fieldTags)
+        const doesFieldTagsDataExists = fieldTags !== null
+        if (doesFieldTagsDataExists) {
+            return await super.toRepresentation(fieldTags)
+        } else {
+            return undefined
+        }
     }
 
     options = {
@@ -189,6 +204,13 @@ class FieldFormulaRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * The `multi_fields` are a special field type that holds multiple fields inside of it. This is used so the user can add a
+ * data in the same structure multiple times. For example, let's see the `sales` example. Usually sales funnel needs to have
+ * the `history` of the conversation. The history have a simple structure: The date and the history commentary. One formulary
+ * can have multiple histories. That's the hole idea of this field type. It is used so the user can hold an structure that
+ * can span multiple times.
+ */
 class FieldMultiFieldsRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const [fieldUUID, fieldMultiField] = await Promise.all([
@@ -229,6 +251,10 @@ class FieldMultiFieldsRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * This relation is responsible for the date field type. This relation holds the data used for the `date` field_type
+ * which are the format of the date, if the date is automatically updated or created, and the format of the time.
+ */
 class FieldDateRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldDate = await FieldDate.APP_MANAGEMENT_FORMULARY.fieldDateByFieldId(fieldId)
@@ -263,6 +289,7 @@ class FieldNumberRelation extends serializers.ModelSerializer {
     }
 }
 
+
 class FieldUserRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldUser = await FieldUser.APP_MANAGEMENT_FORMULARY.fieldUserByFieldId(fieldId)
@@ -280,6 +307,13 @@ class FieldUserRelation extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * This relation is responsible for the `connection` field_type. A connection is a connection with a formulary
+ * to the other. For example suppose we have the `Sales Funnel` formulary and we need to connect with the `Client`
+ * formulary. That's what we do here. This option will hold the id of the formulary that it is connected to and also
+ * the id of the field it needs to use as option. For example, we don't need everything from the `Client` formulary,
+ * usually just the name.
+ */
 class FieldConnectionRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldConnection = await FieldConnection.APP_MANAGEMENT_FORMULARY.fieldConnectionByFieldId(fieldId)

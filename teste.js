@@ -61,7 +61,3 @@ async function main() {
 }
 
 main()
-//async function main() {
-//    const q = await question('Digite a expressão: ')
-//}
-//main()

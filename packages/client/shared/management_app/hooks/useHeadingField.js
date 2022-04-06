@@ -87,7 +87,7 @@ export default function useHeadingField(
     function onChangeHeadingName(newName) {
         field.label.name = newName
         setField(field)
-        onChangeField(field, ['label', 'name'])
+        onChangeField(field)
     }
 
     /**

@@ -5,6 +5,33 @@ import { useDraft } from '../../drafts'
 import { APP } from '../../conf'
 
 
+/**
+ * This hook is used to handle the logic specific to the `attachment` field type. Instead of handling everything
+ * inside of the component we handle here, so we can reuse this logic whenever we need.
+ * 
+ * @param {{
+ *      uuid: string,
+ *      labelIsHidden: boolean,
+ *      fieldIsHidden: boolean,
+ *      fieldTypeId: number,
+ *      label: {
+ *          name: string
+ *      },
+ *      isUnique: boolean,
+ *      options: Array<{
+ *          uuid: string, 
+ *          value: string, 
+ *          order: number, 
+ *          color: string
+ *      }>,
+ *      attachmentField: {
+ *          uuid: string,
+ *          maxNumberOfAttachments: number
+ *      } | null | undefined,
+ *      placeholder: null | string,
+ *      required: boolean
+ * }} fieldData - The data of the field.
+ */
 export default function useAttachmentField(fieldData, onChangeField, registerOnDuplicateOfField) {
     const containerRef = useRef()
 
@@ -14,6 +41,7 @@ export default function useAttachmentField(fieldData, onChangeField, registerOnD
         isDraggingOver: false,
         heightOfContainer: undefined,
     })
+    const [isUploading, setIsUploading] = useState(false)
     const [values, setValues] = useState([])
     
     const { state: { selectedWorkspace } } = useContext(WorkspaceContext)
@@ -71,6 +99,7 @@ export default function useAttachmentField(fieldData, onChangeField, registerOnD
      * @param {Array<File>} files - The files that will be uploaded to the draft storage.
      */
     function onUploadAttachment(files) {
+        setIsUploading(true)
         if (files.length > 0) {
             const promisesToResolve = []
             for (let i=0; i < files.length; i++) {
@@ -89,7 +118,12 @@ export default function useAttachmentField(fieldData, onChangeField, registerOnD
                     }
                 }
                 onChangeAttachments(values.concat(...newValues))
+                setIsUploading(false)
+            }).catch(_ => {
+                setIsUploading(false)
             })
+        } else {
+            setIsUploading(false)
         }
     }
     
@@ -216,7 +250,7 @@ export default function useAttachmentField(fieldData, onChangeField, registerOnD
         if (doesFieldAttachmentDataExists === false) {
             field.attachmentField = createAttachmentFieldData()
             setField(field)
-            onChangeField(field, ['attachmentField'])
+            onChangeField(field)
         }
     }
 
@@ -241,6 +275,7 @@ export default function useAttachmentField(fieldData, onChangeField, registerOnD
     
     return {
         containerRef,
+        isUploading,
         draggingOver,
         webOnToggleDraggingOver,
         onDownloadAttachmentFile,

@@ -54,6 +54,7 @@ export default function FormularyWebLayout(props) {
                             onUpdateFormulary={props.onUpdateFormulary}
                             onRemoveField={props.onRemoveField}
                             onDuplicateField={props.onDuplicateField}
+                            onChangeField={props.onChangeField}
                             retrieveFields={props.retrieveFields}
                             />
                             <FormularyAddField

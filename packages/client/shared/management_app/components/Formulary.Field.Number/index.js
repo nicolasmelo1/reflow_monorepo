@@ -60,7 +60,7 @@ export function NumberDropdownMenuOptions(props) {
 export default function FormularyFieldNumber(props) {
     useNumberField(
         props.field, 
-        props.onChangeFieldConfiguration, 
+        props.onChangeField, 
         props.registerComponentForFieldSpecificOptionsForDropdownMenu,
         props.registerOnDuplicateOfField
     )

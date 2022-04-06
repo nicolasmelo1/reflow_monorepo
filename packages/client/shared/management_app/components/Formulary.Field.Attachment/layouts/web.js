@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { Tooltip, strings } from '../../../../core'
+import { Tooltip, strings, Loading } from '../../../../core'
 import {
     faFileUpload,
     faPlusSquare,
@@ -14,6 +14,7 @@ export default function FormularyFieldAttachmentWebLayout(props) {
     const hasValuesDefined = props.values.length !== 0
     const isDraggingFileOver = props.draggingOver.isDraggingOver
     const heightOfContainerWhileDraggingFileOver = props.draggingOver.heightOfContainer
+    const isUploading = props.isUploading
 
     return (
         <Styled.Container
@@ -49,7 +50,17 @@ export default function FormularyFieldAttachmentWebLayout(props) {
         }}
         >
             <Styled.ContainerWrapper>
-                {isDraggingFileOver === true ? (
+                {isUploading === true ? (
+                    <Fragment>
+                        <div
+                        style={{ width: '70px'}}
+                        >
+                            <Loading/>
+                        </div>
+                        {'Aguarde...'}
+                    </Fragment>
+
+                ) : isDraggingFileOver === true ? (
                     <Styled.DragAndDropMessage>
                         {strings('formularyFieldAttachmentDragAndDropFileMessage')}
                     </Styled.DragAndDropMessage>

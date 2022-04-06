@@ -1,11 +1,7 @@
-import { useState, useEffect, useContext, useRef } from 'react'
-import { AppManagementTypesContext } from '../../contexts'
-import { generateUUID } from '../../../../../shared/utils'
 import Layout from './layouts'
 import { useMultiFieldsField } from '../../hooks'
 
 export default function FormularyFieldMultiField(props) {
-    
     const {
         sections,
         newFieldUUID,
@@ -16,12 +12,14 @@ export default function FormularyFieldMultiField(props) {
         onAddFieldFromMultiFieldsField,
         onDuplicateFieldFromMultiFieldsField,
         onRemoveFieldFromMultiFieldsField,
+        onChangeFieldFromMultiFieldsField,
         registerOnDeleteOfFieldFromMultiFieldsField,
         registerOnDuplicateOfFieldFromMultiFieldsField
     } = useMultiFieldsField(
-        props.field, props.onChangeFieldConfiguration, 
+        props.field, props.onChangeField, 
         props.registerOnDuplicateOfField, props.registerRetrieveFieldsOfField
     )
+
     return (
         <Layout
         sections={sections}
@@ -32,6 +30,7 @@ export default function FormularyFieldMultiField(props) {
         onAddFieldFromMultiFieldsField={onAddFieldFromMultiFieldsField}
         onDuplicateFieldFromMultiFieldsField={onDuplicateFieldFromMultiFieldsField}
         onRemoveFieldFromMultiFieldsField={onRemoveFieldFromMultiFieldsField}
+        onChangeFieldFromMultiFieldsField={onChangeFieldFromMultiFieldsField}
         registerOnDeleteOfFieldFromMultiFieldsField={registerOnDeleteOfFieldFromMultiFieldsField}
         registerOnDuplicateOfFieldFromMultiFieldsField={registerOnDuplicateOfFieldFromMultiFieldsField}
         activeSectionUUID={activeSectionUUID}

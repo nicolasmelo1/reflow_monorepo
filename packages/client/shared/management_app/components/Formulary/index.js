@@ -24,7 +24,8 @@ export default function Formulary(props) {
         retrieveFields,
         onAddField,
         onRemoveField,
-        onDuplicateField
+        onDuplicateField,
+        onChangeField
     } = useFieldsEdit(formulary.fields, onChangeFields)
 
     /**
@@ -98,6 +99,7 @@ export default function Formulary(props) {
         onAddField={onAddField}
         onDuplicateField={onDuplicateField}
         onRemoveField={onRemoveField}
+        onChangeField={onChangeField}
         onUpdateFormulary={onUpdateFormulary}
         retrieveFields={retrieveFields}
         registerOnDuplicateOfField={registerOnDuplicateOfField}

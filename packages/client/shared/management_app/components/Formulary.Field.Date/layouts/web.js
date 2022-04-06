@@ -1,6 +1,11 @@
 import { Datepicker } from '../../../../core'
 import Styled from '../styles'
 
+export function DropdownMenuDateFormatOptionWebLayout(props) {
+    return (
+        <div></div>
+    )
+}
 
 export default function FormularyFieldDateWebLayout(props) {
     return (
@@ -8,7 +13,7 @@ export default function FormularyFieldDateWebLayout(props) {
             <Datepicker
             dateFormat={'DD/MM/YYYY'}
             placeholder={props.field.placeholder}
-            onOpenDatepicker={props.setIsOpen}
+            onOpenDatepicker={props.onToggleDatepicker}
             customInputComponent={Styled.CustomInputForDatepicker}
             />
         </Styled.Container>

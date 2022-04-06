@@ -108,7 +108,7 @@ export default function useNumberField(
             field.numberField = createNumberFieldData({ numberFormatTypeId: numberFormatTypeId })
         }
         setField(field)
-        onChangeField(field, ['numberField'])
+        onChangeField(field)
     }
 
     /**
@@ -134,7 +134,7 @@ export default function useNumberField(
             field.numberField = createNumberFieldData()
         }
         setField(field)
-        onChangeField(field, ['numberField'])
+        onChangeField(field)
     }
 
     useEffect(() => {

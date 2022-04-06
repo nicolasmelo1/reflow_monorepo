@@ -73,7 +73,7 @@ styled.div`
     align-items: center;
     justify-content: space-between;
     width: calc(100% - 10px);
-    height: 100%;
+    max-height: calc(var(--app-height) - 20%);
 `
 :
 styled(View)``

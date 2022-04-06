@@ -66,7 +66,7 @@ const VARIABLE_IN_FORMULA_REGEX = /{{((\s+)?([^\s{}]+(\s+)?)+)?}}/g
  * of the fields of the formulary.
  */
 export default function useFormulaField(
-    fieldData, onChangeField, registerComponentForFieldSpecificOptionsForDropdownMenu, 
+    fieldData, onChangeFieldData, registerComponentForFieldSpecificOptionsForDropdownMenu, 
     registerOnDuplicateOfField, retrieveFields
 ) {
     const evaluateRef = useRef(null)
@@ -81,6 +81,11 @@ export default function useFormulaField(
         userFacingFormula: getUserFacingFormula(),
         forBackendFormula: getBackendFormula()
     })
+
+    function onChangeField(newFieldData) {
+        setField(newFieldData)
+        onChangeFieldData(newFieldData)
+    }
 
     /**
      * THis is used to retrieve all of the fields in the context by their uuid. This makes a cache of the fields so we don't need
@@ -165,8 +170,7 @@ export default function useFormulaField(
                 }
             }
             field.formulaField.variables = newVariables
-            setField(field)
-            onChangeField(field, ['formulaField', 'variables'])
+            onChangeField(field)
         }
         return formula
     }
@@ -283,8 +287,7 @@ export default function useFormulaField(
         }
         field.formulaField.formula = formulaData.forBackendFormula
         setFormula(formulaData)
-        setField(field)
-        onChangeField(field, ['formulaField', 'formula'])
+        onChangeField(field)
 
         return new Promise((resolve, reject) => {
             defaultDelay(() => {
@@ -390,8 +393,7 @@ export default function useFormulaField(
         if (doesFormulaFieldDataExist === false) {
             field.formulaField = createFormulaFieldData()
             onToggleIsEditingFormula(true)
-            setField(field)
-            onChangeField(field, ['formulaField'])
+            onChangeField(field)
         }
     }
 

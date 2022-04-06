@@ -1,15 +1,24 @@
-import { useState } from 'react'
+import { useDateField } from '../../hooks'
 import Layout from './layouts'
 
-export default function FormularyFieldDate(props) {
-    const [isOpen, setIsOpen] = useState(false)
+export function DateFormatOption(props) {
+    return (
+        <Layout.DropdownMenu
+        />
+    )
+}
+// ------------------------------------------------------------------------------------------
+export default function FormularyFieldDate(props) {    
+    const { 
+        isDatepickerOpen, onToggleDatepicker
+    } = useDateField(props.field, props.onChangeField, props.registerOnDuplicateOfField)
 
     return (
-        <Layout
+        <Layout.Field
         types={props.types}
         field={props.field}
-        setIsOpen={setIsOpen}
-        isOpen={isOpen}
+        onToggleDatepicker={onToggleDatepicker}
+        isOpen={isDatepickerOpen}
         />
     ) 
 }

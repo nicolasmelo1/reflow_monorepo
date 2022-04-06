@@ -1,23 +1,38 @@
-import { useRef, useState } from 'react'
-import { deepCopy, generateUUID } from '../../../../shared/utils'
+import { useRef, useState, useEffect } from 'react'
 
 /**
- * This special hook is used for managing the field. On here we have all of the logic needed to handle the duplication,
- * removal and load custom options for the field.
+ * This special hook is used for managing the field. On here we are managing only the rename of the field
+ * and we manage to add custom components to the FieldEditDropdownMenu.
+ * All the other logic of the field configuration, at the current time, is managed by the FieldEditDropdownMenu 
+ * component. If we need for future improvements we can move the logic from this component to here.
  */
-export default function useFieldEdit(fieldData, onChangeField) {
+export default function useFieldEdit(fieldData, onChangeFieldData) {
     const componentOptionForDropdownMenuRef = useRef(null)
+
+    const [field, setField] = useState(fieldData)
     const [customOptionForDropdownMenuProps, setCustomOptionForDropdownMenuProps] = useState({}) 
-    const [isFieldEditDropdownMenuOpen, setIsFieldEditDropdownMenuOpen] = useState(isNewField)
+    const [isFieldEditDropdownMenuOpen, setIsFieldEditDropdownMenuOpen] = useState(false)
+
+    /**
+     * This will change the data of the internal field state and it will call the parent function to update the state.
+     * of the field.
+     * 
+     * @param {Object} newFieldData - The new data of the field.
+     */
+    function onChangeField(newFieldData) {
+        setField({...newFieldData})
+        onChangeFieldData({...newFieldData})
+    }
 
     /**
      * Updates the label name of the field. When we update it we also update the hole formulary and rerender it again.
      * 
      * @param {string} newLabelName - The new label name of the field.
      */
-     function onChangeFieldLabelName(newLabelName) {
+    function onChangeFieldLabelName(newLabelName) {
+        console.log(newLabelName) 
         field.label.name = newLabelName
-        onChangeFieldConfiguration(props.field, ['label', 'name'])
+        onChangeField(field)
     }
 
     /**
@@ -91,12 +106,22 @@ export default function useFieldEdit(fieldData, onChangeField) {
      * and the only purpose of functions is to serve as a callback we do not need to rerender the component everytime the function changes.
      * 
      * @param {import('react').ReactElement} component - The component that holds all of the custom options for the field type.
-     * @param {object} props - The props that the component will receive.
+     * @param {object} componentProps - The props that the component will receive.
      */
     function registerComponentForFieldSpecificOptionsForDropdownMenu(component, componentProps={}) {
         componentOptionForDropdownMenuRef.current = component
         setCustomOptionForDropdownMenuProps(componentProps)
     }
+
+     /**
+     * When the external field changes we should also change the internal field value.
+     */
+      useEffect(() => {
+        const isFieldDifferentFromStateField = typeof fieldData !== typeof field && JSON.stringify(fieldData) !== JSON.stringify(field)
+        if (isFieldDifferentFromStateField) {
+            setField(fieldData)
+        }
+    }, [fieldData])
 
     return {
         isFieldEditDropdownMenuOpen,

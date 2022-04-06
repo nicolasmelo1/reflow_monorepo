@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import Styled from '../styles'
+import FieldEditDropdownMenu from '../../Field.Edit.DropdownMenu'
 import FormularyFieldAttachment from '../../Formulary.Field.Attachment'
 import FormularyFieldCheckbox from '../../Formulary.Field.Checkbox'
 import FormularyFieldDate from '../../Formulary.Field.Date'
@@ -15,149 +16,16 @@ import FormularyFieldTags from '../../Formulary.Field.Tags'
 import FormularyFieldUser from '../../Formulary.Field.User'
 import FormularyFieldMultiField from '../../Formulary.Field.MultiField'
 import FormularyFieldHeading from '../../Formulary.Field.Heading'
-import { Switch, strings } from '../../../../core'
+import { strings } from '../../../../core'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { 
     faEllipsisH
 } from '@fortawesome/free-solid-svg-icons'
 
-export function FieldEditDropdownMenuWebLayout(props) {
-    const fieldType = props.getTypesById()[props.field.fieldTypeId]
-    
-    const hasCustomOptionComponents = typeof props.componentOptionForDropdownMenuRef === 'object' &&
-        ![null, undefined].includes(props.componentOptionForDropdownMenuRef.current)
-    const CustomComponentFieldOptions = hasCustomOptionComponents ? 
-        props.componentOptionForDropdownMenuRef.current : null
-
-    return (
-        <Fragment>
-            {props.isEditMenuOpen === true ? (
-                <Styled.FieldEditMenuWrapper>
-                    <Styled.FieldEditMenuDropdownContainer
-                    ref={props.fieldEditDropdownMenuRef}
-                    editMenuPosition={props.editMenuPosition}
-                    >   
-                        {fieldType.canBeRequired === true ? (
-                            <Styled.FieldEditMenuDropdownSwitchContainer
-                            onClick={() => props.onChangeFieldIsRequired(!props.field.required)}
-                            >
-                                <Switch
-                                isSelected={props.field.required}
-                                onSelect={() => props.onChangeFieldIsRequired(!props.field.required)}
-                                /> 
-                                <Styled.FieldEditMenuDropdownSwitchLabel
-                                disabled={props.field.fieldIsHidden}
-                                >
-                                    {strings('formularyFieldEditIsRequiredLabel')}
-                                </Styled.FieldEditMenuDropdownSwitchLabel>
-                            </Styled.FieldEditMenuDropdownSwitchContainer>
-                        ) : null}
-                        {fieldType.canLabelBeHidden === true ? (
-                            <Styled.FieldEditMenuDropdownSwitchContainer
-                            onClick={() => props.onChangeLabelIsHidden(!props.field.labelIsHidden)}
-                            >
-                                <Switch
-                                isSelected={props.field.labelIsHidden}
-                                onSelect={() => props.onChangeLabelIsHidden(!props.field.labelIsHidden)}
-                                /> 
-                                <Styled.FieldEditMenuDropdownSwitchLabel>
-                                    {strings('formularyFieldEditLabelIsHiddenLabel')}
-                                </Styled.FieldEditMenuDropdownSwitchLabel>
-                            </Styled.FieldEditMenuDropdownSwitchContainer>
-                        ) : null}
-                        {fieldType.canFieldBeHidden === true ? (
-                            <Styled.FieldEditMenuDropdownSwitchContainer
-                            onClick={() => props.onChangeFieldIsHidden(!props.field.fieldIsHidden)}
-                            >
-                                <Switch
-                                isSelected={props.field.fieldIsHidden}
-                                onSelect={() => props.onChangeFieldIsHidden(!props.field.fieldIsHidden)}
-                                /> 
-                                <Styled.FieldEditMenuDropdownSwitchLabel>
-                                    {strings('formularyFieldEditFieldIsHiddenLabel')}
-                                </Styled.FieldEditMenuDropdownSwitchLabel>
-                            </Styled.FieldEditMenuDropdownSwitchContainer>
-                        ) : null}
-                        {fieldType.canBeUnique === true ? (
-                            <Styled.FieldEditMenuDropdownSwitchContainer
-                            onClick={() => props.onChangeFieldIsUnique(!props.field.isUnique)}
-                            >
-                                <Switch
-                                isSelected={props.field.isUnique}
-                                onSelect={() => props.onChangeFieldIsUnique(!props.field.isUnique)}
-                                /> 
-                                <Styled.FieldEditMenuDropdownSwitchLabel>
-                                    {strings('formularyFieldEditFieldIsUniqueLabel')}
-                                </Styled.FieldEditMenuDropdownSwitchLabel>
-                            </Styled.FieldEditMenuDropdownSwitchContainer>
-                        ) : null}
-                        {fieldType.hasPlaceholder === true ? (
-                            <Fragment>
-                                <Styled.FieldEditMenuDropdownSwitchContainer
-                                onClick={() => props.onTogglePlaceholderInput()}
-                                >
-                                    <Switch
-                                    isSelected={props.isPlaceholderOpen}
-                                    onSelect={() => props.onTogglePlaceholderInput()}
-                                    /> 
-                                    <Styled.FieldEditMenuDropdownSwitchLabel>
-                                        {'Texto de ajuda'}
-                                    </Styled.FieldEditMenuDropdownSwitchLabel>
-                                </Styled.FieldEditMenuDropdownSwitchContainer>
-                                {props.isPlaceholderOpen === true ? (
-                                    <Styled.FieldEditMenuDropdownPlaceholderInput
-                                    type={'text'}
-                                    value={typeof(props.field.placeholder) !== 'string' ? '' : props.field.placeholder}
-                                    onChange={(e) => props.onChangePlaceholder(e.target.value)}
-                                    autoFocus={true}
-                                    autoComplete={'off'}
-                                    />
-                                ) : ''}
-                            </Fragment>
-                        ) : null}
-                        {hasCustomOptionComponents ? (
-                            <CustomComponentFieldOptions
-                            {...props.customOptionForDropdownMenuProps}
-                            />
-                        ) : ''}
-                        {fieldType.hasValues === true ? (
-                            <Styled.FieldEditMenuDropdownButton
-                            onClick={() => {
-                                props.onToggleEditFieldMenu(false)
-                                props.onToggleIsRenaming(!props.isRenaming)
-                            }}
-                            >
-                                {strings('formularyFieldEditRenameLabel')}
-                            </Styled.FieldEditMenuDropdownButton>
-                        ) : null}
-                        <Styled.FieldEditMenuDropdownButton>
-                            {strings('formularyFieldEditEditLabel')}
-                        </Styled.FieldEditMenuDropdownButton>
-                        <Styled.FieldEditMenuDropdownButton
-                        onClick={() => {
-                            props.onToggleEditFieldMenu(false)
-                            props.onDuplicateField(props.field)
-                        }}
-                        >
-                            {strings('formularyFieldEditDuplicateLabel')}
-                        </Styled.FieldEditMenuDropdownButton>
-                        <Styled.FieldEditMenuDropdownButton
-                        onClick={() => props.onRemoveField(props.field)}
-                        isExclude={true}
-                        >
-                            {strings('formularyFieldEditDeleteLabel')}
-                        </Styled.FieldEditMenuDropdownButton>
-                    </Styled.FieldEditMenuDropdownContainer>
-                </Styled.FieldEditMenuWrapper>
-            ) : null}
-        </Fragment>
-    )
-}
 
 export default function FormularyFieldWebLayout(props) {
     const fieldType = props.getTypesById()[props.field.fieldTypeId]
     const fieldTypeName = typeof fieldType?.name === 'string' ? fieldType.name : ''
-    const FieldEditDropdownMenu = props.FieldEditDropdownMenu
 
     return (
         <Styled.Container
@@ -212,7 +80,7 @@ export default function FormularyFieldWebLayout(props) {
                         onRemoveField={props.onRemoveField}
                         isRenaming={props.isRenaming}
                         onToggleIsRenaming={props.setIsRenaming}
-                        onChangeField={props.onChangeFieldConfiguration}
+                        onChangeField={props.onChangeField}
                         />
                     </Styled.FieldEditMenu>
                 </Fragment>
