@@ -79,7 +79,7 @@ export default function FormularyField(props) {
     }, [])
    
     return (
-        <Layout.Field
+        <Layout
         registerRetrieveFieldsCallback={props.registerRetrieveFieldsCallback}
         fieldRef={fieldRef}
         fieldEditMenuButtonRef={fieldEditMenuButtonRef}

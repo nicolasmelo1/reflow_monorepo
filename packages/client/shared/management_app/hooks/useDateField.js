@@ -1,12 +1,26 @@
 import { useState, useEffect } from 'react'
 import { generateUUID } from '../../../../shared/utils'
-
+import { DateFormatOption } from '../components/Formulary.Field.Date'
 
 export default function useDateField(
-    fieldData, onChangeFieldData, registerOnDuplicateOfField
+    fieldData, onChangeFieldData, registerComponentForFieldSpecificOptionsForDropdownMenu, 
+    registerOnDuplicateOfField
 ) {
     const [isDatepickerOpen, setIsDatepickerOpen] = useState(false)
     const [field, setField] = useState(fieldData)
+    
+    function createDateFieldData({
+        autoCreate=false, autoUpdate=false,
+        dateFormatTypeId=null, timeFormatTypeId=null
+    }={}) {
+        return {
+            uuid: generateUUID(),
+            autoCreate,
+            autoUpdate,
+            dateFormatTypeId,
+            timeFormatTypeId
+        }
+    }
 
     function onChangeField(newFieldData) {
         setField(newFieldData)
@@ -47,6 +61,12 @@ export default function useDateField(
             setField(fieldData)
         }
     }, [fieldData])
+
+    useEffect(() => {
+        registerComponentForFieldSpecificOptionsForDropdownMenu(DateFormatOption, {
+
+        })
+    } , [])
 
     return {
         isDatepickerOpen,

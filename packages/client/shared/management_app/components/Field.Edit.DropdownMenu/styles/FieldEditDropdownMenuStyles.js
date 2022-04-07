@@ -1,3 +1,4 @@
+import { APP } from '../../../../conf'
 import { View, Text, TextInput } from 'react-native'
 import styled from 'styled-components'
 

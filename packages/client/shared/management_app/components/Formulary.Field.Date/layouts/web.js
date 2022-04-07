@@ -1,9 +1,28 @@
-import { Datepicker } from '../../../../core'
+import { Switch, Datepicker, strings } from '../../../../core'
 import Styled from '../styles'
 
 export function DropdownMenuDateFormatOptionWebLayout(props) {
     return (
-        <div></div>
+        <Styled.DropdownMenuContainer>
+            <Styled.DropdownMenuSwitchContainer>
+                <Switch
+                isSelected={props.isToAutoCreate}
+                onSelect={() => props.onToggleAutoCreate(!props.isToAutoCreate)}
+                />
+                <Styled.DropdownMenuSwitchLabel>
+                    {strings('formularyFieldDateDropdownMenuAutomaticToCreate')}
+                </Styled.DropdownMenuSwitchLabel>
+            </Styled.DropdownMenuSwitchContainer>
+            <Styled.DropdownMenuSwitchContainer>
+                <Switch
+                isSelected={props.isToAutoUpdate}
+                onSelect={() => props.onToggleAutoUpdate(!props.isToAutoUpdate)}
+                />
+                <Styled.DropdownMenuSwitchLabel>
+                    {strings('formularyFieldDateDropdownMenuAutomaticToCreate')}
+                </Styled.DropdownMenuSwitchLabel>
+            </Styled.DropdownMenuSwitchContainer>
+        </Styled.DropdownMenuContainer>
     )
 }
 

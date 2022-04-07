@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { strings } from '../../core'
 import { NumberDropdownMenuOptions } from '../components/Formulary.Field.Number'
 import { generateUUID } from '../../../../shared/utils'
+import { AppManagementTypesContext } from '../contexts'
 
 /**
  * Hook used for configuring and handling the logic for the number field, whenever you need to edit or configure
@@ -45,6 +46,7 @@ export default function useNumberField(
     registerOnDuplicateOfField
 ) {
     const [field, setField] = useState(fieldData)
+    const { state: { types } } = useContext(AppManagementTypesContext)
 
     /**
      * Handles when we create a new `numberField` data. This data is used to add extra data needed
@@ -83,6 +85,13 @@ export default function useNumberField(
         numberFormatTypeId=null,
         prefix=null
     }={}) {
+        const isNumberFormatTypeIdDefined = typeof numberFormatTypeId === 'number'
+        if (isNumberFormatTypeIdDefined === false) {
+            const numberFormatType = types.numberFormatTypes.find(numberFormatType => numberFormatType.name === 'integer')
+            const doesIntegerNumberFormatTypeExists = ![null, undefined, -1].includes(numberFormatType)
+            if (doesIntegerNumberFormatTypeExists) numberFormatTypeId = numberFormatType.id
+        }
+
         return {
             allowNegative: allowNegative,
             allowZero: allowZero,

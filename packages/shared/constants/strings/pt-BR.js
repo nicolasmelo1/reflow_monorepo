@@ -41,6 +41,8 @@ module.exports = {
         formularyFieldAttachmentDetailCloseButtonDescriptionLabel: 'Fechar',
         formularyFieldAttachmentDetailRemoveButtonDescriptionLabel: 'Excluir',
         formularyFieldAttachmentDetailDownloadButtonDescriptionLabel: 'Download',
+        formularyFieldDateDropdownMenuAutomaticToCreate: 'Automático ao criar',
+        formularyFieldDateDropdownMenuAutomaticToUpdate: 'Automático ao atualizar',
         formularyFieldIdDescriptionLabel: 'Esse valor é gerado dinâmicamente',
         formularyFieldFormulaDescriptionLabel: 'Esse valor é calculado automaticamente',
         formularyFieldFormulaEmptyValueDescriptionLabel: 'Clique aqui para editar uma fórmula',
