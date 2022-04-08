@@ -13,6 +13,7 @@ module.exports = {
         workspaceNoAppSelected: 'Nenhum app selecionado',
         workspaceNoWorkspaceSelected: 'Nenhum workspace selecionado',
         workspaceNotUniqueErrorMessage: 'Nome do workspace deve ser único',
+        fieldTypeHeadingIconLabel: 'C',
         formularyToolbarShareButtonLabel: 'Compartilhar',
         formularyAddFieldTooltipButtonLabel: 'Adicionar novo campo',
         formularyNewFieldLabel: 'Novo',

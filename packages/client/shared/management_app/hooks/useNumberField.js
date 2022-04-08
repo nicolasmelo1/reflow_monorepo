@@ -138,7 +138,8 @@ export default function useNumberField(
      * does not exist.
      */
     function checkIfNumberFieldDataExistsAndIfNotCreateIt() {
-        const doesNumberFieldDataExist = typeof field.numberField === 'object' && ![null, undefined].includes(field.numberField)
+        const doesNumberFieldDataExist = typeof field.numberField === 'object' && 
+            ![null, undefined].includes(field.numberField)
         if (doesNumberFieldDataExist === false) {
             field.numberField = createNumberFieldData()
         }

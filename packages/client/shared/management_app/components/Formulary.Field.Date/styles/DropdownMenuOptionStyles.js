@@ -5,9 +5,12 @@ import styled from 'styled-components'
 export const DropdownMenuContainer = APP === 'web' ? 
 styled.div`
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     padding: 5px 0;
+    border-top: 1px solid ${props => props.theme.gray_REFLOW}40;
+    border-bottom: 1px solid ${props => props.theme.gray_REFLOW}40;
+
 `
 :
 styled(View)``

@@ -11,9 +11,9 @@ import Layout from './layouts'
  * @param {boolean} [props.autoCreate=false] - Is the value of this field set up when we create a new record?
  * @param {boolean} [props.autoUpdate=false] - Is the value of this field set up when we update (or create) 
  * an existing record?
- * @param {(isToAutoCreate: void) => void} [props.onAutoCreate=undefined] - This is called when the user 
+ * @param {(isToAutoCreate: void) => void} [props.onChangeAutoCreate=undefined] - This is called when the user 
  * toggles the autoCreate option switch.
- * @param {(isToAutoUpdate: void) => void} [props.onAutoUpdate=undefined] - This is called when the user
+ * @param {(isToAutoUpdate: void) => void} [props.onChangeAutoUpdate=undefined] - This is called when the user
  * toggles the autoUpdate option switch.
  * 
  * @returns {import('react').ReactElement} - The react element rendered from this component.

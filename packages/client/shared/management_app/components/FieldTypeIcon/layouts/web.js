@@ -1,4 +1,5 @@
 import Styled from '../styles'
+import { strings } from '../../../../core'
 import { 
     faFont, faCalendarAlt, faChevronCircleDown, faPlug, faPaperclip,
     faAlignLeft, faAt, faFingerprint, faAddressBook, faCode, faListUl,
@@ -50,6 +51,17 @@ export default function FieldTypeIconWebLayout(props) {
         ) : 
         props.fieldTypeName === 'multi_field' ? (
             <Styled.FieldTypeIcon icon={faListAlt}/>
-        ) : null
+        ) : 
+        props.fieldTypeName === 'heading1' ? (
+            <Styled.FieltTypeHeadingText>
+                <span>
+                    {strings('fieldTypeHeadingIconLabel')}
+                </span>
+                <Styled.FieltTypeHeadingLabelType>
+                    1
+                </Styled.FieltTypeHeadingLabelType>
+            </Styled.FieltTypeHeadingText>
+        ) : 
+        null
     )
 }

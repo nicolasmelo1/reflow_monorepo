@@ -388,7 +388,8 @@ export default function useFormulaField(
      * This formula field data is a specific data that is specific for the `formula` field type.
      */
     function onDefaultCreateFormulaOptionsIfDoesNotExist() {
-        const doesFormulaFieldDataExist = typeof field.numberField === 'object' && ![null, undefined].includes(field.numberField)
+        const doesFormulaFieldDataExist = typeof field.formulaField === 'object' && 
+            ![null, undefined].includes(field.formulaField)
  
         if (doesFormulaFieldDataExist === false) {
             field.formulaField = createFormulaFieldData()
