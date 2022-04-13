@@ -159,7 +159,8 @@ class FieldTagsRelation extends serializers.ModelSerializer {
  */
 class FieldFormulaVariableRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldFormulaId) {
-        const fieldFormulaVariables = await FieldFormulaVariable.APP_MANAGEMENT_FORMULARY.uuidsVariableIdAndOrderByFieldFormulaId(fieldFormulaId)
+        const fieldFormulaVariables = await FieldFormulaVariable.APP_MANAGEMENT_FORMULARY
+            .uuidsVariableIdAndOrderByFieldFormulaId(fieldFormulaId)
         const data = []
         // The ordering here is important, that's why we don't use Promise.all.
         for (const { uuid, variableId, order} of fieldFormulaVariables) {
@@ -219,7 +220,9 @@ class FieldMultiFieldsRelation extends serializers.ModelSerializer {
         ])
         const doesFieldMultiFieldsDataExists = fieldMultiField !== null
         if (doesFieldMultiFieldsDataExists) {
-            const fieldIds = await FieldMultiFieldFields.APP_MANAGEMENT_FORMULARY.fieldIdsByFieldMultiFieldId(fieldMultiField.id)
+            const fieldIds = await FieldMultiFieldFields.APP_MANAGEMENT_FORMULARY.fieldIdsByFieldMultiFieldId(
+                fieldMultiField.id
+            )
             const unorderedFields = await Field.APP_MANAGEMENT_FORMULARY.fieldsByFieldIds(fieldIds)
             const orderedFields = await FieldService.reorderFieldsByArrayOfOrderedFieldIds(unorderedFields, fieldIds)
             const orderedFieldsWithContext = orderedFields.map(field => {
@@ -317,17 +320,31 @@ class FieldUserRelation extends serializers.ModelSerializer {
 class FieldConnectionRelation extends serializers.ModelSerializer {
     async toRepresentation(fieldId) {
         const fieldConnection = await FieldConnection.APP_MANAGEMENT_FORMULARY.fieldConnectionByFieldId(fieldId)
-        const doesFieldConnectionDataExists = typeof fieldConnection === 'object'
+        const doesFieldConnectionDataExists = typeof fieldConnection === 'object' && 
+            ![null, undefined].includes(fieldConnection)
         if (doesFieldConnectionDataExists) {
-            return await super.toRepresentation(fieldConnection)
+            let fieldAsOptionUUID = null
+            const doesFieldAsOptionIDExists = typeof fieldConnection.fieldAsOptionId === 'number'
+            if (doesFieldAsOptionIDExists) {
+                fieldAsOptionUUID = await Field.APP_MANAGEMENT_FORMULARY.uuidByFieldId(fieldConnection.fieldAsOptionId)
+            }
+            const data = {
+                ...fieldConnection,
+                fieldAsOptionUUID
+            }
+            return await super.toRepresentation(data)
         } else {
             return undefined
         }
     }
 
+    fields = {
+        fieldAsOptionUUID: new serializers.CharField()
+    }
+
     options = {
         model: FieldConnection,
-        exclude: ['id', 'fieldId']
+        exclude: ['id', 'fieldId', 'fieldAsOptionId']
     }
 }
 

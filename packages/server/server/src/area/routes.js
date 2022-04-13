@@ -1,9 +1,10 @@
 const { path } = require('../../../palmares/routers')
 
-const { workspaceRequiredRecipe } = require('../authentication/middlewares')
-const { AreaController, AreaEditController, AppController } = require('./controllers')
+const { workspaceRequiredRecipe, loggedUserRecipe } = require('../authentication/middlewares')
+const { AreaController, AreaEditController, AppController, TypeController } = require('./controllers')
 
 const routes = [
+    path('/types', ...loggedUserRecipe, TypeController.asController()),
     path('/:workspaceUUID', ...workspaceRequiredRecipe, [
         path('/areas', AreaController.asController()),
         path('/areas/:areaUUID', [

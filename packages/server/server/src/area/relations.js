@@ -1,8 +1,23 @@
 const serializers = require('../../../palmares/serializers')
-const { Area, App, AvailableApp, AppConfiguration, MetadataForApp, MetadataType } = require('./models')
+const { 
+    Area, App, AvailableApp, AppConfiguration, 
+    MetadataForApp, MetadataType, AppType 
+} = require('./models')
 
 /**
- * Relation for loading the most basic data and information about the apps. This is used to load the sidebar of the app.
+ * This is rhe relation fo the app type. The app types are the types of the apps.
+ * For example: figma, whatsapp or the management app.
+ */
+class AppTypeRelation extends serializers.ModelSerializer {
+    options = {
+        model: AppType,
+        exclude: ['order']
+    }
+}
+
+/**
+ * Relation for loading the most basic data and information about the apps. 
+ * This is used to load the sidebar of the app.
  */
 class AppRelation extends serializers.ModelSerializer {
     async toRepresentation(areaUUID) {
@@ -69,6 +84,7 @@ class AppConfigurationRelation extends serializers.Serializer {
 }
 
 module.exports = {
+    AppTypeRelation,
     AppRelation,
     SelectedAppRelation,
     AppConfigurationRelation

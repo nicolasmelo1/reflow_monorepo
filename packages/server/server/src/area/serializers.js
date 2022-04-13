@@ -3,9 +3,13 @@ const serializers = require('../../../palmares/serializers')
 const { strings } = require('../core/utils')
 
 const { ReflowValidationError } = require('../core/serializers')
-const { AppRelation, SelectedAppRelation, AppConfigurationRelation } = require('./relations')
-const { Area, App } = require('./models')
+const { 
+    AppTypeRelation, AppRelation, 
+    SelectedAppRelation, AppConfigurationRelation 
+} = require('./relations')
+const { Area, App, AppType } = require('./models')
 const { AreaService } = require('./services')
+
 /**
  * This serializer will be used on the sidebar to display all of the areas the user has access to and all of the apps
  * that the user is able to access inside of reflow application.
@@ -112,7 +116,6 @@ class AreaInputSerializer extends serializers.ModelSerializer {
     }
 }
 
-
 class AppOutputSerializer extends serializers.ModelSerializer {
     fields = {
         selectedApp: new SelectedAppRelation({ source: 'selectedAppId' }),
@@ -125,9 +128,28 @@ class AppOutputSerializer extends serializers.ModelSerializer {
     }
 }
 
+/**
+ * This is the types serializer. This will hold all of the types for the apps. Right now we only have one type data,
+ * it is the `appTypes` that holds all of the apps that can exist inside of reflow. 
+ */
+class TypeOutputSerializer extends serializers.Serializer {
+    async toRepresentation() {
+        const data = {
+            appTypes: await AppType.AREA.all() 
+        }
+
+        return await super.toRepresentation(data)
+    }
+
+    fields = {
+        appType: new AppTypeRelation({ many: true })
+    }
+}
+
 
 module.exports = {
     AreaOutputSerializer,
     AreaInputSerializer,
-    AppOutputSerializer
+    AppOutputSerializer,
+    TypeOutputSerializer
 }

@@ -354,8 +354,8 @@ class FieldConnection extends models.Model {
             relatedTo: 'Field',
             onDelete: models.fields.ON_DELETE.CASCADE
         }),
-        formulary: new models.fields.ForeignKeyField({
-            relatedTo: 'Formulary',
+        app: new models.fields.ForeignKeyField({
+            relatedTo: 'App',
             onDelete: models.fields.ON_DELETE.CASCADE
         }),
         fieldAsOption: new models.fields.ForeignKeyField({

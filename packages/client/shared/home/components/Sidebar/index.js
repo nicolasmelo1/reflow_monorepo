@@ -254,12 +254,16 @@ export default function Sidebar(props) {
      */
     useEffect(() => {
         if (selectedWorkspace.uuid !== null) {
-            homeAgent.getAreas(selectedWorkspace.uuid).then(response => {
-                if (response && response.status === 200) {
-                    setAreas(response.data.data)
-                } else {
+            homeAgent.getAreaTypes().then(areaTypes => {
+                homeAgent.getAreas(selectedWorkspace.uuid).then(response => {
+                    if (response && response.status === 200) {
+                        setAreas(response.data.data)
+                    } else {
+                        retrieveFromPersist()
+                    }
+                }).catch(e => {
                     retrieveFromPersist()
-                }
+                })
             }).catch(e => {
                 retrieveFromPersist()
             })

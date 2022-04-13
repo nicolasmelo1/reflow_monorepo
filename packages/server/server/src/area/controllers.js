@@ -2,9 +2,31 @@ const controllers = require('../../../palmares/controllers')
 const status = require('../../../palmares/status')
 
 const { Area, App } = require('./models')
-const { AreaOutputSerializer, AreaInputSerializer, AppOutputSerializer } = require('./serializers')
+const { 
+    AreaOutputSerializer, 
+    AreaInputSerializer, 
+    AppOutputSerializer, 
+    TypeOutputSerializer 
+} = require('./serializers')
 const { reflowJSONError } = require('../core/services')
 const { AreaService } = require('./services')
+
+/**
+ * This is used to retrieve the types for the apps. I mean, each app will be of a different type. We have the management app
+ * which is the default one. We can have `figma` app, we can have `panel` app, we can have `docs` app, and whatever. 
+ * An app is something that could be created by us at reflow or it also could be something embeded.
+ */
+class TypeController extends controllers.Controller {
+    outputSerializer = TypeOutputSerializer
+
+    async get(req, res) {
+        const serializer = new this.outputSerializer()
+        return res.status(status.HTTP_200_OK).json({
+            status: 'ok',
+            data: await serializer.toRepresentation()
+        })
+    }
+}
 
 /**
  * Controller responsible for retrieving the areas. Areas is what is loaded in the sidebar of the application.
@@ -128,6 +150,7 @@ class AppController extends controllers.Controller {
 }
 
 module.exports = {
+    TypeController,
     AreaController,
     AppController,
     AreaEditController
