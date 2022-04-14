@@ -100,7 +100,7 @@ function SidebarWebLayout(props) {
                 ref={props.addWorkspaceButtonRef}
                 onClick={() => props.onCreateArea()}
                 >
-                    {'+ Criar novo workspace'}
+                    {strings('sidebarCreateNewWorkspaceButtonLabel')}
                 </Styled.CreateNewWorkspaceButton>
             </Styled.Wrapper>
             <Styled.SidebarWidth

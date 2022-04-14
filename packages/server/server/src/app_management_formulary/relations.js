@@ -1,4 +1,6 @@
 const serializers = require("../../../palmares/serializers")
+
+const { App } = require('../area/models') 
 const { 
     NumberFormatType, 
     DateFormatType, 
@@ -323,13 +325,22 @@ class FieldConnectionRelation extends serializers.ModelSerializer {
         const doesFieldConnectionDataExists = typeof fieldConnection === 'object' && 
             ![null, undefined].includes(fieldConnection)
         if (doesFieldConnectionDataExists) {
+            let formularyAppUUID = null
             let fieldAsOptionUUID = null
+
             const doesFieldAsOptionIDExists = typeof fieldConnection.fieldAsOptionId === 'number'
+            const doesFormularyAppIdWasSelected = typeof fieldConnection.appId === 'number'
             if (doesFieldAsOptionIDExists) {
                 fieldAsOptionUUID = await Field.APP_MANAGEMENT_FORMULARY.uuidByFieldId(fieldConnection.fieldAsOptionId)
             }
+
+            if (doesFormularyAppIdWasSelected) {
+                formularyAppUUID = await App.APP_MANAGEMENT_FORMULARY.uuidByAppId(fieldConnection.appId)
+            }
+
             const data = {
                 ...fieldConnection,
+                formularyAppUUID,
                 fieldAsOptionUUID
             }
             return await super.toRepresentation(data)
@@ -339,12 +350,13 @@ class FieldConnectionRelation extends serializers.ModelSerializer {
     }
 
     fields = {
+        formularyAppUUID: new serializers.CharField(),
         fieldAsOptionUUID: new serializers.CharField()
     }
 
     options = {
         model: FieldConnection,
-        exclude: ['id', 'fieldId', 'fieldAsOptionId']
+        exclude: ['id', 'appId', 'fieldId', 'fieldAsOptionId']
     }
 }
 

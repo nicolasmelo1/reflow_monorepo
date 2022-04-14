@@ -1,7 +1,7 @@
 import { createContext, useState } from 'react'
 import GlobalProvider, { setPersistState, getPersistState } from '../../core/contexts'
 
-const persistState = 'appManagementTypesContext'
+const persistContext = 'appManagementTypesContext'
 const initialState = {
     state: {
         types: {
@@ -47,7 +47,7 @@ const AppManagementTypesProvider = (props) => {
      * the application.
      */
     function setTypes(numberFormatTypes, dateFormatTypes, timeFormatTypes, fieldTypes) {
-        setPersistState(persistState, { 
+        setPersistState(persistContext, { 
             types: { 
                 numberFormatTypes: numberFormatTypes, 
                 dateFormatTypes: dateFormatTypes, 
@@ -61,7 +61,7 @@ const AppManagementTypesProvider = (props) => {
      * Function for retrieving the state of the persist storage if we cannot retrieve it from the server (in case of a network error or something else).
      */
     function retrieveFromPersist() {
-        getPersistState(persistState, state, setState)
+        getPersistState(persistContext, state, setState)
     }
 
     return (

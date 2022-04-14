@@ -6,6 +6,7 @@ module.exports = {
         sidebarHistoryButtonLabel: 'Histórico',
         sidebarSettingsButtonLabel: 'Configurações',
         sidebarWorkspacesTitle: 'ESPAÇOS DE TRABALHO',
+        sidebarCreateNewWorkspaceButtonLabel: '+ Criar novo workspace',
         workspaceEditColor: 'Cores',
         workspaceNewAreaName: 'Workspace sem nome',
         workspaceRemoveButtonLabel: 'Remover workspace',

@@ -69,6 +69,7 @@ export default function Formulary(props) {
         }
     }, [])  
 
+    
     useEffect(() => {
         const isAppDefined = ![null, undefined].includes(props.app) && typeof props.app.uuid === 'string'
         const isWorkspaceUUIDDefined = ![null, undefined].includes(props.workspace) && typeof props.workspace.uuid === 'string'

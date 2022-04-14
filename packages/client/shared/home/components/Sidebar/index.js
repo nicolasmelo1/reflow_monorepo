@@ -28,7 +28,9 @@ export default function Sidebar(props) {
     const redirect = useRouterOrNavigationRedirect()
     const { user } = useContext(UserContext)
     const { state: { selectedWorkspace } } = useContext(WorkspaceContext)
-    const { areas, setAreas, retrieveFromPersist, recursiveTraverseAreas } = useContext(AreaContext)
+    const { 
+        areas, setAreas, retrieveFromPersist: retrieveAreaFromPersist, recursiveTraverseAreas 
+    } = useContext(AreaContext)
     const { setIsEditingArea } = useContext(HomeContext)
     const isResizingRef = useRef(false)
     const addWorkspaceButtonRef = useRef(null)
@@ -230,7 +232,8 @@ export default function Sidebar(props) {
      * }} workspaceData - this is the new data for the area.
      */
     function onChangeWorkspace(workspaceData) {
-        if (props.onChangeArea !== undefined && typeof props.onChangeArea === 'function') {
+        const isOnChangeAreaPropsDefined = props.onChangeArea !== undefined && typeof props.onChangeArea === 'function'
+        if (isOnChangeAreaPropsDefined) {
             props.onChangeArea(workspaceData)
         }
         return setAreas([...areas])
@@ -253,19 +256,19 @@ export default function Sidebar(props) {
      * to.
      */
     useEffect(() => {
-        if (selectedWorkspace.uuid !== null) {
-            homeAgent.getAreaTypes().then(areaTypes => {
-                homeAgent.getAreas(selectedWorkspace.uuid).then(response => {
-                    if (response && response.status === 200) {
-                        setAreas(response.data.data)
-                    } else {
-                        retrieveFromPersist()
-                    }
-                }).catch(e => {
-                    retrieveFromPersist()
-                })
+        const wasAnWorkspaceSelected = typeof selectedWorkspace === 'object' && 
+            typeof selectedWorkspace?.uuid === 'string'
+            
+        if (wasAnWorkspaceSelected) {
+            homeAgent.getAreas(selectedWorkspace.uuid).then(response => {
+                const isAreasResponseValid = response && response.status === 200
+                if (isAreasResponseValid) {
+                    setAreas(response.data.data)
+                } else {
+                    retrieveAreaFromPersist()
+                }
             }).catch(e => {
-                retrieveFromPersist()
+                retrieveAreaFromPersist()
             })
         }
     }, [selectedWorkspace])

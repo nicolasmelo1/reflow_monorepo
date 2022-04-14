@@ -1,36 +1,8 @@
 const serializers = require('../../../palmares/serializers')
 const { 
     Area, App, AvailableApp, AppConfiguration, 
-    MetadataForApp, MetadataType, AppType 
+    MetadataForApp, MetadataType 
 } = require('./models')
-
-/**
- * This is rhe relation fo the app type. The app types are the types of the apps.
- * For example: figma, whatsapp or the management app.
- */
-class AppTypeRelation extends serializers.ModelSerializer {
-    options = {
-        model: AppType,
-        exclude: ['order']
-    }
-}
-
-/**
- * Relation for loading the most basic data and information about the apps. 
- * This is used to load the sidebar of the app.
- */
-class AppRelation extends serializers.ModelSerializer {
-    async toRepresentation(areaUUID) {
-        const areaId = await Area.AREA.idByUUID(areaUUID)
-        const data = await App.AREA.appsByAreaId(areaId)
-        return await super.toRepresentation(data)
-    }
-
-    options = {
-        model: App,
-        fields: ['uuid', 'name', 'labelName', 'description', 'order']
-    }
-}
 
 /**
  * This relation is the selected app type. Since the user can name their app whatever they want, we need a way to know what app type
@@ -47,6 +19,32 @@ class SelectedAppRelation extends serializers.ModelSerializer {
     options = {
         model: AvailableApp,
         exclude: ['createdAt', 'updatedAt']
+    }
+}
+
+/**
+ * Relation for loading the data and information about the apps. This is used to load the sidebar of the app.
+ */
+ class AppRelation extends serializers.ModelSerializer {
+    async toRepresentation(areaUUID) {
+        const areaId = await Area.AREA.idByUUID(areaUUID)
+        const appsOfArea = await App.AREA.appsByAreaId(areaId)
+        const data = appsOfArea.map(app => ({
+            areaUUID,
+            ...app
+        }))
+        return await super.toRepresentation(data)
+    }
+
+    fields = {
+        areaUUID: new serializers.CharField({ allowBlank: false, allowNull: false }),
+        selectedApp: new SelectedAppRelation({ source: 'selectedAppId' }),
+        appConfiguration: new AppConfigurationRelation({ source: '*', many: true }),
+    }
+
+    options = {
+        model: App,
+        exclude: ['createdAt', 'updatedAt', 'areaId', 'order', 'selectedAppId']
     }
 }
 
@@ -84,7 +82,6 @@ class AppConfigurationRelation extends serializers.Serializer {
 }
 
 module.exports = {
-    AppTypeRelation,
     AppRelation,
     SelectedAppRelation,
     AppConfigurationRelation

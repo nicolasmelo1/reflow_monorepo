@@ -5,7 +5,6 @@ const { Area, App } = require('./models')
 const { 
     AreaOutputSerializer, 
     AreaInputSerializer, 
-    AppOutputSerializer, 
     TypeOutputSerializer 
 } = require('./serializers')
 const { reflowJSONError } = require('../core/services')
@@ -128,30 +127,8 @@ class AreaEditController extends controllers.Controller {
     }
 }
 
-/**
- * Controller responsible for loading the data of the app. This will load the name of the app defined by the user as well as the app that has been selected
- * to use. For example, we can have an app for managament, an app for drawing and so on. But altough we have different app types they all can be named differently
- * by the user for his organization. So we need this app type in order to know what to render.
- */
-class AppController extends controllers.Controller {
-    outputSerializer = AppOutputSerializer
-    
-    async get(req, res) {
-        const areaId = await Area.AREA.idByUUID(req.params.areaUUID)
-        const instance = await App.AREA.appByAreaIdAndAppUUID(areaId, req.params.appUUID)
-        const serializer = new this.outputSerializer({
-            instance: instance
-        })
-        return res.status(status.HTTP_200_OK).json({
-            status: 'ok',
-            data: await serializer.toRepresentation()
-        })
-    }
-}
-
 module.exports = {
     TypeController,
     AreaController,
-    AppController,
     AreaEditController
 }

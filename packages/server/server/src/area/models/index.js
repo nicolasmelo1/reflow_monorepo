@@ -2,7 +2,7 @@ const { models } = require('../../../../palmares/database')
 
 const { AppAppManagamentFormularyManager } = require('../../app_management_formulary/managers')
 const { 
-    AreaAreaManager, AppTypeAreaManager, AppAreaManager, 
+    AreaAreaManager, AppAreaManager, 
     AvailableAppAreaManager, AppConfigurationAreaManager, 
     MetadataForAppAreaManager, MetadataTypeAreaManager
 } = require('../managers')
@@ -26,28 +26,6 @@ class MetadataType extends models.Model {
     }
 
     static AREA = new MetadataTypeAreaManager()
-}
-
-/**
- * This is the type of each app, an app can be a `management` app, it can be a `whatsapp` app or a `figma` app, and
- * whatever.
- * 
- * - `management` - This is the only app that we have right now, an app can be of the `management` type so you can use
- * this kind of app to manage information with it.
- */
-class AppType extends models.Model {
-    attributes = {
-        name: new models.fields.TextField(),
-        order: new models.fields.IntegerField(),
-        isDefault: new models.fields.BooleanField({ defaultValue: false })
-    }
-
-    options = {
-        tableName: 'app_type',
-        ordering: ['order']
-    }
-
-    static AREA = new AppTypeAreaManager()
 }
 
 /**
@@ -110,12 +88,6 @@ class App extends models.Model {
         name: new models.fields.CharField({ maxLength: 255 }),
         labelName: new models.fields.TextField(),
         description: new models.fields.TextField({ allowBlank: true, allowNull: true }),
-        appType: new models.fields.ForeignKeyField({
-            relatedTo: 'AppType',
-            onDelete: models.fields.ON_DELETE.CASCADE,
-            allowNull: true,
-            defaultValue: null
-        }),
         area: new models.fields.ForeignKeyField({
             relatedTo: 'Area',
             onDelete: models.fields.ON_DELETE.CASCADE
@@ -241,7 +213,6 @@ class MetadataForApp extends models.Model {
 
 module.exports = {
     MetadataType,
-    AppType,
     Area,
     App,
     AppConfiguration,

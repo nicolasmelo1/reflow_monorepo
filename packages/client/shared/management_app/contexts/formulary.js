@@ -11,8 +11,8 @@ const initialState = {
             fields: []
         }
     },
-    setFormulary: () => {},
-    retrieveFromPersist: (appUUID) => {}
+    setFormulary: (appUUID, formulary, doesStateChange=true) => {},
+    retrieveFromPersist: (appUUID, isToUpdateState=true) => {}
 }
 
 const FormularyContext = createContext(initialState)
@@ -34,8 +34,14 @@ function FormularyProvider (props){
      * @param {object} formulary - The formulary data that we are trying to set to the state, this is retrieved 
      * from the backend.
      */
-    function setFormulary(appUUID, formulary) {
-        setPersistState(`${persistContext}_${appUUID}`, { formulary: formulary }, setState)
+    function setFormulary(appUUID, formulary, doesStateChange=true) {
+        const persistContextTitle = `${persistContext}_${appUUID}`
+        const stateToPersist = { formulary: formulary }
+        if (doesStateChange) {
+            setPersistState(persistContextTitle, stateToPersist, setState)
+        } else {
+            setPersistState(persistContextTitle, stateToPersist)
+        }
     }
 
     /**
@@ -44,8 +50,13 @@ function FormularyProvider (props){
      * @param {string} appUUID - The uuid of the application that we are trying to retrieve the formulary data for. This will
      * load the formulary bounded to the specific app.
      */
-    function retrieveFromPersist(appUUID) {
-        getPersistState(`${persistContext}_${appUUID}`, initialState.state, setState)
+    function retrieveFromPersist(appUUID, isToUpdateState=true) {
+        const persistContextTitle = `${persistContext}_${appUUID}`
+        if (isToUpdateState) {
+            return getPersistState(persistContextTitle, initialState.state, setState)
+        } else {
+            return getPersistState(persistContextTitle, initialState.state)
+        }
     }
 
     return (

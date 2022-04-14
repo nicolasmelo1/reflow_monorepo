@@ -1,18 +1,6 @@
 import { requests } from '../core/agent'
 
 /**
- * This is supposed to return all of the types of the `area` domain. Right now
- * we only need the `appTypes`. Remember that types are stuff that is needed
- * for the application to work.
- * 
- * @returns {Promise<import('axios').Response>} - Returns an axios response containing 
- * the types array.
- */
-function getAreaTypes() {
-    return requests.get(`/area/types`, { cacheSeconds: 86400 })
-}
-
-/**
  * This will load all of the workspaces in the sidebar.
  * 
  * @param {string} workspaceUUID - The uuid of the workspace we are interacting with.
@@ -64,15 +52,9 @@ function removeArea(workspaceUUID, areaUUID) {
     return requests.delete(`/area/${workspaceUUID}/areas/${areaUUID}`)
 }
 
-function getApp(workspaceUUID, areaUUID, appUUID) {
-    return requests.get(`/area/${workspaceUUID}/areas/${areaUUID}/apps/${appUUID}`)
-}
-
 export default {
-    getAreaTypes,
     getAreas,
     updateArea,
     createArea,
     removeArea,
-    getApp
 }
