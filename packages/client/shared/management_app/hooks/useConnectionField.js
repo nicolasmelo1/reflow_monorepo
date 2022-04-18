@@ -4,22 +4,39 @@ import useFieldTypes from './useFieldTypes'
 import { generateUUID } from '../../../../shared/utils'
 import { AreaContext } from '../../home/contexts'
 import { WorkspaceContext } from '../../authentication/contexts'
-import { AppManagementTypesContext, FormularyContext } from '../contexts'
+import { FormularyContext } from '../contexts'
 import managementAppAgent from '../agent'
 
-
+/**
+ * This is responsible for handling all of the logic for the connection field so that
+ * we can use everywhere inside of the app without needing to rely too much on the 
+ * field component itself.
+ */
 export default function useConnectionField(
     fieldData, onChangeFieldData, registerOnDuplicateOfField
 ) {
+    const isFieldNotConfiguredYet = typeof fieldData === 'object' &&
+        ![null, undefined].includes(fieldData) && (
+            (
+                typeof fieldData.connectionField !== 'object' &&
+                [null, undefined].includes(fieldData.connectionField)
+            ) || (
+                typeof fieldData?.connectionField?.formularyAppUUID === 'string' &&
+                typeof fieldData?.connectionField?.fieldAsOptionUUID === 'string'
+            )
+        )
+    
+    const [isSelectConnectionValueOpen, setIsSelectConnectionValueOpen] = useState(false)
     const [formularyToSelectOptions, setFormularyToSelectOptions] = useState([])
     const [fieldToSelectOptions, setFieldToSelectOptions] = useState([])
+    const [isEditingField, setIsEditingField] = useState(isFieldNotConfiguredYet)
 
     const { setFormulary, retrieveFromPersist: retrieveFormularyDataFromPersist } = useContext(FormularyContext)
     const { state: { selectedWorkspace }} = useContext(WorkspaceContext)
     const { areas, recursiveTraverseAreas } = useContext(AreaContext)
-    const { state: { types: { fieldTypes }}} = useContext(AppManagementTypesContext)
 
     const { getTypesById } = useFieldTypes()
+
     const fieldRef = useRef(fieldData)
     const sourceRef = useRef(null)
     const cachedAreasRef = useRef(areas)
@@ -147,29 +164,55 @@ export default function useConnectionField(
             setFieldToSelectOptions(fieldAsOptionOptions)
         }
 
-        const formularyAppUUID = fieldRef.current.connectionField.formularyAppUUID
-        const formularyDataFromPersist = await retrieveFormularyDataFromPersist(formularyAppUUID, false)
-        const doesFormularyDataFromPersistExists = typeof formularyDataFromPersist === 'object' && 
-            ![null, undefined].includes(formularyDataFromPersist)
-        
-        if (doesFormularyDataFromPersistExists) {
-            traverseAllFieldsOfTheFormularyAndUpdateState(formularyDataFromPersist.formulary.fields)
-        } else {
-            try {
-                const response = await managementAppAgent.getFormulary(
-                    sourceRef.current, selectedWorkspace.uuid, formularyAppUUID
-                )
-                const isAValidResponse = response && response.status === 200
-                if (isAValidResponse) {
-                    setFormulary(formularyAppUUID, response.data.data, false)
-                    traverseAllFieldsOfTheFormularyAndUpdateState(response.data.data.formulary.fields)
-                } else {
-                    setFieldToSelectOptions([])
+        let wasAbleToRetrieveTheFieldsOfTheFormularySelected = false
+        const formularyAppUUID = fieldRef.current?.connectionField?.formularyAppUUID
+        const isAValidFormularyAppUUID = typeof formularyAppUUID === 'string' && 
+            ![null, undefined, ''].includes(formularyAppUUID)
+
+        if (isAValidFormularyAppUUID) {
+            const formularyDataFromPersist = await retrieveFormularyDataFromPersist(formularyAppUUID, false)
+            const doesFormularyDataFromPersistExists = typeof formularyDataFromPersist === 'object' && 
+                ![null, undefined].includes(formularyDataFromPersist)
+            
+            if (doesFormularyDataFromPersistExists) {
+                const doesFieldsExistInPersistFormularyData = Array.isArray(formularyDataFromPersist?.formulary?.fields)
+                if (doesFieldsExistInPersistFormularyData) {
+                    wasAbleToRetrieveTheFieldsOfTheFormularySelected = true
+                    traverseAllFieldsOfTheFormularyAndUpdateState(formularyDataFromPersist.formulary.fields)
                 }
-            } catch (e) {
-                setFieldToSelectOptions([])
+            } else {
+                
+                try {
+                    const response = await managementAppAgent.getFormulary(
+                        sourceRef.current, selectedWorkspace.uuid, formularyAppUUID
+                    )
+                    const isAValidResponse = response && response.status === 200
+                    if (isAValidResponse) {
+                        setFormulary(formularyAppUUID, response.data.data, false)
+                        const doesFieldsExistInResponse = Array.isArray(response?.data?.data?.formulary?.fields)
+                        if (doesFieldsExistInResponse) {
+                            wasAbleToRetrieveTheFieldsOfTheFormularySelected = true
+                            traverseAllFieldsOfTheFormularyAndUpdateState(response.data.data.formulary.fields)
+                        }
+                    }
+                } catch (e) {}
             }
         }
+
+        if (wasAbleToRetrieveTheFieldsOfTheFormularySelected === false) {
+            setFieldToSelectOptions([])
+        }
+    }
+
+    /**
+     * This will open or close the editing formulary of the field. This editing 
+     * formulary will show two select fields, one to select the formulary
+     * to connect to and the other to select the field that we wish to use as option.
+     * 
+     * @param {boolean} [isEditing=!isEditingField] - Is the field being edited or not?
+     */
+    function onToggleEditMode(isEditing=!isEditingField) {
+        setIsEditingField(isEditing)
     }
 
     /**
@@ -191,9 +234,11 @@ export default function useConnectionField(
      * @param {string} fieldAsOptionUUID - The uuid of the field to use as option.
      */
     function onChangeFieldAsOptionUUID(fieldAsOptionUUID) {
+        const isFieldAsOptionUUIDDefined = typeof fieldAsOptionUUID === 'string' && ![null, undefined, ''].includes(fieldAsOptionUUID)
         const isConnectionFieldObjectDefined = typeof fieldRef.current.connectionField === 'object' &&
             ![null, undefined].includes(fieldRef.current.connectionField)
-            
+        fieldAsOptionUUID = isFieldAsOptionUUIDDefined ? fieldAsOptionUUID : null
+
         if (isConnectionFieldObjectDefined) {
             fieldRef.current.connectionField.fieldAsOptionUUID = fieldAsOptionUUID
         } else {
@@ -203,13 +248,18 @@ export default function useConnectionField(
     }
 
     function onChangeFormularyAppUUID(formularyAppUUID) {
+        const isFormularyAppUUIDDefined = typeof formularyAppUUID === 'string' && ![null, undefined, ''].includes(formularyAppUUID)
         const isConnectionFieldObjectDefined = typeof fieldRef.current.connectionField === 'object' &&
             ![null, undefined].includes(fieldRef.current.connectionField)
+        formularyAppUUID = isFormularyAppUUIDDefined ? formularyAppUUID : null
+
         if (isConnectionFieldObjectDefined) {
             fieldRef.current.connectionField.formularyAppUUID = formularyAppUUID
         } else {
             fieldRef.current.connectionField = createConnectionFieldData({ formularyAppUUID })
         }
+
+        if (isFormularyAppUUIDDefined === false) fieldRef.current.connectionField.fieldAsOptionUUID = null
         retrieveAllOfTheFieldAsOptionOptions()
         onChangeField({...fieldRef.current})
     }
@@ -282,6 +332,10 @@ export default function useConnectionField(
         fieldToSelectOptions,
         formularyToSelectOptions,
         onChangeFormularyAppUUID,
-        onChangeFieldAsOptionUUID
+        onChangeFieldAsOptionUUID,
+        isEditingField,
+        onToggleEditMode,
+        isSelectConnectionValueOpen,
+        setIsSelectConnectionValueOpen
     }
 }

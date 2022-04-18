@@ -6,11 +6,19 @@ export default function FormularyFieldConnection(props) {
         formularyToSelectOptions,
         onChangeFormularyAppUUID,
         fieldToSelectOptions,
-        onChangeFieldAsOptionUUID
+        onChangeFieldAsOptionUUID,
+        isEditingField,
+        onToggleEditMode,
+        isSelectConnectionValueOpen,
+        setIsSelectConnectionValueOpen
     } = useConnectionField(props.field, props.onChangeField, props.registerOnDuplicateOfField)
 
     return (
         <Layout
+        isSelectConnectionValueOpen={isSelectConnectionValueOpen}
+        setIsSelectConnectionValueOpen={setIsSelectConnectionValueOpen}
+        isEditingField={isEditingField}
+        onToggleEditMode={onToggleEditMode}
         fieldToSelectOptions={fieldToSelectOptions}
         onChangeFieldAsOptionUUID={onChangeFieldAsOptionUUID}
         formularyToSelectOptions={formularyToSelectOptions}

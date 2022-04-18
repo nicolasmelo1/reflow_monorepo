@@ -12,6 +12,14 @@ const initialState = {
         }
     },
     setFormulary: (appUUID, formulary, doesStateChange=true) => {},
+    /**
+     * Retrieves the formulary data from the persist storage when it cannot be loaded from the backend.
+     * 
+     * @param {string} appUUID - The uuid of the application that we are trying to retrieve the formulary data for. This will
+     * load the formulary bounded to the specific app.
+     * 
+     * @returns {Promise<object>} - Returns the object that was inside of the state.
+     */
     retrieveFromPersist: (appUUID, isToUpdateState=true) => {}
 }
 
@@ -49,6 +57,8 @@ function FormularyProvider (props){
      * 
      * @param {string} appUUID - The uuid of the application that we are trying to retrieve the formulary data for. This will
      * load the formulary bounded to the specific app.
+     * 
+     * @returns {Promise<object>} - Returns the object that was inside of the state.
      */
     function retrieveFromPersist(appUUID, isToUpdateState=true) {
         const persistContextTitle = `${persistContext}_${appUUID}`

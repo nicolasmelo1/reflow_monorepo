@@ -160,6 +160,7 @@ styled.button`
     border-radius: 5px;
     padding: 10px;
     border: 0;
+    cursor: pointer;
     width: 100%;
     transition: background-color 0.3s ease-in-out;
 
