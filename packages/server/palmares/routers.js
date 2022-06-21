@@ -76,7 +76,7 @@ class RouterPattern {
      * THis bounds every request to a transaction so you can use the transaction from the engine you are using
      * directly in your controllers
      * 
-     * By default your controllers will recieve, `req`, `res` and `next` this adds the `transaction` argument
+     * By default your controllers will receive, `req`, `res` and `next` this adds the `transaction` argument
      * 
      * function listOptions(req, res, next) {
      *      // do something in your controller
@@ -140,41 +140,42 @@ class RouterPattern {
                 }
             }
         } else {
-            throw new InvalidRouterError('You can either pass n number of functions or an array as the arguments of the `path` function. '+
-                                         'You can also combine both if you want to attach middlewares to your children. Examples: \n' +
-                                         '> path("/company", (req, res, next) => {\n'+
-                                         '  res.json({ hello: "world"}) \n' +   
-                                         '})\n\nor: \n' + 
-                                         '> path("/company", [\n' +
-                                         '      path("/:id", (req, res, next) => {\n'+
-                                         '          res.json({ hello: "world"}) \n' +   
-                                         '      })\n' + 
-                                         '])\n\nor: \n' + 
-                                         '> path("/company", \n' +
-                                         '      (req, res, next) => {\n' +
-                                         '          console.log("middleware that will be called for all children routes")\n' +
-                                         '          next()\n' +
-                                         '      }, [\n' +
-                                         '          path("/:id", (req, res, next) => {\n'+
-                                         '              res.json({ companyId: req.params.id}) \n' +   
-                                         '          })\n' + 
-                                         '      ]\n' +
-                                         ')\n\nor: \n' +
-                                         '> path("/company", \n' +
-                                         '      (req, res, next) => {\n' +
-                                         '          console.log("middleware that will be called for all children routes")\n' +
-                                         '          next()\n' +
-                                         '      }, \n'+
-                                         '      (req, res, next) => {\n' +
-                                         '          console.log("Another middleware that will be called for all children routes")\n' +
-                                         '          next()\n' +
-                                         '      }, [\n' +
-                                         '          path("/:id", (req, res, next) => {\n'+
-                                         '              res.json({ companyId: req.params.id}) \n' +   
-                                         '          })\n' + 
-                                         '      ]\n' +
-                                         ')\n\nor: \n'                                           
-                                        )
+            throw new InvalidRouterError(
+                'You can either pass n number of functions or an array as the arguments of the `path` function. '+
+                'You can also combine both if you want to attach middlewares to your children. Examples: \n' +
+                '> path("/company", (req, res, next) => {\n'+
+                '  res.json({ hello: "world"}) \n' +   
+                '})\n\nor: \n' + 
+                '> path("/company", [\n' +
+                '      path("/:id", (req, res, next) => {\n'+
+                '          res.json({ hello: "world"}) \n' +   
+                '      })\n' + 
+                '])\n\nor: \n' + 
+                '> path("/company", \n' +
+                '      (req, res, next) => {\n' +
+                '          console.log("middleware that will be called for all children routes")\n' +
+                '          next()\n' +
+                '      }, [\n' +
+                '          path("/:id", (req, res, next) => {\n'+
+                '              res.json({ companyId: req.params.id}) \n' +   
+                '          })\n' + 
+                '      ]\n' +
+                ')\n\nor: \n' +
+                '> path("/company", \n' +
+                '      (req, res, next) => {\n' +
+                '          console.log("middleware that will be called for all children routes")\n' +
+                '          next()\n' +
+                '      }, \n'+
+                '      (req, res, next) => {\n' +
+                '          console.log("Another middleware that will be called for all children routes")\n' +
+                '          next()\n' +
+                '      }, [\n' +
+                '          path("/:id", (req, res, next) => {\n'+
+                '              res.json({ companyId: req.params.id}) \n' +   
+                '          })\n' + 
+                '      ]\n' +
+                ')\n\nor: \n'                                           
+            )
         }
         return router
     }
@@ -211,7 +212,7 @@ class RouterPattern {
  * 
  * This will create /users/list and the /users/detail url. This is SO MUCH EASIER than 
  * using the default routes directly. Also it is important to understand that here this matches
- * to all of the HTTP Methods and not especifically, so your same controller will handle either 
+ * to all of the HTTP Methods and not specifically, so your same controller will handle either 
  * a POST, or a GET or a PUT request, and you need to make sure you separate them accordingly in
  * your controller.
  */

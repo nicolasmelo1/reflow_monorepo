@@ -14,7 +14,7 @@ const database = require('./database')
  * 
  * @returns {Object} - Returns the Express app started.
  */
- function initializeApp(settings) {
+function initializeApp(settings) {
     let websocketServer = null
     let routes = require(settings.ROOT_URLCONF)
     const app = express()

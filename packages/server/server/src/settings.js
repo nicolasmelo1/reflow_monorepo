@@ -223,8 +223,8 @@ const LOCALSTACK_ENDPOINT = 'localhost.localstack.cloud'
 const LOCALSTACK_PORT = 4566
 
 // AWS CONFIGURATION
-const AWS_SECRET_ACCESS_KEY = 'T9F/BhjffmkIFDpxoLkaguAB3gTUrRXACIp2Y8gg'
-const AWS_ACCESS_KEY_ID = 'AKIAIBXGLOHWXNYYZJYQ'
+const AWS_SECRET_ACCESS_KEY = ''
+const AWS_ACCESS_KEY_ID = ''
 
 // S3 CONFIGURATION
 // check core/utils/storage.js file
@@ -246,7 +246,7 @@ const FREE_TRIAL_DAYS = 15
 
 // MIXPANEL CONFIGURATION
 // check https://developer.mixpanel.com/docs/nodejs for reference
-const MIXPANEL_TOKEN = 'c128d8d78f06b4b00882a83b4f3d8021'
+const MIXPANEL_TOKEN = ''
 
 module.exports = {
     ENV,

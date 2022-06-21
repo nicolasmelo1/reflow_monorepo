@@ -7,7 +7,7 @@ const path = require('path')
  * and run the commands that we need like migrate, makemigrations and runserver, right now it doesn't support at any arguments
  * but we can support that in the near future using a proper cli library.
  */
-const handleCommands = (settingsPath = null) => {
+function handleCommands(settingsPath = null){
     const cliArguments = process.argv.slice(2)
 
     if (settingsPath === null) settingsPath = process.env.PALMARES_SETTINGS_MODULE

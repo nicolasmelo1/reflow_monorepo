@@ -211,6 +211,7 @@ class MetadataForApp extends models.Model {
     static AREA = new MetadataForAppAreaManager()
 }
 
+
 module.exports = {
     MetadataType,
     Area,
@@ -218,5 +219,5 @@ module.exports = {
     AppConfiguration,
     AppRelatedTo,
     AvailableApp,
-    MetadataForApp
+    MetadataForApp,
 }
