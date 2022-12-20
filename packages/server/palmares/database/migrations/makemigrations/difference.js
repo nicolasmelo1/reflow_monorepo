@@ -48,7 +48,7 @@ async function getDifferenceFromModelsOrAttributes(
                         break
                     }
                 }
-               
+
                 if (await asker.didUserRename(stateAttributeOrModelName, renamedTo)) {
                     const originalModelOrAttribute = originalModelsOrAttributesObject[renamedTo]
                     const stateModelOrAttribute = stateModelsOrAttributesObject[stateAttributeOrModelName]

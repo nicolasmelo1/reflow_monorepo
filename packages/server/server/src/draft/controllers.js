@@ -77,7 +77,7 @@ class DraftSaveFileController extends controllers.Controller {
      * and just copy to the final storage. This copy will happen MUCH faster than it would be done if it was made directly from the user.
      * Because we use our cloud network to copy files from one place to another.
      * 
-     * This will upload using `application/octer-stream`, you can find a reference for the implementation on the following links:
+     * This will upload using `application/octet-stream`, you can find a reference for the implementation on the following links:
      * Reference: https://www.youtube.com/watch?v=Ix-c2X7dlks (source code: https://github.com/hnasr/javascript_playground/tree/master/simple-uploader)
      * And: https://www.youtube.com/watch?v=dbYBVbrDnwg (source code: https://github.com/dejwid/mern-chunked-upload)
      * 

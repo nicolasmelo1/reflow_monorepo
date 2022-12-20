@@ -114,7 +114,7 @@ class CreateColumn extends Action {
         state.addColumn(appName, this.modelName, this.attributeName, this.attributeDefinition)
     }
 
-    async run (transaction, engineInstance, fromState, toState) {
+    async run(transaction, engineInstance, fromState, toState) {
         const toModel = toState[this.modelName]
         const fromModel = fromState[this.modelName]
         await engineInstance.addColumnMigration(transaction, toModel, fromModel, this.attributeName)

@@ -63,7 +63,7 @@ export const WorkspaceEditDropdownIcon = styled(forwardRef(({isNonUniqueAreaName
     color: ${props => props.isNonUniqueAreaName ? props.theme.red_REFLOW : whiteOrBlackColor(props.backgroundColor) === 'black' ? props.theme.gray_REFLOW : props.theme.white};
 `
 
-export const WorkpsaceEditButton = APP === 'web' ?
+export const WorkspaceEditButton = APP === 'web' ?
 styled.button`
     display: flex;
     flex-direction: row;

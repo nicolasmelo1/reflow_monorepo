@@ -17,6 +17,8 @@ class Bucket {
      * configuration.
      * 
      * On development environment we create the `reflow-crm` bucket every time we retrive the client.
+     * 
+     * @return {Promise<AWS.S3>}
      */
     async _getClient() {
         if (settings.ENV === 'development') {

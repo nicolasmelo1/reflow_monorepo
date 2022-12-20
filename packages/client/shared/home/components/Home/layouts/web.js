@@ -29,7 +29,7 @@ export default function HomeWebLayout(props) {
                 <Styled.TopContainer
                 color={props.selectedArea.color}
                 >
-                    <Styled.WorkpsaceEditButton
+                    <Styled.WorkspaceEditButton
                     ref={props.areaDropdownEditButtonRef}
                     isNoAreaSelected={isNoAreaSelected}
                     onClick={(e) => {
@@ -52,7 +52,7 @@ export default function HomeWebLayout(props) {
                             icon={faChevronDown}
                             />
                         ) : ''}
-                    </Styled.WorkpsaceEditButton>
+                    </Styled.WorkspaceEditButton>
                     {props.isEditingArea ? (
                         <Styled.WorkspaceEditDropdownWrapper>
                             <Styled.WorkspaceEditDropdownContainer
